@@ -40,6 +40,8 @@ Joint space:
 demo = grid.Demonstration()
 
 def bhand_cmd_cb(msg):
+    if rospy.Time.now().to_sec() < 10:
+        print "err"
     demo.gripper_cmd.append([i for i in msg.cmd])
     demo.gripper_t.append(rospy.Time.now())
 

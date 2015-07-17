@@ -1,12 +1,20 @@
 from dtw import dtw
 import numpy as np
+import yaml
+try:
+    from yaml import CLoader as Loader, CDumper as Dumper
+except ImportError:
+    from yaml import Loader, Dumper
 
 '''
 Demonstration
 struct to hold robot task demonstration data.
+
+Provides:
+    - get_features: computes alignment between different data sources and returns a simplified set of data
 '''
 class Demonstration:
-    def __init__(self):
+    def __init__(self,filename=None):
         self.joint_p = []
         self.joint_v = []
         self.joint_t = []
@@ -14,6 +22,16 @@ class Demonstration:
         self.gripper_t = []
         self.tform = {}
         self.world_t = []
+
+        if not filename==None:
+            stream = file(filename,'r')
+            demo = yaml.load(stream,Loader=Loader)
+            self.joint_p = demo.joint_p
+            self.joint_v = demo.joint_v
+            self.joint_t = demo.joint_t
+            self.gripper_cmd = demo.gripper_cmd
+            self.tform = demo.tform
+            self.world_t = demo.world_t
 
     '''
     get_features returns a task-space view of the demonstration
@@ -59,4 +77,14 @@ class Demonstration:
             x.append(jp[i] + self.gripper_cmd[i])
             u.append(jv[i] + self.gripper_cmd[i])
 
-        return fx, x, u
+        return fx, x, u, gt
+
+'''
+LoadYaml
+Really simple function to quickly load from a yaml file
+'''
+def LoadYaml(filename):
+    stream = file(filename,'r')
+    demo = yaml.load(stream,Loader=Loader)
+
+    return demo

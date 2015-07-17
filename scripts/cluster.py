@@ -43,4 +43,10 @@ if __name__ == '__main__':
     stream = file(filename,'r');
     demo = yaml.load(stream,Loader=Loader);
 
-    fx,x,u = demo.get_features([('ee','link'),('ee','node'),('link','node')])
+    print "Loaded data, computing features..."
+    fx,x,u,t = demo.get_features([('ee','link'),('ee','node'),('link','node')])
+
+    print "Done computing features. %d total time steps."%(len(fx))
+
+    print t
+    
