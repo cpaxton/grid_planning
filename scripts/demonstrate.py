@@ -41,6 +41,7 @@ demo = grid.Demonstration()
 
 def bhand_cmd_cb(msg):
     demo.gripper_cmd.append([i for i in msg.cmd])
+    demo.gripper_t.append(rospy.Time.now())
 
 def js_cb(msg):
     demo.joint_p.append([i for i in msg.position])

@@ -34,3 +34,13 @@ Goals:
 
 if __name__ == '__main__':
     rospy.init_node('demonstration_clustering')
+
+    if len(sys.argv) > 1:
+        filename = sys.argv[1]
+    else:
+        filename = "demo.yml"
+
+    stream = file(filename,'r');
+    demo = yaml.load(stream,Loader=Loader);
+
+    fx,x,u = demo.get_features([('ee','link'),('ee','node'),('link','node')])
