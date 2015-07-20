@@ -1,10 +1,20 @@
 from dtw import dtw
 import numpy as np
+
+" loading data "
 import yaml
 try:
     from yaml import CLoader as Loader, CDumper as Dumper
 except ImportError:
     from yaml import Loader, Dumper
+
+" message types "
+from geometry_msgs.msg import Pose
+from geometry_msgs.msg import PoseArray
+
+" tf/ros utilities "
+import tf_conversions.posemath as pm
+import PyKDL
 
 '''
 Demonstration
@@ -70,14 +80,33 @@ class Demonstration:
                 f2 = self.tform[frame2][widx[i]]
                 transform = f1.Inverse() * f2
 
-                features += transform.M.GetRPY()
                 features += transform.p
+                features += transform.M.GetRPY()
                 features += [transform.p.Norm()]
             fx.append(features)
             x.append(jp[i] + self.gripper_cmd[i])
             u.append(jv[i] + self.gripper_cmd[i])
 
         return fx, x, u, gt
+
+'''
+get_pose_message
+Returns a pose array for debugging purposes
+'''
+def GetPoseMessage(fx, idx, frame_id="/world"):
+
+    msg = PoseArray()
+    msg.header.frame_id = frame_id
+
+    for i in range(len(fx)):
+
+        pose = PyKDL.Vector(fx[i][idx],fx[i][idx+1],fx[i][idx+2]);
+        rot = PyKDL.Rotation.RPY(fx[i][idx+3],fx[i][idx+4],fx[i][idx+5])
+        frame = PyKDL.Frame(rot,pose)
+        pmsg = pm.toMsg(frame)
+        msg.poses.append(pmsg)
+
+    return msg
 
 '''
 LoadYaml
