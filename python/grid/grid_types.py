@@ -78,7 +78,7 @@ class Demonstration:
             for frame1,frame2 in frames:
                 f1 = self.tform[frame1][widx[i]]
                 f2 = self.tform[frame2][widx[i]]
-                transform = f1.Inverse() * f2
+                transform = f2.Inverse() * f1
 
                 features += transform.p
                 features += transform.M.GetRPY()
