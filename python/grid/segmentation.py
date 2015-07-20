@@ -8,7 +8,7 @@ Contains tools and utilities for segmenting data and learning models for differe
 fx: features
 x: state (world state)
 u: action/command/robot state
-labels: list of segmentation albels
+labels: list of segmentation labels
 segment_label: which label to choose
 '''
 

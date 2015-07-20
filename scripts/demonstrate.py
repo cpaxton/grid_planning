@@ -41,14 +41,18 @@ demo = grid.Demonstration()
 
 def bhand_cmd_cb(msg):
     if rospy.Time.now().to_sec() < 10:
-        print "err"
-    demo.gripper_cmd.append([i for i in msg.cmd])
-    demo.gripper_t.append(rospy.Time.now())
+        print "err: bad time (bhand)"
+    else:
+        demo.gripper_cmd.append([i for i in msg.cmd])
+        demo.gripper_t.append(rospy.Time.now())
 
 def js_cb(msg):
-    demo.joint_p.append([i for i in msg.position])
-    demo.joint_v.append([i for i in msg.velocity])
-    demo.joint_t.append(rospy.Time.now())
+    if rospy.Time.now().to_sec() < 10:
+        print "err: bad time (joints)"
+    else:
+        demo.joint_p.append([i for i in msg.position])
+        demo.joint_v.append([i for i in msg.velocity])
+        demo.joint_t.append(rospy.Time.now())
 
 if __name__ == '__main__':
     rospy.init_node('demonstration_observer')
@@ -87,10 +91,13 @@ if __name__ == '__main__':
                 obj1_tf = pm.fromTf((trans1,rot1))
                 obj2_tf = pm.fromTf((trans2,rot2))
 
-                demo.tform['ee'].append(ee_tf) 
-                demo.tform['link'].append(obj1_tf) 
-                demo.tform['node'].append(obj2_tf) 
-                demo.world_t.append(rospy.Time.now())
+                if rospy.Time.now().to_sec() < 10:
+                    print "err: bad time (tf)"
+                else:
+                    demo.tform['ee'].append(ee_tf) 
+                    demo.tform['link'].append(obj1_tf) 
+                    demo.tform['node'].append(obj2_tf) 
+                    demo.world_t.append(rospy.Time.now())
 
             except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException): 
                 continue

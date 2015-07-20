@@ -89,6 +89,17 @@ class Demonstration:
 
         return fx, x, u, gt
 
+    def get_world_pose_msg(self,frame):
+
+        msg = PoseArray()
+        msg.header.frame_id = "/world"
+
+        for i in range(len(self.world_t)): 
+            pmsg = pm.toMsg(self.tform[frame][i])
+            msg.poses.append(pmsg)
+
+        return msg
+
 '''
 get_pose_message
 Returns a pose array for debugging purposes
