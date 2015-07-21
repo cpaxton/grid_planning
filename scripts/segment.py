@@ -85,6 +85,7 @@ if __name__ == "__main__":
     pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray)
     pa_link_pub = rospy.Publisher('/dbg_link',PoseArray)
     pa_node_pub = rospy.Publisher('/dbg_node',PoseArray)
+
     while not rospy.is_shutdown():
         pa_pub.publish(dbg_ee_poses)
         pa2_pub.publish(dbg_ee_poses2)
