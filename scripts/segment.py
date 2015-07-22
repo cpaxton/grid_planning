@@ -10,6 +10,9 @@ try:
 except ImportError:
     from yaml import Loader, Dumper
 
+" python tools "
+import numpy as np
+
 " ROS "
 import rospy
 from geometry_msgs.msg import PoseArray
@@ -35,6 +38,7 @@ if __name__ == "__main__":
     dbg_link.header.frame_id = "/world"
     dbg_node.header.frame_id = "/world"
 
+    data = []
     for filename in filenames:
 
         stream = file(filename,'r');
@@ -44,16 +48,19 @@ if __name__ == "__main__":
         fx,x,u,t = demo.get_features([('ee','link'),('ee','node'),('link','node')])
 
         print "Done computing features. %d total time steps."%(len(fx))
+        data.append(np.array(fx))
+
+    for fx in data:
         print "Segmenting data based on gripper commands..."
 
-        gripping = abs(fx[0][0]) > 0
+        gripping = abs(fx[0,0]) > 0
         action = 0;
         labels = [];
-        for i in range(len(t)):
-            if fx[i][0] > 0 and not gripping:
+        for i in range(fx.shape[0]):
+            if fx[i,0] > 0 and not gripping:
                 action += 1
                 gripping = True
-            elif not fx[i][0] > 0 and gripping:
+            elif not fx[i,0] > 0 and gripping:
                 action += 1
                 gripping = False
             labels += [action]
@@ -68,8 +75,8 @@ if __name__ == "__main__":
         #dbg_ee_poses = GetPoseMessage(fx,4,'/wam/hand/bhand_palm_link') #"/gbeam_link_1/gbeam_link")
         #dbg_ee_poses2 = GetPoseMessage(fx,12,'/wam/hand/bhand_palm_link')#"/gbeam_node_1/gbeam_node")
 
-        dbg_ee_poses_ = GetPoseMessage(fx,4,"/gbeam_link_1/gbeam_link")
-        dbg_ee_poses2_ = GetPoseMessage(fx,11,"/gbeam_node_1/gbeam_node")
+        dbg_ee_poses_ = GetPoseMessage(fx,3,"/gbeam_link_1/gbeam_link")
+        dbg_ee_poses2_ = GetPoseMessage(fx,10,"/gbeam_node_1/gbeam_node")
         dbg_ee_ = demo.get_world_pose_msg("ee")
         dbg_link_ = demo.get_world_pose_msg("link")
         dbg_node_ = demo.get_world_pose_msg("node")

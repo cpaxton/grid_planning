@@ -50,12 +50,13 @@ dur_hypparams = {'alpha_0':2*30,
 obs_distns = [distributions.Gaussian(**obs_hypparams) for state in range(Nmax)]
 dur_distns = [distributions.PoissonDuration(**dur_hypparams) for state in range(Nmax)]
 
-#posteriormodel = pyhsmm.models.WeakLimitHDPHSMM(
-posteriormodel = pyhsmm.models.WeakLimitHDPHMM(
+posteriormodel = pyhsmm.models.WeakLimitHDPHSMM(
+#posteriormodel = pyhsmm.models.WeakLimitHDPHMM(
         alpha=6.,gamma=6., # better to sample over these; see concentration-resampling.py
         init_state_concentration=6., # pretty inconsequential
-        obs_distns=obs_distns)#,
-        #dur_distns=dur_distns)
+        obs_distns=obs_distns,
+        #obs_distns=obs_distns)
+        dur_distns=dur_distns)
 
 
 data2 = grid.LoadYaml('demo2.yml')
@@ -64,6 +65,10 @@ ndata2 = np.array(fx)
 data1 = grid.LoadYaml('demo1.yml')
 fx,x,u,t = data1.get_features(frames)
 ndata1 = np.array(fx)
+
+ndata = np.diff(ndata,axis=0)
+ndata1 = np.diff(ndata1,axis=0)
+ndata2 = np.diff(ndata2,axis=0)
 
 #posteriormodel.add_data(ndata,trunc=60)
 #posteriormodel.add_data(ndata1,trunc=60)
