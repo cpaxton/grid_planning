@@ -84,8 +84,8 @@ class Demonstration:
                 features += transform.M.GetRPY()
                 features += [transform.p.Norm()]
             fx.append(features)
-            x.append(jp[i] + self.gripper_cmd[i])
-            u.append(jv[i] + self.gripper_cmd[i])
+            x.append(jp[i])# + self.gripper_cmd[i])
+            u.append(jv[i])# + self.gripper_cmd[i])
 
         return fx, x, u, gt
 

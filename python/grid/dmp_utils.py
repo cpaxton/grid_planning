@@ -55,5 +55,12 @@ def PlanDMP(x_0, x_dot_0, t_0, goal, goal_thresh,
     except rospy.ServiceException, e:
         print "Service call failed: %s"%e
     print "DMP planning done"   
-            
+
     return resp;
+
+def RequestActiveDMP(dmps):
+    try:
+        sad = rospy.ServiceProxy('set_active_dmp', SetActiveDMP)
+        sad(dmps)
+    except rospy.ServiceException, e:
+        print "Service call failed: %s"%e
