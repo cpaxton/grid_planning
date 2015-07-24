@@ -11,6 +11,7 @@ from dmp.srv import *
 """
 DMP UTILITIES
 These are based on the sample code from http://wiki.ros.org/dmp
+(sample code by Scott Niekum)
 """
 
 

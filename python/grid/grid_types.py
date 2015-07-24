@@ -74,7 +74,7 @@ class Demonstration:
         x = []
         u = []
         for i in range(len(gt)):
-            features = [] + self.gripper_cmd[i][0:3] # only include the first 3 fields
+            features = [(i+1)/float(len(gt))] + self.gripper_cmd[i][0:3] # only include the first 3 fields
             for frame1,frame2 in frames:
                 f1 = self.tform[frame1][widx[i]]
                 f2 = self.tform[frame2][widx[i]]
@@ -84,8 +84,8 @@ class Demonstration:
                 features += transform.M.GetRPY()
                 features += [transform.p.Norm()]
             fx.append(features)
-            x.append(jp[i])# + self.gripper_cmd[i])
-            u.append(jv[i])# + self.gripper_cmd[i])
+            x.append(jp[i] + self.gripper_cmd[i])
+            u.append(jv[i] + self.gripper_cmd[i])
 
         return fx, x, u, gt
 

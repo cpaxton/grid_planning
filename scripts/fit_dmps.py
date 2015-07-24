@@ -88,8 +88,10 @@ if __name__ == '__main__':
     while pos == None:
         rate.sleep()
 
-    x0 = x[0] #pos
-    xdot0 = [0]*dims #vel
+    #x0 = x[0] #pos
+    #xdot0 = [0]*dims #vel
+    x0 = pos
+    xdot0 = vel
     t0 = 0
     xf = x[-1]
     threshold = [0.1] * dims
@@ -105,9 +107,9 @@ if __name__ == '__main__':
     cmd.header.seq = 0
     for pt,t in zip(plan.plan.points,plan.plan.times):
         cmd_pt = JointTrajectoryPoint()
-        cmd_pt.positions = pt.positions
-        cmd_pt.velocities = pt.velocities
-        #cmd_pt.time_from_start = rospy.Duration(t)
+        cmd_pt.positions = pt.positions[0:7]
+        cmd_pt.velocities = pt.velocities[0:7]
+        #cmd_pt.time_from_start = rospy.Duration(t*5)
         cmd_pt.time_from_start = rospy.Duration(0)
 
         cmd.points.append(cmd_pt)
@@ -120,7 +122,7 @@ if __name__ == '__main__':
     kdl_kin = KDLKinematics(robot, base_link, end_link)
 
     msg = PoseArray()
-    for pt in plan.plan.points:
+    for pt in cmd.points:
     #for pt in x:
         mat = kdl_kin.forward(pt.positions)
         #mat = kdl_kin.forward(pt)
@@ -129,22 +131,27 @@ if __name__ == '__main__':
 
     msg2 = PoseArray()
     for pt in x:
-        mat = kdl_kin.forward(pt)
+        mat = kdl_kin.forward(pt[0:7])
         f = pm.fromMatrix(mat)
         msg2.poses.append(pm.toMsg(f))
 
     msg.header.frame_id = base_link
     pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray)
-    pa_ee_pub.publish(msg)
 
     msg2.header.frame_id = base_link
     pa_ee2_pub = rospy.Publisher('/dbg_link',PoseArray)
+
+    pa_ee_pub.publish(msg)
     pa_ee2_pub.publish(msg2)
 
     pub = rospy.Publisher('/gazebo/traj_rml/joint_traj_cmd',JointTrajectory)
     pub.publish(cmd)
 
-    while not rospy.is_shutdown():
-        pa_ee_pub.publish(msg)
-        pa_ee_pub.publish(msg2)
-    
+    try:
+        while not rospy.is_shutdown():
+            pa_ee_pub.publish(msg)
+            pa_ee2_pub.publish(msg2)
+            rate.sleep()
+    except rospy.ROSInterruptException, ex:
+        pass
+
