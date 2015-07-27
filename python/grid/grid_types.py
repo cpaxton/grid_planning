@@ -77,7 +77,8 @@ class Demonstration:
             features = [(i+1)/float(len(gt))] + self.gripper_cmd[i][0:3] # only include the first 3 fields
             for frame1,frame2 in frames:
                 f1 = self.tform[frame1][widx[i]]
-                f2 = self.tform[frame2][widx[i]]
+                #f2 = self.tform[frame2][widx[i]]
+                f2 = self.tform[frame2][0]
                 transform = f2.Inverse() * f1
 
                 features += transform.p
@@ -128,3 +129,12 @@ def LoadYaml(filename):
     demo = yaml.load(stream,Loader=Loader)
 
     return demo
+
+'''
+SaveYaml
+Really simple function to quickly load from a yaml file
+'''
+def SaveYaml(filename,demo):
+    stream = file(filename,'r')
+    yaml.dump(demo,stream,Dumper=Dumper)
+

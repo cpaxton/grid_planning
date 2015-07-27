@@ -10,6 +10,8 @@ try:
 except ImportError:
     from yaml import Loader, Dumper
 
+import copy
+
 " ROS "
 import rospy
 import sensor_msgs
@@ -134,6 +136,20 @@ if __name__ == '__main__':
         mat = kdl_kin.forward(pt[0:7])
         f = pm.fromMatrix(mat)
         msg2.poses.append(pm.toMsg(f))
+
+    for i in range(15):
+        dmp2 = copy.deepcopy(dmp)
+        for primitive in dmp2[:7]:
+            wts = list(primitive.weights)
+            for j in range(len(wts)):
+                wts[j] += np.random.normal(0,0.25)
+            primitive.weights = tuple(wts)
+        RequestActiveDMP(dmp2)
+        plan = PlanDMP(x0,xdot0,t0,xf,threshold,seg_length,tau,dt,int_iter)
+        for pt in plan.plan.points:
+            mat = kdl_kin.forward(pt.positions[:7])
+            f = pm.fromMatrix(mat)
+            msg.poses.append(pm.toMsg(f))
 
     msg.header.frame_id = base_link
     pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray)

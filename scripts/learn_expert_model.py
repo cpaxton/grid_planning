@@ -28,8 +28,10 @@ if __name__ == "__main__":
     rospy.init_node('learn_expert_models')
 
     if len(sys.argv) > 1:
-        filenames = sys.argv[1:len(sys.argv)]
+        outfile = sys.argv[1]
+        filenames = sys.argv[2:len(sys.argv)]
     else:
+        outfile = ["model.yml"]
         filenames = ["app1.yml"]
 
     rate = rospy.Rate(10)
@@ -55,4 +57,4 @@ if __name__ == "__main__":
     expert = GMM(n_components=5)
     expert = expert.fit(training_data)
 
-
+    SaveYaml(outfile,expert)
