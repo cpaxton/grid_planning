@@ -177,22 +177,48 @@ class RobotFeatures:
 
     '''
     GetFeatures
+    Gets the features for a particular combination of world, time, and point.
+    '''
+    def GetFeatures(self,pt,t,world):
+        features = []
+
+        q = pt[:7]
+        gripper_cmd = pt[7:]
+
+        features += gripper_cmd # include gripper closure as a feature
+
+        # compute forward transform
+        mat = self.kdl_kin.forward(q)
+        ee_frame = pm.fromMatrix(mat)
+
+        for obj,obj_frame in world.items():
+            print (obj, obj_frame)
+            offset = ee_frame.Inverse() * obj_frame
+
+            features += offset.p
+            features += offset.M.GetRPY()
+            features += [offset.p.Norm()]
+
+        return features
+
+    '''
+    GetTrainingFeatures
     Takes a joint-space trajectory (with times) and produces an output vector of (expected) features based on known object positions
     '''
-    def GetFeatures(self,traj=self.GetTrajectory(),objs=None):
+    def GetTrainingFeatures(self,objs=None):
         
-        ftraj = []
+        ftraj = [] # feature-space trajectory
+        traj = self.GetTrajectory()
 
-        for pt in traj:
+        for i in range(len(traj)):
 
             features = []
 
-            q = pt[:7]
-            gripper_cmd = pt[7:]
-            features += gripper_cmd # include gripper closure as a feature
+            # loop over objects/world at this time step
+            ftraj += [self.GetFeatures(traj[i],self.times[i],self.world_states[i])]
+        
+        return ftraj
 
-            mat = self.kdl_kin.forward(q)
-            f = pm.fromMatrix(mat)
 
 def LoadRobotFeatures(filename):
 
