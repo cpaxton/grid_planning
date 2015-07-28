@@ -7,6 +7,7 @@ try:
     from yaml import CLoader as Loader, CDumper as Dumper
 except ImportError:
     from yaml import Loader, Dumper
+import copy
 
 
 # KDL utilities
@@ -18,13 +19,17 @@ from pykdl_utils.kdl_parser import kdl_tree_from_urdf_model
 import tf
 import tf_conversions.posemath as pm
 
-# Message types 
+# input message types 
 import sensor_msgs
 import oro_barrett_msgs
 import trajectory_msgs
 from trajectory_msgs.msg import JointTrajectoryPoint
 from sensor_msgs.msg import JointState
 from oro_barrett_msgs.msg import BHandCmd
+
+# output message types
+from geometry_msgs.msg import Pose
+from geometry_msgs.msg import PoseArray
 
 class RobotFeatures:
 
@@ -110,7 +115,9 @@ class RobotFeatures:
             self.times.append(rospy.Time.now())
             self.joint_states.append(msg)
             self.gripper_cmds.append(self.gripper_cmd)
-            self.world_states.append(self.world)
+            self.world_states.append(copy.deepcopy(self.world))
+
+            print self.world
 
     def gripper_cb(self,msg):
         #print msg
@@ -175,6 +182,34 @@ class RobotFeatures:
             traj.append(pt)
         return traj
 
+    def GetWorldPoseMsg(self,frame):
+
+        msg = PoseArray()
+        msg.header.frame_id = self.world_frame
+
+        for i in range(len(self.world_states)): 
+            pmsg = pm.toMsg(self.world_states[i][frame])
+            msg.poses.append(pmsg)
+
+        return msg
+
+    '''
+    GetFwdPoseMsg
+    Create a pose array from forward kinematics
+    '''
+    def GetFwdPoseMsg(self):
+
+        msg = PoseArray()
+        msg.header.frame_id = self.base_link
+
+        for i in range(len(self.world_states)): 
+            mat = self.kdl_kin.forward(self.joint_states[i].position[:7])
+            ee_frame = pm.fromMatrix(mat)
+            pmsg = pm.toMsg(ee_frame)
+            msg.poses.append(pmsg)
+
+        return msg
+
     '''
     GetFeatures
     Gets the features for a particular combination of world, time, and point.
@@ -192,7 +227,7 @@ class RobotFeatures:
         ee_frame = pm.fromMatrix(mat)
 
         for obj,obj_frame in world.items():
-            print (obj, obj_frame)
+            #print (obj, obj_frame)
             offset = ee_frame.Inverse() * obj_frame
 
             features += offset.p

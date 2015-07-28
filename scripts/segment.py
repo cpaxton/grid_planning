@@ -23,7 +23,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         filenames = sys.argv[1:len(sys.argv)]
     else:
-        filenames = ["demo.yml"]
+        filenames = ["app1.yml"]
 
     rate = rospy.Rate(10)
 
@@ -46,7 +46,8 @@ if __name__ == "__main__":
         demo = grid.LoadRobotFeatures(filename);
 
         print "Loaded data from '%s', computing features..."%(filename)
-        fx,x,u,t = demo.get_features([('ee','link'),('ee','node'),('link','node')])
+        #fx,x,u,t = demo.get_features([('ee','link'),('ee','node'),('link','node')])
+        fx = demo.GetTrainingFeatures()
 
         print "Done computing features. %d total time steps."%(len(fx))
         data.append(np.array(fx))
@@ -68,19 +69,21 @@ if __name__ == "__main__":
 
         print labels
 
-        [lfx, lx, lu] = GetSegment(fx,x,u,labels,0)
-
-        print "%d samples selected for segment"%(len(lfx))
+        #[lfx, lx, lu] = grid.GetSegment(fx,x,u,labels,0)
+        #print "%d samples selected for segment"%(len(lfx))
 
         #these are definitely wrong
         #dbg_ee_poses = GetPoseMessage(fx,4,'/wam/hand/bhand_palm_link') #"/gbeam_link_1/gbeam_link")
         #dbg_ee_poses2 = GetPoseMessage(fx,12,'/wam/hand/bhand_palm_link')#"/gbeam_node_1/gbeam_node")
 
-        dbg_ee_poses_ = GetPoseMessage(fx,3,"/gbeam_link_1/gbeam_link")
-        dbg_ee_poses2_ = GetPoseMessage(fx,10,"/gbeam_node_1/gbeam_node")
-        dbg_ee_ = demo.get_world_pose_msg("ee")
-        dbg_link_ = demo.get_world_pose_msg("link")
-        dbg_node_ = demo.get_world_pose_msg("node")
+        dbg_ee_poses_ = grid.GetPoseMessage(fx,3,"/gbeam_link_1/gbeam_link")
+        dbg_ee_poses2_ = grid.GetPoseMessage(fx,10,"/gbeam_node_1/gbeam_node")
+        #dbg_ee_ = demo.get_world_pose_msg("ee")
+        dbg_ee_ = demo.GetFwdPoseMsg()
+        #dbg_link_ = demo.get_world_pose_msg("link")
+        dbg_link_ = demo.GetWorldPoseMsg("link")
+        #dbg_node_ = demo.get_world_pose_msg("node")
+        dbg_node_ = demo.GetWorldPoseMsg("node")
 
         dbg_ee_poses.poses += dbg_ee_poses_.poses
         dbg_ee_poses2.poses += dbg_ee_poses2_.poses
