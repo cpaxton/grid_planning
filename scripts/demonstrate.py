@@ -37,30 +37,15 @@ Joint space:
     - also has a variable for the closure of the gripper
 '''
 
-demo = grid.Demonstration()
-
-def bhand_cmd_cb(msg):
-    if rospy.Time.now().to_sec() < 10:
-        print "err: bad time (bhand)"
-    else:
-        demo.gripper_cmd.append([i for i in msg.cmd])
-        demo.gripper_t.append(rospy.Time.now())
-
-def js_cb(msg):
-    if rospy.Time.now().to_sec() < 10:
-        print "err: bad time (joints)"
-    else:
-        demo.joint_p.append([i for i in msg.position])
-        demo.joint_v.append([i for i in msg.velocity])
-        demo.joint_t.append(rospy.Time.now())
 
 if __name__ == '__main__':
-    rospy.init_node('demonstration_observer')
 
     filename = 'demo.yml'
     if len(sys.argv) > 1:
         filename = sys.argv[1]
-    stream = file(filename,'w')
+
+    rospy.init_node('demonstration_observer')
+    demo = grid.RobotFeatures()
 
     # set up parameters
     world='/world'
@@ -70,43 +55,24 @@ if __name__ == '__main__':
 
     # set up ros things
     rate = rospy.Rate(10)
-    tl = tf.TransformListener();
-    sub = rospy.Subscriber('/gazebo/barrett_manager/wam/joint_states', JointState, js_cb)
-    gripper_sub = rospy.Subscriber('/gazebo/barrett_manager/hand/cmd', BHandCmd, bhand_cmd_cb)
 
-    # collect data
+    demo.AddObject("link",obj1);
+    demo.AddObject("node",obj2);
+
+    rospy.sleep(rospy.Duration(0.5))
+
+    demo.StartRecording()
+
     try:
-
-        demo.tform['ee'] = []
-        demo.tform['link'] = []
-        demo.tform['node'] = []
-
+        tl = tf.TransformListener()
         while not rospy.is_shutdown():
-            try:
-                (trans0,rot0) = tl.lookupTransform(world, frame, rospy.Time(0))
-                (trans1,rot1) = tl.lookupTransform(world, obj1, rospy.Time(0))
-                (trans2,rot2) = tl.lookupTransform(world, obj2, rospy.Time(0))
-
-                ee_tf = pm.fromTf((trans0,rot0))
-                obj1_tf = pm.fromTf((trans1,rot1))
-                obj2_tf = pm.fromTf((trans2,rot2))
-
-                if rospy.Time.now().to_sec() < 10:
-                    print "err: bad time (tf)"
-                else:
-                    demo.tform['ee'].append(ee_tf) 
-                    demo.tform['link'].append(obj1_tf) 
-                    demo.tform['node'].append(obj2_tf) 
-                    demo.world_t.append(rospy.Time.now())
-
-            except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException): 
-                continue
+            #try:
+            #    (trans,rot) = tl.lookupTransform('world',obj1,rospy.Time(0))
+            #    print (trans,rot)
+            #except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException), e:
+            #    print e
+            #print rospy.Time.now()
             rate.sleep()
 
     except rospy.ROSInterruptException:
-        if len(demo.joint_p) == 0:
-            print "List of joint states was empty!"
-        #for (t,pt) in zip(position_times,positions):
-        #    print (t, pt)
-
-        yaml.dump(demo,stream,Dumper=Dumper)
+        demo.save(filename)

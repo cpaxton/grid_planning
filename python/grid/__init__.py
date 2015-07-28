@@ -15,3 +15,4 @@ from segmentation import GetSegment
 
 " feature extraction "
 from features import RobotFeatures
+from features import LoadRobotFeatures

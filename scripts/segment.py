@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from grid import *
+import grid
 
 " IO "
 import sys
@@ -41,8 +41,9 @@ if __name__ == "__main__":
     data = []
     for filename in filenames:
 
-        stream = file(filename,'r');
-        demo = yaml.load(stream,Loader=Loader);
+        #stream = file(filename,'r');
+        #demo = yaml.load(stream,Loader=Loader);
+        demo = grid.LoadRobotFeatures(filename);
 
         print "Loaded data from '%s', computing features..."%(filename)
         fx,x,u,t = demo.get_features([('ee','link'),('ee','node'),('link','node')])
