@@ -50,9 +50,9 @@ if __name__ == "__main__":
         fx = demo.GetTrainingFeatures()
 
         print "Done computing features. %d total time steps."%(len(fx))
-        data.append(np.array(fx))
+        data.append((demo, np.array(fx)))
 
-    for fx in data:
+    for (demo, fx) in data:
         print "Segmenting data based on gripper commands..."
 
         gripping = abs(fx[0,0]) > 0
@@ -76,8 +76,8 @@ if __name__ == "__main__":
         #dbg_ee_poses = GetPoseMessage(fx,4,'/wam/hand/bhand_palm_link') #"/gbeam_link_1/gbeam_link")
         #dbg_ee_poses2 = GetPoseMessage(fx,12,'/wam/hand/bhand_palm_link')#"/gbeam_node_1/gbeam_node")
 
-        dbg_ee_poses_ = grid.GetPoseMessage(fx,3,"/gbeam_link_1/gbeam_link")
-        dbg_ee_poses2_ = grid.GetPoseMessage(fx,10,"/gbeam_node_1/gbeam_node")
+        dbg_ee_poses_ = grid.GetPoseMessage(fx,10,"/gbeam_link_1/gbeam_link")
+        dbg_ee_poses2_ = grid.GetPoseMessage(fx,3,"/gbeam_node_1/gbeam_node")
         #dbg_ee_ = demo.get_world_pose_msg("ee")
         dbg_ee_ = demo.GetFwdPoseMsg()
         #dbg_link_ = demo.get_world_pose_msg("link")
@@ -90,6 +90,7 @@ if __name__ == "__main__":
         dbg_ee.poses += dbg_ee_.poses
         dbg_link.poses += dbg_link_.poses
         dbg_node.poses += dbg_node_.poses
+
     pa_pub = rospy.Publisher('/dbg_ee_link',PoseArray)
     pa2_pub = rospy.Publisher('/dbg_ee_node',PoseArray)
     pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray)

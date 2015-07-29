@@ -134,19 +134,20 @@ class RobotFeatures:
     Returns the position of the gripper from a given set of joint positions
     Also gets relative positions to objects at different frames of reference
     '''
-    def GetForward(self,q,objs=None):
+    def GetForward(self,q):
         mat = self.kdl_kin.forward(q)
         f = pm.fromMatrix(mat)
 
-        frames = []
-        if objs==None:
-            for frame in self.world.values():
-                frames.append(frame.Inverse() * f)
-        else:
-            for obj in objs:
-                frames.append(world[obj].Inverse() * f)
+        #frames = []
+        #if objs==None:
+        #    for frame in self.world.values():
+        #        frames.append(frame.Inverse() * f)
+        #else:
+        #    for obj in objs:
+        #        frames.append(world[obj].Inverse() * f)
 
-        return (f, frames)
+        #return (f, frames)
+        return f
 
     '''
     SetWorld
@@ -232,12 +233,12 @@ class RobotFeatures:
         features += gripper_cmd # include gripper closure as a feature
 
         # compute forward transform
-        mat = self.kdl_kin.forward(q)
-        ee_frame = pm.fromMatrix(mat)
+        ee_frame = self.GetForward(q)
 
         for obj,obj_frame in world.items():
             #print (obj, obj_frame)
-            offset = ee_frame.Inverse() * self.base_tform.Inverse() * obj_frame
+            offset = obj_frame.Inverse() * (self.base_tform * ee_frame)
+            #offset = ((self.base_tform * ee_frame).Inverse() * obj_frame).Inverse()
 
             features += offset.p
             features += offset.M.GetRPY()

@@ -10,7 +10,7 @@ Each segment
 '''
 
 frames=[('ee','link'),('ee','node')]
-data = grid.LoadYaml('demo3.yml')
+data = grid.LoadYaml('app3.yml')
 fx,x,u,t = data.get_features(frames)
 ndata = np.array(fx)
 
@@ -59,10 +59,10 @@ posteriormodel = pyhsmm.models.WeakLimitHDPHSMM(
         dur_distns=dur_distns)
 
 
-data2 = grid.LoadYaml('demo2.yml')
+data2 = grid.LoadYaml('app2.yml')
 fx,x,u,t = data2.get_features(frames)
 ndata2 = np.array(fx)
-data1 = grid.LoadYaml('demo1.yml')
+data1 = grid.LoadYaml('app1.yml')
 fx,x,u,t = data1.get_features(frames)
 ndata1 = np.array(fx)
 
