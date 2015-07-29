@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import grid
 import matplotlib.pyplot as plt
 import numpy as np
@@ -10,8 +12,8 @@ Each segment
 '''
 
 frames=[('ee','link'),('ee','node')]
-data = grid.LoadYaml('app3.yml')
-fx,x,u,t = data.get_features(frames)
+data = grid.LoadRobotFeatures('app3.yml')
+fx = data.GetTrainingFeatures(frames)
 ndata = np.array(fx)
 
 xx = np.array(range(ndata.shape[0]))
@@ -59,11 +61,11 @@ posteriormodel = pyhsmm.models.WeakLimitHDPHSMM(
         dur_distns=dur_distns)
 
 
-data2 = grid.LoadYaml('app2.yml')
-fx,x,u,t = data2.get_features(frames)
+data2 = grid.LoadRobotFeatures('app2.yml')
+fx = data2.GetTrainingFeatures(frames)
 ndata2 = np.array(fx)
-data1 = grid.LoadYaml('app1.yml')
-fx,x,u,t = data1.get_features(frames)
+data1 = grid.LoadRobotFeatures('app1.yml')
+fx = data1.GetTrainingFeatures(frames)
 ndata1 = np.array(fx)
 
 ndata = np.diff(ndata,axis=0)

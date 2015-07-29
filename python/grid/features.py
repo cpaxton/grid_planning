@@ -264,6 +264,22 @@ class RobotFeatures:
         
         return ftraj
 
+    '''
+    Compute velocity features
+    How much did the end effector move over the course of the trajectory?
+    '''
+    def GetVelocityFeatures(self):
+        ftraj = []
+
+        for i in range(2,len(traj)):
+
+            ee = GetForward(self.joint_states[i].positions)
+            ee0 = GetForward(self.joint_states[i-1].positions)
+
+            dee = ee0.Inverse() * ee
+
+            ftraj += [dee.p + dee.M.GetRPY() + dee.p.Norm()]
+
 
 def LoadRobotFeatures(filename):
 
