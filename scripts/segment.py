@@ -51,6 +51,7 @@ if __name__ == "__main__":
 
         print "Done computing features. %d total time steps."%(len(fx))
         data.append(np.array(fx))
+        dbg_ee.header.frame_id = demo.base_link
 
     for fx in data:
         print "Segmenting data based on gripper commands..."
@@ -90,7 +91,6 @@ if __name__ == "__main__":
         dbg_ee.poses += dbg_ee_.poses
         dbg_link.poses += dbg_link_.poses
         dbg_node.poses += dbg_node_.poses
-        
     pa_pub = rospy.Publisher('/dbg_ee_link',PoseArray)
     pa2_pub = rospy.Publisher('/dbg_ee_node',PoseArray)
     pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray)

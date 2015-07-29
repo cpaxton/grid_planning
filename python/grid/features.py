@@ -102,6 +102,7 @@ class RobotFeatures:
             data['base_link'] = self.base_link
             data['end_link'] = self.end_link
             data['robot_description_param'] = self.robot_description_param
+            data['base_tform'] = self.base_tform
 
             yaml.dump(data,stream)
 
@@ -116,8 +117,6 @@ class RobotFeatures:
             self.joint_states.append(msg)
             self.gripper_cmds.append(self.gripper_cmd)
             self.world_states.append(copy.deepcopy(self.world))
-
-            print self.world
 
     def gripper_cb(self,msg):
         #print msg
@@ -169,6 +168,16 @@ class RobotFeatures:
             except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException), e:
                 print "ERR: %s"%(e)
                 return False
+
+        try:
+            (trans,rot) = self.tfl.lookupTransform(self.world_frame,self.base_link,rospy.Time(0))
+            self.base_tform = pm.fromTf((trans,rot))
+
+        except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException), e:
+            print "ERR: %s"%(e)
+            return False
+
+
         return True
 
 
@@ -200,11 +209,11 @@ class RobotFeatures:
     def GetFwdPoseMsg(self):
 
         msg = PoseArray()
-        msg.header.frame_id = self.base_link
+        msg.header.frame_id = self.world_frame
 
         for i in range(len(self.world_states)): 
             mat = self.kdl_kin.forward(self.joint_states[i].position[:7])
-            ee_frame = pm.fromMatrix(mat)
+            ee_frame = self.base_tform * pm.fromMatrix(mat)
             pmsg = pm.toMsg(ee_frame)
             msg.poses.append(pmsg)
 
@@ -228,7 +237,7 @@ class RobotFeatures:
 
         for obj,obj_frame in world.items():
             #print (obj, obj_frame)
-            offset = ee_frame.Inverse() * obj_frame
+            offset = ee_frame.Inverse() * self.base_tform.Inverse() * obj_frame
 
             features += offset.p
             features += offset.M.GetRPY()
@@ -269,6 +278,7 @@ def LoadRobotFeatures(filename):
     r.joint_states = data['joint_states']
     r.world_states = data['world_states']
     r.times = data['times']
+    r.base_tform = data['base_tform']
 
     r.recorded = True
 
