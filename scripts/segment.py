@@ -51,7 +51,6 @@ if __name__ == "__main__":
 
         print "Done computing features. %d total time steps."%(len(fx))
         data.append(np.array(fx))
-        dbg_ee.header.frame_id = demo.base_link
 
     for fx in data:
         print "Segmenting data based on gripper commands..."
