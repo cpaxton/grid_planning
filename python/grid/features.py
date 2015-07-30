@@ -248,6 +248,14 @@ class RobotFeatures:
         return features
 
     '''
+    GetFeatures
+    '''
+    def GetFeaturesForTrajectory(self,traj,world):
+        ftraj = []
+
+        print "ERR: not implemented yet!"
+
+    '''
     GetTrainingFeatures
     Takes a joint-space trajectory (with times) and produces an output vector of (expected) features based on known object positions
     '''
