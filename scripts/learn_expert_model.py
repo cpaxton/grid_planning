@@ -39,12 +39,10 @@ if __name__ == "__main__":
     data = []
     for filename in filenames:
 
-        stream = file(filename,'r');
-        demo = yaml.load(stream,Loader=Loader);
+        demo = grid.LoadRobotFeatures(filename);
 
         print "Loaded data from '%s', computing features..."%(filename)
-        #fx,x,u,t = demo.get_features([('ee','link'),('ee','node'),('link','node')])
-        fx,x,u,t = demo.get_features([('ee','link')])
+        fx = demo.GetTrainingFeatures()
 
         print "Done computing features. %d total time steps."%(len(fx))
         data.append(np.array(fx))

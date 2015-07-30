@@ -61,9 +61,7 @@ if __name__ == '__main__':
     else:
         filename = "app1.yml"
 
-    #stream = file(filename,'r');
-    #demo = yaml.load(stream,Loader=Loader);
-    demo = grid.LoadYaml(filename)
+    demo = grid.LoadRobotFeatures(filename)
 
     sub = rospy.Subscriber('/gazebo/barrett_manager/wam/joint_states',sensor_msgs.msg.JointState,js_cb)
 
@@ -71,10 +69,11 @@ if __name__ == '__main__':
 
     print "Loaded data, computing features..."
     #fx,x,u,t = demo.get_features([('ee','link'),('ee','node'),('link','node')])
-    fx,x,u,t = demo.get_features([('ee','link')])
+    fx = demo.GetTrainingFeatures()
+    x = demo.GetJointPositions()
 
     # DMP parameters
-    dims = len(u[0])
+    dims = len(x[0])
     dt = 0.1
     K = 100
     D = 2.0 * np.sqrt(K)

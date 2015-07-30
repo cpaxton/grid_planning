@@ -16,11 +16,16 @@ data = grid.LoadRobotFeatures('app3.yml')
 fx = data.GetTrainingFeatures(frames)
 ndata = np.array(fx)
 
+#xx = np.array(range(ndata.shape[0]-1))
 xx = np.array(range(ndata.shape[0]))
 
+labels = data.GetFeatureLabels()
 for i in range(ndata.shape[1]):
+    #yy = np.diff(ndata[:,i])
     yy = ndata[:,i]
-    plt.plot(xx,yy)
+    lab, = plt.plot(xx,yy)
+    labels.append(lab)
+plt.legend(labels=labels)
 
 #yy = ndata[:,10]
 #plt.plot(xx,yy)

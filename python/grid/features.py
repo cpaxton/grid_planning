@@ -280,6 +280,32 @@ class RobotFeatures:
 
             ftraj += [dee.p + dee.M.GetRPY() + dee.p.Norm()]
 
+    '''
+    GetFeatureLabels()
+    Gets a set of string labels, one for each feature.
+    This is to make debugging/visualizing results a little bit easier.
+    '''
+    def GetFeatureLabels(self):
+
+        labels = ["gripper1", "gripper2", "gripper3"]
+
+        for obj in self.world_states[0].keys():
+            labels += ["%s_ee_x"%obj]
+            labels += ["%s_ee_y"%obj]
+            labels += ["%s_ee_z"%obj]
+            labels += ["%s_ee_roll"%obj]
+            labels += ["%s_ee_pitch"%obj]
+            labels += ["%s_ee_yaw"%obj]
+            labels += ["%s_ee_dist"%obj]
+        return labels
+
+    '''
+    GetJointPositions()
+    Just get the positions of each joint
+    '''
+    def GetJointPositions(self):
+        return [pt.position for pt in self.joint_states]
+
 
 def LoadRobotFeatures(filename):
 
