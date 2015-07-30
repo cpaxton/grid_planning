@@ -9,6 +9,7 @@ except ImportError:
     from yaml import Loader, Dumper
 import copy
 
+import numpy as np
 
 # KDL utilities
 import PyKDL
@@ -198,7 +199,7 @@ class RobotFeatures:
         msg.header.frame_id = self.world_frame
 
         for i in range(len(self.world_states)): 
-            pmsg = pm.toMsg(self.world_states[i][frame])
+            pmsg = pm.toMsg(self.world_states[i][frame] * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2)))
             msg.poses.append(pmsg)
 
         return msg
@@ -215,7 +216,7 @@ class RobotFeatures:
         for i in range(len(self.world_states)): 
             mat = self.kdl_kin.forward(self.joint_states[i].position[:7])
             ee_frame = self.base_tform * pm.fromMatrix(mat)
-            pmsg = pm.toMsg(ee_frame)
+            pmsg = pm.toMsg(ee_frame * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2)))
             msg.poses.append(pmsg)
 
         return msg
@@ -306,7 +307,6 @@ class RobotFeatures:
     def GetJointPositions(self):
         return [pt.position for pt in self.joint_states]
 
-
 def LoadRobotFeatures(filename):
 
     stream = file(filename,'r')
@@ -326,7 +326,6 @@ def LoadRobotFeatures(filename):
     r.recorded = True
 
     return r
-
 
 '''
 import rospy

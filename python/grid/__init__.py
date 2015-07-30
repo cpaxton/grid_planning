@@ -16,3 +16,6 @@ from segmentation import GetSegment
 " feature extraction "
 from features import RobotFeatures
 from features import LoadRobotFeatures
+
+" visualization tools "
+from visualization_utils import GetLabeledArray

@@ -97,12 +97,14 @@ if __name__ == "__main__":
     pa_link_pub = rospy.Publisher('/dbg_link',PoseArray)
     pa_node_pub = rospy.Publisher('/dbg_node',PoseArray)
 
-    while not rospy.is_shutdown():
-        pa_pub.publish(dbg_ee_poses)
-        pa2_pub.publish(dbg_ee_poses2)
-        pa_ee_pub.publish(dbg_ee)
-        pa_link_pub.publish(dbg_link)
-        pa_node_pub.publish(dbg_node)
-        rate.sleep()
-
+    try:
+        while not rospy.is_shutdown():
+            pa_pub.publish(dbg_ee_poses)
+            pa2_pub.publish(dbg_ee_poses2)
+            pa_ee_pub.publish(dbg_ee)
+            pa_link_pub.publish(dbg_link)
+            pa_node_pub.publish(dbg_node)
+            rate.sleep()
+    except rospy.ROSInterruptException, e:
+        pass
 

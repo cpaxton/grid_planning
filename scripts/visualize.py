@@ -1,8 +1,12 @@
 #!/usr/bin/env python
 
+import rospy
+import sys
 import grid
 import matplotlib.pyplot as plt
 import numpy as np
+
+from visualization_msgs.msg import MarkerArray
 
 '''
 PLOT_DATA
@@ -22,7 +26,7 @@ if __name__ == "__main__":
     data = []
     for filename in filenames:
         demo = grid.LoadRobotFeatures(filename)
-        fx = data.GetTrainingFeatures()
+        fx = demo.GetTrainingFeatures()
         
         data.append((demo, np.array(fx)))
 
@@ -86,3 +90,15 @@ if __name__ == "__main__":
     print posteriormodel.used_states
     print posteriormodel.stateseqs
 
+    rate = rospy.Rate(10)
+    pub = rospy.Publisher("/segmented_trajectory",MarkerArray)
+
+    #msg = MarkerArray()
+    msg = grid.GetLabeledArray(data[0][0],posteriormodel.stateseqs[0],posteriormodel.used_states)
+
+    try:
+        while not rospy.is_shutdown():
+            pub.publish(msg)
+            rate.sleep()
+    except rospy.ROSInterruptException, e:
+        pass
