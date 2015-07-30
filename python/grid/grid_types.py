@@ -114,7 +114,7 @@ def GetPoseMessage(fx, idx, frame_id="/world"):
 
         pose = PyKDL.Vector(fx[i][idx],fx[i][idx+1],fx[i][idx+2]);
         rot = PyKDL.Rotation.RPY(fx[i][idx+3],fx[i][idx+4],fx[i][idx+5])
-        frame = PyKDL.Frame(rot,pose)
+        frame = PyKDL.Frame(rot,pose) * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))
         pmsg = pm.toMsg(frame)
         msg.poses.append(pmsg)
 
@@ -135,6 +135,6 @@ SaveYaml
 Really simple function to quickly load from a yaml file
 '''
 def SaveYaml(filename,demo):
-    stream = file(filename,'r')
+    stream = file(filename,'w')
     yaml.dump(demo,stream,Dumper=Dumper)
 

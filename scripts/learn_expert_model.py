@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from grid import *
+import grid
 
 " IO "
 import sys
@@ -55,4 +55,4 @@ if __name__ == "__main__":
     expert = GMM(n_components=5)
     expert = expert.fit(training_data)
 
-    SaveYaml(outfile,expert)
+    grid.SaveYaml(outfile,expert)
