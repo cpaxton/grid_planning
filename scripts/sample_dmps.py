@@ -23,6 +23,7 @@ import tf_conversions.posemath as pm
 
 " machine learning "
 from sklearn.mixture import GMM
+#from gmm import GMM # conditional GMM
 
 " Fitting DMPs "
 from dmp.srv import *
@@ -38,6 +39,10 @@ import PyKDL
 from urdf_parser_py.urdf import URDF
 from pykdl_utils.kdl_kinematics import KDLKinematics
 from pykdl_utils.kdl_parser import kdl_tree_from_urdf_model
+
+" visualizations "
+from visualization_msgs.msg import MarkerArray
+from visualization_msgs.msg import Marker
 
 '''
 fit_dmps
@@ -69,6 +74,7 @@ if __name__ == '__main__':
     data,params,num_weights = LoadDataDMP(filenames)
 
     print "Fitting GMM to trajectory parameters..."
+    #Z = GMM(dim=len(params[0]),ncomps=2,data=np.array(params),method="kmeans")
     Z = GMM()
     Z = Z.fit(params)
 
@@ -79,6 +85,7 @@ if __name__ == '__main__':
 
     expert = GMM(n_components=5)
     expert = expert.fit(training_data)
+    #expert = GMM(dim=training_data.shape[1],ncomps=5,data=training_data,method="kmeans")
 
     sub = rospy.Subscriber('/gazebo/barrett_manager/wam/joint_states',sensor_msgs.msg.JointState,js_cb)
 
@@ -118,30 +125,48 @@ if __name__ == '__main__':
 
         cmd.points.append(cmd_pt)
 
+    print "instantiating a new robot..."
+
+    robot = RobotFeatures()
+    obj1='/gbeam_link_1/gbeam_link'
+    obj2='/gbeam_node_1/gbeam_node'
+    robot.AddObject("link",obj1);
+    robot.AddObject("node",obj2);
     base_link = 'wam/base_link'
     end_link = 'wam/wrist_palm_link'
-    robot = URDF.from_parameter_server()
-    tree = kdl_tree_from_urdf_model(robot)
-    chain = tree.getChain(base_link, end_link)
-    kdl_kin = KDLKinematics(robot, base_link, end_link)
 
     msg = PoseArray()
     for pt in cmd.points:
-    #for pt in x:
-        mat = kdl_kin.forward(pt.positions)
-        #mat = kdl_kin.forward(pt)
-        f = pm.fromMatrix(mat)
+        f = robot.GetForward(pt.positions)
         msg.poses.append(pm.toMsg(f))
 
     msg2 = PoseArray()
     for pt in x:
-        mat = kdl_kin.forward(pt[0:7])
-        f = pm.fromMatrix(mat)
+        f = robot.GetForward(pt[0:7])
         msg2.poses.append(pm.toMsg(f))
+
+    print "getting TF information for generating trajectories..."
+
+    world = None
+    while world == None:
+        world = robot.TfCreateWorld()
+    robot.TfUpdateWorld()
+
+    print world
+
+    print "setting feature model..."
+
+    #robot.SetFeatureModel(expert)
+    robot.feature_model = expert
+
+    print "generating new trajectories..."
 
     dmp = data[0][2].dmp_list
     dmps = Z.sample(100)
-    for i in range(15):
+
+    search = MarkerArray()
+    count = 1
+    for i in range(25):
         dmp2 = copy.deepcopy(dmp)
         goal = dmps[i,:7]
         for j in range(7):
@@ -151,10 +176,25 @@ if __name__ == '__main__':
 
         RequestActiveDMP(dmp2)
         plan = PlanDMP(x0,xdot0,t0,goal,threshold,seg_length,tau,dt,int_iter)
+
+        #ll = robot.GetTrajectoryLikelihood(plan.plan.points,world)
+        #print ll
+
         for pt in plan.plan.points:
-            mat = kdl_kin.forward(pt.positions[:7])
-            f = pm.fromMatrix(mat)
+            count += 1
+            #mat = kdl_kin.forward(pt.positions[:7])
+            #f = pm.fromMatrix(mat)
+            ll = robot.GetLikelihood(pt.positions[:7],0,world,range(3,17))
+            f = robot.GetForward(pt.positions[:7])
             msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
+
+            if count % 20 == 0:
+                wt = np.exp(ll)
+                marker = GetMarkerMsg(robot,pt.positions[:7],wt,len(search.markers))
+                search.markers.append(marker)
+
+    #print robot.GetLikelihood(data[0][0].joint_states[0].position,0,world,range(3,17))
+    #print robot.GetLikelihood(data[0][0].joint_states[0].position,0,data[0][0].world_states[0],range(3,17))
 
     msg.header.frame_id = base_link
     pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray)
@@ -168,10 +208,13 @@ if __name__ == '__main__':
     pub = rospy.Publisher('/gazebo/traj_rml/joint_traj_cmd',JointTrajectory)
     pub.publish(cmd)
 
+    pub2 = rospy.Publisher('/search_trajectory',MarkerArray)
+
     try:
         while not rospy.is_shutdown():
             pa_ee_pub.publish(msg)
             pa_ee2_pub.publish(msg2)
+            pub2.publish(search)
             rate.sleep()
     except rospy.ROSInterruptException, ex:
         pass

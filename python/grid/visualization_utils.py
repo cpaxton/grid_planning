@@ -47,3 +47,21 @@ def GetLabeledArray(demo,labels,used=None):
 
     return msg
 
+def GetMarkerMsg(demo,pt,weight,idx=0):
+    marker = Marker()
+    marker.header.frame_id = demo.base_link
+    ee = demo.GetForward(pt) * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))
+    marker.pose = pm.toMsg(ee)
+
+    marker.color.a = 1.0
+    marker.color.r = 1.0
+    marker.color.g = 1.0 - weight
+    marker.color.b = 1.0 - weight
+
+    marker.id = idx
+    marker.scale.x = 0.015
+    marker.scale.y = 0.0025
+    marker.scale.z = 0.0025
+    marker.type = Marker.ARROW
+
+    return marker

@@ -20,3 +20,4 @@ from features import LoadRobotFeatures
 
 " visualization tools "
 from visualization_utils import GetLabeledArray
+from visualization_utils import GetMarkerMsg

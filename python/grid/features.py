@@ -76,6 +76,10 @@ class RobotFeatures:
         self.gripper_cmds = []
         self.world_states = []
 
+        self.feature_model = None
+        self.sub_model = None
+        self.idx = None
+
         self.js_topic = js_topic
         self.gripper_topic = gripper_topic
 
@@ -182,6 +186,20 @@ class RobotFeatures:
 
         return True
 
+    '''
+    Create a world; does not store the results or anything like that
+    '''
+    def TfCreateWorld(self):
+        world = {}
+        for (obj,frame) in self.objects.items():
+            try:
+                (trans,rot) = self.tfl.lookupTransform(self.world_frame,frame,rospy.Time(0))
+                world[obj] = pm.fromTf((trans,rot))
+            except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException), e:
+                print "ERR: %s"%(e)
+                return None
+
+        return world
 
     '''
     Get an actual trajectory: the things we are trying to learn how to reproduce
@@ -220,6 +238,23 @@ class RobotFeatures:
             msg.poses.append(pmsg)
 
         return msg
+
+    def GetTrajectoryLikelihood(self,traj,world):
+        for i in range(len(traj)):
+            t = float(i) / len(traj)
+            f = self.GetFeatures(traj[i],t,world)
+
+    def GetLikelihood(self,pt,t,world,idx):
+        if self.idx == None or not self.idx == idx:
+            self.idx = idx
+            self.sub_model = copy.deepcopy(self.feature_model)
+            self.sub_model.means_ = self.feature_model.means_[:,self.idx]
+            self.sub_model.covars_ = self.feature_model.covars_[:,self.idx]
+        
+        x = self.GetFeatures(pt,t,world)
+
+        return self.sub_model.score(x)
+
 
     '''
     GetFeatures
