@@ -1,3 +1,6 @@
+" grid "
+from features import LoadRobotFeatures
+
 " ros utils "
 import rospy
 
@@ -10,10 +13,10 @@ from dmp.srv import *
 
 """
 DMP UTILITIES
+===============================================================
 These are based on the sample code from http://wiki.ros.org/dmp
 (sample code by Scott Niekum)
 """
-
 
 '''
 Put together a DMP request
@@ -65,3 +68,48 @@ def RequestActiveDMP(dmps):
         sad(dmps)
     except rospy.ServiceException, e:
         print "Service call failed: %s"%e
+
+"""
+Other Utilities
+================================================================
+These are by Chris Paxton, used for loading data and searching
+for trajectories.
+"""
+
+'''
+LoadDataDMP
+Go through a list of filenames and load all of them into memory
+Also learn a whole set of DMPs
+'''
+def LoadDataDMP(filenames):
+    params = []
+    data = []
+    for filename in filenames:
+        print 'Loading demonstration from "%s"'%(filename)
+        demo = LoadRobotFeatures(filename)
+        
+        print "Loaded data, computing features..."
+        #fx,x,u,t = demo.get_features([('ee','link'),('ee','node'),('link','node')])
+        fx = demo.GetTrainingFeatures()
+        x = demo.GetJointPositions()
+
+        print "Fitting DMP for this trajectory..."
+        # DMP parameters
+        dims = len(x[0])
+        dt = 0.1
+        K = 100
+        D = 2.0 * np.sqrt(K)
+        num_bases = 4
+
+        resp = RequestDMP(x,0.1,K,D,5)
+        dmp = resp.dmp_list
+
+        dmp_weights = []
+        for idmp in dmp:
+            dmp_weights += idmp.weights
+            num_weights = len(idmp.weights)
+
+        params += [[i for i in x[-1]] + dmp_weights]
+
+        data.append((demo, fx, resp))
+    return (data, params, num_weights)

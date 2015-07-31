@@ -65,49 +65,17 @@ if __name__ == '__main__':
     else:
         filenames = ["app1.yml","app2.yml"]
 
-    weights = []
-    goals = []
-    params = []
-    data = []
-    for filename in filenames:
-        print 'Loading demonstration from "%s"'%(filename)
-        demo = grid.LoadRobotFeatures(filename)
-        
-        print "Loaded data, computing features..."
-        #fx,x,u,t = demo.get_features([('ee','link'),('ee','node'),('link','node')])
-        fx = demo.GetTrainingFeatures()
-        x = demo.GetJointPositions()
 
-        print "Fitting DMP for this trajectory..."
-        # DMP parameters
-        dims = len(x[0])
-        dt = 0.1
-        K = 100
-        D = 2.0 * np.sqrt(K)
-        num_bases = 4
-
-        resp = RequestDMP(x,0.1,K,D,5)
-        dmp = resp.dmp_list
-
-        dmp_weights = []
-        for idmp in dmp:
-            dmp_weights += idmp.weights
-            num_weights = len(idmp.weights)
-        weights += [dmp_weights]
-
-        goals += [x[-1]]
-        params += [[i for i in x[-1]] + dmp_weights]
-
-        data.append((demo, fx, dmp))
+    data,params,num_weights = LoadDataDMP(filenames)
 
     print "Fitting GMM to trajectory parameters..."
     Z = GMM()
     Z = Z.fit(params)
 
     print "Fitting GMM to expert features..."
-    training_data = data[0]
+    training_data = data[0][1]
     for i in range(1,len(data)):
-        training_data = np.concatenate((training_data,data[i]))
+        training_data = np.concatenate((training_data,data[i][1]))
 
     expert = GMM(n_components=5)
     expert = expert.fit(training_data)
@@ -116,12 +84,14 @@ if __name__ == '__main__':
 
     rate = rospy.Rate(10)
 
-    RequestActiveDMP(dmp)
+    RequestActiveDMP(data[0][2].dmp_list)
 
     print "waiting for joint states"
     while pos == None:
         rate.sleep()
 
+    x = data[0][0].GetTrajectory()
+    dims = data[0][0].Dims()
     #x0 = x[0] #pos
     #xdot0 = [0]*dims #vel
     x0 = pos
@@ -129,13 +99,13 @@ if __name__ == '__main__':
     t0 = 0
     xf = x[-1]
     threshold = [0.1] * dims
-    tau = resp.tau
+    tau = data[0][2].tau
     int_iter = 5
     seg_length = -1
     dt = 0.1
 
     plan = PlanDMP(x0,xdot0,t0,xf,threshold,seg_length,tau,dt,int_iter)
-    print plan
+    #print plan
 
     cmd = JointTrajectory()
     cmd.header.seq = 0
@@ -169,16 +139,12 @@ if __name__ == '__main__':
         f = pm.fromMatrix(mat)
         msg2.poses.append(pm.toMsg(f))
 
+    dmp = data[0][2].dmp_list
     dmps = Z.sample(100)
     for i in range(15):
         dmp2 = copy.deepcopy(dmp)
         goal = dmps[i,:7]
-        #for primitive in dmp2[:7]:
         for j in range(7):
-            #wts = list(primitive.weights)
-            #for j in range(len(wts)):
-            #    wts[j] += np.random.normal(0,0.25)
-            #primitive.weights = tuple(wts)
             idx0 = 7 + (j * num_weights)
             idx1 = 7 + ((j+1) * num_weights)
             dmp2[j].weights = dmps[i][idx0:idx1]

@@ -315,6 +315,9 @@ class RobotFeatures:
     def GetJointPositions(self):
         return [pt.position for pt in self.joint_states]
 
+    def Dims(self):
+        return len(self.joint_states[0].position) + 3
+
 def LoadRobotFeatures(filename):
 
     stream = file(filename,'r')

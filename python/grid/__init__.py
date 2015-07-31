@@ -9,6 +9,7 @@ from grid_types import GetPoseMessage
 from dmp_utils import RequestDMP
 from dmp_utils import PlanDMP
 from dmp_utils import RequestActiveDMP
+from dmp_utils import LoadDataDMP
 
 " segmentation functions; getting segments "
 from segmentation import GetSegment
