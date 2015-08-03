@@ -169,6 +169,9 @@ if __name__ == '__main__':
     dmps = Z.sample(100)
 
     search = MarkerArray()
+    search_trajs = []
+    search_params = []
+    lls = []
     count = 1
     for i in range(50):
         dmp2 = copy.deepcopy(dmp)
@@ -186,7 +189,14 @@ if __name__ == '__main__':
 
         traj = [pt.positions[:7] for pt in plan.plan.points]
         ll = robot.GetTrajectoryLikelihood(traj,world,(3,17))
+
         wt = np.exp(ll)
+
+        lls.append(ll)
+        if wt > 1e-50:
+            search_trajs.append(traj)
+            search_params.append(grid.ParamFromDMP(dmp2))
+
         #for pt in plan.plan.points:
         #    count += 1
         #    #mat = kdl_kin.forward(pt.positions[:7])
@@ -195,9 +205,10 @@ if __name__ == '__main__':
         #    f = robot.GetForward(pt.positions[:7])
         for pt in plan.plan.points:
             count += 1
+            f = robot.GetForward(pt.positions[:7])
             msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
 
-            if count % 5 == 0:
+            if count % 5 == 0 and count < 500:
                 marker = GetMarkerMsg(robot,pt.positions[:7],wt,len(search.markers))
                 search.markers.append(marker)
 
@@ -208,10 +219,17 @@ if __name__ == '__main__':
 
     print "... done with DMPs."
 
-    print "Here's that expert model:"
+    print "Average goal probability: %f"%(np.mean(lls))
+    print "Found %d with p>%f."%(len(search_trajs),1e-50)
 
-    print expert.means_
-    print expert.covars_
+    #print "Here's that expert model:"
+    #print expert.means_
+    #print expert.covars_
+
+    if len(search_trajs) > 0:
+        # relearn Z
+        Z.fit(search_params)
+        pass
 
     print "Showing trajectories now."
 

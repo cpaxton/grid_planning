@@ -10,6 +10,8 @@ from dmp_utils import RequestDMP
 from dmp_utils import PlanDMP
 from dmp_utils import RequestActiveDMP
 from dmp_utils import LoadDataDMP
+from dmp_utils import ParamFromDMP
+from dmp_utils import ParamToDMP
 
 " segmentation functions; getting segments "
 from segmentation import GetSegment

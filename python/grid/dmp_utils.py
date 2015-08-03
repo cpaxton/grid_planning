@@ -50,7 +50,7 @@ def RequestDMP(u,dt,k_gain,d_gain,num_basis_functions):
 
 def PlanDMP(x_0, x_dot_0, t_0, goal, goal_thresh, 
                     seg_length, tau, dt, integrate_iter):
-    print "Starting DMP planning..."
+    #print "Starting DMP planning..."
     rospy.wait_for_service('get_dmp_plan')
     try:
         gdp = rospy.ServiceProxy('get_dmp_plan', GetDMPPlan)
@@ -58,7 +58,7 @@ def PlanDMP(x_0, x_dot_0, t_0, goal, goal_thresh,
                    seg_length, tau, dt, integrate_iter)
     except rospy.ServiceException, e:
         print "Service call failed: %s"%e
-    print "DMP planning done"   
+    #print "DMP planning done"   
 
     return resp;
 
@@ -113,3 +113,18 @@ def LoadDataDMP(filenames):
 
         data.append((demo, fx, resp))
     return (data, params, num_weights)
+
+'''
+ParamFromDMP
+Get a vector of floating-point numbers from the DMP representing the trajectory parameterization
+'''
+def ParamFromDMP(dmp):
+    pass
+
+
+'''
+ParamToDMP
+Take a vector of parameters and turn it into a DMP
+'''
+def ParamToDMP(param):
+    pass

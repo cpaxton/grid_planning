@@ -254,12 +254,12 @@ class RobotFeatures:
 
         return self.sub_model.score(f)
 
-    def GetLikelihood(self,pt,t,world,idx):
+    def GetLikelihood(self,pt,t,world,idx,step=10,sigma=0.00001):
         if self.idx == None or not self.idx == idx:
             self.idx = idx
             self.sub_model = copy.deepcopy(self.feature_model)
             self.sub_model.means_ = self.feature_model.means_[:,self.idx]
-            self.sub_model.covars_ = self.feature_model.covars_[:,self.idx]
+            self.sub_model.covars_ = step*self.feature_model.covars_[:,self.idx] + sigma*np.eye(self.idx[1]-self.idx[0])
         
         x = self.GetFeatures(pt,t,world)
 
