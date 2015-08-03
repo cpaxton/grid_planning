@@ -3,6 +3,7 @@ from features import LoadRobotFeatures
 
 " ros utils "
 import rospy
+import copy
 
 " numpy "
 import numpy as np
@@ -118,13 +119,24 @@ def LoadDataDMP(filenames):
 ParamFromDMP
 Get a vector of floating-point numbers from the DMP representing the trajectory parameterization
 '''
-def ParamFromDMP(dmp):
-    pass
+def ParamFromDMP(goal,dmp):
+    dmp_weights = []
+    for idmp in dmp:
+        dmp_weights += [i for i in idmp.weights]
+    params = [i for i in goal] + dmp_weights
 
+    return params
 
 '''
 ParamToDMP
 Take a vector of parameters and turn it into a DMP
 '''
-def ParamToDMP(param):
-    pass
+def ParamToDMP(param,dmp,dims=7,num_weights=6):
+    dmp2 = copy.deepcopy(dmp)
+    goal = param[:dims]
+    for j in range(dims):
+        idx0 = dims + (j * num_weights)
+        idx1 = dims + ((j+1) * num_weights)
+        dmp2[j].weights = param[idx0:idx1]
+
+    return (goal, dmp2)

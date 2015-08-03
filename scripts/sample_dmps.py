@@ -175,11 +175,7 @@ if __name__ == '__main__':
     count = 1
     for i in range(50):
         dmp2 = copy.deepcopy(dmp)
-        goal = dmps[i,:7]
-        for j in range(7):
-            idx0 = 7 + (j * num_weights)
-            idx1 = 7 + ((j+1) * num_weights)
-            dmp2[j].weights = dmps[i][idx0:idx1]
+        (goal,dmp2) = grid.ParamToDMP(dmps[i],dmp)
 
         RequestActiveDMP(dmp2)
         plan = PlanDMP(x0,xdot0,t0,goal,threshold,seg_length,tau,dt,int_iter)
@@ -195,7 +191,7 @@ if __name__ == '__main__':
         lls.append(ll)
         if wt > 1e-50:
             search_trajs.append(traj)
-            search_params.append(grid.ParamFromDMP(dmp2))
+            search_params.append(grid.ParamFromDMP(goal,dmp2))
 
         #for pt in plan.plan.points:
         #    count += 1
@@ -212,8 +208,7 @@ if __name__ == '__main__':
                 marker = GetMarkerMsg(robot,pt.positions[:7],wt,len(search.markers))
                 search.markers.append(marker)
 
-        print wt
-
+    print dmp2
     #print robot.GetLikelihood(data[0][0].joint_states[0].position,0,world,range(3,17))
     #print robot.GetLikelihood(data[0][0].joint_states[0].position,0,data[0][0].world_states[0],range(3,17))
 
@@ -229,7 +224,47 @@ if __name__ == '__main__':
     if len(search_trajs) > 0:
         # relearn Z
         Z.fit(search_params)
-        pass
+        print "Refitting and resampling..."
+        dmps = Z.sample(100)
+
+        search = MarkerArray()
+        search_trajs = []
+        search_params = []
+        lls = []
+        count = 1
+        for i in range(50):
+            dmp2 = copy.deepcopy(dmp)
+            (goal,dmp2) = grid.ParamToDMP(dmps[i],dmp)
+
+            RequestActiveDMP(dmp2)
+            plan = PlanDMP(x0,xdot0,t0,goal,threshold,seg_length,tau,dt,int_iter)
+
+            #ll = robot.GetTrajectoryLikelihood(plan.plan.points,world)
+            #print ll
+
+            traj = [pt.positions[:7] for pt in plan.plan.points]
+            ll = robot.GetTrajectoryLikelihood(traj,world,(3,17))
+
+            wt = np.exp(ll)
+
+            lls.append(ll)
+            if wt > 1e-50:
+                search_trajs.append(traj)
+                search_params.append(grid.ParamFromDMP(goal,dmp2))
+
+            for pt in plan.plan.points:
+                count += 1
+                f = robot.GetForward(pt.positions[:7])
+                msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
+
+                if count % 5 == 0 and count < 500:
+                    marker = GetMarkerMsg(robot,pt.positions[:7],wt,len(search.markers))
+                    search.markers.append(marker)
+
+        print "... done with DMPs round 2."
+
+        print "Average goal probability: %f"%(np.mean(lls))
+        print "Found %d with p>%f."%(len(search_trajs),1e-50)
 
     print "Showing trajectories now."
 
