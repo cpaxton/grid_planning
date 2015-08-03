@@ -169,13 +169,13 @@ if __name__ == '__main__':
     dmps = Z.sample(100)
 
     search = MarkerArray()
-    search_trajs = []
-    search_params = []
+    gen_trajs = []
+    gen_params = []
     lls = []
     count = 1
-    for i in range(50):
+    for i in range(100):
         dmp2 = copy.deepcopy(dmp)
-        (goal,dmp2) = grid.ParamToDMP(dmps[i],dmp)
+        (goal,dmp2) = grid.ParamToDMP(dmps[i],dmp,num_weights=num_weights)
 
         RequestActiveDMP(dmp2)
         plan = PlanDMP(x0,xdot0,t0,goal,threshold,seg_length,tau,dt,int_iter)
@@ -189,39 +189,30 @@ if __name__ == '__main__':
         wt = np.exp(ll)
 
         lls.append(ll)
-        if wt > 1e-50:
-            search_trajs.append(traj)
-            search_params.append(grid.ParamFromDMP(goal,dmp2))
+        #if wt > 1e-50:
+        gen_trajs.append(traj)
+        gen_params.append(grid.ParamFromDMP(goal,dmp2))
 
-        #for pt in plan.plan.points:
-        #    count += 1
-        #    #mat = kdl_kin.forward(pt.positions[:7])
-        #    #f = pm.fromMatrix(mat)
-        #    ll = robot.GetLikelihood(pt.positions[:7],0,world,range(3,17))
-        #    f = robot.GetForward(pt.positions[:7])
-        for pt in plan.plan.points:
-            count += 1
-            f = robot.GetForward(pt.positions[:7])
-            msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
-
-            if count % 5 == 0 and count < 500:
-                marker = GetMarkerMsg(robot,pt.positions[:7],wt,len(search.markers))
-                search.markers.append(marker)
-
-    print dmp2
+    #print dmp2
     #print robot.GetLikelihood(data[0][0].joint_states[0].position,0,world,range(3,17))
     #print robot.GetLikelihood(data[0][0].joint_states[0].position,0,data[0][0].world_states[0],range(3,17))
 
     print "... done with DMPs."
 
+    search_params = []
+    ll_threshold = np.percentile(lls,90)
+    for (ll,param) in zip(lls,gen_params):
+        if ll > ll_threshold:
+            search_params.append(param)
+
     print "Average goal probability: %f"%(np.mean(lls))
-    print "Found %d with p>%f."%(len(search_trajs),1e-50)
+    print "Found %d with p>%f."%(len(search_params),ll_threshold)
 
     #print "Here's that expert model:"
     #print expert.means_
     #print expert.covars_
 
-    if len(search_trajs) > 0:
+    if len(search_params) > 0:
         # relearn Z
         Z.fit(search_params)
         print "Refitting and resampling..."
@@ -234,9 +225,10 @@ if __name__ == '__main__':
         count = 1
         for i in range(50):
             dmp2 = copy.deepcopy(dmp)
-            (goal,dmp2) = grid.ParamToDMP(dmps[i],dmp)
+            (goal,dmp2) = grid.ParamToDMP(dmps[i],dmp,num_weights=num_weights)
 
             RequestActiveDMP(dmp2)
+
             plan = PlanDMP(x0,xdot0,t0,goal,threshold,seg_length,tau,dt,int_iter)
 
             #ll = robot.GetTrajectoryLikelihood(plan.plan.points,world)
@@ -252,14 +244,14 @@ if __name__ == '__main__':
                 search_trajs.append(traj)
                 search_params.append(grid.ParamFromDMP(goal,dmp2))
 
-            for pt in plan.plan.points:
-                count += 1
-                f = robot.GetForward(pt.positions[:7])
-                msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
+                for pt in plan.plan.points:
+                    count += 1
+                    f = robot.GetForward(pt.positions[:7])
+                    msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
 
-                if count % 5 == 0 and count < 500:
-                    marker = GetMarkerMsg(robot,pt.positions[:7],wt,len(search.markers))
-                    search.markers.append(marker)
+                    if count % 5 == 0 and count < 500:
+                        marker = GetMarkerMsg(robot,pt.positions[:7],wt,len(search.markers))
+                        search.markers.append(marker)
 
         print "... done with DMPs round 2."
 
