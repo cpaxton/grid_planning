@@ -78,7 +78,7 @@ if __name__ == "__main__":
             dur_distns=dur_distns)
 
     for (demo, fx) in data:
-        ndata = np.diff(fx,axis=0)
+        ndata = fx #np.diff(fx,axis=0)
         posteriormodel.add_data(ndata)
 
     models = []

@@ -79,11 +79,12 @@ if __name__ == '__main__':
     Z = Z.fit(params)
 
     print "Fitting GMM to expert features..."
-    training_data = data[0][1]
+    training_data = [data[0][1][-1]]
     for i in range(1,len(data)):
-        training_data = np.concatenate((training_data,data[i][1]))
+        #training_data = np.concatenate((training_data,data[i][1]))
+        training_data += [data[i][1][-1]]
 
-    expert = GMM(n_components=5)
+    expert = GMM(n_components=1)
     expert = expert.fit(training_data)
     #expert = GMM(dim=training_data.shape[1],ncomps=5,data=training_data,method="kmeans")
 
@@ -195,6 +196,8 @@ if __name__ == '__main__':
 
     #print robot.GetLikelihood(data[0][0].joint_states[0].position,0,world,range(3,17))
     #print robot.GetLikelihood(data[0][0].joint_states[0].position,0,data[0][0].world_states[0],range(3,17))
+
+    print "... done with DMPs."
 
     msg.header.frame_id = base_link
     pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray)
