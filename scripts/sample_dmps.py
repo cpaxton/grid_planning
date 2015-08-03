@@ -167,7 +167,7 @@ if __name__ == '__main__':
 
     search = MarkerArray()
     count = 1
-    for i in range(25):
+    for i in range(15):
         dmp2 = copy.deepcopy(dmp)
         goal = dmps[i,:7]
         for j in range(7):
