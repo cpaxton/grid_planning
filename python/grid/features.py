@@ -239,7 +239,7 @@ class RobotFeatures:
 
         return msg
 
-    def GetTrajectoryLikelihood(self,traj,world,idx):
+    def GetTrajectoryLikelihood(self,traj,world,idx,step=3.,sigma=0.):
 
         #for i in range(len(traj)):
         #    t = float(i) / len(traj)
@@ -250,7 +250,7 @@ class RobotFeatures:
             self.idx = idx
             self.sub_model = copy.deepcopy(self.goal_model)
             self.sub_model.means_ = self.goal_model.means_[:,self.idx[0]:self.idx[1]]
-            self.sub_model.covars_ = self.goal_model.covars_[:,self.idx[0]:self.idx[1],self.idx[0]:self.idx[1]]
+            self.sub_model.covars_ = step*self.goal_model.covars_[:,self.idx[0]:self.idx[1],self.idx[0]:self.idx[1]] + sigma*np.eye(self.idx[1]-self.idx[0])
 
         return self.sub_model.score(f)
 

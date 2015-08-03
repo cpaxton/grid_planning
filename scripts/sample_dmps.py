@@ -75,7 +75,8 @@ if __name__ == '__main__':
 
     print "Fitting GMM to trajectory parameters..."
     #Z = GMM(dim=len(params[0]),ncomps=2,data=np.array(params),method="kmeans")
-    Z = GMM()
+    Z = GMM(covariance_type="full")
+    Z.n_components = 2
     Z = Z.fit(params)
 
     print "Fitting GMM to expert features..."
@@ -86,6 +87,7 @@ if __name__ == '__main__':
 
     expert = GMM(n_components=1,covariance_type="full")
     expert = expert.fit(training_data)
+    print expert.means_
     print expert.covars_
     print expert.covars_.shape
     #expert = GMM(dim=training_data.shape[1],ncomps=5,data=training_data,method="kmeans")
@@ -114,20 +116,6 @@ if __name__ == '__main__':
     seg_length = -1
     dt = 0.1
 
-    plan = PlanDMP(x0,xdot0,t0,xf,threshold,seg_length,tau,dt,int_iter)
-    #print plan
-
-    cmd = JointTrajectory()
-    cmd.header.seq = 0
-    for pt,t in zip(plan.plan.points,plan.plan.times):
-        cmd_pt = JointTrajectoryPoint()
-        cmd_pt.positions = pt.positions[0:7]
-        cmd_pt.velocities = pt.velocities[0:7]
-        #cmd_pt.time_from_start = rospy.Duration(t*5)
-        cmd_pt.time_from_start = rospy.Duration(0)
-
-        cmd.points.append(cmd_pt)
-
     print "instantiating a new robot..."
 
     robot = RobotFeatures()
@@ -138,22 +126,12 @@ if __name__ == '__main__':
     base_link = 'wam/base_link'
     end_link = 'wam/wrist_palm_link'
 
-    msg = PoseArray()
-    for pt in cmd.points:
-        f = robot.GetForward(pt.positions)
-        msg.poses.append(pm.toMsg(f))
-
-    msg2 = PoseArray()
-    for pt in x:
-        f = robot.GetForward(pt[0:7])
-        msg2.poses.append(pm.toMsg(f))
-
     print "getting TF information for generating trajectories..."
 
     world = None
     while world == None:
         world = robot.TfCreateWorld()
-    robot.TfUpdateWorld()
+        robot.TfUpdateWorld()
 
     print world
 
@@ -165,71 +143,27 @@ if __name__ == '__main__':
 
     print "generating new trajectories..."
 
-    (lls,search_trajs,search_params) = grid.SearchDMP(Z,robot,world, # traj distribution
+    for i in range(Z.n_components):
+        Z.covars_[i,:,:] += 0 * np.eye(Z.covars_.shape[1])
+    (lls,search_trajs,search_params,all_trajs) = grid.SearchDMP(Z,robot,world, # traj distribution
             x0,xdot0,t0,threshold,seg_length,tau,dt,int_iter, # DMP setup
             dmp=data[0][2].dmp_list, # dmp initialization
-            ll_percentile=90,
+            ll_percentile=98,
             num_weights=num_weights,
-            num_samples=100)
+            num_samples=300)
 
-    for i in range(3):
+    for i in range(10):
         Z = Z.fit(search_params)
-        (lls,search_trajs,search_params) = grid.SearchDMP(Z,robot,world, # traj distribution
+        #for i in range(Z.n_components):
+        #    Z.covars_[i,:,:] += 1e-2 * np.eye(Z.covars_.shape[1])
+        (lls,search_trajs,search_params,all_trajs) = grid.SearchDMP(Z,robot,world, # traj distribution
                 x0,xdot0,t0,threshold,seg_length,tau,dt,int_iter, # DMP setup
                 dmp=data[0][2].dmp_list, # dmp initialization
-                ll_percentile=90,
+                ll_percentile=98,
                 num_weights=num_weights,
-                num_samples=100)
+                num_samples=300)
 
-    Z.fit(search_params)
-
-    '''
-    if len(search_params) > 0:
-        # relearn Z
-        Z.fit(search_params)
-        print "Refitting and resampling..."
-        dmps = Z.sample(100)
-
-        search = MarkerArray()
-        search_trajs = []
-        search_params = []
-        lls = []
-        count = 1
-        for i in range(50):
-            dmp2 = copy.deepcopy(dmp)
-            (goal,dmp2) = grid.ParamToDMP(dmps[i],dmp,num_weights=num_weights)
-
-            RequestActiveDMP(dmp2)
-
-            plan = PlanDMP(x0,xdot0,t0,goal,threshold,seg_length,tau,dt,int_iter)
-
-            #ll = robot.GetTrajectoryLikelihood(plan.plan.points,world)
-            #print ll
-
-            traj = [pt.positions[:7] for pt in plan.plan.points]
-            ll = robot.GetTrajectoryLikelihood(traj,world,(3,17))
-
-            wt = np.exp(ll)
-
-            lls.append(ll)
-            if wt > 1e-50:
-                search_trajs.append(traj)
-                search_params.append(grid.ParamFromDMP(goal,dmp2))
-
-                for pt in plan.plan.points:
-                    count += 1
-                    f = robot.GetForward(pt.positions[:7])
-                    msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
-
-                    if count % 5 == 0 and count < 500:
-                        marker = GetMarkerMsg(robot,pt.positions[:7],wt,len(search.markers))
-                        search.markers.append(marker)
-
-        print "... done with DMPs round 2."
-
-        print "Average goal probability: %f"%(np.mean(lls))
-        print "Found %d with p>%f."%(len(search_trajs),1e-50)
-    '''
+    Z = Z.fit(search_params)
 
     search = MarkerArray()
     count = 1
@@ -238,33 +172,31 @@ if __name__ == '__main__':
         for pt in traj:
             count += 1
             f = robot.GetForward(pt[:7])
-            msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
+            #msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
 
-            if count % 5 == 0 and count <= 1000:
+            if count % 5 == 0:
                 marker = GetMarkerMsg(robot,pt[:7],wt,len(search.markers))
                 search.markers.append(marker)
 
+    msg = PoseArray()
+    for traj in all_trajs:
+        for pt in traj:
+            f = robot.GetForward(pt[:7])
+            msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
 
     print "Showing trajectories now."
 
+    #pub = rospy.Publisher('/gazebo/traj_rml/joint_traj_cmd',JointTrajectory)
+    #pub.publish(cmd)
+
     msg.header.frame_id = base_link
     pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray)
-
-    msg2.header.frame_id = base_link
-    pa_ee2_pub = rospy.Publisher('/dbg_link',PoseArray)
-
-    pa_ee_pub.publish(msg)
-    pa_ee2_pub.publish(msg2)
-
-    pub = rospy.Publisher('/gazebo/traj_rml/joint_traj_cmd',JointTrajectory)
-    pub.publish(cmd)
 
     pub2 = rospy.Publisher('/search_trajectory',MarkerArray)
 
     try:
         while not rospy.is_shutdown():
             pa_ee_pub.publish(msg)
-            pa_ee2_pub.publish(msg2)
             pub2.publish(search)
             rate.sleep()
     except rospy.ROSInterruptException, ex:

@@ -151,7 +151,7 @@ def SearchDMP(Z,robot,world,
         num_weights=6,
         num_samples=100):
 
-    print "Search iteration:"
+    #print "Search iteration:"
     dmps = Z.sample(100)
 
     #search = MarkerArray()
@@ -172,17 +172,15 @@ def SearchDMP(Z,robot,world,
         traj = [pt.positions[:7] for pt in plan.plan.points]
         ll = robot.GetTrajectoryLikelihood(traj,world,(3,17))
 
-        wt = np.exp(ll)
-
         lls.append(ll)
-        #if wt > 1e-50:
+
         gen_trajs.append(traj)
         gen_params.append(ParamFromDMP(goal,dmp2))
 
     search_trajs = []
     search_params = []
 
-    print "... done with DMPs."
+    #print "... done with DMPs."
 
     search_params = []
     ll_threshold = np.percentile(lls,90)
@@ -191,8 +189,9 @@ def SearchDMP(Z,robot,world,
             search_params.append(param)
             search_trajs.append(traj)
 
-    print "Average goal probability: %f"%(np.mean(lls))
-    print "Found %d with p>%f."%(len(search_params),ll_threshold)
 
-    return lls,search_trajs,search_params
+    print "... Done. Average goal probability: %f"%(np.mean(lls))
+    print "    Found %d with p>%f."%(len(search_params),ll_threshold)
+
+    return lls,search_trajs,search_params,gen_trajs
 
