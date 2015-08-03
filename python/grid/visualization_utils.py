@@ -54,9 +54,9 @@ def GetMarkerMsg(demo,pt,weight,idx=0):
     marker.pose = pm.toMsg(ee)
 
     marker.color.a = 1.0
-    marker.color.r = 1.0
+    marker.color.r = 0.0 + weight
     marker.color.g = 1.0 - weight
-    marker.color.b = 1.0 - weight
+    marker.color.b = 0.0 #1.0 - weight
 
     marker.id = idx
     marker.scale.x = 0.015

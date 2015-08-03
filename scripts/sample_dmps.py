@@ -84,8 +84,10 @@ if __name__ == '__main__':
         #training_data = np.concatenate((training_data,data[i][1]))
         training_data += [data[i][1][-1]]
 
-    expert = GMM(n_components=1)
+    expert = GMM(n_components=1,covariance_type="full")
     expert = expert.fit(training_data)
+    print expert.covars_
+    print expert.covars_.shape
     #expert = GMM(dim=training_data.shape[1],ncomps=5,data=training_data,method="kmeans")
 
     sub = rospy.Subscriber('/gazebo/barrett_manager/wam/joint_states',sensor_msgs.msg.JointState,js_cb)
@@ -158,7 +160,8 @@ if __name__ == '__main__':
     print "setting feature model..."
 
     #robot.SetFeatureModel(expert)
-    robot.feature_model = expert
+    #robot.feature_model = expert
+    robot.goal_model = expert
 
     print "generating new trajectories..."
 
@@ -167,7 +170,7 @@ if __name__ == '__main__':
 
     search = MarkerArray()
     count = 1
-    for i in range(15):
+    for i in range(50):
         dmp2 = copy.deepcopy(dmp)
         goal = dmps[i,:7]
         for j in range(7):
@@ -181,23 +184,36 @@ if __name__ == '__main__':
         #ll = robot.GetTrajectoryLikelihood(plan.plan.points,world)
         #print ll
 
+        traj = [pt.positions[:7] for pt in plan.plan.points]
+        ll = robot.GetTrajectoryLikelihood(traj,world,(3,17))
+        wt = np.exp(ll)
+        #for pt in plan.plan.points:
+        #    count += 1
+        #    #mat = kdl_kin.forward(pt.positions[:7])
+        #    #f = pm.fromMatrix(mat)
+        #    ll = robot.GetLikelihood(pt.positions[:7],0,world,range(3,17))
+        #    f = robot.GetForward(pt.positions[:7])
         for pt in plan.plan.points:
             count += 1
-            #mat = kdl_kin.forward(pt.positions[:7])
-            #f = pm.fromMatrix(mat)
-            ll = robot.GetLikelihood(pt.positions[:7],0,world,range(3,17))
-            f = robot.GetForward(pt.positions[:7])
             msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
 
-            if count % 20 == 0:
-                wt = np.exp(ll)
+            if count % 5 == 0:
                 marker = GetMarkerMsg(robot,pt.positions[:7],wt,len(search.markers))
                 search.markers.append(marker)
+
+        print wt
 
     #print robot.GetLikelihood(data[0][0].joint_states[0].position,0,world,range(3,17))
     #print robot.GetLikelihood(data[0][0].joint_states[0].position,0,data[0][0].world_states[0],range(3,17))
 
     print "... done with DMPs."
+
+    print "Here's that expert model:"
+
+    print expert.means_
+    print expert.covars_
+
+    print "Showing trajectories now."
 
     msg.header.frame_id = base_link
     pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray)

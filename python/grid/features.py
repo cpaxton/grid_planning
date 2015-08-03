@@ -239,10 +239,20 @@ class RobotFeatures:
 
         return msg
 
-    def GetTrajectoryLikelihood(self,traj,world):
-        for i in range(len(traj)):
-            t = float(i) / len(traj)
-            f = self.GetFeatures(traj[i],t,world)
+    def GetTrajectoryLikelihood(self,traj,world,idx):
+
+        #for i in range(len(traj)):
+        #    t = float(i) / len(traj)
+        #    f = self.GetFeatures(traj[i],t,world)
+        f = self.GetFeatures(traj[-1],1,world)
+
+        if self.idx == None or not self.idx == idx:
+            self.idx = idx
+            self.sub_model = copy.deepcopy(self.goal_model)
+            self.sub_model.means_ = self.goal_model.means_[:,self.idx[0]:self.idx[1]]
+            self.sub_model.covars_ = self.goal_model.covars_[:,self.idx[0]:self.idx[1],self.idx[0]:self.idx[1]]
+
+        return self.sub_model.score(f)
 
     def GetLikelihood(self,pt,t,world,idx):
         if self.idx == None or not self.idx == idx:
@@ -281,6 +291,14 @@ class RobotFeatures:
             features += [offset.p.Norm()]
 
         return features
+
+    '''
+    GetFeaturesDiff
+    Compute forward kinematics
+    Look up changes in frames over time
+    '''
+    def GetFeaturesDiff(self):
+        ftraj = []
 
     '''
     GetFeatures
