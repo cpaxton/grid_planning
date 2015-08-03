@@ -140,3 +140,59 @@ def ParamToDMP(param,dmp,dims=7,num_weights=6):
         dmp2[j].weights = param[idx0:idx1]
 
     return (goal, dmp2)
+
+
+'''
+SearchDMP
+'''
+def SearchDMP(Z,robot,world,
+        x0,xdot0,t0,threshold,seg_length,tau,dt,int_iter,dmp,
+        ll_percentile=90,
+        num_weights=6,
+        num_samples=100):
+
+    print "Search iteration:"
+    dmps = Z.sample(100)
+
+    #search = MarkerArray()
+    gen_trajs = []
+    gen_params = []
+    lls = []
+    count = 1
+    for i in range(100):
+        dmp2 = copy.deepcopy(dmp)
+        (goal,dmp2) = ParamToDMP(dmps[i],dmp,num_weights=num_weights)
+
+        RequestActiveDMP(dmp2)
+        plan = PlanDMP(x0,xdot0,t0,goal,threshold,seg_length,tau,dt,int_iter)
+
+        #ll = robot.GetTrajectoryLikelihood(plan.plan.points,world)
+        #print ll
+
+        traj = [pt.positions[:7] for pt in plan.plan.points]
+        ll = robot.GetTrajectoryLikelihood(traj,world,(3,17))
+
+        wt = np.exp(ll)
+
+        lls.append(ll)
+        #if wt > 1e-50:
+        gen_trajs.append(traj)
+        gen_params.append(ParamFromDMP(goal,dmp2))
+
+    search_trajs = []
+    search_params = []
+
+    print "... done with DMPs."
+
+    search_params = []
+    ll_threshold = np.percentile(lls,90)
+    for (ll,param,traj) in zip(lls,gen_params,gen_trajs):
+        if ll > ll_threshold:
+            search_params.append(param)
+            search_trajs.append(traj)
+
+    print "Average goal probability: %f"%(np.mean(lls))
+    print "Found %d with p>%f."%(len(search_params),ll_threshold)
+
+    return lls,search_trajs,search_params
+
