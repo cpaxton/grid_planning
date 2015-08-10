@@ -44,5 +44,18 @@ Goals are represented as the distribution of features that must be true for an a
 '''
 class RobotSkill:
     
-    def __init__(self):
+    '''
+    set up the robot skill
+    skills contain a model of expected features as they change over time
+    they also contain a description for our own purposes
+    oh, and which objects are involved
+    '''
+    def __init__(self,action_k=4,goal_k=4,name=""):
+        self.name = name
+        self.action_model = GMM(n_components=action_k)
+        self.goal_model = GMM(n_components=goal_k)
+
+    def load_data(self):
         pass
+
+
