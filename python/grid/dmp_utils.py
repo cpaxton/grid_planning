@@ -170,7 +170,7 @@ def SearchDMP(Z,robot,world,
         #print ll
 
         traj = [pt.positions[:7] for pt in plan.plan.points]
-        ll = robot.GetTrajectoryLikelihood(traj,world,(3,17))
+        ll = robot.GetTrajectoryLikelihood(traj,world,(3,3+(7*len(world.keys()))))
 
         lls.append(ll)
 

@@ -133,6 +133,7 @@ if __name__ == '__main__':
         world = robot.TfCreateWorld()
         robot.TfUpdateWorld()
 
+    world.pop('node')
     print world
 
     print "setting feature model..."
