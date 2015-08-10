@@ -115,7 +115,7 @@ class RobotFeatures:
             rospy.logerr("Could not save; no recording done!")
 
     def js_cb(self,msg):
-        #print (rospy.Time.now() - self.last_gripper_msg).to_sec() < self.gripper_t_threshold
+
         if self.TfUpdateWorld() and (rospy.Time.now() - self.last_gripper_msg).to_sec() < self.gripper_t_threshold:
             # record joints
             self.times.append(rospy.Time.now())
@@ -124,8 +124,8 @@ class RobotFeatures:
             self.world_states.append(copy.deepcopy(self.world))
 
     def gripper_cb(self,msg):
-        #print msg
-        self.gripper_cmd = msg # [i for i in msg.cmd]
+
+        self.gripper_cmd = msg
         self.last_gripper_msg = rospy.Time.now()
 
     '''
@@ -140,18 +140,10 @@ class RobotFeatures:
     Also gets relative positions to objects at different frames of reference
     '''
     def GetForward(self,q):
+
         mat = self.kdl_kin.forward(q)
         f = pm.fromMatrix(mat)
 
-        #frames = []
-        #if objs==None:
-        #    for frame in self.world.values():
-        #        frames.append(frame.Inverse() * f)
-        #else:
-        #    for obj in objs:
-        #        frames.append(world[obj].Inverse() * f)
-
-        #return (f, frames)
         return f
 
     '''
