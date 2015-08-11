@@ -50,12 +50,30 @@ class RobotSkill:
     they also contain a description for our own purposes
     oh, and which objects are involved
     '''
-    def __init__(self,action_k=4,goal_k=4,obs={},name=""):
+    def __init__(self,data,params,goals,action_k=4,goal_k=4,objs={},name=""):
         self.name = name
-        self.action_model = GMM(n_components=action_k)
-        self.goal_model = GMM(n_components=goal_k)
 
-    def load_data(self):
-        pass
+        self.action_model = GMM(n_components=action_k,covariance_type="full")
+        self.goal_model = GMM(n_components=goal_k,covariance_type="full")
+        self.trajectory_model = GMM(n_components=1,covariance_type="full")
+        
+        # learn action, goal, and trajectory models
+        self.goal_model.fit(goals)
+        self.trajectory_model.fit(params)
 
+    def save(self,filename):
+        stream = file(filename,'w')
 
+        out = {}
+        out['name'] = self.name
+        out['action_model'] = self.action_model
+        out['goal_model'] = self.goal_model
+        out['trajectory_model'] = self.trajectory_model
+
+        yaml.dump(out,stream)
+
+'''
+Load a skill from a file
+'''
+def LoadRobotSkill(filename):
+    pass

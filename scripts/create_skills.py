@@ -1,5 +1,8 @@
 #!/usr/bin/env
 
+import grid
+import rospy
+
 '''
 Create skills
 * load demonstrations for each of the different actions
@@ -23,13 +26,23 @@ skill_filenames['approach'] = approach_filenames
 skill_filenames['grasp'] = grasp_filenames
 skill_filenames['transport'] = transport_filenames
 
+skill_objs = {'approach':['link'], 'grasp':['link'], 'transport':['link','node']}
+skill_fixed = {'approach':[], 'grasp':['link'], 'transport':['link']}
+
 # load data for each skill
-for name,filenames in skill_filenames:
+for name,filenames in skill_filenames.items():
 
-    for filename in filenames:
-
+    data,params,num_weights,goals = grid.LoadDataDMP(filenames)
 
     # create the skill object
-    skill = RobotSkill(name=name,action_k=ak,goal_k=gk)
+    skill = grid.RobotSkill(name=name,action_k=ak,goal_k=gk,data=data,params=params,goals=goals)#,num_weights=num_weights)
 
     skill.save(name+"_skill.yml")
+
+print "... Done creating skills."
+
+try:
+    while not rospy.is_shutdown():
+        pass
+except rospy.ROSInterruptException,e:
+    pass

@@ -85,13 +85,14 @@ Also learn a whole set of DMPs
 def LoadDataDMP(filenames):
     params = []
     data = []
+    goals = []
     for filename in filenames:
         print 'Loading demonstration from "%s"'%(filename)
         demo = LoadRobotFeatures(filename)
         
         print "Loaded data, computing features..."
         #fx,x,u,t = demo.get_features([('ee','link'),('ee','node'),('link','node')])
-        fx = demo.GetTrainingFeatures()
+        fx,g = demo.GetTrainingFeatures()
         x = demo.GetJointPositions()
 
         print "Fitting DMP for this trajectory..."
@@ -113,7 +114,8 @@ def LoadDataDMP(filenames):
         params += [[i for i in x[-1]] + dmp_weights]
 
         data.append((demo, fx, resp))
-    return (data, params, num_weights)
+        goals.append(g)
+    return (data, params, num_weights, goals)
 
 '''
 ParamFromDMP

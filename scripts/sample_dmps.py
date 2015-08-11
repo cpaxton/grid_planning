@@ -71,7 +71,7 @@ if __name__ == '__main__':
         filenames = ["app1.yml","app2.yml"]
 
 
-    data,params,num_weights = LoadDataDMP(filenames)
+    data,params,num_weights,goals = LoadDataDMP(filenames)
 
     print "Fitting GMM to trajectory parameters..."
     #Z = GMM(dim=len(params[0]),ncomps=2,data=np.array(params),method="kmeans")
@@ -81,14 +81,15 @@ if __name__ == '__main__':
     Z = Z.fit(params)
 
     print "Fitting GMM to expert goal features..."
-    training_data = [data[0][1][-1]]
-    for i in range(1,len(data)):
+    #training_data = [data[0][1][-1]]
+    #training_data = goals[0]
+    #for i in range(1,len(data)):
         #training_data = np.concatenate((training_data,data[i][1]))
-        training_data += [data[i][1][-1]]
+        #training_data += [data[i][1][-1]]
 
     #expert = GMM(n_components=2,covariance_type="full")
     expert = GMM(n_components=2,covariance_type="full")
-    expert = expert.fit(training_data)
+    expert = expert.fit(goals)
 
     print expert.means_
     print expert.covars_

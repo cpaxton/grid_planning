@@ -143,8 +143,8 @@ class RobotFeatures:
             self.indices[obj] = np.r_[3:10]
             self.max_index = 10
         else:
-            self.indices[obj] = np.r_[max_index:max_index+7]
-            self.max_index = max_index + 7
+            self.indices[obj] = np.r_[self.max_index:self.max_index+7]
+            self.max_index = self.max_index + 7
 
     '''
     GetForward
@@ -248,7 +248,7 @@ class RobotFeatures:
         #for i in range(len(traj)):
         #    t = float(i) / len(traj)
         #    f = self.GetFeatures(traj[i],t,world)
-        f = self.GetFeatures(traj[-1],1,world)
+        f = self.GetFeatures(traj[-1],1,world,objs=world.keys())
 
         if self.idx == None or not self.idx == idx:
             self.idx = idx
@@ -278,7 +278,7 @@ class RobotFeatures:
     GetFeatures
     Gets the features for a particular combination of world, time, and point.
     '''
-    def GetFeatures(self,pt,t,world):
+    def GetFeatures(self,pt,t,world,objs=None):
         features = []
 
         q = pt[:7]
@@ -289,7 +289,10 @@ class RobotFeatures:
         # compute forward transform
         ee_frame = self.GetForward(q)
 
-        for obj,obj_frame in world.items():
+        for obj in objs:
+
+            obj_frame = world[obj]
+
             #print (obj, obj_frame)
             offset = obj_frame.Inverse() * (self.base_tform * ee_frame)
             #offset = ((self.base_tform * ee_frame).Inverse() * obj_frame).Inverse()
@@ -327,14 +330,26 @@ class RobotFeatures:
         ftraj = [] # feature-space trajectory
         traj = self.GetTrajectory()
 
-        for i in range(len(traj)):
+        if objs == None or len(objs)==0:
+            objs = self.world_states[0].keys()
+
+        for i in range(1,len(traj)):
 
             features = []
+            diff = []
+
+            # compute features for difference between current and next end effector frame
+            f0 = self.GetForward(traj[i-1][:7])
+            f1 = self.GetForward(traj[i][:7])
+            df = f1.Inverse() * f0
+            diff = [df.p.Norm(), PyKDL.Vector(*df.M.GetRPY()).Norm()]
 
             # loop over objects/world at this time step
-            ftraj += [self.GetFeatures(traj[i],self.times[i],self.world_states[i]) + diff]
+            ftraj += [self.GetFeatures(traj[i-1],self.times[i-1],self.world_states[i-1],objs) + diff]
         
-        return ftraj
+        goal = self.GetFeatures(traj[-1],self.times[-1],self.world_states[-1],objs)
+
+        return ftraj,goal
 
     '''
     Compute velocity features
