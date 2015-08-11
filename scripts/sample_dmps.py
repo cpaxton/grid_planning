@@ -75,21 +75,32 @@ if __name__ == '__main__':
 
     print "Fitting GMM to trajectory parameters..."
     #Z = GMM(dim=len(params[0]),ncomps=2,data=np.array(params),method="kmeans")
+    #Z = GMM(covariance_type="full")
     Z = GMM(covariance_type="full")
-    Z.n_components = 2
+    Z.n_components = 1
     Z = Z.fit(params)
 
-    print "Fitting GMM to expert features..."
+    print "Fitting GMM to expert goal features..."
     training_data = [data[0][1][-1]]
     for i in range(1,len(data)):
         #training_data = np.concatenate((training_data,data[i][1]))
         training_data += [data[i][1][-1]]
 
-    expert = GMM(n_components=1,covariance_type="full")
+    #expert = GMM(n_components=2,covariance_type="full")
+    expert = GMM(n_components=2,covariance_type="full")
     expert = expert.fit(training_data)
+
     print expert.means_
     print expert.covars_
     print expert.covars_.shape
+
+    print "Fitting GMM to expert action features..."
+    training_data = [data[0][1]]
+    #for i in range(1,len(data)):
+    #    training_data = np.concatenate((training_data,data[i][1]))
+    #action = GMM(n_components=5,covariance_type="full")
+
+
     #expert = GMM(dim=training_data.shape[1],ncomps=5,data=training_data,method="kmeans")
 
     sub = rospy.Subscriber('/gazebo/barrett_manager/wam/joint_states',sensor_msgs.msg.JointState,js_cb)
@@ -129,9 +140,8 @@ if __name__ == '__main__':
     print "getting TF information for generating trajectories..."
 
     world = None
-    while world == None:
+    while world == None or not robot.TfUpdateWorld():
         world = robot.TfCreateWorld()
-        robot.TfUpdateWorld()
 
     world.pop('node')
     print world
@@ -146,18 +156,20 @@ if __name__ == '__main__':
 
     for i in range(Z.n_components):
         Z.covars_[i,:,:] += 0 * np.eye(Z.covars_.shape[1])
-    (lls,search_trajs,search_params,all_trajs) = grid.SearchDMP(Z,robot,world, # traj distribution
+    (lls,search_lls,search_trajs,search_params,all_trajs) = grid.SearchDMP(
+            Z,robot,world, # traj distribution, robot, and world
             x0,xdot0,t0,threshold,seg_length,tau,dt,int_iter, # DMP setup
             dmp=data[0][2].dmp_list, # dmp initialization
             ll_percentile=98,
             num_weights=num_weights,
             num_samples=300)
 
-    for i in range(10):
+    for i in range(5):
         Z = Z.fit(search_params)
         #for i in range(Z.n_components):
         #    Z.covars_[i,:,:] += 1e-2 * np.eye(Z.covars_.shape[1])
-        (lls,search_trajs,search_params,all_trajs) = grid.SearchDMP(Z,robot,world, # traj distribution
+        (lls,search_lls,search_trajs,search_params,all_trajs) = grid.SearchDMP(
+                Z,robot,world, # traj distribution, robot, and world
                 x0,xdot0,t0,threshold,seg_length,tau,dt,int_iter, # DMP setup
                 dmp=data[0][2].dmp_list, # dmp initialization
                 ll_percentile=98,
@@ -165,6 +177,24 @@ if __name__ == '__main__':
                 num_samples=300)
 
     Z = Z.fit(search_params)
+
+    print "sending best trajectory command..."
+
+    best_ll = np.max(search_lls)
+    best_idx = search_lls.index(best_ll)
+    traj = search_trajs[best_idx]
+
+    cmd = JointTrajectory()
+    for pt in traj:
+        cmd_pt = JointTrajectoryPoint()
+        cmd_pt.positions = pt
+        cmd.points.append(cmd_pt)
+
+    pub = rospy.Publisher('/gazebo/traj_rml/joint_traj_cmd',JointTrajectory)
+    rospy.sleep(rospy.Duration(0.1))
+    pub.publish(cmd)
+
+    print "creating trajectory messages..."
 
     search = MarkerArray()
     count = 1
@@ -186,9 +216,6 @@ if __name__ == '__main__':
             msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
 
     print "Showing trajectories now."
-
-    #pub = rospy.Publisher('/gazebo/traj_rml/joint_traj_cmd',JointTrajectory)
-    #pub.publish(cmd)
 
     msg.header.frame_id = base_link
     pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray)

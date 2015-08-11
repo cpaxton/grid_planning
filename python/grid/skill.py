@@ -50,7 +50,7 @@ class RobotSkill:
     they also contain a description for our own purposes
     oh, and which objects are involved
     '''
-    def __init__(self,action_k=4,goal_k=4,name=""):
+    def __init__(self,action_k=4,goal_k=4,obs={},name=""):
         self.name = name
         self.action_model = GMM(n_components=action_k)
         self.goal_model = GMM(n_components=goal_k)

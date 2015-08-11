@@ -45,7 +45,7 @@ class RobotFeatures:
             world_frame='/world',
             js_topic='/gazebo/barrett_manager/wam/joint_states',
             gripper_topic='/gazebo/barrett_manager/hand/cmd',
-            objects={},
+            objects={}, indices={},
             robot_description_param='robot_description'):
 
         self.world_frame = world_frame
@@ -75,6 +75,9 @@ class RobotFeatures:
         self.joint_states = []
         self.gripper_cmds = []
         self.world_states = []
+
+        self.indices = indices
+        self.max_index = 10
 
         self.feature_model = None
         self.sub_model = None
@@ -108,6 +111,9 @@ class RobotFeatures:
             data['end_link'] = self.end_link
             data['robot_description_param'] = self.robot_description_param
             data['base_tform'] = self.base_tform
+            data['objects'] = self.objects
+            data['indices'] = self.indices
+            data['max_index'] = self.max_index
 
             yaml.dump(data,stream)
 
@@ -133,6 +139,12 @@ class RobotFeatures:
     '''
     def AddObject(self,obj,frame):
         self.objects[obj] = frame
+        if len(self.indices) == 0:
+            self.indices[obj] = np.r_[3:10]
+            self.max_index = 10
+        else:
+            self.indices[obj] = np.r_[max_index:max_index+7]
+            self.max_index = max_index + 7
 
     '''
     GetForward
@@ -241,8 +253,12 @@ class RobotFeatures:
         if self.idx == None or not self.idx == idx:
             self.idx = idx
             self.sub_model = copy.deepcopy(self.goal_model)
-            self.sub_model.means_ = self.goal_model.means_[:,self.idx[0]:self.idx[1]]
-            self.sub_model.covars_ = step*self.goal_model.covars_[:,self.idx[0]:self.idx[1],self.idx[0]:self.idx[1]] + sigma*np.eye(self.idx[1]-self.idx[0])
+            if self.goal_model.covariance_type == "full":
+                self.sub_model.means_ = self.goal_model.means_[:,self.idx[0]:self.idx[1]]
+                self.sub_model.covars_ = step*self.goal_model.covars_[:,self.idx[0]:self.idx[1],self.idx[0]:self.idx[1]] + sigma*np.eye(self.idx[1]-self.idx[0])
+            elif self.goal_model.covariance_type == "diag":
+                self.sub_model.means_ = self.goal_model.means_[:,self.idx[0]:self.idx[1]]
+                self.sub_model.covars_ = step*self.goal_model.covars_[:,self.idx[0]:self.idx[1]]
 
         return self.sub_model.score(f)
 
@@ -292,6 +308,8 @@ class RobotFeatures:
     def GetFeaturesDiff(self):
         ftraj = []
 
+        print "ERR: not implemented yet!"
+
     '''
     GetFeatures
     '''
@@ -314,7 +332,7 @@ class RobotFeatures:
             features = []
 
             # loop over objects/world at this time step
-            ftraj += [self.GetFeatures(traj[i],self.times[i],self.world_states[i])]
+            ftraj += [self.GetFeatures(traj[i],self.times[i],self.world_states[i]) + diff]
         
         return ftraj
 
@@ -378,6 +396,11 @@ def LoadRobotFeatures(filename):
     r.world_states = data['world_states']
     r.times = data['times']
     r.base_tform = data['base_tform']
+
+    if data.has_key('indices'):
+        r.indices = data['indices']
+    if data.has_key('max_index'):
+        r.max_index = data['max_index']
 
     r.recorded = True
 

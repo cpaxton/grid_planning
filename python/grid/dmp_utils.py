@@ -177,6 +177,7 @@ def SearchDMP(Z,robot,world,
         gen_trajs.append(traj)
         gen_params.append(ParamFromDMP(goal,dmp2))
 
+    search_lls = []
     search_trajs = []
     search_params = []
 
@@ -188,10 +189,11 @@ def SearchDMP(Z,robot,world,
         if ll > ll_threshold:
             search_params.append(param)
             search_trajs.append(traj)
+            search_lls.append(ll)
 
 
     print "... Done. Average goal probability: %f"%(np.mean(lls))
     print "    Found %d with p>%f."%(len(search_params),ll_threshold)
 
-    return lls,search_trajs,search_params,gen_trajs
+    return lls,search_lls,search_trajs,search_params,gen_trajs
 
