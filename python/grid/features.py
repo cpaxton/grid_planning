@@ -243,7 +243,7 @@ class RobotFeatures:
 
         return msg
 
-    def GetTrajectoryLikelihood(self,traj,world,idx,step=3.,sigma=0.):
+    def GetTrajectoryLikelihood(self,traj,world,idx,step=1.,sigma=0.000):
 
         #for i in range(len(traj)):
         #    t = float(i) / len(traj)

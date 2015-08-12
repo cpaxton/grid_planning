@@ -79,6 +79,7 @@ if __name__ == '__main__':
     Z = GMM(covariance_type="full")
     Z.n_components = 1
     Z = Z.fit(params)
+    Z.covars_[0,:,:] = Z.covars_[0,:,:] + 1*np.eye(Z.covars_.shape[1])
 
     print "Fitting GMM to expert goal features..."
     #training_data = [data[0][1][-1]]
@@ -163,9 +164,9 @@ if __name__ == '__main__':
             dmp=data[0][2].dmp_list, # dmp initialization
             ll_percentile=98,
             num_weights=num_weights,
-            num_samples=300)
+            num_samples=500)
 
-    for i in range(5):
+    for i in range(10):
         Z = Z.fit(search_params)
         #for i in range(Z.n_components):
         #    Z.covars_[i,:,:] += 1e-2 * np.eye(Z.covars_.shape[1])
@@ -175,7 +176,7 @@ if __name__ == '__main__':
                 dmp=data[0][2].dmp_list, # dmp initialization
                 ll_percentile=98,
                 num_weights=num_weights,
-                num_samples=300)
+                num_samples=500)
 
     Z = Z.fit(search_params)
 
@@ -203,10 +204,10 @@ if __name__ == '__main__':
         wt = np.exp(ll)
         for pt in traj:
             count += 1
-            f = robot.GetForward(pt[:7])
+            #f = robot.GetForward(pt[:7])
             #msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
 
-            if count % 5 == 0:
+            if count % 10 == 0:
                 marker = GetMarkerMsg(robot,pt[:7],wt,len(search.markers))
                 search.markers.append(marker)
 
