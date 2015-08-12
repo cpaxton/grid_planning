@@ -47,7 +47,7 @@ if __name__ == "__main__":
 
         print "Loaded data from '%s', computing features..."%(filename)
         #fx,x,u,t = demo.get_features([('ee','link'),('ee','node'),('link','node')])
-        fx = demo.GetTrainingFeatures()
+        fx,goal = demo.GetTrainingFeatures()
 
         print "Done computing features. %d total time steps."%(len(fx))
         data.append((demo, np.array(fx)))

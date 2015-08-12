@@ -79,18 +79,19 @@ if __name__ == '__main__':
     Z = GMM(covariance_type="full")
     Z.n_components = 1
     Z = Z.fit(params)
-    Z.covars_[0,:,:] = Z.covars_[0,:,:] + 1*np.eye(Z.covars_.shape[1])
+    #Z.covars_[0,:,:] = Z.covars_[0,:,:] + 1*np.eye(Z.covars_.shape[1])
 
     print "Fitting GMM to expert goal features..."
-    #training_data = [data[0][1][-1]]
-    #training_data = goals[0]
-    #for i in range(1,len(data)):
-        #training_data = np.concatenate((training_data,data[i][1]))
+    training_data = np.array(data[0][1])
+    for i in range(1,len(data)):
+        training_data = np.concatenate((training_data,data[i][1]))
         #training_data += [data[i][1][-1]]
+    print training_data.shape
 
     #expert = GMM(n_components=2,covariance_type="full")
-    expert = GMM(n_components=2,covariance_type="full")
+    expert = GMM(n_components=1,covariance_type="full")
     expert = expert.fit(goals)
+    expert.covars_[0] = np.eye(expert.covars_.shape[1])
 
     print expert.means_
     print expert.covars_
@@ -157,7 +158,7 @@ if __name__ == '__main__':
     print "generating new trajectories..."
 
     for i in range(Z.n_components):
-        Z.covars_[i,:,:] += 0 * np.eye(Z.covars_.shape[1])
+        Z.covars_[i,:,:] += 1 * np.eye(Z.covars_.shape[1])
     (lls,search_lls,search_trajs,search_params,all_trajs) = grid.SearchDMP(
             Z,robot,world, # traj distribution, robot, and world
             x0,xdot0,t0,threshold,seg_length,tau,dt,int_iter, # DMP setup
@@ -168,6 +169,7 @@ if __name__ == '__main__':
 
     for i in range(10):
         Z = Z.fit(search_params)
+        Z.covars_[0,:,:] += 0.00001 * np.eye(Z.covars_.shape[1])
         #for i in range(Z.n_components):
         #    Z.covars_[i,:,:] += 1e-2 * np.eye(Z.covars_.shape[1])
         (lls,search_lls,search_trajs,search_params,all_trajs) = grid.SearchDMP(
@@ -210,23 +212,53 @@ if __name__ == '__main__':
             if count % 10 == 0:
                 marker = GetMarkerMsg(robot,pt[:7],wt,len(search.markers))
                 search.markers.append(marker)
+        """
+        marker = GetMarkerMsg(robot,traj[0][:7],wt,len(search.markers))
+        search.markers.append(marker)
+        marker = GetMarkerMsg(robot,traj[-1][:7],wt,len(search.markers))
+        search.markers.append(marker)
+        """
 
     msg = PoseArray()
     for traj in all_trajs:
+        """
         for pt in traj:
             f = robot.GetForward(pt[:7])
             msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
+        """
+        f = robot.GetForward(traj[0][:7])
+        msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
+        f = robot.GetForward(traj[-1][:7])
+        msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
+        print f.M.GetRPY()
+        print f.p
+        print np.array(robot.GetFeatures(traj[-1],1,world,['link'])) - expert.means_[0,3:10]
+        print np.array(robot.GetFeatures(traj[-1],1,world,['link']))
+        print expert.means_[0,3:10]
+        print "---"
+
+
+    dbg_ee_poses = PoseArray()
+    dbg_ee_poses.header.frame_id = "/gbeam_link_1/gbeam_link"
+
+    tr = PyKDL.Vector(expert.means_[0,10],expert.means_[0,11],expert.means_[0,12])
+    ro = PyKDL.Rotation.RPY(expert.means_[0,13],expert.means_[0,14],expert.means_[0,15])
+    f = PyKDL.Frame(ro,tr)
+    dbg_ee_poses.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
+
 
     print "Showing trajectories now."
 
     msg.header.frame_id = base_link
     pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray)
+    pa_pub = rospy.Publisher('/dbg_ee_link',PoseArray)
 
     pub2 = rospy.Publisher('/search_trajectory',MarkerArray)
 
     try:
         while not rospy.is_shutdown():
             pa_ee_pub.publish(msg)
+            pa_pub.publish(dbg_ee_poses)
             pub2.publish(search)
             rate.sleep()
     except rospy.ROSInterruptException, ex:

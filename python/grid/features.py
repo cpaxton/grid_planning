@@ -87,6 +87,7 @@ class RobotFeatures:
         self.gripper_topic = gripper_topic
 
         self.recorded = False
+        self.quiet = True # by default hide TF error messages
 
     def StartRecording(self):
         if self.recorded:
@@ -176,7 +177,8 @@ class RobotFeatures:
                 self.world[obj] = pm.fromTf((trans,rot))
 
             except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException), e:
-                print "ERR: %s"%(e)
+                if not self.quiet:
+                    print "ERR: %s"%(e)
                 return False
 
         try:
@@ -184,7 +186,8 @@ class RobotFeatures:
             self.base_tform = pm.fromTf((trans,rot))
 
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException), e:
-            print "ERR: %s"%(e)
+            if not self.quiet:
+                print "ERR: %s"%(e)
             return False
 
 
@@ -200,7 +203,8 @@ class RobotFeatures:
                 (trans,rot) = self.tfl.lookupTransform(self.world_frame,frame,rospy.Time(0))
                 world[obj] = pm.fromTf((trans,rot))
             except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException), e:
-                print "ERR: %s"%(e)
+                if not self.quiet:
+                    print "ERR: %s"%(e)
                 return None
 
         return world
