@@ -265,10 +265,8 @@ class RobotFeatures:
         while i < len(traj)-1:
             t = i / len(traj)
             f = self.GetFeatures(traj[i],t,world,objs)
-            f0 = self.GetForward(traj[i-1][:7])
-            f1 = self.GetForward(traj[i][:7])
-            df = f1.Inverse() * f0
-            diff = [df.p.Norm(), df.M.GetRotAngle()[0]]
+
+            diff = self.GetDiffFeatures(traj[i-1][:self.dof],traj[i][:self.dof])
 
             #lls[i] = self.traj_model.score(f + diff)
             ll = self.traj_model.score(f + diff)
@@ -352,10 +350,11 @@ class RobotFeatures:
             diff = []
 
             # compute features for difference between current and next end effector frame
-            f0 = self.GetForward(traj[i-1][:7])
-            f1 = self.GetForward(traj[i][:7])
-            df = f1.Inverse() * f0
-            diff = [df.p.Norm(), df.M.GetRotAngle()[0]]
+            #f0 = self.GetForward(traj[i-1][:7])
+            #f1 = self.GetForward(traj[i][:7])
+            #df = f1.Inverse() * f0
+            #diff = [df.p.Norm(), df.M.GetRotAngle()[0]]
+            diff = self.GetDiffFeatures(traj[i-1][:self.dof],traj[i][:self.dof])
 
             # loop over objects/world at this time step
             t = (self.times[i-1].to_sec() - start_t) / (end_t - start_t)
@@ -411,6 +410,17 @@ class RobotFeatures:
 
         return labels
 
+    '''
+    Get the diff features we are using
+    These are the translation, distance, and axis-angle rotation between frames
+    '''
+    def GetDiffFeatures(self,q0,q1):
+            f0 = self.GetForward(q0)
+            f1 = self.GetForward(q1)
+            df = f1.Inverse() * f0
+            theta,w = df.M.GetRotAngle()
+            diff = [x for x in df.p] + [df.p.Norm(), theta] + [ww for ww in w]
+            return diff
     '''
     GetJointPositions()
     Just get the positions of each joint
