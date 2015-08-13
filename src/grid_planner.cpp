@@ -5,5 +5,9 @@ using namespace dmp;
 
 namespace grid {
 
+  GridPlanner::GridPlanner(std::string robot_description_) : nh() {
+    // no contents yet
+    // needs to set up the Robot objects and listeners
+  }
 
 }
