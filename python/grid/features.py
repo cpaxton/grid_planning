@@ -89,7 +89,6 @@ class RobotFeatures:
 
         self.feature_model = None
         self.sub_model = None
-        self.idx = None
 
         self.js_topic = js_topic
         self.gripper_topic = gripper_topic
@@ -254,18 +253,6 @@ class RobotFeatures:
 
         f = self.GetFeatures(traj[-1],1,world,objs)
 
-        '''
-        if self.idx == None or not self.idx == idx:
-            self.idx = idx
-            self.sub_model = copy.deepcopy(self.goal_model)
-            if self.goal_model.covariance_type == "full":
-                self.sub_model.means_ = self.goal_model.means_[:,self.idx[0]:self.idx[1]]
-                self.sub_model.covars_ = step*self.goal_model.covars_[:,self.idx[0]:self.idx[1],self.idx[0]:self.idx[1]] + sigma*np.eye(self.idx[1]-self.idx[0])
-            elif self.goal_model.covariance_type == "diag":
-                self.sub_model.means_ = self.goal_model.means_[:,self.idx[0]:self.idx[1]]
-                self.sub_model.covars_ = step*self.goal_model.covars_[:,self.idx[0]:self.idx[1]]
-        '''
-
         return self.goal_model.score(f)
 
     '''
@@ -291,18 +278,17 @@ class RobotFeatures:
                 features += pt[self.dof:]
             else:
 
+                # we care about this world object...
                 obj_frame = world[obj]
 
-                #print (obj, obj_frame)
+                # ... so get object offset to end effector ...
                 offset = obj_frame.Inverse() * (self.base_tform * ee_frame)
-                #offset = ((self.base_tform * ee_frame).Inverse() * obj_frame).Inverse()
 
+                # ... use position offset and distance ...
                 features += offset.p
-                #features += offset.M.GetRPY()
-                #A = pm.toMatrix(offset)[:3,:3]
-                #features += [np.arccos((np.trace(A) - 1) / 2),0,0,0]
                 features += [offset.p.Norm()]
 
+                # ... and use axis/angle representation
                 (theta,w) = offset.M.GetRotAngle()
                 features += [theta] + [ww for ww in w]
 
