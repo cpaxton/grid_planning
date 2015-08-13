@@ -232,17 +232,18 @@ if __name__ == '__main__':
         msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
         print f.M.GetRPY()
         print f.p
-        print np.array(robot.GetFeatures(traj[-1],1,world,['link'])) - expert.means_[0,3:10]
+        print np.array(robot.GetFeatures(traj[-1],1,world,['link'])) - expert.means_[0,10:17]
         print np.array(robot.GetFeatures(traj[-1],1,world,['link']))
-        print expert.means_[0,3:10]
+        print expert.means_[0,10:17]
         print "---"
 
 
     dbg_ee_poses = PoseArray()
     dbg_ee_poses.header.frame_id = "/gbeam_link_1/gbeam_link"
 
-    tr = PyKDL.Vector(expert.means_[0,10],expert.means_[0,11],expert.means_[0,12])
-    ro = PyKDL.Rotation.RPY(expert.means_[0,13],expert.means_[0,14],expert.means_[0,15])
+    mean_idx = 10
+    tr = PyKDL.Vector(expert.means_[0,mean_idx],expert.means_[0,mean_idx+1],expert.means_[0,mean_idx+2])
+    ro = PyKDL.Rotation.RPY(expert.means_[0,mean_idx+3],expert.means_[0,mean_idx+4],expert.means_[0,mean_idx+5])
     f = PyKDL.Frame(ro,tr)
     dbg_ee_poses.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
 

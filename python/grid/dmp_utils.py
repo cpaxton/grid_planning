@@ -156,6 +156,8 @@ def SearchDMP(Z,robot,world,
     #print "Search iteration:"
     dmps = Z.sample(100)
 
+    assert(len(world.keys())==1)
+
     #search = MarkerArray()
     gen_trajs = []
     gen_params = []
@@ -172,7 +174,8 @@ def SearchDMP(Z,robot,world,
         #print ll
 
         traj = [pt.positions[:7] for pt in plan.plan.points]
-        ll = robot.GetTrajectoryLikelihood(traj,world,(3,3+(7*len(world.keys()))))
+        ll = robot.GetTrajectoryLikelihood(traj,world,(10,17))
+        #ll = robot.GetTrajectoryLikelihood(traj,world,(3,3+(7*len(world.keys()))))
 
         lls.append(ll)
 

@@ -32,6 +32,9 @@ from oro_barrett_msgs.msg import BHandCmd
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import PoseArray
 
+TIME = 'time'
+GRIPPER = 'gripper'
+
 class RobotFeatures:
 
     '''
@@ -194,20 +197,12 @@ class RobotFeatures:
         return True
 
     '''
-    Create a world; does not store the results or anything like that
+    Create a world and return it; just calls TfUpdateWorld() to do this (the updated world is the local copy)
     '''
     def TfCreateWorld(self):
-        world = {}
-        for (obj,frame) in self.objects.items():
-            try:
-                (trans,rot) = self.tfl.lookupTransform(self.world_frame,frame,rospy.Time(0))
-                world[obj] = pm.fromTf((trans,rot))
-            except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException), e:
-                if not self.quiet:
-                    print "ERR: %s"%(e)
-                return None
+        self.TfUpdateWorld()
 
-        return world
+        return self.world
 
     '''
     Get an actual trajectory: the things we are trying to learn how to reproduce
@@ -283,7 +278,12 @@ class RobotFeatures:
     Gets the features for a particular combination of world, time, and point.
     '''
     def GetFeatures(self,pt,t,world,objs=None):
-        features = []
+
+        if TIME in objs:
+            features = [t]
+            objs.remove(TIME)
+        else:
+            features = []
 
         q = pt[:7]
         gripper_cmd = pt[7:]
@@ -337,6 +337,8 @@ class RobotFeatures:
         if objs == None or len(objs)==0:
             objs = self.world_states[0].keys()
 
+        start_t = self.times[0].to_sec()
+        end_t = self.times[-1].to_sec()
         for i in range(1,len(traj)):
 
             features = []
@@ -349,9 +351,10 @@ class RobotFeatures:
             diff = [df.p.Norm(), PyKDL.Vector(*df.M.GetRPY()).Norm()]
 
             # loop over objects/world at this time step
-            ftraj += [self.GetFeatures(traj[i-1],self.times[i-1],self.world_states[i-1],objs) + diff]
+            t = (self.times[i-1].to_sec() - start_t) / (end_t - start_t)
+            ftraj += [self.GetFeatures(traj[i-1],t,self.world_states[i-1],objs) + diff]
         
-        goal = self.GetFeatures(traj[-1],self.times[-1],self.world_states[-1],objs)
+        goal = self.GetFeatures(traj[-1],1.0,self.world_states[-1],objs)
 
         return ftraj,goal
 
