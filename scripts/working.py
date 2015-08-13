@@ -48,4 +48,7 @@ filenames = ["app1.yml","app2.yml","app3.yml"]
 rospy.init_node('ipython')
 data,params,num_weights,goals = LoadDataDMP(filenames)
 
+data = grid.LoadRobotFeatures('app3.yml')
+fx,goal = data.GetTrainingFeatures(['link'])
+
 

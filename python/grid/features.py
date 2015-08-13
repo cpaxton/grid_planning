@@ -34,6 +34,9 @@ from geometry_msgs.msg import PoseArray
 
 TIME = 'time'
 GRIPPER = 'gripper'
+NUM_OBJ_VARS = 8
+NUM_GRIPPER_VARS = 3
+NUM_TIME_VARS = 1
 
 class RobotFeatures:
 
@@ -49,8 +52,10 @@ class RobotFeatures:
             js_topic='/gazebo/barrett_manager/wam/joint_states',
             gripper_topic='/gazebo/barrett_manager/hand/cmd',
             objects={}, indices={},
-            robot_description_param='robot_description'):
+            robot_description_param='robot_description',
+            dof=7):
 
+        self.dof = dof;
         self.world_frame = world_frame
         self.base_link = base_link
         self.end_link = end_link
@@ -80,7 +85,7 @@ class RobotFeatures:
         self.world_states = []
 
         self.indices = indices
-        self.max_index = 10
+        self.max_index = 0
 
         self.feature_model = None
         self.sub_model = None
@@ -140,15 +145,19 @@ class RobotFeatures:
 
     '''
     Add an object we can use as a reference
+    for now number of gripper, object variables are all hard coded
     '''
-    def AddObject(self,obj,frame):
-        self.objects[obj] = frame
-        if len(self.indices) == 0:
-            self.indices[obj] = np.r_[3:10]
-            self.max_index = 10
+    def AddObject(self,obj,frame=""):
+        if obj == TIME:
+            nvars = NUM_TIME_VARS
+        elif obj == GRIPPER:
+            nvars = NUM_GRIPPER_VARS
         else:
-            self.indices[obj] = np.r_[self.max_index:self.max_index+7]
-            self.max_index = self.max_index + 7
+            nvars = NUM_OBJ_VARS
+            self.objects[obj] = frame
+
+        self.indices[obj] = (self.max_index,self.max_index+nvars)
+        self.max_index += nvars
 
     '''
     GetForward
@@ -201,7 +210,6 @@ class RobotFeatures:
     '''
     def TfCreateWorld(self):
         self.TfUpdateWorld()
-
         return self.world
 
     '''
@@ -210,7 +218,7 @@ class RobotFeatures:
     def GetTrajectory(self):
         traj = []
         for i in range(len(self.times)):
-            pt = [j for j in self.joint_states[i].position[:7]] + [k for k in self.gripper_cmds[i].cmd[:3]]
+            pt = [j for j in self.joint_states[i].position[:self.dof]] + [k for k in self.gripper_cmds[i].cmd[:NUM_GRIPPER_VARS]]
             traj.append(pt)
         return traj
 
@@ -244,9 +252,6 @@ class RobotFeatures:
 
     def GetTrajectoryLikelihood(self,traj,world,idx,step=1.,sigma=0.000):
 
-        #for i in range(len(traj)):
-        #    t = float(i) / len(traj)
-        #    f = self.GetFeatures(traj[i],t,world)
         f = self.GetFeatures(traj[-1],1,world,objs=world.keys())
 
         if self.idx == None or not self.idx == idx:
@@ -261,61 +266,45 @@ class RobotFeatures:
 
         return self.sub_model.score(f)
 
-    def GetLikelihood(self,pt,t,world,idx,step=10,sigma=0.00001):
-        if self.idx == None or not self.idx == idx:
-            self.idx = idx
-            self.sub_model = copy.deepcopy(self.feature_model)
-            self.sub_model.means_ = self.feature_model.means_[:,self.idx]
-            self.sub_model.covars_ = step*self.feature_model.covars_[:,self.idx] + sigma*np.eye(self.idx[1]-self.idx[0])
-        
-        x = self.GetFeatures(pt,t,world)
-
-        return self.sub_model.score(x)
-
-
     '''
     GetFeatures
     Gets the features for a particular combination of world, time, and point.
     '''
     def GetFeatures(self,pt,t,world,objs=None):
 
-        if TIME in objs:
-            features = [t]
-            objs.remove(TIME)
-        else:
-            features = []
+        if objs==None:
+            objs = self.indices.keys()
 
-        q = pt[:7]
-        gripper_cmd = pt[7:]
-
-        features += gripper_cmd # include gripper closure as a feature
+        features = []
 
         # compute forward transform
+        q = pt[:self.dof]
         ee_frame = self.GetForward(q)
 
         for obj in objs:
 
-            obj_frame = world[obj]
+            if obj == TIME:
+                features += [t]
+            elif obj == GRIPPER:
+                features += pt[self.dof:]
+            else:
 
-            #print (obj, obj_frame)
-            offset = obj_frame.Inverse() * (self.base_tform * ee_frame)
-            #offset = ((self.base_tform * ee_frame).Inverse() * obj_frame).Inverse()
+                obj_frame = world[obj]
 
-            features += offset.p
-            features += offset.M.GetRPY()
-            features += [offset.p.Norm()]
+                #print (obj, obj_frame)
+                offset = obj_frame.Inverse() * (self.base_tform * ee_frame)
+                #offset = ((self.base_tform * ee_frame).Inverse() * obj_frame).Inverse()
+
+                features += offset.p
+                #features += offset.M.GetRPY()
+                #A = pm.toMatrix(offset)[:3,:3]
+                #features += [np.arccos((np.trace(A) - 1) / 2),0,0,0]
+                features += [offset.p.Norm()]
+
+                (theta,w) = offset.M.GetRotAngle()
+                features += [theta] + [ww for ww in w]
 
         return features
-
-    '''
-    GetFeaturesDiff
-    Compute forward kinematics
-    Look up changes in frames over time
-    '''
-    def GetFeaturesDiff(self):
-        ftraj = []
-
-        print "ERR: not implemented yet!"
 
     '''
     GetFeatures
@@ -331,11 +320,11 @@ class RobotFeatures:
     '''
     def GetTrainingFeatures(self,objs=None):
         
+        if objs == None:
+            objs = self.indices.keys()
+        
         ftraj = [] # feature-space trajectory
         traj = self.GetTrajectory()
-
-        if objs == None or len(objs)==0:
-            objs = self.world_states[0].keys()
 
         start_t = self.times[0].to_sec()
         end_t = self.times[-1].to_sec()
@@ -379,18 +368,29 @@ class RobotFeatures:
     Gets a set of string labels, one for each feature.
     This is to make debugging/visualizing results a little bit easier.
     '''
-    def GetFeatureLabels(self):
+    def GetFeatureLabels(self,objs=None):
+        
+        if objs==None:
+            objs = self.indices.keys()
 
-        labels = ["gripper1", "gripper2", "gripper3"]
+        labels = []
 
-        for obj in self.world_states[0].keys():
-            labels += ["%s_ee_x"%obj]
-            labels += ["%s_ee_y"%obj]
-            labels += ["%s_ee_z"%obj]
-            labels += ["%s_ee_roll"%obj]
-            labels += ["%s_ee_pitch"%obj]
-            labels += ["%s_ee_yaw"%obj]
-            labels += ["%s_ee_dist"%obj]
+        for obj in objs: #self.world_states[0].keys():
+
+            if obj == TIME:
+                labels += ["time"]
+            elif obj == GRIPPER:
+                labels += ["gripper1", "gripper2", "gripper3"]
+            else:
+                labels += ["%s_ee_x"%obj]
+                labels += ["%s_ee_y"%obj]
+                labels += ["%s_ee_z"%obj]
+                labels += ["%s_ee_dist"%obj]
+                labels += ["%s_ee_theta"%obj]
+                labels += ["%s_ee_wx"%obj]
+                labels += ["%s_ee_wy"%obj]
+                labels += ["%s_ee_wz"%obj]
+
         return labels
 
     '''
@@ -421,32 +421,12 @@ def LoadRobotFeatures(filename):
 
     if data.has_key('indices'):
         r.indices = data['indices']
-    if data.has_key('max_index'):
         r.max_index = data['max_index']
+    else: # initialize the indices
+        for obj in r.world_states[0].keys():
+            r.AddObject(obj)
 
     r.recorded = True
 
     return r
 
-'''
-import rospy
-import grid
-rospy.init_node('testing')
-r = grid.RobotFeatures()
-r.AddObject("platform","/platform_link")
-r.TfUpdateWorld()
-rospy.sleep(rospy.Duration(0.5))
-r.TfUpdateWorld()
-r.GetForward([0,0,0,0,0,0,0])
-#r.StartRecording()
-
-world='/world'
-frame='/wam/hand/bhand_palm_link'
-obj1='/gbeam_link_1/gbeam_link'
-obj2='/gbeam_node_1/gbeam_node'
-r.AddObject("link",obj1);
-r.AddObject("node",obj2);
-
-r.save("test.yml")
-r2 = LoadRobotFeatures("test.yml")
-'''

@@ -1,20 +1,23 @@
 #!/usr/bin/env python
 
+import rospy
 import grid
 import matplotlib.pyplot as plt
 import numpy as np
 
+rospy.init_node('plot_data_node')
 '''
 PLOT_DATA
 This script goes through some data, shows some python plots, and experiments a bit with HDP-HSMM clustering.
 The idea is that we can use this sort of clustering to detect repeated segments.
 Each segment 
 '''
-
-frames=[('ee','link'),('ee','node')]
+#frames=[('ee','link'),('ee','node')]
+frames=['link','node']
 data = grid.LoadRobotFeatures('app3.yml')
-fx = data.GetTrainingFeatures(frames)
+fx,goal = data.GetTrainingFeatures(frames)
 ndata = np.array(fx)
+print ndata.shape
 
 #xx = np.array(range(ndata.shape[0]-1))
 xx = np.array(range(ndata.shape[0]))
@@ -67,10 +70,11 @@ posteriormodel = pyhsmm.models.WeakLimitHDPHSMM(
 
 
 data2 = grid.LoadRobotFeatures('app2.yml')
-fx = data2.GetTrainingFeatures(frames)
+fx,goals = data2.GetTrainingFeatures(frames)
 ndata2 = np.array(fx)
+
 data1 = grid.LoadRobotFeatures('app1.yml')
-fx = data1.GetTrainingFeatures(frames)
+fx,goals = data1.GetTrainingFeatures(frames)
 ndata1 = np.array(fx)
 
 ndata = np.diff(ndata,axis=0)
