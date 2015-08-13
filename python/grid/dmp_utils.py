@@ -82,7 +82,7 @@ LoadDataDMP
 Go through a list of filenames and load all of them into memory
 Also learn a whole set of DMPs
 '''
-def LoadDataDMP(filenames):
+def LoadDataDMP(filenames,objs):
     params = []
     data = []
     goals = []
@@ -92,7 +92,7 @@ def LoadDataDMP(filenames):
         
         print "Loaded data, computing features..."
         #fx,x,u,t = demo.get_features([('ee','link'),('ee','node'),('link','node')])
-        fx,g = demo.GetTrainingFeatures()
+        fx,g = demo.GetTrainingFeatures(objs=objs)
         x = demo.GetJointPositions()
 
         print "Fitting DMP for this trajectory..."

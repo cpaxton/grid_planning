@@ -71,7 +71,7 @@ if __name__ == '__main__':
         filenames = ["app1.yml","app2.yml"]
 
 
-    data,params,num_weights,goals = LoadDataDMP(filenames)
+    data,params,num_weights,goals = LoadDataDMP(filenames,['link'])
 
     print "Fitting GMM to trajectory parameters..."
     #Z = GMM(dim=len(params[0]),ncomps=2,data=np.array(params),method="kmeans")
