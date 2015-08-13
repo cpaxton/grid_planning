@@ -91,11 +91,7 @@ if __name__ == '__main__':
     #expert = GMM(n_components=2,covariance_type="full")
     expert = GMM(n_components=1,covariance_type="full")
     expert = expert.fit(goals)
-    expert.covars_[0] = np.eye(expert.covars_.shape[1])
-
-    print expert.means_
-    print expert.covars_
-    print expert.covars_.shape
+    #expert.covars_[0] = np.eye(expert.covars_.shape[1])
 
     print "Fitting GMM to expert action features..."
     training_data = [data[0][1]]
@@ -169,7 +165,7 @@ if __name__ == '__main__':
 
     for i in range(10):
         Z = Z.fit(search_params)
-        Z.covars_[0,:,:] += 0.00001 * np.eye(Z.covars_.shape[1])
+        Z.covars_[0,:,:] += 0.000001 * np.eye(Z.covars_.shape[1])
         #for i in range(Z.n_components):
         #    Z.covars_[i,:,:] += 1e-2 * np.eye(Z.covars_.shape[1])
         (lls,search_lls,search_trajs,search_params,all_trajs) = grid.SearchDMP(
@@ -230,11 +226,8 @@ if __name__ == '__main__':
         msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
         f = robot.GetForward(traj[-1][:7])
         msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
-        print f.M.GetRPY()
-        print f.p
+
         print np.array(robot.GetFeatures(traj[-1],1,world,['link'])) - expert.means_[0,10:17]
-        print np.array(robot.GetFeatures(traj[-1],1,world,['link']))
-        print expert.means_[0,10:17]
         print "---"
 
 
@@ -246,7 +239,6 @@ if __name__ == '__main__':
     ro = PyKDL.Rotation.RPY(expert.means_[0,mean_idx+3],expert.means_[0,mean_idx+4],expert.means_[0,mean_idx+5])
     f = PyKDL.Frame(ro,tr)
     dbg_ee_poses.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
-
 
     print "Showing trajectories now."
 
