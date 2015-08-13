@@ -258,6 +258,8 @@ class RobotFeatures:
     def GetTrajectoryLikelihood(self,traj,world,objs,step=1.,sigma=0.000):
 
         lls = np.zeros(len(traj)-1)
+        isum = 0
+
         i = 0
         #for i in range(len(traj)-1):
         while i < len(traj)-1:
@@ -268,14 +270,23 @@ class RobotFeatures:
             df = f1.Inverse() * f0
             diff = [df.p.Norm(), df.M.GetRotAngle()[0]]
 
+            #lls[i] = self.traj_model.score(f + diff)
+            ll = self.traj_model.score(f + diff)
             lls[i] = self.traj_model.score(f + diff)
+            isum += i
 
-            i += 20
+            i += 25
+
+        avg = 0
+        i = 0
+        while i < len(traj)-1:
+            avg += (float(i) / float(isum)) * lls[i] 
+            i += 25
 
 
         f = self.GetFeatures(traj[-1],1,world,objs)
 
-        return self.goal_model.score(f) + np.min(lls)
+        return self.goal_model.score(f) + avg
 
     '''
     GetFeatures
