@@ -249,7 +249,22 @@ class RobotFeatures:
 
         return msg
 
+    '''
+    GetTrajectoryLikelihood
+    slow computation of trajectory likelihood...
+    Computes the same features as before
+    Will then score them as per usual
+    '''
     def GetTrajectoryLikelihood(self,traj,world,objs,step=1.,sigma=0.000):
+
+        for i in range(len(traj)-1):
+            t = i / len(traj)
+            f = self.GetFeatures(traj[i],t,world,objs)
+            f0 = self.GetForward(traj[i-1][:7])
+            f1 = self.GetForward(traj[i][:7])
+            df = f1.Inverse() * f0
+            diff = [df.p.Norm(), df.M.GetRotAngle()[0]]
+
 
         f = self.GetFeatures(traj[-1],1,world,objs)
 
@@ -259,10 +274,7 @@ class RobotFeatures:
     GetFeatures
     Gets the features for a particular combination of world, time, and point.
     '''
-    def GetFeatures(self,pt,t,world,objs=None):
-
-        if objs==None:
-            objs = self.indices.keys()
+    def GetFeatures(self,pt,t,world,objs):
 
         features = []
 
@@ -325,7 +337,7 @@ class RobotFeatures:
             f0 = self.GetForward(traj[i-1][:7])
             f1 = self.GetForward(traj[i][:7])
             df = f1.Inverse() * f0
-            diff = [df.p.Norm(), PyKDL.Vector(*df.M.GetRPY()).Norm()]
+            diff = [df.p.Norm(), df.M.GetRotAngle()[0]]
 
             # loop over objects/world at this time step
             t = (self.times[i-1].to_sec() - start_t) / (end_t - start_t)
