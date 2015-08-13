@@ -81,34 +81,23 @@ if __name__ == '__main__':
     Z = Z.fit(params)
     #Z.covars_[0,:,:] = Z.covars_[0,:,:] + 1*np.eye(Z.covars_.shape[1])
 
-    print "Fitting GMM to expert goal features..."
+    print "Fitting GMM to expert action features..."
     training_data = np.array(data[0][1])
     for i in range(1,len(data)):
         training_data = np.concatenate((training_data,data[i][1]))
-        #training_data += [data[i][1][-1]]
-    print training_data.shape
+    traj_model = GMM(n_components=1,covariance_type="full")
+    traj_model.fit(training_data)
 
-    #expert = GMM(n_components=2,covariance_type="full")
+    print "Fitting GMM to expert goal features..."
     expert = GMM(n_components=1,covariance_type="full")
     expert = expert.fit(goals)
-    #expert.covars_[0] = np.eye(expert.covars_.shape[1])
 
-    print "Fitting GMM to expert action features..."
-    training_data = [data[0][1]]
-    #for i in range(1,len(data)):
-    #    training_data = np.concatenate((training_data,data[i][1]))
-    #action = GMM(n_components=5,covariance_type="full")
-
-
-    #expert = GMM(dim=training_data.shape[1],ncomps=5,data=training_data,method="kmeans")
-
+    print "Initializing RobotFeatures listener:"
     sub = rospy.Subscriber('/gazebo/barrett_manager/wam/joint_states',sensor_msgs.msg.JointState,js_cb)
-
     rate = rospy.Rate(10)
-
     RequestActiveDMP(data[0][2].dmp_list)
 
-    print "waiting for joint states"
+    print " - waiting for joint states"
     while pos == None:
         rate.sleep()
 
@@ -126,7 +115,7 @@ if __name__ == '__main__':
     seg_length = -1
     dt = 0.1
 
-    print "instantiating a new robot..."
+    print " - instantiating a new robot..."
 
     robot = RobotFeatures()
     obj1='/gbeam_link_1/gbeam_link'
@@ -136,7 +125,7 @@ if __name__ == '__main__':
     base_link = 'wam/base_link'
     end_link = 'wam/wrist_palm_link'
 
-    print "getting TF information for generating trajectories..."
+    print " - getting TF information for generating trajectories..."
 
     world = None
     while world == None or not robot.TfUpdateWorld():
@@ -145,13 +134,11 @@ if __name__ == '__main__':
     world.pop('node')
     print world
 
-    print "setting feature model..."
-
-    #robot.SetFeatureModel(expert)
-    #robot.feature_model = expert
+    print " - setting feature models..."
     robot.goal_model = expert
+    robot.traj_model = traj_model
 
-    print "generating new trajectories..."
+    print "Generating new trajectories..."
 
     for i in range(Z.n_components):
         Z.covars_[i,:,:] += 1 * np.eye(Z.covars_.shape[1])
