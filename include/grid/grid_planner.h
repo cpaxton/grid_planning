@@ -11,6 +11,7 @@
 #include <boost/python.hpp>
 
 #include <string>
+#include <unordered_map>
 
 namespace grid {
 
@@ -34,13 +35,30 @@ namespace grid {
    */
   class GridPlanner {
 
+  public:
+
     /* constructor */
     GridPlanner(std::string RobotDescription = "robot_desciption");
+
+    static const std::string TIME;
+    static const std::string GRIPPER; // fixed to BHand for now!
+
+    bool Plan(std::string action1, std::string action2, std::unordered_map<std::string, std::string> object_mapping);
+
+  protected:
+    std::unordered_map<std::string, std::string> object_lookup;
 
   private:
     ros::NodeHandle nh;
   };
 
+}
+
+using namespace boost::python;
+
+BOOST_PYTHON_MODULE(grid) {
+  class_<grid::GridPlanner>("GridPlanner",init<std::string>())
+    .def("Plan", &grid::GridPlanner::Plan);
 }
 
 #endif
