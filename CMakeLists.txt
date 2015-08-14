@@ -11,8 +11,19 @@ find_package(catkin REQUIRED COMPONENTS
   dmp
   grid_experiments
   grid_tasks
+
+  # TF
   tf
   tf_conversions
+
+  # MoveIt stuff
+  moveit_core
+  moveit_msgs
+  moveit_ros_perception
+  moveit_ros_planning_interface
+
+  # messages
+  trajectory_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -39,7 +50,7 @@ catkin_python_setup()
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES grid_planner
-  CATKIN_DEPENDS ascent_mk2 dmp grid_experiments grid_tasks tf tf_conversions
+  CATKIN_DEPENDS ascent_mk2 dmp grid_experiments grid_tasks tf tf_conversions moveit_core
   DEPENDS GCOP
 )
 

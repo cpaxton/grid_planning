@@ -7,11 +7,27 @@
  *  It depends on a modified DMP library, so that we can quickly search for DMP trajectories that will work.
  */
 
-#include <dmp/dmp.h>
-#include <boost/python.hpp>
+// General ROS dependencies
+#include <ros/ros.h>
 
+// STL
 #include <string>
 #include <unordered_map>
+
+// Boost
+#include <boost/python.hpp>
+
+// MoveIt!
+#include <moveit/collision_detection/collision_robot.h>
+#include <moveit/robot_model_loader/robot_model_loader.h>
+#include <moveit/robot_state/robot_state.h>
+#include <moveit/planning_scene/planning_scene.h>
+
+// joint states
+#include <sensor_msgs/JointState.h>
+
+// primitives for motion planning
+#include <dmp/dmp.h>
 
 namespace grid {
 
@@ -47,6 +63,7 @@ namespace grid {
 
   protected:
     std::unordered_map<std::string, std::string> object_lookup;
+    robot_model::RobotModelPtr model;
 
   private:
     ros::NodeHandle nh;

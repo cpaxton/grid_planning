@@ -39,6 +39,7 @@
   <!--   <run_depend>message_runtime</run_depend> -->
   <!-- Use test_depend for packages you need only for testing: -->
   <!--   <test_depend>gtest</test_depend> -->
+
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>ascent_mk2</build_depend>
   <build_depend>dmp</build_depend>
@@ -46,12 +47,23 @@
   <build_depend>grid_tasks</build_depend>
   <build_depend>tf</build_depend>
   <build_depend>tf_conversions</build_depend>
+  <build_depend>moveit_core</build_depend>
+  <build_depend>moveit_msgs</build_depend>
+  <build_depend>moveit_ros_perception</build_depend>
+  <build_depend>moveit_ros_planning_interface</build_depend>
+  <build_depend>trajectory_msgs</build_depend>
+
   <run_depend>ascent_mk2</run_depend>
   <run_depend>dmp</run_depend>
   <run_depend>grid_experiments</run_depend>
   <run_depend>grid_tasks</run_depend>
   <run_depend>tf</run_depend>
   <run_depend>tf_conversions</run_depend>
+  <run_depend>moveit_core</run_depend>
+  <run_depend>moveit_msgs</run_depend>
+  <run_depend>moveit_ros_perception</run_depend>
+  <run_depend>moveit_ros_planning_interface</run_depend>
+  <run_depend>trajectory_msgs</run_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
