@@ -42,7 +42,7 @@ namespace grid {
 }
 using namespace boost::python;
 
-BOOST_PYTHON_MODULE(grid) {
+BOOST_PYTHON_MODULE(pygrid_planner) {
   class_<grid::GridPlanner>("GridPlanner",init<std::string>())
     .def("Plan", &grid::GridPlanner::Plan);
 }

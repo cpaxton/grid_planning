@@ -96,6 +96,9 @@ add_dependencies(grid_plan_node grid_planner)
 target_link_libraries(grid_planner
   ${catkin_LIBRARIES} ${GCOP_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
 )
+target_link_libraries(pygrid_planner
+  ${catkin_LIBRARIES} ${GCOP_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
+)
 target_link_libraries(grid_plan_node
   grid_planner ${catkin_LIBRARIES} ${GCOP_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
 )
