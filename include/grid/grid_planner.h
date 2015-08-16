@@ -19,6 +19,7 @@
 
 // Boost
 #include <boost/python.hpp>
+#include <boost/python/list.hpp>
 
 // MoveIt!
 #include <moveit/collision_detection/collision_robot.h>
@@ -31,6 +32,9 @@
 
 // primitives for motion planning
 #include <dmp/dmp.h>
+
+template< typename T > inline
+std::vector< T > to_std_vector( const boost::python::object& iterable );
 
 namespace grid {
 
@@ -86,7 +90,7 @@ namespace grid {
 
     /* try a set of motion primitives; see if they work.
      * this is aimed at the python version of the code. */
-    std::list<std::list<double> > pyTryPrimitives(const std::list<double> &primitives);
+    boost::python::list pyTryPrimitives(const boost::python::list &primitives);
 
   protected:
     std::unordered_map<std::string, std::string> object_lookup;

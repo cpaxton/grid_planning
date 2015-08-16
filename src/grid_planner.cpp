@@ -3,13 +3,22 @@
 #include <exception>
 #include <iostream>
 
-using namespace dmp;
+/*****************************************************************************************/
+#include <boost/python/stl_iterator.hpp>
+using namespace boost::python;
 
-using planning_scene::PlanningScene;
-using robot_model_loader::RobotModelLoader;
-using robot_model::RobotModelPtr;
-using robot_state::RobotState;
-using collision_detection::CollisionRobot;
+template< typename T >
+inline
+std::vector< T > to_std_vector( const boost::python::list& iterable )
+{
+  try {
+    return std::vector< T >( boost::python::stl_input_iterator< T >( iterable ),
+                             boost::python::stl_input_iterator< T >( ) );
+  } catch (std::exception ex) {
+    std::cerr << ex.what() << std::endl;
+    return std::vector<T>();
+  }
+}
 
 // Extracted from https://gist.github.com/avli/b0bf77449b090b768663.
 template<class T>
@@ -24,6 +33,16 @@ struct vector_to_python
     return l->ptr();
   }
 };
+
+/*****************************************************************************************/
+
+using namespace dmp;
+
+using planning_scene::PlanningScene;
+using robot_model_loader::RobotModelLoader;
+using robot_model::RobotModelPtr;
+using robot_state::RobotState;
+using collision_detection::CollisionRobot;
 
 namespace grid {
 
@@ -78,18 +97,19 @@ namespace grid {
 
   /* try a set of motion primitives; see if they work.
    * this is aimed at the python version of the code. */
-  std::list<std::list<double> > GridPlanner::pyTryPrimitives(const std::list<double> &primitives) {
-    std::list<std::list<double> > traj;
+  boost::python::list GridPlanner::pyTryPrimitives(const boost::python::list &list) {
+    std::vector<double> primitives = to_std_vector<double>(list);
 
     collision_detection::CollisionRobotConstPtr robot1 = scene->getCollisionRobot();
     std::string name = robot1->getRobotModel()->getName();
     std:: cout << name << std::endl;
 
-    return traj;
+
+    boost::python::list res;
+    return res;
   }
 
 }
-using namespace boost::python;
 
 BOOST_PYTHON_MODULE(pygrid_planner) {
   class_<grid::GridPlanner>("GridPlanner",init<std::string,std::string,double>())
