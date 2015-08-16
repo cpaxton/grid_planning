@@ -177,9 +177,14 @@ if __name__ == '__main__':
         cmd_pt.positions = pt
         cmd.points.append(cmd_pt)
 
+    cmd_pt = JointTrajectoryPoint()
+    cmd_pt.positions = traj[-1]
+
+
     pub = rospy.Publisher('/gazebo/traj_rml/joint_traj_cmd',JointTrajectory)
+    pubpt = rospy.Publisher('/gazebo/traj_rml/joint_traj_point_cmd',JointTrajectoryPoint)
     rospy.sleep(rospy.Duration(0.1))
-    pub.publish(cmd)
+    pubpt.publish(cmd_pt)
 
     print "creating trajectory messages..."
 

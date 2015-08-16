@@ -28,7 +28,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS python)
-find_package(PythonLibs REQUIRED)
+find_package(PythonLibs 2.7 REQUIRED)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
 find_package(GCOP REQUIRED)
@@ -65,7 +65,25 @@ include_directories( include ${catkin_INCLUDE_DIRS} ${GCOP_INCLUDE_DIRS} ${Boost
 ## Declare a cpp library
 add_library(grid_planner
   src/grid_planner.cpp
+  include/grid/grid_planner.h
 )
+
+add_library(pygrid_planner
+  src/grid_planner.cpp
+  include/grid/grid_planner.h
+)
+
+SET(PY_PROJECT_NAME grid)
+SET(PY_PACKAGE_DIR python/grid)
+
+set_target_properties(pygrid_planner
+  PROPERTIES
+  PREFIX ""
+  LIBRARY_OUTPUT_DIRECTORY ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_PYTHON_DESTINATION})
+#add_python_export_library(${PY_PROJECT_NAME} ${PY_PACKAGE_DIR}
+#  src/grid_planner.cpp
+#  include/grid/grid_planner.h
+#)
 
 ## Declare a cpp executable
 add_executable(grid_plan_node src/grid_plan_node.cpp)
