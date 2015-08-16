@@ -59,7 +59,20 @@ namespace grid {
     static const std::string TIME;
     static const std::string GRIPPER; // fixed to BHand for now!
 
-    bool Plan(std::string action1, std::string action2, std::unordered_map<std::string, std::string> object_mapping);
+    /* instantiate a planning request with the given objects */
+    bool Plan(const std::string &action1,
+              const std::string &action2,
+              const std::unordered_map<std::string, std::string> &object_mapping);
+
+    /* add an object to the action here */
+    bool AddObject(const std::string &object_name);
+
+    /* add an action */
+    bool AddAction(const std::string &action_name);
+
+    /* try a set of motion primitives; see if they work.
+     * this is aimed at the python version of the code. */
+    std::list<std::list<double> > pyTryPrimitives(const std::list<double> &primitives);
 
   protected:
     std::unordered_map<std::string, std::string> object_lookup;

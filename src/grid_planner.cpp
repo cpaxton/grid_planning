@@ -32,11 +32,28 @@ namespace grid {
 
   }
 
-  bool GridPlanner::Plan(std::string action1,
-                         std::string action2,
-                         std::unordered_map<std::string, std::string> object_mapping)
+  /* add an object to the action here */
+  bool GridPlanner::AddObject(const std::string &object_name) {
+    ROS_WARN("\"GridPlanner::AddObject\" not yet implemented!");
+    return false;
+  }
+
+  /* add an action */
+  bool GridPlanner::AddAction(const std::string &action_name) {
+    ROS_WARN("\"GridPlanner::AddAction\" not yet implemented!");
+    return false;
+  }
+
+  /* instantiate a planning request with the given objects */
+  bool GridPlanner::Plan(const std::string &action1,
+                         const std::string &action2,
+                         const std::unordered_map<std::string, std::string> &object_mapping)
   {
     return false;
+  }
+
+  std::list<std::list<double> > GridPlanner::pyTryPrimitives(const std::list<double> &primitives) {
+
   }
 
 }
@@ -44,7 +61,11 @@ using namespace boost::python;
 
 BOOST_PYTHON_MODULE(pygrid_planner) {
   class_<grid::GridPlanner>("GridPlanner",init<std::string>())
-    .def("Plan", &grid::GridPlanner::Plan);
+    .def("Plan", &grid::GridPlanner::Plan)
+    .def("AddAction", &grid::GridPlanner::AddAction)
+    .def("AddObject", &grid::GridPlanner::AddObject)
+    .def("TryPrimitives", &grid::GridPlanner::pyTryPrimitives)
+    ;
 }
 
 
