@@ -11,8 +11,11 @@
 #include <ros/ros.h>
 
 // STL
+#include <list>
+#include <vector>
 #include <string>
 #include <unordered_map>
+#include <memory>
 
 // Boost
 #include <boost/python.hpp>
@@ -48,13 +51,24 @@ namespace grid {
    *  We plan from state A at time 0 to state B at time 0.
    *
    *  Each state is associated with a single (FOR NOW) Gaussian representing features.
+   *
+   *  --- ON PLANNING ---
+   *  The key step for planning is just repeatedly sampling new primitives from some distribution.
+   *  For the sake of saving implementation time, the way we do this is to sample from our distibution in PYTHON and call this code.
+   *  There is a python-targeted version of the TryPrimitives helper function we can use.
+   *  Then the responsibilities of this code are to:
+   *  - maintain an accurate PlanningScene
+   *  - maintain a robot model (with joint states, etc.)
+   *  - call DMP code to generate trajectories
    */
   class GridPlanner {
 
   public:
 
     /* constructor */
-    GridPlanner(std::string RobotDescription = "robot_desciption");
+    GridPlanner(std::string RobotDescription = std::string("robot_desciption"),
+                std::string JointStateTopic = std::string("joint_states"),
+                double padding=0.0);
 
     static const std::string TIME;
     static const std::string GRIPPER; // fixed to BHand for now!
@@ -80,6 +94,12 @@ namespace grid {
 
   private:
     ros::NodeHandle nh;
+    std::shared_ptr<robot_state::RobotState> state;
+    std::shared_ptr<planning_scene::PlanningScene> scene;
+    ros::Subscriber js_sub;
+
+    /* keep robot joints up to date */
+    void JointStateCallback(const sensor_msgs::JointState::ConstPtr &msg);
   };
 
 }

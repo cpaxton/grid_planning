@@ -11,12 +11,33 @@ using robot_model::RobotModelPtr;
 using robot_state::RobotState;
 using collision_detection::CollisionRobot;
 
+// Extracted from https://gist.github.com/avli/b0bf77449b090b768663.
+template<class T>
+struct vector_to_python
+{
+  static PyObject* convert(const std::vector<T>& vec)
+  {
+    boost::python::list* l = new boost::python::list();
+    for(std::size_t i = 0; i < vec.size(); i++)
+      (*l).append(vec[i]);
+
+    return l->ptr();
+  }
+};
+
 namespace grid {
 
   const std::string GridPlanner::TIME("time");
   const std::string GridPlanner::GRIPPER("gripper");
 
-  GridPlanner::GridPlanner(std::string robot_description_) : nh() {
+  /* keep robot joints up to date */
+  void GridPlanner::JointStateCallback(const sensor_msgs::JointState::ConstPtr &msg) {
+    state->setVariableValues(*msg); // update the current robot state
+  }
+
+  GridPlanner::GridPlanner(std::string robot_description_, std::string js_topic, double padding) : nh() {
+
+    js_sub = nh.subscribe(js_topic.c_str(),1000,&GridPlanner::JointStateCallback,this);
 
     // needs to set up the Robot objects and listeners
     try {
@@ -30,6 +51,9 @@ namespace grid {
       std::cerr << ex.what() << std::endl;
     }
 
+      scene = std::shared_ptr<PlanningScene>(new PlanningScene(model));
+      scene->getCollisionRobotNonConst()->setPadding(padding);
+      scene->propogateRobotPadding();
   }
 
   /* add an object to the action here */
@@ -52,15 +76,23 @@ namespace grid {
     return false;
   }
 
+  /* try a set of motion primitives; see if they work.
+   * this is aimed at the python version of the code. */
   std::list<std::list<double> > GridPlanner::pyTryPrimitives(const std::list<double> &primitives) {
+    std::list<std::list<double> > traj;
 
+    collision_detection::CollisionRobotConstPtr robot1 = scene->getCollisionRobot();
+    std::string name = robot1->getRobotModel()->getName();
+    std:: cout << name << std::endl;
+
+    return traj;
   }
 
 }
 using namespace boost::python;
 
 BOOST_PYTHON_MODULE(pygrid_planner) {
-  class_<grid::GridPlanner>("GridPlanner",init<std::string>())
+  class_<grid::GridPlanner>("GridPlanner",init<std::string,std::string,double>())
     .def("Plan", &grid::GridPlanner::Plan)
     .def("AddAction", &grid::GridPlanner::AddAction)
     .def("AddObject", &grid::GridPlanner::AddObject)
