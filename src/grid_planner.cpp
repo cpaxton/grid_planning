@@ -222,7 +222,7 @@ namespace grid {
 
     int i = 0;
     for (const std::string &name: search_state->getVariableNames()) {
-      std::cout << "setting up joint " << i << ":" name << std::endl;
+      std::cout << "setting up joint " << i << ":" << name << std::endl;
       joint_names.push_back(name);
       i++;
       if (i >= dof) { break; }

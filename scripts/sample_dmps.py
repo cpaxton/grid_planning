@@ -74,12 +74,9 @@ if __name__ == '__main__':
     data,params,num_weights,goals = LoadDataDMP(filenames,['link'])
 
     print "Fitting GMM to trajectory parameters..."
-    #Z = GMM(dim=len(params[0]),ncomps=2,data=np.array(params),method="kmeans")
-    #Z = GMM(covariance_type="full")
     Z = GMM(covariance_type="full")
     Z.n_components = 1
     Z = Z.fit(params)
-    #Z.covars_[0,:,:] = Z.covars_[0,:,:] + 1*np.eye(Z.covars_.shape[1])
 
     print "Fitting GMM to expert action features..."
     training_data = np.array(data[0][1])
@@ -103,8 +100,6 @@ if __name__ == '__main__':
 
     x = data[0][0].GetTrajectory()
     dims = data[0][0].Dims()
-    #x0 = x[0] #pos
-    #xdot0 = [0]*dims #vel
     x0 = pos
     xdot0 = vel
     t0 = 0
@@ -184,6 +179,9 @@ if __name__ == '__main__':
     pub = rospy.Publisher('/gazebo/traj_rml/joint_traj_cmd',JointTrajectory)
     pubpt = rospy.Publisher('/gazebo/traj_rml/joint_traj_point_cmd',JointTrajectoryPoint)
     rospy.sleep(rospy.Duration(0.1))
+    print "publishing point!"
+    pubpt.publish(cmd_pt)
+    pubpt.publish(cmd_pt)
     pubpt.publish(cmd_pt)
 
     print "creating trajectory messages..."
