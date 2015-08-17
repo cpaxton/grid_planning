@@ -79,6 +79,8 @@ print "Fitting GMM to trajectory parameters..."
 Z = GMM(covariance_type="full")
 Z.n_components = 1
 Z = Z.fit(params)
+for i in range(Z.n_components):
+    Z.covars_[i,:,:] += 1 * np.eye(Z.covars_.shape[1])
 
 print "Fitting GMM to expert action features..."
 training_data = np.array(data[0][1])
@@ -95,3 +97,25 @@ traj_params = Z.sample(100)
 for z in traj_params:
     traj = gp.TryPrimitives(list(z))
     print traj
+
+    if not len(traj) == 0:
+        break
+
+# test by sending a command to the real robot now!
+#cmd_pt = JointTrajectoryPoint()
+#cmd_pt.positions = traj[-1]
+#pubpt = rospy.Publisher('/gazebo/traj_rml/joint_traj_point_cmd',JointTrajectoryPoint)
+#pubpt.publish(cmd_pt)
+#rospy.sleep(rospy.Duration(0.1))
+#pubpt.publish(cmd_pt)
+#rospy.sleep(rospy.Duration(0.1))
+#pubpt.publish(cmd_pt)
+
+cmd = JointTrajectory()
+for pt in traj:
+    cmd_pt = JointTrajectoryPoint()
+    cmd_pt.positions = pt
+    cmd.points.append(cmd_pt)
+pub = rospy.Publisher('/gazebo/traj_rml/joint_traj_cmd',JointTrajectory)
+rospy.sleep(rospy.Duration(0.25))
+pub.publish(cmd)
