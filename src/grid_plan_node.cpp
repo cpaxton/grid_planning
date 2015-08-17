@@ -8,6 +8,12 @@ int main(int argc, char **argv) {
   GridPlanner gp("robot_description","/gazebo/barrett_manager/wam/joint_states","/gazebo/planning_scene");
   gp.SetDof(7);
   gp.SetNumBasisFunctions(5);
+  gp.SetK(100);
+  gp.SetD(20);
+  gp.SetTau(1.0);
+  gp.SetGoalThreshold(0.1);
+
+  ros::Duration(0.5).sleep();
 
   std::vector<double> in;
 

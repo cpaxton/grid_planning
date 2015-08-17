@@ -56,6 +56,10 @@ namespace grid {
     if (state) {
       state->setVariableValues(*msg); // update the current robot state
     }
+    for (unsigned int i = 0; i < dof; ++i) {
+      x0[i] = msg->position[i];
+      x0_dot[i] = msg->velocity[i];
+    }
   }
 
   GridPlanner::GridPlanner(const std::string &robot_description_,
@@ -63,33 +67,33 @@ namespace grid {
                            const std::string &scene_topic,
                            const double padding)
 
-    : nh(), dof(7), num_basis(5)
-  {
+    : nh(), dof(7), num_basis(5), goal(7), x0(7), x0_dot(7), goal_threshold(7,0.1), threshold(0.1)
+    {
 
-    js_sub = nh.subscribe(js_topic.c_str(),1000,&GridPlanner::JointStateCallback,this);
+      js_sub = nh.subscribe(js_topic.c_str(),1000,&GridPlanner::JointStateCallback,this);
 
-    // needs to set up the Robot objects and listeners
-    try {
+      // needs to set up the Robot objects and listeners
+      try {
 
-      robot_model_loader::RobotModelLoader robot_model_loader(robot_description_);
-      ROS_INFO("Loaded model from \"%s\"!",robot_description_.c_str());
+        robot_model_loader::RobotModelLoader robot_model_loader(robot_description_);
+        ROS_INFO("Loaded model from \"%s\"!",robot_description_.c_str());
 
-      model = robot_model_loader.getModel();
+        model = robot_model_loader.getModel();
 
-    } catch (std::exception ex) {
-      std::cerr << ex.what() << std::endl;
+      } catch (std::exception ex) {
+        std::cerr << ex.what() << std::endl;
+      }
+
+      //scene = std::shared_ptr<PlanningScene>(new PlanningScene(model));
+      //scene->getCollisionRobotNonConst()->setPadding(padding);
+      //scene->propogateRobotPadding();
+      state = std::shared_ptr<RobotState>(new RobotState(model));
+
+      boost::shared_ptr<tf::TransformListener> tf(new tf::TransformListener(ros::Duration(2.0)));
+      monitor = PlanningSceneMonitorPtr(new planning_scene_monitor::PlanningSceneMonitor(robot_description_, tf));
+      monitor->startStateMonitor(js_topic);
+      monitor->startSceneMonitor(scene_topic);
     }
-
-    //scene = std::shared_ptr<PlanningScene>(new PlanningScene(model));
-    //scene->getCollisionRobotNonConst()->setPadding(padding);
-    //scene->propogateRobotPadding();
-    state = std::shared_ptr<RobotState>(new RobotState(model));
-
-    boost::shared_ptr<tf::TransformListener> tf(new tf::TransformListener(ros::Duration(2.0)));
-    monitor = PlanningSceneMonitorPtr(new planning_scene_monitor::PlanningSceneMonitor(robot_description_, tf));
-    monitor->startStateMonitor(js_topic);
-    monitor->startSceneMonitor(scene_topic);
-  }
 
   /* destructor */
   GridPlanner::~GridPlanner() {
@@ -125,6 +129,7 @@ namespace grid {
   Traj_t GridPlanner::TryPrimitives(std::vector<double> primitives) {
 
     Traj_t traj;
+    std::cout << "==========================" << std::endl;
 
     collision_detection::CollisionRobotConstPtr robot1 = monitor->getPlanningScene()->getCollisionRobot();
     std::string name = robot1->getRobotModel()->getName();
@@ -135,6 +140,39 @@ namespace grid {
     bool colliding = monitor->getPlanningScene()->isStateColliding(*state,"",true);
     std::cout << "Colliding: " << colliding << std::endl;
 
+    std::cout << "--------------------------" << std::endl;
+
+    std::vector<DMPData> dmp_list;
+
+    unsigned int idx = 0; // where are we reading from in the primitives
+    // read out the goal
+    std::cout << "Goal: ";
+    for (; idx < dof; ++idx) {
+      goal[idx] = primitives[idx];
+      std::cout << primitives[idx] << " ";
+    }
+    std::cout << std::endl;
+    // read out the weights
+    for (unsigned int i=0; i < dof; ++i) {
+      dmp::DMPData dmp_;
+      dmp_.k_gain = k_gain;
+      dmp_.d_gain = d_gain;
+
+      std::cout << "Primitive " << i << ": ";
+      for (unsigned int j=0; j < num_basis; ++j) {
+        std::cout << primitives[idx] << " ";
+        dmp_.weights.push_back(primitives[idx++]);  
+      }
+      std::cout << std::endl;
+
+      dmp_list.push_back(dmp_);
+    }
+
+    unsigned char at_goal;
+    DMPTraj plan;
+    dmp::generatePlan(dmp_list,x0,x0_dot,0,goal,goal_threshold,-1,tau,0.1,5,plan,at_goal);
+
+    std::cout << "==========================" << std::endl;
     return traj;
   }
 
@@ -154,17 +192,36 @@ namespace grid {
     monitor->startSceneMonitor(topic);
   }
 
-    /* configure degrees of freedom */
-    void GridPlanner::SetDof(const unsigned int dof_) {
-      dof = dof_;
-    }
-      
-    /* configure number of basis functions */
-    void GridPlanner::SetNumBasisFunctions(const unsigned int num_) {
-      num_basis = num_;
-    }
+  /* configure degrees of freedom */
+  void GridPlanner::SetDof(const unsigned int dof_) {
+    dof = dof_;
+    goal.resize(dof);
+    x0.resize(dof);
+    x0_dot.resize(dof);
+    goal_threshold = std::vector<double>(dof,threshold);
+  }
 
+  /* configure number of basis functions */
+  void GridPlanner::SetNumBasisFunctions(const unsigned int num_) {
+    num_basis = num_;
+  }
 
+  void GridPlanner::SetK(const double k_gain_) {
+    k_gain = k_gain_;
+  }
+
+  void GridPlanner::SetD(const double d_gain_) {
+    d_gain = d_gain_;
+  }
+
+  void GridPlanner::SetTau(const double tau_) {
+    tau = tau_;
+  }
+
+  void GridPlanner::SetGoalThreshold(const double threshold_) {
+    threshold = threshold_;
+    goal_threshold = std::vector<double>(dof,threshold);
+  }
 }
 
 BOOST_PYTHON_MODULE(pygrid_planner) {
@@ -173,6 +230,12 @@ BOOST_PYTHON_MODULE(pygrid_planner) {
     .def("AddAction", &grid::GridPlanner::AddAction)
     .def("AddObject", &grid::GridPlanner::AddObject)
     .def("TryPrimitives", &grid::GridPlanner::pyTryPrimitives)
+    .def("SetK", &grid::GridPlanner::SetK)
+    .def("SetD", &grid::GridPlanner::SetD)
+    .def("SetTau", &grid::GridPlanner::SetTau)
+    .def("SetDof", &grid::GridPlanner::SetDof)
+    .def("SetNumBasisFunctions", &grid::GridPlanner::SetNumBasisFunctions)
+    .def("SetGoalThreshold", &grid::GridPlanner::SetGoalThreshold)
     ;
 }
 

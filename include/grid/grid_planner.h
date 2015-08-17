@@ -108,6 +108,11 @@ namespace grid {
     /* configure number of basis functions */
     void SetNumBasisFunctions(const unsigned int num);
 
+    void SetK(const double k_gain);
+    void SetD(const double d_gain);
+    void SetTau(const double tau);
+    void SetGoalThreshold(const double threshold);
+
   protected:
     std::unordered_map<std::string, std::string> object_lookup;
     robot_model::RobotModelPtr model;
@@ -115,6 +120,15 @@ namespace grid {
 
     unsigned int dof;
     unsigned int num_basis;
+    double k_gain;
+    double d_gain;
+    double tau;
+    double threshold;
+
+    std::vector<double> goal;
+    std::vector<double> goal_threshold;
+    std::vector<double> x0;
+    std::vector<double> x0_dot;
 
   private:
     ros::NodeHandle nh;
