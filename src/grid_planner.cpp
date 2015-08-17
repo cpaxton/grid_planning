@@ -8,6 +8,41 @@
 #include <boost/python/stl_iterator.hpp>
 using namespace boost::python;
 
+/* Read a ROS message from a serialized string.
+  */
+template <typename M>
+M ros_from_python(const std::string str_msg)
+{
+  size_t serial_size = str_msg.size();
+  boost::shared_array<uint8_t> buffer(new uint8_t[serial_size]);
+  for (size_t i = 0; i < serial_size; ++i)
+  {
+    buffer[i] = str_msg[i];
+  }
+  ros::serialization::IStream stream(buffer.get(), serial_size);
+  M msg;
+  ros::serialization::Serializer<M>::read(stream, msg);
+  return msg;
+}
+
+/* Write a ROS message into a serialized string.
+*/
+template <typename M>
+std::string ros_to_python(const M& msg)
+{
+  size_t serial_size = ros::serialization::serializationLength(msg);
+  boost::shared_array<uint8_t> buffer(new uint8_t[serial_size]);
+  ros::serialization::OStream stream(buffer.get(), serial_size);
+  ros::serialization::serialize(stream, msg);
+  std::string str_msg;
+  str_msg.reserve(serial_size);
+  for (size_t i = 0; i < serial_size; ++i)
+  {
+    str_msg.push_back(buffer[i]);
+  }
+  return str_msg;
+}
+
 template< typename T >
 inline
 std::vector< T > to_std_vector( const boost::python::list& iterable )
@@ -178,22 +213,36 @@ namespace grid {
     std::cout << "at goal: " << (unsigned int)at_goal << std::endl;
     std::cout << "points: " << plan.points.size() << std::endl;
 
+    bool drop_trajectory = false;
     for (DMPPoint &pt: plan.points) {
-      std::vector<double> positions;
+      Traj_pt_t traj_pt;
+      traj_pt.positions = pt.positions;
+      traj_pt.velocities = pt.velocities;
+
       for (double &q: pt.positions) {
-        positions.push_back(q);
+      //for (unsigned int i = 0; i < pt.positions.size(); ++i) {
+      //  traj_pt.position.push_back(pt.positions[i]);
         std::cout << q << " ";
       }
+
       //std::cout << "(num="<<positions.size() <<")" << std::endl;
       //std::cout << search_state->getRobotModel()->getVariableCount() << std::endl;
-      search_state->setVariablePositions(joint_names,positions);
+      search_state->setVariablePositions(joint_names,traj_pt.positions);
       colliding = monitor->getPlanningScene()->isStateColliding(*search_state,"",false);
-      std::cout << "= colliding? " << colliding << std::endl;
+      std::cout << " = colliding? " << colliding << std::endl;
 
+      drop_trajectory |= colliding;
+
+      traj.points.push_back(traj_pt);
     }
 
     std::cout << "==========================" << std::endl;
-    return traj;
+
+    if (drop_trajectory) {
+      return Traj_t(); // return an empty trajectory
+    } else {
+      return traj;
+    }
   }
 
   /* try a set of motion primitives; see if they work.
@@ -204,6 +253,17 @@ namespace grid {
     Traj_t traj = TryPrimitives(primitives);
 
     boost::python::list res;
+
+    for (const Traj_pt_t &pt: traj.points) {
+      boost::python::list tmp;
+
+      for (const double &q: pt.positions) {
+        tmp.append<double>(q);
+      }
+
+      res.append<boost::python::list>(tmp);
+    }
+
     return res;
   }
 

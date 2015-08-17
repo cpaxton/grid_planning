@@ -91,3 +91,7 @@ print "Fitting GMM to expert goal features..."
 expert = GMM(n_components=1,covariance_type="full")
 expert = expert.fit(goals)
 
+traj_params = Z.sample(100)
+for z in traj_params:
+    traj = gp.TryPrimitives(list(z))
+    print traj

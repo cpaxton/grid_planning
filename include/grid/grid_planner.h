@@ -30,13 +30,17 @@
 
 // joint states
 #include <sensor_msgs/JointState.h>
+#include <trajectory_msgs/JointTrajectory.h>
+#include <trajectory_msgs/JointTrajectoryPoint.h>
 
 // primitives for motion planning
 #include <dmp/dmp.h>
 
 namespace grid {
 
-  typedef std::vector< std::vector <double> > Traj_t;
+  //typedef std::vector< std::vector <double> > Traj_t;
+  typedef trajectory_msgs::JointTrajectory Traj_t;
+  typedef trajectory_msgs::JointTrajectoryPoint Traj_pt_t;
 
   /**
    * GridPlanner
