@@ -26,6 +26,7 @@
 #include <moveit/robot_model_loader/robot_model_loader.h>
 #include <moveit/robot_state/robot_state.h>
 #include <moveit/planning_scene/planning_scene.h>
+#include <moveit/planning_scene_monitor/planning_scene_monitor.h>
 
 // joint states
 #include <sensor_msgs/JointState.h>
@@ -33,10 +34,9 @@
 // primitives for motion planning
 #include <dmp/dmp.h>
 
-template< typename T > inline
-std::vector< T > to_std_vector( const boost::python::object& iterable );
-
 namespace grid {
+
+  typedef std::vector< std::vector <double> > Traj_t;
 
   /**
    * GridPlanner
@@ -70,9 +70,13 @@ namespace grid {
   public:
 
     /* constructor */
-    GridPlanner(std::string RobotDescription = std::string("robot_desciption"),
-                std::string JointStateTopic = std::string("joint_states"),
+    GridPlanner(const std::string &RobotDescription = std::string("robot_desciption"),
+                const std::string &JointStateTopic = std::string("joint_states"),
+                const std::string &PlanningSceneTopic = std::string("planning_scene"),
                 double padding=0.0);
+
+    /* destructor */
+    ~GridPlanner();
 
     static const std::string TIME;
     static const std::string GRIPPER; // fixed to BHand for now!
@@ -92,9 +96,16 @@ namespace grid {
      * this is aimed at the python version of the code. */
     boost::python::list pyTryPrimitives(const boost::python::list &primitives);
 
+    /* try a set of motion primitives; see if they work. */
+    Traj_t TryPrimitives(std::vector<double> primitives);
+
+    /* update planning scene topic */
+    void  SetPlanningSceneTopic(const std::string &topic);
+
   protected:
     std::unordered_map<std::string, std::string> object_lookup;
     robot_model::RobotModelPtr model;
+    planning_scene_monitor::PlanningSceneMonitorPtr monitor;
 
   private:
     ros::NodeHandle nh;

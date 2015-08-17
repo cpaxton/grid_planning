@@ -21,6 +21,7 @@ find_package(catkin REQUIRED COMPONENTS
   moveit_msgs
   moveit_ros_perception
   moveit_ros_planning_interface
+  moveit_ros_planning
 
   # messages
   trajectory_msgs

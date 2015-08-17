@@ -1,4 +1,5 @@
 #include <grid/grid_planner.h>
+#include <tf/transform_listener.h>
 
 #include <exception>
 #include <iostream>
@@ -43,6 +44,7 @@ using robot_model_loader::RobotModelLoader;
 using robot_model::RobotModelPtr;
 using robot_state::RobotState;
 using collision_detection::CollisionRobot;
+using planning_scene_monitor::PlanningSceneMonitorPtr;
 
 namespace grid {
 
@@ -51,10 +53,15 @@ namespace grid {
 
   /* keep robot joints up to date */
   void GridPlanner::JointStateCallback(const sensor_msgs::JointState::ConstPtr &msg) {
-    state->setVariableValues(*msg); // update the current robot state
+    if (state) {
+      state->setVariableValues(*msg); // update the current robot state
+    }
   }
 
-  GridPlanner::GridPlanner(std::string robot_description_, std::string js_topic, double padding) : nh() {
+  GridPlanner::GridPlanner(const std::string &robot_description_,
+                           const std::string &js_topic,
+                           const std::string &scene_topic,
+                           const double padding) : nh() {
 
     js_sub = nh.subscribe(js_topic.c_str(),1000,&GridPlanner::JointStateCallback,this);
 
@@ -70,9 +77,24 @@ namespace grid {
       std::cerr << ex.what() << std::endl;
     }
 
-      scene = std::shared_ptr<PlanningScene>(new PlanningScene(model));
-      scene->getCollisionRobotNonConst()->setPadding(padding);
-      scene->propogateRobotPadding();
+    scene = std::shared_ptr<PlanningScene>(new PlanningScene(model));
+    scene->getCollisionRobotNonConst()->setPadding(padding);
+    scene->propogateRobotPadding();
+    state = std::shared_ptr<RobotState>(new RobotState(model));
+
+    boost::shared_ptr<tf::TransformListener> tf(new tf::TransformListener(ros::Duration(2.0)));
+    monitor = PlanningSceneMonitorPtr(new planning_scene_monitor::PlanningSceneMonitor(robot_description_, tf));
+    monitor->startStateMonitor(js_topic);
+    monitor->startSceneMonitor(scene_topic);
+  }
+
+  /* destructor */
+  GridPlanner::~GridPlanner() {
+    std::cout << "Destroying planner!" << std::endl;
+    js_sub.~Subscriber();
+    state.~shared_ptr<RobotState>();
+    scene.~shared_ptr<PlanningScene>();
+    std::cout << "..." << std::endl;
   }
 
   /* add an object to the action here */
@@ -95,24 +117,42 @@ namespace grid {
     return false;
   }
 
+
+  /* try a set of motion primitives; see if they work.
+   * returns an empty trajectory if no valid path was found. */
+  Traj_t GridPlanner::TryPrimitives(std::vector<double> primitives) {
+
+    Traj_t traj;
+
+    collision_detection::CollisionRobotConstPtr robot1 = monitor->getPlanningScene()->getCollisionRobot();
+    std::string name = robot1->getRobotModel()->getName();
+    std:: cout << name << std::endl;
+    state->update(true);
+    state->printStateInfo(std::cout);
+
+    return traj;
+  }
+
   /* try a set of motion primitives; see if they work.
    * this is aimed at the python version of the code. */
   boost::python::list GridPlanner::pyTryPrimitives(const boost::python::list &list) {
     std::vector<double> primitives = to_std_vector<double>(list);
 
-    collision_detection::CollisionRobotConstPtr robot1 = scene->getCollisionRobot();
-    std::string name = robot1->getRobotModel()->getName();
-    std:: cout << name << std::endl;
-
+    Traj_t traj = TryPrimitives(primitives);
 
     boost::python::list res;
     return res;
   }
 
+  /* update planning scene topic */
+  void  GridPlanner::SetPlanningSceneTopic(const std::string &topic) {
+    monitor->startSceneMonitor(topic);
+  }
+
 }
 
 BOOST_PYTHON_MODULE(pygrid_planner) {
-  class_<grid::GridPlanner>("GridPlanner",init<std::string,std::string,double>())
+  class_<grid::GridPlanner>("GridPlanner",init<std::string,std::string,std::string,double>())
     .def("Plan", &grid::GridPlanner::Plan)
     .def("AddAction", &grid::GridPlanner::AddAction)
     .def("AddObject", &grid::GridPlanner::AddObject)
