@@ -112,10 +112,26 @@ for z in traj_params:
 #pubpt.publish(cmd_pt)
 
 cmd = JointTrajectory()
+msg = PoseArray()
+msg.header.frame_id = base_link
 for pt in traj:
     cmd_pt = JointTrajectoryPoint()
     cmd_pt.positions = pt
     cmd.points.append(cmd_pt)
+    f = robot.GetForward(pt[:7])
+    msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
 pub = rospy.Publisher('/gazebo/traj_rml/joint_traj_cmd',JointTrajectory)
+pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray)
+
 rospy.sleep(rospy.Duration(0.25))
 pub.publish(cmd)
+pa_ee_pub.publish(msg)
+
+try:
+    rate = rospy.Rate(10)
+    while not rospy.is_shutdown():
+        pa_ee_pub.publish(msg)
+        rate.sleep()
+except rospy.ROSInterruptException, ex:
+    pass
+
