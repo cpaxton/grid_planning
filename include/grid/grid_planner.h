@@ -101,11 +101,20 @@ namespace grid {
 
     /* update planning scene topic */
     void  SetPlanningSceneTopic(const std::string &topic);
+  
+    /* configure degrees of freedom */
+    void SetDof(const unsigned int dof);
+      
+    /* configure number of basis functions */
+    void SetNumBasisFunctions(const unsigned int num);
 
   protected:
     std::unordered_map<std::string, std::string> object_lookup;
     robot_model::RobotModelPtr model;
     planning_scene_monitor::PlanningSceneMonitorPtr monitor;
+
+    unsigned int dof;
+    unsigned int num_basis;
 
   private:
     ros::NodeHandle nh;

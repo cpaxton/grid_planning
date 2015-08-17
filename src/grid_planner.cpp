@@ -61,7 +61,10 @@ namespace grid {
   GridPlanner::GridPlanner(const std::string &robot_description_,
                            const std::string &js_topic,
                            const std::string &scene_topic,
-                           const double padding) : nh() {
+                           const double padding)
+
+    : nh(), dof(7), num_basis(5)
+  {
 
     js_sub = nh.subscribe(js_topic.c_str(),1000,&GridPlanner::JointStateCallback,this);
 
@@ -117,7 +120,6 @@ namespace grid {
     return false;
   }
 
-
   /* try a set of motion primitives; see if they work.
    * returns an empty trajectory if no valid path was found. */
   Traj_t GridPlanner::TryPrimitives(std::vector<double> primitives) {
@@ -151,6 +153,17 @@ namespace grid {
   void  GridPlanner::SetPlanningSceneTopic(const std::string &topic) {
     monitor->startSceneMonitor(topic);
   }
+
+    /* configure degrees of freedom */
+    void GridPlanner::SetDof(const unsigned int dof_) {
+      dof = dof_;
+    }
+      
+    /* configure number of basis functions */
+    void GridPlanner::SetNumBasisFunctions(const unsigned int num_) {
+      num_basis = num_;
+    }
+
 
 }
 
