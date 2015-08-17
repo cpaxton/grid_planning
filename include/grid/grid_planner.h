@@ -110,7 +110,7 @@ namespace grid {
   private:
     ros::NodeHandle nh;
     std::shared_ptr<robot_state::RobotState> state;
-    std::shared_ptr<planning_scene::PlanningScene> scene;
+    //std::shared_ptr<planning_scene::PlanningScene> scene;
     ros::Subscriber js_sub;
 
     /* keep robot joints up to date */

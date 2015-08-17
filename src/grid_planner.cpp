@@ -77,9 +77,9 @@ namespace grid {
       std::cerr << ex.what() << std::endl;
     }
 
-    scene = std::shared_ptr<PlanningScene>(new PlanningScene(model));
-    scene->getCollisionRobotNonConst()->setPadding(padding);
-    scene->propogateRobotPadding();
+    //scene = std::shared_ptr<PlanningScene>(new PlanningScene(model));
+    //scene->getCollisionRobotNonConst()->setPadding(padding);
+    //scene->propogateRobotPadding();
     state = std::shared_ptr<RobotState>(new RobotState(model));
 
     boost::shared_ptr<tf::TransformListener> tf(new tf::TransformListener(ros::Duration(2.0)));
@@ -93,7 +93,7 @@ namespace grid {
     std::cout << "Destroying planner!" << std::endl;
     js_sub.~Subscriber();
     state.~shared_ptr<RobotState>();
-    scene.~shared_ptr<PlanningScene>();
+    //scene.~shared_ptr<PlanningScene>();
     std::cout << "..." << std::endl;
   }
 
@@ -129,6 +129,9 @@ namespace grid {
     std:: cout << name << std::endl;
     state->update(true);
     state->printStateInfo(std::cout);
+
+    bool colliding = monitor->getPlanningScene()->isStateColliding(*state,"",true);
+    std::cout << "Colliding: " << colliding << std::endl;
 
     return traj;
   }
