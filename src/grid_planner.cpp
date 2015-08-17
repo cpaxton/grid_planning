@@ -88,6 +88,7 @@ namespace grid {
       //scene->getCollisionRobotNonConst()->setPadding(padding);
       //scene->propogateRobotPadding();
       state = std::shared_ptr<RobotState>(new RobotState(model));
+      search_state = std::shared_ptr<RobotState>(new RobotState(model));
 
       boost::shared_ptr<tf::TransformListener> tf(new tf::TransformListener(ros::Duration(2.0)));
       monitor = PlanningSceneMonitorPtr(new planning_scene_monitor::PlanningSceneMonitor(robot_description_, tf));
@@ -172,6 +173,25 @@ namespace grid {
     DMPTraj plan;
     dmp::generatePlan(dmp_list,x0,x0_dot,0,goal,goal_threshold,-1,tau,0.1,5,plan,at_goal);
 
+    std::cout << "--------------------------" << std::endl;
+
+    std::cout << "at goal: " << (unsigned int)at_goal << std::endl;
+    std::cout << "points: " << plan.points.size() << std::endl;
+
+    for (DMPPoint &pt: plan.points) {
+      std::vector<double> positions;
+      for (double &q: pt.positions) {
+        positions.push_back(q);
+        std::cout << q << " ";
+      }
+      //std::cout << "(num="<<positions.size() <<")" << std::endl;
+      //std::cout << search_state->getRobotModel()->getVariableCount() << std::endl;
+      search_state->setVariablePositions(joint_names,positions);
+      colliding = monitor->getPlanningScene()->isStateColliding(*search_state,"",false);
+      std::cout << "= colliding? " << colliding << std::endl;
+
+    }
+
     std::cout << "==========================" << std::endl;
     return traj;
   }
@@ -199,6 +219,14 @@ namespace grid {
     x0.resize(dof);
     x0_dot.resize(dof);
     goal_threshold = std::vector<double>(dof,threshold);
+
+    int i = 0;
+    for (const std::string &name: search_state->getVariableNames()) {
+      std::cout << "setting up joint " << i << ":" name << std::endl;
+      joint_names.push_back(name);
+      i++;
+      if (i >= dof) { break; }
+    }
   }
 
   /* configure number of basis functions */
@@ -235,8 +263,5 @@ BOOST_PYTHON_MODULE(pygrid_planner) {
     .def("SetTau", &grid::GridPlanner::SetTau)
     .def("SetDof", &grid::GridPlanner::SetDof)
     .def("SetNumBasisFunctions", &grid::GridPlanner::SetNumBasisFunctions)
-    .def("SetGoalThreshold", &grid::GridPlanner::SetGoalThreshold)
-    ;
+    .def("SetGoalThreshold", &grid::GridPlanner::SetGoalThreshold);
 }
-
-

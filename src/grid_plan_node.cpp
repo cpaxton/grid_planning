@@ -31,7 +31,6 @@ int main(int argc, char **argv) {
   };
 
   in = std::vector<double>(&primitives[0],&primitives[7+35+1]);
-  Traj_t res = gp.TryPrimitives(in);
 
   ros::Rate rate(1);
   while (ros::ok()) {

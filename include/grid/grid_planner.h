@@ -125,10 +125,14 @@ namespace grid {
     double tau;
     double threshold;
 
+    std::shared_ptr<robot_state::RobotState> search_state;
+
     std::vector<double> goal;
     std::vector<double> goal_threshold;
     std::vector<double> x0;
     std::vector<double> x0_dot;
+
+    std::vector<std::string> joint_names;
 
   private:
     ros::NodeHandle nh;
