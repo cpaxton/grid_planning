@@ -53,7 +53,7 @@ gp.SetDof(7);
 gp.SetNumBasisFunctions(5);
 gp.SetK(100);
 gp.SetD(20);
-gp.SetTau(1.0);
+gp.SetTau(3.0);
 gp.SetGoalThreshold(0.1);
 
 """ ========================================================================= """
@@ -77,7 +77,10 @@ pps()
 rospy.sleep(rospy.Duration(0.1))
 pps()
 
-traj_params = approach.trajectory_model.sample(100)
+Z = copy.deepcopy(approach.trajectory_model)
+for i in range(Z.n_components):
+    Z.covars_[i,:,:] += 1 * np.eye(Z.covars_.shape[1])
+traj_params = Z.sample(100)
 for z in traj_params:
     traj = gp.TryPrimitives(list(z))
     print traj
@@ -91,7 +94,7 @@ msg.header.frame_id = base_link
 for (pt,vel) in traj:
     cmd_pt = JointTrajectoryPoint()
     cmd_pt.positions = pt
-    cmd_pt.velocities = vel
+    #cmd_pt.velocities = vel
     cmd.points.append(cmd_pt)
     f = robot.GetForward(pt[:7])
     msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))

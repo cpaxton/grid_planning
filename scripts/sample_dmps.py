@@ -175,14 +175,12 @@ if __name__ == '__main__':
     cmd_pt = JointTrajectoryPoint()
     cmd_pt.positions = traj[-1]
 
-
     pub = rospy.Publisher('/gazebo/traj_rml/joint_traj_cmd',JointTrajectory)
     pubpt = rospy.Publisher('/gazebo/traj_rml/joint_traj_point_cmd',JointTrajectoryPoint)
-    rospy.sleep(rospy.Duration(0.1))
+    rospy.sleep(rospy.Duration(0.25))
+
     print "publishing point!"
-    pubpt.publish(cmd_pt)
-    pubpt.publish(cmd_pt)
-    pubpt.publish(cmd_pt)
+    pub.publish(cmd)
 
     print "creating trajectory messages..."
 
@@ -216,19 +214,6 @@ if __name__ == '__main__':
         msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
         f = robot.GetForward(traj[-1][:7])
         msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
-
-        #print np.array(robot.GetFeatures(traj[-1],1,world,['link'])) - expert.means_[0,10:17]
-        #print "---"
-
-
-    #dbg_ee_poses = PoseArray()
-    #dbg_ee_poses.header.frame_id = "/gbeam_link_1/gbeam_link"
-
-    #mean_idx = 10
-    #tr = PyKDL.Vector(expert.means_[0,mean_idx],expert.means_[0,mean_idx+1],expert.means_[0,mean_idx+2])
-    #ro = PyKDL.Rotation.RPY(expert.means_[0,mean_idx+3],expert.means_[0,mean_idx+4],expert.means_[0,mean_idx+5])
-    #f = PyKDL.Frame(ro,tr)
-    #dbg_ee_poses.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
 
     print "Showing trajectories now."
 

@@ -6,6 +6,8 @@
 
 #include <boost/python/tuple.hpp>
 
+#define _DEBUG_OUTPUT 1
+
 /*****************************************************************************************/
 #include <boost/python/stl_iterator.hpp>
 using namespace boost::python;
@@ -79,6 +81,7 @@ using namespace dmp;
 using planning_scene::PlanningScene;
 using robot_model_loader::RobotModelLoader;
 using robot_model::RobotModelPtr;
+using robot_model::JointModel;
 using robot_state::RobotState;
 using collision_detection::CollisionRobot;
 using planning_scene_monitor::PlanningSceneMonitorPtr;
@@ -131,6 +134,19 @@ namespace grid {
       monitor = PlanningSceneMonitorPtr(new planning_scene_monitor::PlanningSceneMonitor(robot_description_, tf));
       monitor->startStateMonitor(js_topic);
       monitor->startSceneMonitor(scene_topic);
+
+      //std::vector< const JointModel * > jts = model->getJointModels();
+      /*
+      for (unsigned int i = 0; i < model->getJointModels().size(); ++i) {
+        std::cout << i << ": " << model->getJointModels()[i]->getVariableNames().size() ;
+        if (model->getJointModels()[i]->getVariableNames().size() > 0) {
+
+          std::cout << " " << model->getJointModels()[i]->getVariableNames()[0];
+        }
+          
+        std::cout << std::endl;
+      }
+      */
     }
 
   /* destructor */
@@ -222,13 +238,9 @@ namespace grid {
       traj_pt.velocities = pt.velocities;
 
       for (double &q: pt.positions) {
-      //for (unsigned int i = 0; i < pt.positions.size(); ++i) {
-      //  traj_pt.position.push_back(pt.positions[i]);
         std::cout << q << " ";
       }
 
-      //std::cout << "(num="<<positions.size() <<")" << std::endl;
-      //std::cout << search_state->getRobotModel()->getVariableCount() << std::endl;
       search_state->setVariablePositions(joint_names,traj_pt.positions);
       colliding = monitor->getPlanningScene()->isStateColliding(*search_state,"",false);
       std::cout << " = colliding? " << colliding << std::endl;
@@ -254,12 +266,14 @@ namespace grid {
 
     std::vector<std::string> names = monitor->getPlanningScene()->getWorld()->getObjectIds();
 
+#if _DEBUG_OUTPUT
     std::cout << "==========================" << std::endl;
     std::cout << "OBJECTS IN WORLD: " << std::endl;
     for (const std::string &name: names) {
       std::cout << " -- " << name << std::endl;
     }
     std::cout << "==========================" << std::endl;
+#endif
 
     Traj_t traj = TryPrimitives(primitives);
 
