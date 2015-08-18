@@ -1,7 +1,8 @@
-#!/usr/bin/env
+#!/usr/bin/env python
 
 import grid
 import rospy
+import numpy as np
 
 '''
 Create skills
@@ -32,10 +33,13 @@ skill_fixed = {'approach':[], 'grasp':['link'], 'transport':['link']}
 # load data for each skill
 for name,filenames in skill_filenames.items():
 
-    data,params,num_weights,goals = grid.LoadDataDMP(filenames)
+    data,params,num_weights,goals = grid.LoadDataDMP(filenames,skill_objs[name])
+    training_data = np.array(data[0][1])
+    for i in range(1,len(data)):
+        training_data = np.concatenate((training_data,data[i][1]))
 
     # create the skill object
-    skill = grid.RobotSkill(name=name,action_k=ak,goal_k=gk,data=data,params=params,goals=goals)#,num_weights=num_weights)
+    skill = grid.RobotSkill(name=name,action_k=ak,goal_k=gk,data=training_data,params=params,goals=goals)#,num_weights=num_weights)
 
     skill.save(name+"_skill.yml")
 

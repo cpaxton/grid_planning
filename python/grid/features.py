@@ -53,7 +53,9 @@ class RobotFeatures:
             gripper_topic='/gazebo/barrett_manager/hand/cmd',
             objects={}, indices={},
             robot_description_param='robot_description',
-            dof=7):
+            dof=7,
+            filename=None
+            ):
 
         self.dof = dof;
         self.world_frame = world_frame
@@ -96,29 +98,23 @@ class RobotFeatures:
         self.recorded = False
         self.quiet = True # by default hide TF error messages
 
-    def __init__(self,filename):
-        stream = file(filename,'r')
-        data = yaml.load(stream,Loader=Loader)
+        if not filename == None:
+            stream = file(filename,'r')
+            data = yaml.load(stream,Loader=Loader)
+            self.joint_states = data['joint_states']
+            self.world_states = data['world_states']
+            self.times = data['times']
+            self.base_tform = data['base_tform']
 
-        self = RobotFeatures(base_link=data['base_link'],
-                end_link=data['end_link']
-                ,woselfld_frame=data['world_frame'],
-                selfobot_description_param=data['robot_description_param'])
+            if data.has_key('indices'):
+                self.indices = data['indices']
+                self.max_index = data['max_index']
+            else: # initialize the indices
+                for obj in r.world_states[0].keys():
+                    self.AddObject(obj)
 
-        self.gripper_cmds = data['gripper_cmds']
-        self.joint_states = data['joint_states']
-        self.world_states = data['world_states']
-        self.times = data['times']
-        self.base_tform = data['base_tform']
-
-        if data.has_key('indices'):
-            self.indices = data['indices']
-            self.max_index = data['max_index']
-        else: # initialize the indices
-            for obj in r.world_states[0].keys():
-                self.AddObject(obj)
-
-        self.recorded = True
+            self.recorded = True
+            self.gripper_cmds = data['gripper_cmds']
 
     def StartRecording(self):
         if self.recorded:

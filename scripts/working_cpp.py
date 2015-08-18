@@ -20,19 +20,11 @@ import copy
 import rospy
 import sensor_msgs
 from geometry_msgs.msg import PoseArray
+from std_srvs.srv import Empty
 
 " math "
 import numpy as np
 import tf_conversions.posemath as pm
-
-" machine learning "
-from sklearn.mixture import GMM
-#from gmm import GMM # conditional GMM
-
-" Fitting DMPs "
-from dmp.srv import *
-from dmp.msg import *
-from grid import *
 
 " control "
 from trajectory_msgs.msg import JointTrajectory
@@ -114,9 +106,10 @@ for z in traj_params:
 cmd = JointTrajectory()
 msg = PoseArray()
 msg.header.frame_id = base_link
-for pt in traj:
+for (pt,vel) in traj:
     cmd_pt = JointTrajectoryPoint()
     cmd_pt.positions = pt
+    cmd_pt.velocities = vel
     cmd.points.append(cmd_pt)
     f = robot.GetForward(pt[:7])
     msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))

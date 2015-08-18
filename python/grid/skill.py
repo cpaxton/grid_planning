@@ -50,28 +50,27 @@ class RobotSkill:
     they also contain a description for our own purposes
     oh, and which objects are involved
     '''
-    def __init__(self,data,params,goals,action_k=4,goal_k=4,objs={},name=""):
+    def __init__(self,data=[],params=[],goals=[],action_k=4,goal_k=4,objs={},name="",filename=None):
         self.name = name
 
         self.action_model = GMM(n_components=action_k,covariance_type="full")
         self.goal_model = GMM(n_components=goal_k,covariance_type="full")
         self.trajectory_model = GMM(n_components=1,covariance_type="full")
         
-        # learn action, goal, and trajectory models
-        self.goal_model.fit(goals)
-        self.trajectory_model.fit(params)
 
-    '''
-    load the robot skill from a file
-    '''
-    def __init__(self, filename):
-        stream = file(filename,'r')
-        data = yaml.load(stream,Loader=Loader)
+        if filename == None and len(data) > 0:
+            # learn action, goal, and trajectory models
+            self.goal_model.fit(goals)
+            self.action_model.fit(data)
+            self.trajectory_model.fit(params)
+        elif not filename == None:
+            stream = file(filename,'r')
+            data = yaml.load(stream,Loader=Loader)
 
-        self.name = data['name']
-        self.action_model = data['action_model']
-        self.goal_model = data['goal_model']
-        self.trajectory_model = data['trajectory_model']
+            self.name = data['name']
+            self.action_model = data['action_model']
+            self.goal_model = data['goal_model']
+            self.trajectory_model = data['trajectory_model']
 
     '''
     save the robot skill to a file

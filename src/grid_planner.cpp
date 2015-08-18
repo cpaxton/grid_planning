@@ -4,6 +4,8 @@
 #include <exception>
 #include <iostream>
 
+#include <boost/python/tuple.hpp>
+
 /*****************************************************************************************/
 #include <boost/python/stl_iterator.hpp>
 using namespace boost::python;
@@ -255,13 +257,16 @@ namespace grid {
     boost::python::list res;
 
     for (const Traj_pt_t &pt: traj.points) {
-      boost::python::list tmp;
+      boost::python::list p;
+      boost::python::list v;
 
-      for (const double &q: pt.positions) {
-        tmp.append<double>(q);
+      //for (const double &q: pt.positions) {
+      for (unsigned int i = 0; i < pt.positions.size(); ++i) {
+        p.append<double>(pt.positions[i]);
+        v.append<double>(pt.velocities[i]);
       }
 
-      res.append<boost::python::list>(tmp);
+      res.append<boost::python::tuple>(boost::python::make_tuple(p,v));
     }
 
     return res;
