@@ -57,7 +57,7 @@ gp.SetTau(1.0);
 gp.SetGoalThreshold(0.1);
 
 """ ========================================================================= """
-robot = RobotFeatures()
+robot = grid.RobotFeatures()
 obj1='/gbeam_link_1/gbeam_link'
 obj2='/gbeam_node_1/gbeam_node'
 robot.AddObject("link",obj1);
@@ -65,43 +65,25 @@ robot.AddObject("node",obj2);
 base_link = 'wam/base_link'
 end_link = 'wam/wrist_palm_link'
 
-data,params,num_weights,goals = LoadDataDMP(filenames,['link'])
+approach = grid.RobotSkill(filename='skills/approach_skill.yml')
+transport = grid.RobotSkill(filename='skills/transport_skill.yml')
+grasp = grid.RobotSkill(filename='skills/grasp_skill.yml')
 
-print "Fitting GMM to trajectory parameters..."
-Z = GMM(covariance_type="full")
-Z.n_components = 1
-Z = Z.fit(params)
-for i in range(Z.n_components):
-    Z.covars_[i,:,:] += 1 * np.eye(Z.covars_.shape[1])
+""" ========================================================================= """
 
-print "Fitting GMM to expert action features..."
-training_data = np.array(data[0][1])
-for i in range(1,len(data)):
-    training_data = np.concatenate((training_data,data[i][1]))
-traj_model = GMM(n_components=1,covariance_type="full")
-traj_model.fit(training_data)
+rospy.wait_for_service('/gazebo/publish_planning_scene')
+pps = rospy.ServiceProxy('/gazebo/publish_planning_scene',Empty)
+pps()
+rospy.sleep(rospy.Duration(0.1))
+pps()
 
-print "Fitting GMM to expert goal features..."
-expert = GMM(n_components=1,covariance_type="full")
-expert = expert.fit(goals)
-
-traj_params = Z.sample(100)
+traj_params = approach.trajectory_model.sample(100)
 for z in traj_params:
     traj = gp.TryPrimitives(list(z))
     print traj
 
     if not len(traj) == 0:
         break
-
-# test by sending a command to the real robot now!
-#cmd_pt = JointTrajectoryPoint()
-#cmd_pt.positions = traj[-1]
-#pubpt = rospy.Publisher('/gazebo/traj_rml/joint_traj_point_cmd',JointTrajectoryPoint)
-#pubpt.publish(cmd_pt)
-#rospy.sleep(rospy.Duration(0.1))
-#pubpt.publish(cmd_pt)
-#rospy.sleep(rospy.Duration(0.1))
-#pubpt.publish(cmd_pt)
 
 cmd = JointTrajectory()
 msg = PoseArray()

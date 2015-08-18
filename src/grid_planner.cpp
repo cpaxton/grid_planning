@@ -252,6 +252,15 @@ namespace grid {
   boost::python::list GridPlanner::pyTryPrimitives(const boost::python::list &list) {
     std::vector<double> primitives = to_std_vector<double>(list);
 
+    std::vector<std::string> names = monitor->getPlanningScene()->getWorld()->getObjectIds();
+
+    std::cout << "==========================" << std::endl;
+    std::cout << "OBJECTS IN WORLD: " << std::endl;
+    for (const std::string &name: names) {
+      std::cout << " -- " << name << std::endl;
+    }
+    std::cout << "==========================" << std::endl;
+
     Traj_t traj = TryPrimitives(primitives);
 
     boost::python::list res;

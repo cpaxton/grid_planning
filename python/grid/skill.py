@@ -63,6 +63,7 @@ class RobotSkill:
             self.goal_model.fit(goals)
             self.action_model.fit(data)
             self.trajectory_model.fit(params)
+
         elif not filename == None:
             stream = file(filename,'r')
             data = yaml.load(stream,Loader=Loader)
