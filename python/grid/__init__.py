@@ -27,4 +27,3 @@ from visualization_utils import GetMarkerMsg
 
 " skill descriptions "
 from skill import RobotSkill
-from skill import LoadRobotSkill

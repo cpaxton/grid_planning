@@ -96,6 +96,30 @@ class RobotFeatures:
         self.recorded = False
         self.quiet = True # by default hide TF error messages
 
+    def __init__(self,filename):
+        stream = file(filename,'r')
+        data = yaml.load(stream,Loader=Loader)
+
+        self = RobotFeatures(base_link=data['base_link'],
+                end_link=data['end_link']
+                ,woselfld_frame=data['world_frame'],
+                selfobot_description_param=data['robot_description_param'])
+
+        self.gripper_cmds = data['gripper_cmds']
+        self.joint_states = data['joint_states']
+        self.world_states = data['world_states']
+        self.times = data['times']
+        self.base_tform = data['base_tform']
+
+        if data.has_key('indices'):
+            self.indices = data['indices']
+            self.max_index = data['max_index']
+        else: # initialize the indices
+            for obj in r.world_states[0].keys():
+                self.AddObject(obj)
+
+        self.recorded = True
+
     def StartRecording(self):
         if self.recorded:
             return

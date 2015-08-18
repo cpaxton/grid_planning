@@ -61,6 +61,21 @@ class RobotSkill:
         self.goal_model.fit(goals)
         self.trajectory_model.fit(params)
 
+    '''
+    load the robot skill from a file
+    '''
+    def __init__(self, filename):
+        stream = file(filename,'r')
+        data = yaml.load(stream,Loader=Loader)
+
+        self.name = data['name']
+        self.action_model = data['action_model']
+        self.goal_model = data['goal_model']
+        self.trajectory_model = data['trajectory_model']
+
+    '''
+    save the robot skill to a file
+    '''
     def save(self,filename):
         stream = file(filename,'w')
 
@@ -72,8 +87,3 @@ class RobotSkill:
 
         yaml.dump(out,stream)
 
-'''
-Load a skill from a file
-'''
-def LoadRobotSkill(filename):
-    pass
