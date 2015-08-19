@@ -63,6 +63,7 @@ class RobotSkill:
             self.goal_model.fit(goals)
             self.action_model.fit(data)
             self.trajectory_model.fit(params)
+            self.t_factor = 0.1
 
         elif not filename == None:
             stream = file(filename,'r')
@@ -72,6 +73,7 @@ class RobotSkill:
             self.action_model = data['action_model']
             self.goal_model = data['goal_model']
             self.trajectory_model = data['trajectory_model']
+            self.t_factor = 0.1
 
     '''
     save the robot skill to a file
@@ -86,4 +88,28 @@ class RobotSkill:
         out['trajectory_model'] = self.trajectory_model
 
         yaml.dump(out,stream)
+
+    '''
+    execution loop update for trajectory skills
+    '''
+    def update(self, trajs, p_z, t, p_obs=1):
+        wts = np.zeros(len(trajs));
+        for i in range(len(trajs)):
+            p_exp = self.trajectory_model.score(trajs[i][:-1])
+            p_exp_f = self.goal_model.score(trajs[i][-1])
+
+            p_exp = np.concatenate((p_exp,p_exp_f))
+
+            wts[i] = weight(p_exp, 1, p_z[i], t[i], self.t_lambda)
+
+
+'''
+This function determines the weight on a given example point
+p_expert: different for each point
+p_obs: same (actually fixed at 1)
+p_z: same for each trajectory
+t: different for each point
+'''
+def weight(p_expert,p_obs,p_z,t,t_lambda=0.1):
+    return (p_expert * t_lambda**(1-t)) / (p_obs * p_z)
 

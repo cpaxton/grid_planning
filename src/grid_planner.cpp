@@ -13,7 +13,7 @@
 using namespace boost::python;
 
 /* Read a ROS message from a serialized string.
-  */
+*/
 template <typename M>
 M ros_from_python(const std::string str_msg)
 {
@@ -199,6 +199,7 @@ namespace grid {
     std::string name = robot1->getRobotModel()->getName();
 
     state->update(true); // not sure if this should be moved outside of the "if"
+
     if (verbose) {
       std::cout << "==========================" << std::endl;
       std:: cout << name << std::endl;
@@ -253,10 +254,12 @@ namespace grid {
     DMPTraj plan;
     dmp::generatePlan(dmp_list,x0,x0_dot,0,goal,goal_threshold,-1,tau,0.1,5,plan,at_goal);
 
-    std::cout << "--------------------------" << std::endl;
+    if (verbose) {
+      std::cout << "--------------------------" << std::endl;
 
-    std::cout << "at goal: " << (unsigned int)at_goal << std::endl;
-    std::cout << "points: " << plan.points.size() << std::endl;
+      std::cout << "at goal: " << (unsigned int)at_goal << std::endl;
+      std::cout << "points: " << plan.points.size() << std::endl;
+    }
 
     bool drop_trajectory = false;
     for (DMPPoint &pt: plan.points) {
@@ -264,14 +267,20 @@ namespace grid {
       traj_pt.positions = pt.positions;
       traj_pt.velocities = pt.velocities;
 
-      for (double &q: pt.positions) {
-        std::cout << q << " ";
+      if (verbose) {
+        for (double &q: pt.positions) {
+          std::cout << q << " ";
+        }
       }
 
-      bounds_satisfied = model->satisfiesPositionBounds(traj_pt.positions.data());
+      //bounds_satisfied = true; //model->satisfiesPositionBounds(traj_pt.positions.data());
+      bounds_satisfied = search-state->satisfiesBounds();
       search_state->setVariablePositions(joint_names,traj_pt.positions);
       colliding = monitor->getPlanningScene()->isStateColliding(*search_state,"",false);
-      std::cout << " = colliding? " << colliding << ", = bounds? " << bounds_satisfied << std::endl;
+
+      if (verbose) {
+        std::cout << " = colliding? " << colliding << ", = bounds? " << bounds_satisfied << std::endl;
+      }
 
       drop_trajectory |= colliding | !bounds_satisfied;
 
@@ -325,68 +334,68 @@ namespace grid {
     }
 
     return res;
-  }
+    }
 
-  /* update planning scene topic */
-  void  GridPlanner::SetPlanningSceneTopic(const std::string &topic) {
-    monitor->startSceneMonitor(topic);
-  }
+    /* update planning scene topic */
+    void  GridPlanner::SetPlanningSceneTopic(const std::string &topic) {
+      monitor->startSceneMonitor(topic);
+    }
 
-  /* configure degrees of freedom */
-  void GridPlanner::SetDof(const unsigned int dof_) {
-    dof = dof_;
-    goal.resize(dof);
-    x0.resize(dof);
-    x0_dot.resize(dof);
-    goal_threshold = std::vector<double>(dof,threshold);
+    /* configure degrees of freedom */
+    void GridPlanner::SetDof(const unsigned int dof_) {
+      dof = dof_;
+      goal.resize(dof);
+      x0.resize(dof);
+      x0_dot.resize(dof);
+      goal_threshold = std::vector<double>(dof,threshold);
 
-    int i = 0;
-    for (const std::string &name: search_state->getVariableNames()) {
-      std::cout << "setting up joint " << i << ":" << name << std::endl;
-      joint_names.push_back(name);
-      i++;
-      if (i >= dof) { break; }
+      int i = 0;
+      for (const std::string &name: search_state->getVariableNames()) {
+        std::cout << "setting up joint " << i << ":" << name << std::endl;
+        joint_names.push_back(name);
+        i++;
+        if (i >= dof) { break; }
+      }
+    }
+
+    /* configure number of basis functions */
+    void GridPlanner::SetNumBasisFunctions(const unsigned int num_) {
+      num_basis = num_;
+    }
+
+    void GridPlanner::SetK(const double k_gain_) {
+      k_gain = k_gain_;
+    }
+
+    void GridPlanner::SetD(const double d_gain_) {
+      d_gain = d_gain_;
+    }
+
+    void GridPlanner::SetTau(const double tau_) {
+      tau = tau_;
+    }
+
+    void GridPlanner::SetGoalThreshold(const double threshold_) {
+      threshold = threshold_;
+      goal_threshold = std::vector<double>(dof,threshold);
+    }
+
+    void GridPlanner::SetVerbose(const bool verbose_) {
+      verbose = verbose_;
     }
   }
 
-  /* configure number of basis functions */
-  void GridPlanner::SetNumBasisFunctions(const unsigned int num_) {
-    num_basis = num_;
+  BOOST_PYTHON_MODULE(pygrid_planner) {
+    class_<grid::GridPlanner>("GridPlanner",init<std::string,std::string,std::string,double>())
+      .def("Plan", &grid::GridPlanner::Plan)
+      .def("AddAction", &grid::GridPlanner::AddAction)
+      .def("AddObject", &grid::GridPlanner::AddObject)
+      .def("TryPrimitives", &grid::GridPlanner::pyTryPrimitives)
+      .def("SetK", &grid::GridPlanner::SetK)
+      .def("SetD", &grid::GridPlanner::SetD)
+      .def("SetTau", &grid::GridPlanner::SetTau)
+      .def("SetDof", &grid::GridPlanner::SetDof)
+      .def("SetNumBasisFunctions", &grid::GridPlanner::SetNumBasisFunctions)
+      .def("SetGoalThreshold", &grid::GridPlanner::SetGoalThreshold)
+      .def("SetVerbose", &grid::GridPlanner::SetVerbose);
   }
-
-  void GridPlanner::SetK(const double k_gain_) {
-    k_gain = k_gain_;
-  }
-
-  void GridPlanner::SetD(const double d_gain_) {
-    d_gain = d_gain_;
-  }
-
-  void GridPlanner::SetTau(const double tau_) {
-    tau = tau_;
-  }
-
-  void GridPlanner::SetGoalThreshold(const double threshold_) {
-    threshold = threshold_;
-    goal_threshold = std::vector<double>(dof,threshold);
-  }
-
-  void GridPlanner::SetVerbose(const bool verbose_) {
-    verbose = verbose_;
-  }
-}
-
-BOOST_PYTHON_MODULE(pygrid_planner) {
-  class_<grid::GridPlanner>("GridPlanner",init<std::string,std::string,std::string,double>())
-    .def("Plan", &grid::GridPlanner::Plan)
-    .def("AddAction", &grid::GridPlanner::AddAction)
-    .def("AddObject", &grid::GridPlanner::AddObject)
-    .def("TryPrimitives", &grid::GridPlanner::pyTryPrimitives)
-    .def("SetK", &grid::GridPlanner::SetK)
-    .def("SetD", &grid::GridPlanner::SetD)
-    .def("SetTau", &grid::GridPlanner::SetTau)
-    .def("SetDof", &grid::GridPlanner::SetDof)
-    .def("SetNumBasisFunctions", &grid::GridPlanner::SetNumBasisFunctions)
-    .def("SetGoalThreshold", &grid::GridPlanner::SetGoalThreshold)
-    .def("SetVerbose", &grid::GridPlanner::SetVerbose);
-}

@@ -53,7 +53,7 @@ gp.SetDof(7);
 gp.SetNumBasisFunctions(5);
 gp.SetK(100);
 gp.SetD(20);
-gp.SetTau(5.0);
+gp.SetTau(2.0);
 gp.SetGoalThreshold(0.1);
 gp.SetVerbose(False);
 
@@ -80,14 +80,46 @@ pps()
 
 Z = copy.deepcopy(approach.trajectory_model)
 for i in range(Z.n_components):
-    Z.covars_[i,:,:] += 0.5 * np.eye(Z.covars_.shape[1])
-traj_params = Z.sample(500)
-traj = []
-for z in traj_params:
-    traj_ = gp.TryPrimitives(list(z))
+    Z.covars_[i,:,:] += 0.00001 * np.eye(Z.covars_.shape[1])
+    for j in range(7):
+        Z.covars_[i,j,j] += 0.2
 
-    if not len(traj) == 0:
+traj_params = Z.sample(2500)
+traj = []
+valid = []
+count = 0
+j = 0
+#for z in traj_params:
+while len(valid) < 10 and j < 2500:
+    traj_ = gp.TryPrimitives(list(traj_params[j]))
+
+    if not len(traj_) == 0:
+        count += 1
         traj = traj_
+        valid.append(traj_params[j])
+
+    j += 1
+
+for i in range(1,5):
+    print "Iteration %d... (based on %d valid samples)"%(i,count)
+    Z = Z.fit(valid)
+    Z.covars_[0,:,:] += 0.000001 * np.eye(Z.covars_.shape[1])
+    traj_params = Z.sample(2500)
+    valid = []
+    count = 0
+    j = 0
+    #for z in traj_params:
+    while len(valid) < 10 and j < 2500:
+        traj_ = gp.TryPrimitives(list(traj_params[j]))
+
+        if not len(traj_) == 0:
+            count += 1
+            traj = traj_
+            valid.append(traj_params[j])
+
+        j += 1
+
+print "Found %d total valid trajectories."%(count)
 
 cmd = JointTrajectory()
 msg = PoseArray()
@@ -97,7 +129,7 @@ vels = []
 for (pt,vel) in traj:
     cmd_pt = JointTrajectoryPoint()
     cmd_pt.positions = pt
-    cmd_pt.velocities = np.array(vel)*0.2
+    cmd_pt.velocities = np.array(vel)*0.05
     pts.append(pt)
     vels.append(vel)
     cmd.points.append(cmd_pt)
