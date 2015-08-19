@@ -73,13 +73,15 @@ approach = grid.RobotSkill(filename='skills/approach_skill.yml')
 transport = grid.RobotSkill(filename='skills/transport_skill.yml')
 grasp = grid.RobotSkill(filename='skills/grasp_skill.yml')
 
+robot.goal_model = approach.goal_model
+robot.traj_model = approach.trajectory_model
+
 print " - getting TF information for generating trajectories..."
 
 world = None
 while world == None or not robot.TfUpdateWorld():
     world = robot.TfCreateWorld()
 
-world.pop('node')
 print world
 
 """ ========================================================================= """
@@ -120,6 +122,7 @@ for i in range(1,5):
     Z.covars_[0,:,:] += 0.000001 * np.eye(Z.covars_.shape[1])
     traj_params = Z.sample(NUM_SAMPLES)
     valid = []
+    lls = np.zeros(NUM_VALID)
     count = 0
     j = 0
     #for z in traj_params:
@@ -130,8 +133,11 @@ for i in range(1,5):
             count += 1
             traj = traj_
             valid.append(traj_params[j])
+            pts = [p for p,v in traj]
+            lls[len(valid)-1] = robot.GetTrajectoryLikelihood(pts,world,objs=['link'])
 
         j += 1
+print lls
 
 print "Found %d total valid trajectories."%(count)
 
@@ -148,7 +154,7 @@ for (pt,vel) in traj:
     vels.append(vel)
     cmd.points.append(cmd_pt)
     f = robot.GetForward(pt[:7])
-    msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))\
+    msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
 
 if len(cmd.points) > 0:
     cmd.points[-1].velocities = [0]*7
