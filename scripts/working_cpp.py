@@ -55,6 +55,7 @@ gp.SetK(100);
 gp.SetD(20);
 gp.SetTau(3.0);
 gp.SetGoalThreshold(0.1);
+gp.SetVerbose(True);
 
 """ ========================================================================= """
 robot = grid.RobotFeatures()
@@ -79,8 +80,8 @@ pps()
 
 Z = copy.deepcopy(approach.trajectory_model)
 for i in range(Z.n_components):
-    Z.covars_[i,:,:] += 1 * np.eye(Z.covars_.shape[1])
-traj_params = Z.sample(100)
+    Z.covars_[i,:,:] += 0.2 * np.eye(Z.covars_.shape[1])
+traj_params = Z.sample(500)
 for z in traj_params:
     traj = gp.TryPrimitives(list(z))
     print traj

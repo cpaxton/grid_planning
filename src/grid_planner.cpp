@@ -107,7 +107,7 @@ namespace grid {
                            const std::string &scene_topic,
                            const double padding)
 
-    : nh(), dof(7), num_basis(5), goal(7), x0(7), x0_dot(7), goal_threshold(7,0.1), threshold(0.1)
+    : nh(), dof(7), num_basis(5), goal(7), x0(7), x0_dot(7), goal_threshold(7,0.1), threshold(0.1), verbose(false)
     {
 
       js_sub = nh.subscribe(js_topic.c_str(),1000,&GridPlanner::JointStateCallback,this);
@@ -183,18 +183,23 @@ namespace grid {
   Traj_t GridPlanner::TryPrimitives(std::vector<double> primitives) {
 
     Traj_t traj;
+    bool colliding, bounds_satisfied;
+
     std::cout << "==========================" << std::endl;
 
     collision_detection::CollisionRobotConstPtr robot1 = monitor->getPlanningScene()->getCollisionRobot();
     std::string name = robot1->getRobotModel()->getName();
-    std:: cout << name << std::endl;
-    state->update(true);
-    state->printStateInfo(std::cout);
 
-    bool colliding = monitor->getPlanningScene()->isStateColliding(*state,"",true);
-    std::cout << "Colliding: " << colliding << std::endl;
+      state->update(true); // not sure if this should be moved outside of the "if"
+    if (verbose) {
+      std:: cout << name << std::endl;
+      state->printStateInfo(std::cout);
 
-    std::cout << "--------------------------" << std::endl;
+      colliding = monitor->getPlanningScene()->isStateColliding(*state,"",true);
+      std::cout << "Colliding: " << colliding << std::endl;
+
+      std::cout << "--------------------------" << std::endl;
+    }
 
     std::vector<DMPData> dmp_list;
 
@@ -241,11 +246,14 @@ namespace grid {
         std::cout << q << " ";
       }
 
+      bounds_satisfied = model->satisfiesPositionBounds(traj_pt.positions.data());
       search_state->setVariablePositions(joint_names,traj_pt.positions);
       colliding = monitor->getPlanningScene()->isStateColliding(*search_state,"",false);
-      std::cout << " = colliding? " << colliding << std::endl;
+      std::cout << " = colliding? " << colliding << ", = bounds? " << bounds_satisfied << std::endl;
 
-      drop_trajectory |= colliding;
+      drop_trajectory |= colliding | !bounds_satisfied;
+
+      if (drop_trajectory) { break; }
 
       traj.points.push_back(traj_pt);
     }
@@ -338,6 +346,10 @@ namespace grid {
     threshold = threshold_;
     goal_threshold = std::vector<double>(dof,threshold);
   }
+
+  void GridPlanner::SetVerbose(const bool verbose_) {
+    verbose = verbose_;
+  }
 }
 
 BOOST_PYTHON_MODULE(pygrid_planner) {
@@ -351,5 +363,6 @@ BOOST_PYTHON_MODULE(pygrid_planner) {
     .def("SetTau", &grid::GridPlanner::SetTau)
     .def("SetDof", &grid::GridPlanner::SetDof)
     .def("SetNumBasisFunctions", &grid::GridPlanner::SetNumBasisFunctions)
-    .def("SetGoalThreshold", &grid::GridPlanner::SetGoalThreshold);
+    .def("SetGoalThreshold", &grid::GridPlanner::SetGoalThreshold)
+    .def("SetVerbose", &grid::GridPlanner::SetVerbose);
 }

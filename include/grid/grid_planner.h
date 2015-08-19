@@ -117,6 +117,8 @@ namespace grid {
     void SetTau(const double tau);
     void SetGoalThreshold(const double threshold);
 
+    void SetVerbose(const bool verbose);
+
   protected:
     std::unordered_map<std::string, std::string> object_lookup;
     robot_model::RobotModelPtr model;
@@ -137,6 +139,8 @@ namespace grid {
     std::vector<double> x0_dot;
 
     std::vector<std::string> joint_names;
+
+    bool verbose;
 
   private:
     ros::NodeHandle nh;
