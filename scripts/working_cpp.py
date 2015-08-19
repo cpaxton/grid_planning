@@ -57,6 +57,9 @@ gp.SetTau(2.0);
 gp.SetGoalThreshold(0.1);
 gp.SetVerbose(False);
 
+NUM_VALID = 25
+NUM_SAMPLES = 2500
+
 """ ========================================================================= """
 robot = grid.RobotFeatures()
 obj1='/gbeam_link_1/gbeam_link'
@@ -84,13 +87,13 @@ for i in range(Z.n_components):
     for j in range(7):
         Z.covars_[i,j,j] += 0.2
 
-traj_params = Z.sample(2500)
+traj_params = Z.sample(NUM_SAMPLES)
 traj = []
 valid = []
 count = 0
 j = 0
 #for z in traj_params:
-while len(valid) < 10 and j < 2500:
+while len(valid) < NUM_VALID and j < NUM_SAMPLES:
     traj_ = gp.TryPrimitives(list(traj_params[j]))
 
     if not len(traj_) == 0:
@@ -104,12 +107,12 @@ for i in range(1,5):
     print "Iteration %d... (based on %d valid samples)"%(i,count)
     Z = Z.fit(valid)
     Z.covars_[0,:,:] += 0.000001 * np.eye(Z.covars_.shape[1])
-    traj_params = Z.sample(2500)
+    traj_params = Z.sample(NUM_SAMPLES)
     valid = []
     count = 0
     j = 0
     #for z in traj_params:
-    while len(valid) < 10 and j < 2500:
+    while len(valid) < NUM_VALID and j < NUM_SAMPLES:
         traj_ = gp.TryPrimitives(list(traj_params[j]))
 
         if not len(traj_) == 0:
@@ -152,7 +155,7 @@ if False:
 
 # plot desired position and velocity
 
-rospy.sleep(rospy.Duration(0.25))
+rospy.sleep(rospy.Duration(0.5))
 pub.publish(cmd)
 pa_ee_pub.publish(msg)
 
