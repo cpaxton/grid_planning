@@ -135,18 +135,6 @@ namespace grid {
       monitor->startStateMonitor(js_topic);
       monitor->startSceneMonitor(scene_topic);
 
-      //std::vector< const JointModel * > jts = model->getJointModels();
-      /*
-      for (unsigned int i = 0; i < model->getJointModels().size(); ++i) {
-        std::cout << i << ": " << model->getJointModels()[i]->getVariableNames().size() ;
-        if (model->getJointModels()[i]->getVariableNames().size() > 0) {
-
-          std::cout << " " << model->getJointModels()[i]->getVariableNames()[0];
-        }
-          
-        std::cout << std::endl;
-      }
-      */
     }
 
   /* destructor */
@@ -182,17 +170,19 @@ namespace grid {
 
     std::vector<std::string> names = monitor->getPlanningScene()->getWorld()->getObjectIds();
 
+    collision_detection::CollisionRobotConstPtr robot1 = monitor->getPlanningScene()->getCollisionRobot();
+    std::string name = robot1->getRobotModel()->getName();
+
     std::cout << "==========================" << std::endl;
     std::cout << "OBJECTS IN WORLD: " << std::endl;
     for (const std::string &name: names) {
       std::cout << " -- " << name << std::endl;
     }
     std::cout << "--------------------------" << std::endl;
-    std::string name = robot1->getRobotModel()->getName();
     std:: cout << name << std::endl;
     state->printStateInfo(std::cout);
 
-    colliding = monitor->getPlanningScene()->isStateColliding(*state,"",true);
+    bool colliding = monitor->getPlanningScene()->isStateColliding(*state,"",true);
     std::cout << "Colliding: " << colliding << std::endl;
 
     std::cout << "==========================" << std::endl;
@@ -204,7 +194,6 @@ namespace grid {
 
     Traj_t traj;
     bool colliding, bounds_satisfied;
-
 
     collision_detection::CollisionRobotConstPtr robot1 = monitor->getPlanningScene()->getCollisionRobot();
     std::string name = robot1->getRobotModel()->getName();
