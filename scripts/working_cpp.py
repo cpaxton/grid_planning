@@ -73,7 +73,18 @@ approach = grid.RobotSkill(filename='skills/approach_skill.yml')
 transport = grid.RobotSkill(filename='skills/transport_skill.yml')
 grasp = grid.RobotSkill(filename='skills/grasp_skill.yml')
 
+print " - getting TF information for generating trajectories..."
+
+world = None
+while world == None or not robot.TfUpdateWorld():
+    world = robot.TfCreateWorld()
+
+world.pop('node')
+print world
+
 """ ========================================================================= """
+
+print "Starting search:"
 
 rospy.wait_for_service('/gazebo/publish_planning_scene')
 pps = rospy.ServiceProxy('/gazebo/publish_planning_scene',Empty)
