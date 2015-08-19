@@ -190,7 +190,7 @@ namespace grid {
     collision_detection::CollisionRobotConstPtr robot1 = monitor->getPlanningScene()->getCollisionRobot();
     std::string name = robot1->getRobotModel()->getName();
 
-      state->update(true); // not sure if this should be moved outside of the "if"
+    state->update(true); // not sure if this should be moved outside of the "if"
     if (verbose) {
       std:: cout << name << std::endl;
       state->printStateInfo(std::cout);
@@ -217,12 +217,18 @@ namespace grid {
       dmp_.k_gain = k_gain;
       dmp_.d_gain = d_gain;
 
-      std::cout << "Primitive " << i << ": ";
+      if (verbose) {
+        std::cout << "Primitive " << i << ": ";
+      }
       for (unsigned int j=0; j < num_basis; ++j) {
-        std::cout << primitives[idx] << " ";
+        if (verbose) {
+          std::cout << primitives[idx] << " ";
+        }
         dmp_.weights.push_back(primitives[idx++]);  
       }
-      std::cout << std::endl;
+      if (verbose) {
+        std::cout << std::endl;
+      }
 
       dmp_list.push_back(dmp_);
     }

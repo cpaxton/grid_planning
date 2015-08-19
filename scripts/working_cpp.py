@@ -53,9 +53,9 @@ gp.SetDof(7);
 gp.SetNumBasisFunctions(5);
 gp.SetK(100);
 gp.SetD(20);
-gp.SetTau(3.0);
+gp.SetTau(5.0);
 gp.SetGoalThreshold(0.1);
-gp.SetVerbose(True);
+gp.SetVerbose(False);
 
 """ ========================================================================= """
 robot = grid.RobotFeatures()
@@ -80,11 +80,10 @@ pps()
 
 Z = copy.deepcopy(approach.trajectory_model)
 for i in range(Z.n_components):
-    Z.covars_[i,:,:] += 0.2 * np.eye(Z.covars_.shape[1])
+    Z.covars_[i,:,:] += 0.5 * np.eye(Z.covars_.shape[1])
 traj_params = Z.sample(500)
 for z in traj_params:
     traj = gp.TryPrimitives(list(z))
-    print traj
 
     if not len(traj) == 0:
         break
@@ -92,15 +91,32 @@ for z in traj_params:
 cmd = JointTrajectory()
 msg = PoseArray()
 msg.header.frame_id = base_link
+pts = []
+vels = []
 for (pt,vel) in traj:
     cmd_pt = JointTrajectoryPoint()
     cmd_pt.positions = pt
-    #cmd_pt.velocities = vel
+    cmd_pt.velocities = np.array(vel)*0.2
+    pts.append(pt)
+    vels.append(vel)
     cmd.points.append(cmd_pt)
     f = robot.GetForward(pt[:7])
-    msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
+    msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))\
+
+if len(cmd.points) > 0:
+    cmd.points[-1].velocities = [0]*7
+
 pub = rospy.Publisher('/gazebo/traj_rml/joint_traj_cmd',JointTrajectory)
 pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray)
+
+from matplotlib import pyplot as plt
+plt.figure(1)
+plt.plot(pts)
+plt.figure(2)
+plt.plot(vels)
+plt.show()
+
+# plot desired position and velocity
 
 rospy.sleep(rospy.Duration(0.25))
 pub.publish(cmd)
