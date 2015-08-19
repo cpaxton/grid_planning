@@ -119,6 +119,8 @@ namespace grid {
 
     void SetVerbose(const bool verbose);
 
+    void PrintInfo() const;
+
   protected:
     std::unordered_map<std::string, std::string> object_lookup;
     robot_model::RobotModelPtr model;

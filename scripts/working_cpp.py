@@ -82,11 +82,12 @@ Z = copy.deepcopy(approach.trajectory_model)
 for i in range(Z.n_components):
     Z.covars_[i,:,:] += 0.5 * np.eye(Z.covars_.shape[1])
 traj_params = Z.sample(500)
+traj = []
 for z in traj_params:
-    traj = gp.TryPrimitives(list(z))
+    traj_ = gp.TryPrimitives(list(z))
 
     if not len(traj) == 0:
-        break
+        traj = traj_
 
 cmd = JointTrajectory()
 msg = PoseArray()
@@ -109,12 +110,13 @@ if len(cmd.points) > 0:
 pub = rospy.Publisher('/gazebo/traj_rml/joint_traj_cmd',JointTrajectory)
 pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray)
 
-from matplotlib import pyplot as plt
-plt.figure(1)
-plt.plot(pts)
-plt.figure(2)
-plt.plot(vels)
-plt.show()
+if False:
+    from matplotlib import pyplot as plt
+    plt.figure(1)
+    plt.plot(pts)
+    plt.figure(2)
+    plt.plot(vels)
+    plt.show()
 
 # plot desired position and velocity
 

@@ -6,7 +6,7 @@
 
 #include <boost/python/tuple.hpp>
 
-#define _DEBUG_OUTPUT 1
+#define _DEBUG_OUTPUT 0
 
 /*****************************************************************************************/
 #include <boost/python/stl_iterator.hpp>
@@ -178,6 +178,26 @@ namespace grid {
     return false;
   }
 
+  void GridPlanner::PrintInfo() const {
+
+    std::vector<std::string> names = monitor->getPlanningScene()->getWorld()->getObjectIds();
+
+    std::cout << "==========================" << std::endl;
+    std::cout << "OBJECTS IN WORLD: " << std::endl;
+    for (const std::string &name: names) {
+      std::cout << " -- " << name << std::endl;
+    }
+    std::cout << "--------------------------" << std::endl;
+    std::string name = robot1->getRobotModel()->getName();
+    std:: cout << name << std::endl;
+    state->printStateInfo(std::cout);
+
+    colliding = monitor->getPlanningScene()->isStateColliding(*state,"",true);
+    std::cout << "Colliding: " << colliding << std::endl;
+
+    std::cout << "==========================" << std::endl;
+  }
+
   /* try a set of motion primitives; see if they work.
    * returns an empty trajectory if no valid path was found. */
   Traj_t GridPlanner::TryPrimitives(std::vector<double> primitives) {
@@ -185,13 +205,13 @@ namespace grid {
     Traj_t traj;
     bool colliding, bounds_satisfied;
 
-    std::cout << "==========================" << std::endl;
 
     collision_detection::CollisionRobotConstPtr robot1 = monitor->getPlanningScene()->getCollisionRobot();
     std::string name = robot1->getRobotModel()->getName();
 
     state->update(true); // not sure if this should be moved outside of the "if"
     if (verbose) {
+      std::cout << "==========================" << std::endl;
       std:: cout << name << std::endl;
       state->printStateInfo(std::cout);
 
@@ -199,18 +219,25 @@ namespace grid {
       std::cout << "Colliding: " << colliding << std::endl;
 
       std::cout << "--------------------------" << std::endl;
+      std::cout << "==========================" << std::endl;
     }
 
     std::vector<DMPData> dmp_list;
 
     unsigned int idx = 0; // where are we reading from in the primitives
     // read out the goal
-    std::cout << "Goal: ";
+    if (verbose) {
+      std::cout << "Goal: ";
+    }
     for (; idx < dof; ++idx) {
       goal[idx] = primitives[idx];
-      std::cout << primitives[idx] << " ";
+      if (verbose) {
+        std::cout << primitives[idx] << " ";
+      }
     }
-    std::cout << std::endl;
+    if (verbose) {
+      std::cout << std::endl;
+    }
     // read out the weights
     for (unsigned int i=0; i < dof; ++i) {
       dmp::DMPData dmp_;
@@ -264,7 +291,9 @@ namespace grid {
       traj.points.push_back(traj_pt);
     }
 
-    std::cout << "==========================" << std::endl;
+    if (verbose) {
+      std::cout << "==========================" << std::endl;
+    }
 
     if (drop_trajectory) {
       return Traj_t(); // return an empty trajectory
@@ -278,9 +307,9 @@ namespace grid {
   boost::python::list GridPlanner::pyTryPrimitives(const boost::python::list &list) {
     std::vector<double> primitives = to_std_vector<double>(list);
 
+#if _DEBUG_OUTPUT
     std::vector<std::string> names = monitor->getPlanningScene()->getWorld()->getObjectIds();
 
-#if _DEBUG_OUTPUT
     std::cout << "==========================" << std::endl;
     std::cout << "OBJECTS IN WORLD: " << std::endl;
     for (const std::string &name: names) {
