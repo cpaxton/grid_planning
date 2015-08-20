@@ -109,7 +109,7 @@ lls = np.zeros(NUM_VALID)
 count = 0
 j = 0
 #for z in traj_params:
-while len(valid) < NUM_VALID / 2 and j < NUM_SAMPLES:
+while len(valid) < NUM_VALID and j < NUM_SAMPLES:
     traj_ = gp.TryPrimitives(list(traj_params[j]))
 
     if not len(traj_) == 0:
