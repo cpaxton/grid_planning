@@ -274,13 +274,13 @@ namespace grid {
       }
 
       //bounds_satisfied = true; //model->satisfiesPositionBounds(traj_pt.positions.data());
-      bounds_satisfied = search-state->satisfiesBounds();
+      bounds_satisfied = search_state->satisfiesBounds();
       search_state->setVariablePositions(joint_names,traj_pt.positions);
       colliding = monitor->getPlanningScene()->isStateColliding(*search_state,"",false);
 
-      if (verbose) {
-        std::cout << " = colliding? " << colliding << ", = bounds? " << bounds_satisfied << std::endl;
-      }
+      //if (verbose) {
+      //  std::cout << " = colliding? " << colliding << ", = bounds? " << bounds_satisfied << std::endl;
+      //}
 
       drop_trajectory |= colliding | !bounds_satisfied;
 

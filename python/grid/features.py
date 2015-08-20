@@ -289,17 +289,17 @@ class RobotFeatures:
             diff = self.GetDiffFeatures(traj[i-1][:self.dof],traj[i][:self.dof])
 
             #lls[i] = self.traj_model.score(f + diff)
-            ll = self.traj_model.score(f + diff)
+            #ll = self.traj_model.score(f + diff)
             lls[i] = self.traj_model.score(f + diff)
             isum += i
 
-            i += 25
+            i += 1
 
         avg = 0
         i = 0
         while i < len(traj)-1:
             avg += (float(i) / float(isum)) * lls[i] 
-            i += 25
+            i += 1
 
 
         f = self.GetFeatures(traj[-1],1,world,objs)

@@ -74,7 +74,7 @@ transport = grid.RobotSkill(filename='skills/transport_skill.yml')
 grasp = grid.RobotSkill(filename='skills/grasp_skill.yml')
 
 robot.goal_model = approach.goal_model
-robot.traj_model = approach.trajectory_model
+robot.traj_model = approach.action_model
 
 print " - getting TF information for generating trajectories..."
 
@@ -116,12 +116,14 @@ while len(valid) < NUM_VALID and j < NUM_SAMPLES:
 
     j += 1
 
+elite = valid
 for i in range(1,5):
     print "Iteration %d... (based on %d valid samples)"%(i,count)
-    Z = Z.fit(valid)
+    Z = Z.fit(elite)
     Z.covars_[0,:,:] += 0.000001 * np.eye(Z.covars_.shape[1])
     traj_params = Z.sample(NUM_SAMPLES)
     valid = []
+    elite = []
     lls = np.zeros(NUM_VALID)
     count = 0
     j = 0
@@ -136,7 +138,13 @@ for i in range(1,5):
             pts = [p for p,v in traj]
             lls[len(valid)-1] = robot.GetTrajectoryLikelihood(pts,world,objs=['link'])
 
+        ll_threshold = np.percentile(lls,90)
+        for (ll,z) in zip(lls,valid):
+            if ll > ll_threshold:
+                elite.append(z)
+
         j += 1
+
 print lls
 
 print "Found %d total valid trajectories."%(count)
