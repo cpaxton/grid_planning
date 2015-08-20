@@ -106,6 +106,7 @@ namespace grid {
   }
 
   void GridPlanner::PlanningSceneCallback(const moveit_msgs::PlanningScene::ConstPtr &msg) {
+    boost::mutex::scoped_lock lock(*ps_mutex);
     if (msg->is_diff) {
       scene->setPlanningSceneDiffMsg(*msg);
     } else {
@@ -120,7 +121,7 @@ namespace grid {
 
     : nh(), dof(7), num_basis(5), goal(7), x0(7), x0_dot(7), goal_threshold(7,0.1), threshold(0.1), verbose(false)
     {
-
+      ps_mutex = std::shared_ptr<boost::mutex>(new boost::mutex);
       js_sub = nh.subscribe(js_topic.c_str(),1000,&GridPlanner::JointStateCallback,this);
 
       // needs to set up the Robot objects and listeners
@@ -141,9 +142,13 @@ namespace grid {
       state = std::shared_ptr<RobotState>(new RobotState(model));
       search_state = std::shared_ptr<RobotState>(new RobotState(model));
 
+      //scene = PlanningScenePtr(new PlanningScene(model));
+      //state = RobotStatePtr(new RobotState(model));
+      //search_state = RobotStatePtr(new RobotState(model));
+
       boost::shared_ptr<tf::TransformListener> tf(new tf::TransformListener(ros::Duration(2.0)));
-      monitor = PlanningSceneMonitorPtr(new planning_scene_monitor::PlanningSceneMonitor(robot_description_, tf));
-      monitor->startStateMonitor(js_topic);
+      //monitor = PlanningSceneMonitorPtr(new planning_scene_monitor::PlanningSceneMonitor(robot_description_, tf));
+      //monitor->startStateMonitor(js_topic);
       //monitor->startSceneMonitor(scene_topic);
 
       //monitor->startPublishingPlanningScene(PlanningSceneMonitor::SceneUpdateType::UPDATE_SCENE,PS_TOPIC);
@@ -154,9 +159,12 @@ namespace grid {
   GridPlanner::~GridPlanner() {
     std::cout << "Destroying planner!" << std::endl;
     js_sub.~Subscriber();
+    ps_sub.~Subscriber();
     state.~shared_ptr<RobotState>();
-    //scene.~shared_ptr<PlanningScene>();
+    scene.~shared_ptr<PlanningScene>();
+    search_state.~shared_ptr<RobotState>();
     std::cout << "..." << std::endl;
+    model.~RobotModelPtr();
   }
 
   /* add an object to the action here */
@@ -203,12 +211,18 @@ namespace grid {
     bool colliding = scene->isStateColliding(*state,"",true);
     std::cout << "Colliding: " << colliding << std::endl;
 
+      std::cout << "--------------------------" << std::endl;
+
+      std::cout << "Collisions: " << std::endl;
+
+      scene->getAllowedCollisionMatrix().print(std::cout);
     std::cout << "==========================" << std::endl;
   }
 
   /* try a set of motion primitives; see if they work.
    * returns an empty trajectory if no valid path was found. */
   Traj_t GridPlanner::TryPrimitives(std::vector<double> primitives) {
+    boost::mutex::scoped_lock lock(*ps_mutex);
 
     //moveit_msgs::PlanningScene ps_msg;
     //monitor->getPlanningScene()->getPlanningSceneMsg(ps_msg);
@@ -222,23 +236,6 @@ namespace grid {
     std::string name = robot1->getRobotModel()->getName();
 
     state->update(); // not sure if this should be moved outside of the "if"
-
-    if (verbose) {
-      std::cout << "==========================" << std::endl;
-      std:: cout << name << std::endl;
-      state->printStateInfo(std::cout);
-
-      colliding = scene->isStateColliding(*state,"",true);
-      std::cout << "Colliding: " << colliding << std::endl;
-
-      std::cout << "--------------------------" << std::endl;
-
-      std::cout << "Collisions: " << std::endl;
-
-      scene->getAllowedCollisionMatrix().print(std::cout);
-
-      std::cout << "==========================" << std::endl;
-    }
 
     std::vector<DMPData> dmp_list;
 
@@ -296,24 +293,31 @@ namespace grid {
       traj_pt.velocities = pt.velocities;
 
       if (verbose) {
+        std::cout << "pt: ";
         for (double &q: pt.positions) {
           std::cout << q << " ";
         }
       }
 
       //bounds_satisfied = true; //model->satisfiesPositionBounds(traj_pt.positions.data());
-      ///bounds_satisfied = search_state->satisfiesBounds();
       search_state->setVariablePositions(joint_names,traj_pt.positions);
+      search_state->setVariableVelocities(joint_names,traj_pt.velocities);
       search_state->update(true);
-      colliding = scene->isStateColliding(*search_state,"",false);
+      colliding = scene->isStateColliding(*search_state,"",verbose);
+      //bounds_satisfied = search_state->satisfiesBounds();
 
-      //if (verbose) {
-      //std::cout << " = colliding? " << colliding << ", = bounds? " << bounds_satisfied << std::endl;
-      //std::cout << " = colliding? " << colliding << std::endl;
-      //}
+      if (verbose) {
+        //std::cout << " = colliding? " << colliding << ", = bounds? " << bounds_satisfied << std::endl;
+        std::cout << " = colliding? " << colliding << std::endl;
+      }
 
       //drop_trajectory |= colliding | !bounds_satisfied;
       drop_trajectory |= !scene->isStateValid(*search_state,"",verbose);
+
+      if (verbose) {
+        std::cout << " = dropped? " << drop_trajectory << std::endl;
+      }
+
 
       if (drop_trajectory) {
         break;
@@ -376,7 +380,8 @@ namespace grid {
 
     /* update planning scene topic */
     void  GridPlanner::SetPlanningSceneTopic(const std::string &topic) {
-      monitor->startSceneMonitor(topic);
+      //monitor->startSceneMonitor(topic);
+      ROS_WARN("\"GridPlanner::SetPlanningSceneTopic\" not currently implemented!");
     }
 
     /* configure degrees of freedom */

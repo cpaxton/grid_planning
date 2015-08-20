@@ -12,6 +12,7 @@ int main(int argc, char **argv) {
   gp.SetD(20);
   gp.SetTau(1.0);
   gp.SetGoalThreshold(0.1);
+  gp.SetVerbose(true);
 
   ros::Duration(0.5).sleep();
 
@@ -32,10 +33,13 @@ int main(int argc, char **argv) {
 
   in = std::vector<double>(&primitives[0],&primitives[7+35+1]);
 
-  ros::Rate rate(1);
+  ros::Rate rate(100);
   while (ros::ok()) {
     ros::spinOnce();
 
+    for (int i = 0; i < 7+35; ++i) {
+      in[i] = 1000*rand();
+    }
     Traj_t res = gp.TryPrimitives(in);
 
     rate.sleep();

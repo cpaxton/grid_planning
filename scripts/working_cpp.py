@@ -55,7 +55,7 @@ gp.SetK(100);
 gp.SetD(20);
 gp.SetTau(2.0);
 gp.SetGoalThreshold(0.1);
-gp.SetVerbose(False);
+gp.SetVerbose(True);
 
 NUM_VALID = 50
 NUM_SAMPLES = 2500

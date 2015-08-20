@@ -20,6 +20,7 @@
 // Boost
 #include <boost/python.hpp>
 #include <boost/python/list.hpp>
+#include <boost/thread/mutex.hpp>
 
 // MoveIt!
 #include <moveit/collision_detection/collision_robot.h>
@@ -123,9 +124,9 @@ namespace grid {
     void PrintInfo() const;
 
   protected:
-    std::unordered_map<std::string, std::string> object_lookup;
+    //std::unordered_map<std::string, std::string> object_lookup;
     robot_model::RobotModelPtr model;
-    planning_scene_monitor::PlanningSceneMonitorPtr monitor;
+    //planning_scene_monitor::PlanningSceneMonitorPtr monitor;
 
     unsigned int dof;
     unsigned int num_basis;
@@ -135,6 +136,7 @@ namespace grid {
     double threshold;
 
     std::shared_ptr<robot_state::RobotState> search_state;
+    //robot_state::RobotStatePtr search_state;
 
     std::vector<double> goal;
     std::vector<double> goal_threshold;
@@ -145,10 +147,14 @@ namespace grid {
 
     bool verbose;
 
+    std::shared_ptr<boost::mutex> ps_mutex;
+
   private:
     ros::NodeHandle nh;
     std::shared_ptr<robot_state::RobotState> state;
+    //robot_state::RobotStatePtr state;
     std::shared_ptr<planning_scene::PlanningScene> scene;
+    //planning_scene::PlanningScenePtr scene;
     ros::Subscriber js_sub;
     ros::Subscriber ps_sub;
 
