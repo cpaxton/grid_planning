@@ -103,8 +103,9 @@ for i in range(Z.n_components):
         Z.covars_[i,j,j] += 0.2
 
 traj_params = Z.sample(NUM_SAMPLES)
-traj = []
 valid = []
+elite = []
+lls = np.zeros(NUM_VALID)
 count = 0
 j = 0
 #for z in traj_params:
@@ -113,10 +114,15 @@ while len(valid) < NUM_VALID / 2 and j < NUM_SAMPLES:
 
     if not len(traj_) == 0:
         count += 1
-        traj = traj_
         valid.append(traj_params[j])
+        pts = [p for p,v in traj_]
+        ll = robot.GetTrajectoryLikelihood(pts,world,objs=['link'])
+        lls[len(valid)-1] = ll
 
-    j += 1
+    ll_threshold = np.percentile(lls,90)
+    for (ll,z) in zip(lls,valid):
+        if ll >= ll_threshold:
+            elite.append(z)
 
 elite = valid
 for i in range(1,20):
@@ -165,7 +171,7 @@ vels = []
 for (pt,vel) in traj:
     cmd_pt = JointTrajectoryPoint()
     cmd_pt.positions = pt
-    #cmd_pt.velocities = np.array(vel)*0.05
+    cmd_pt.velocities = np.array(vel)*0.001
     pts.append(pt)
     vels.append(vel)
     cmd.points.append(cmd_pt)
