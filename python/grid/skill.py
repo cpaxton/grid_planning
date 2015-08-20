@@ -17,7 +17,8 @@ from pykdl_utils.kdl_kinematics import KDLKinematics
 from pykdl_utils.kdl_parser import kdl_tree_from_urdf_model
 
 # machine learning utils (python)
-from sklearn.mixture import GMM
+# from sklearn.mixture import GMM
+from gmm import GMM
 
 
 # tf stuff
@@ -53,9 +54,12 @@ class RobotSkill:
     def __init__(self,data=[],params=[],goals=[],action_k=4,goal_k=4,objs={},name="",filename=None):
         self.name = name
 
-        self.action_model = GMM(n_components=action_k,covariance_type="full")
-        self.goal_model = GMM(n_components=goal_k,covariance_type="full")
-        self.trajectory_model = GMM(n_components=1,covariance_type="full")
+        self.action_model = GMM(k=action_k)
+        self.goal_model = GMM(k=goal_k)
+        self.trajectory_model = GMM(k=1)
+        #self.action_model = GMM(n_components=action_k,covariance_type="full")
+        #self.goal_model = GMM(n_components=goal_k,covariance_type="full")
+        #self.trajectory_model = GMM(n_components=1,covariance_type="full")
         
 
         if filename == None and len(data) > 0:

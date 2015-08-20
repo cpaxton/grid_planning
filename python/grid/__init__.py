@@ -27,3 +27,6 @@ from visualization_utils import GetMarkerMsg
 
 " skill descriptions "
 from skill import RobotSkill
+
+" gmm tools "
+from gmm import GMM

@@ -304,7 +304,7 @@ namespace grid {
       //}
 
       //drop_trajectory |= colliding | !bounds_satisfied;
-      drop_trajectory |= !scene->isStateValid(*search_state,"",true);
+      drop_trajectory |= !scene->isStateValid(*search_state,"",verbose);
 
       if (drop_trajectory) {
         break;
