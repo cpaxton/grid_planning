@@ -55,7 +55,7 @@ gp.SetK(100);
 gp.SetD(20);
 gp.SetTau(2.0);
 gp.SetGoalThreshold(0.1);
-gp.SetVerbose(True);
+gp.SetVerbose(False);
 
 NUM_VALID = 50
 NUM_SAMPLES = 2500
@@ -130,7 +130,7 @@ elite = valid
 for i in range(1,20):
     print "Iteration %d... (based on %d valid samples)"%(i,count)
     Z = Z.fit(elite)
-    Z.covars_[0,:,:] += 0.0001 * np.eye(Z.covars_.shape[1])
+    Z.covars_[0,:,:] += 0.00001 * np.eye(Z.covars_.shape[1])
     traj_params = Z.sample(NUM_SAMPLES)
     valid = []
     elite = []
@@ -173,7 +173,7 @@ vels = []
 for (pt,vel) in traj:
     cmd_pt = JointTrajectoryPoint()
     cmd_pt.positions = pt
-    cmd_pt.velocities = np.array(vel)*0.001
+    cmd_pt.velocities = np.array(vel)*0.02
     pts.append(pt)
     vels.append(vel)
     cmd.points.append(cmd_pt)

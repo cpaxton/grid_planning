@@ -304,7 +304,7 @@ class RobotFeatures:
 
         f = self.GetFeatures(traj[-1],1,world,objs)
 
-        return self.goal_model.score(f) #+ avg
+        return self.goal_model.score(f) + avg
 
     '''
     GetFeatures
