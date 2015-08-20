@@ -108,7 +108,7 @@ valid = []
 count = 0
 j = 0
 #for z in traj_params:
-while len(valid) < NUM_VALID / 4 and j < NUM_SAMPLES:
+while len(valid) < NUM_VALID / 2 and j < NUM_SAMPLES:
     traj_ = gp.TryPrimitives(list(traj_params[j]))
 
     if not len(traj_) == 0:
@@ -119,7 +119,7 @@ while len(valid) < NUM_VALID / 4 and j < NUM_SAMPLES:
     j += 1
 
 elite = valid
-for i in range(1,15):
+for i in range(1,20):
     print "Iteration %d... (based on %d valid samples)"%(i,count)
     Z = Z.fit(elite)
     Z.covars_[0,:,:] += 0.000001 * np.eye(Z.covars_.shape[1])
@@ -144,7 +144,7 @@ for i in range(1,15):
 
         j += 1
 
-    ll_threshold = np.percentile(lls,95)
+    ll_threshold = np.percentile(lls,97)
     for (ll,z) in zip(lls,valid):
         if ll >= ll_threshold:
             elite.append(z)

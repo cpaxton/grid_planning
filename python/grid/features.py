@@ -34,6 +34,7 @@ from geometry_msgs.msg import PoseArray
 
 TIME = 'time'
 GRIPPER = 'gripper'
+JOINT = 'joint' # features indicating total joint velocity/effort
 NUM_OBJ_VARS = 8
 NUM_GRIPPER_VARS = 3
 NUM_TIME_VARS = 1
@@ -110,7 +111,7 @@ class RobotFeatures:
                 self.indices = data['indices']
                 self.max_index = data['max_index']
             else: # initialize the indices
-                for obj in r.world_states[0].keys():
+                for obj in self.world_states[0].keys():
                     self.AddObject(obj)
 
             self.recorded = True
