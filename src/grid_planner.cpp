@@ -106,8 +106,11 @@ namespace grid {
   }
 
   void GridPlanner::PlanningSceneCallback(const moveit_msgs::PlanningScene::ConstPtr &msg) {
-    std::cout << "RECIEVED" << std::endl;
-    scene->setPlanningSceneMsg(*msg);
+    if (msg->is_diff) {
+      scene->setPlanningSceneDiffMsg(*msg);
+    } else {
+      scene->setPlanningSceneMsg(*msg);
+    }
   }
 
   GridPlanner::GridPlanner(const std::string &robot_description_,
@@ -141,10 +144,10 @@ namespace grid {
       boost::shared_ptr<tf::TransformListener> tf(new tf::TransformListener(ros::Duration(2.0)));
       monitor = PlanningSceneMonitorPtr(new planning_scene_monitor::PlanningSceneMonitor(robot_description_, tf));
       monitor->startStateMonitor(js_topic);
-      monitor->startSceneMonitor(scene_topic);
+      //monitor->startSceneMonitor(scene_topic);
 
       //monitor->startPublishingPlanningScene(PlanningSceneMonitor::SceneUpdateType::UPDATE_SCENE,PS_TOPIC);
-      //ps_sub = nh.subscribe(PS_TOPIC.c_str(),1000,&GridPlanner::PlanningSceneCallback,this);
+      ps_sub = nh.subscribe(scene_topic.c_str(),1000,&GridPlanner::PlanningSceneCallback,this);
     }
 
   /* destructor */
@@ -178,9 +181,9 @@ namespace grid {
 
   void GridPlanner::PrintInfo() const {
 
-    moveit_msgs::PlanningScene ps_msg;
-    monitor->getPlanningScene()->getPlanningSceneMsg(ps_msg);
-    scene->setPlanningSceneMsg(ps_msg);
+    //moveit_msgs::PlanningScene ps_msg;
+    //monitor->getPlanningScene()->getPlanningSceneMsg(ps_msg);
+    //scene->setPlanningSceneMsg(ps_msg);
     scene->getCurrentStateNonConst().update(); 
 
     std::vector<std::string> names = scene->getWorld()->getObjectIds();
@@ -207,9 +210,9 @@ namespace grid {
    * returns an empty trajectory if no valid path was found. */
   Traj_t GridPlanner::TryPrimitives(std::vector<double> primitives) {
 
-    moveit_msgs::PlanningScene ps_msg;
-    monitor->getPlanningScene()->getPlanningSceneMsg(ps_msg);
-    scene->setPlanningSceneMsg(ps_msg);
+    //moveit_msgs::PlanningScene ps_msg;
+    //monitor->getPlanningScene()->getPlanningSceneMsg(ps_msg);
+    //scene->setPlanningSceneMsg(ps_msg);
     scene->getCurrentStateNonConst().update(); 
 
     Traj_t traj;
@@ -229,6 +232,11 @@ namespace grid {
       std::cout << "Colliding: " << colliding << std::endl;
 
       std::cout << "--------------------------" << std::endl;
+
+      std::cout << "Collisions: " << std::endl;
+
+      scene->getAllowedCollisionMatrix().print(std::cout);
+
       std::cout << "==========================" << std::endl;
     }
 
@@ -297,10 +305,11 @@ namespace grid {
       ///bounds_satisfied = search_state->satisfiesBounds();
       search_state->setVariablePositions(joint_names,traj_pt.positions);
       search_state->update(true);
-      //colliding = scene->isStateColliding(*search_state,"",false);
+      colliding = scene->isStateColliding(*search_state,"",false);
 
       //if (verbose) {
-      //  std::cout << " = colliding? " << colliding << ", = bounds? " << bounds_satisfied << std::endl;
+      //std::cout << " = colliding? " << colliding << ", = bounds? " << bounds_satisfied << std::endl;
+      //std::cout << " = colliding? " << colliding << std::endl;
       //}
 
       //drop_trajectory |= colliding | !bounds_satisfied;
@@ -329,9 +338,9 @@ namespace grid {
   boost::python::list GridPlanner::pyTryPrimitives(const boost::python::list &list) {
     std::vector<double> primitives = to_std_vector<double>(list);
 
-    moveit_msgs::PlanningScene ps_msg;
-    monitor->getPlanningScene()->getPlanningSceneMsg(ps_msg);
-    scene->setPlanningSceneMsg(ps_msg);
+    //moveit_msgs::PlanningScene ps_msg;
+    //monitor->getPlanningScene()->getPlanningSceneMsg(ps_msg);
+    //scene->setPlanningSceneMsg(ps_msg);
     scene->getCurrentStateNonConst().update(); 
 
 #if _DEBUG_OUTPUT

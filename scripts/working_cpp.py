@@ -57,7 +57,7 @@ gp.SetTau(2.0);
 gp.SetGoalThreshold(0.1);
 gp.SetVerbose(False);
 
-NUM_VALID = 100
+NUM_VALID = 50
 NUM_SAMPLES = 2500
 
 """ ========================================================================= """
@@ -109,7 +109,7 @@ lls = np.zeros(NUM_VALID)
 count = 0
 j = 0
 #for z in traj_params:
-while len(valid) < NUM_VALID and j < NUM_SAMPLES:
+while len(valid) < NUM_VALID / 2 and j < NUM_SAMPLES:
     traj_ = gp.TryPrimitives(list(traj_params[j]))
 
     if not len(traj_) == 0:
@@ -119,16 +119,18 @@ while len(valid) < NUM_VALID and j < NUM_SAMPLES:
         ll = robot.GetTrajectoryLikelihood(pts,world,objs=['link'])
         lls[len(valid)-1] = ll
 
-    ll_threshold = np.percentile(lls,98)
-    for (ll,z) in zip(lls,valid):
-        if ll >= ll_threshold:
-            elite.append(z)
+    j+=1
+
+ll_threshold = np.percentile(lls,80)
+for (ll,z) in zip(lls,valid):
+    if ll >= ll_threshold:
+        elite.append(z)
 
 elite = valid
 for i in range(1,20):
     print "Iteration %d... (based on %d valid samples)"%(i,count)
     Z = Z.fit(elite)
-    Z.covars_[0,:,:] += 0.000001 * np.eye(Z.covars_.shape[1])
+    Z.covars_[0,:,:] += 0.0001 * np.eye(Z.covars_.shape[1])
     traj_params = Z.sample(NUM_SAMPLES)
     valid = []
     elite = []
@@ -189,7 +191,7 @@ pub.publish(cmd)
 pa_ee_pub.publish(msg)
 
 # plot desired position and velocity
-if True:
+if False:
     from matplotlib import pyplot as plt
     plt.figure(1)
     plt.plot(pts)
