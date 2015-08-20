@@ -280,6 +280,7 @@ class RobotFeatures:
         lls = np.zeros(len(traj)-1)
         isum = 0
 
+        """
         i = 0
         #for i in range(len(traj)-1):
         while i < len(traj)-1:
@@ -300,11 +301,12 @@ class RobotFeatures:
         while i < len(traj)-1:
             avg += (float(i) / float(isum)) * lls[i] 
             i += 1
+        """
 
 
         f = self.GetFeatures(traj[-1],1,world,objs)
 
-        return self.goal_model.score(f) + avg
+        return self.goal_model.score(f) #+ avg
 
     '''
     GetFeatures

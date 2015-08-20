@@ -84,22 +84,30 @@ using robot_model::RobotModelPtr;
 using robot_model::JointModel;
 using robot_state::RobotState;
 using collision_detection::CollisionRobot;
+using  planning_scene_monitor::PlanningSceneMonitor;
 using planning_scene_monitor::PlanningSceneMonitorPtr;
 
 namespace grid {
 
   const std::string GridPlanner::TIME("time");
   const std::string GridPlanner::GRIPPER("gripper");
+  const std::string GridPlanner::PS_TOPIC("monitored_planning_scene");
 
   /* keep robot joints up to date */
   void GridPlanner::JointStateCallback(const sensor_msgs::JointState::ConstPtr &msg) {
     if (state) {
       state->setVariableValues(*msg); // update the current robot state
+      state->update(true);
     }
     for (unsigned int i = 0; i < dof; ++i) {
       x0[i] = msg->position[i];
       x0_dot[i] = msg->velocity[i];
     }
+  }
+
+  void GridPlanner::PlanningSceneCallback(const moveit_msgs::PlanningScene::ConstPtr &msg) {
+    std::cout << "RECIEVED" << std::endl;
+    scene->setPlanningSceneMsg(*msg);
   }
 
   GridPlanner::GridPlanner(const std::string &robot_description_,
@@ -124,9 +132,9 @@ namespace grid {
         std::cerr << ex.what() << std::endl;
       }
 
-      //scene = std::shared_ptr<PlanningScene>(new PlanningScene(model));
-      //scene->getCollisionRobotNonConst()->setPadding(padding);
-      //scene->propogateRobotPadding();
+      scene = std::shared_ptr<PlanningScene>(new PlanningScene(model));
+      scene->getCollisionRobotNonConst()->setPadding(padding);
+      scene->propogateRobotPadding();
       state = std::shared_ptr<RobotState>(new RobotState(model));
       search_state = std::shared_ptr<RobotState>(new RobotState(model));
 
@@ -135,6 +143,8 @@ namespace grid {
       monitor->startStateMonitor(js_topic);
       monitor->startSceneMonitor(scene_topic);
 
+      //monitor->startPublishingPlanningScene(PlanningSceneMonitor::SceneUpdateType::UPDATE_SCENE,PS_TOPIC);
+      //ps_sub = nh.subscribe(PS_TOPIC.c_str(),1000,&GridPlanner::PlanningSceneCallback,this);
     }
 
   /* destructor */
@@ -168,9 +178,14 @@ namespace grid {
 
   void GridPlanner::PrintInfo() const {
 
-    std::vector<std::string> names = monitor->getPlanningScene()->getWorld()->getObjectIds();
+    moveit_msgs::PlanningScene ps_msg;
+    monitor->getPlanningScene()->getPlanningSceneMsg(ps_msg);
+    scene->setPlanningSceneMsg(ps_msg);
+    scene->getCurrentStateNonConst().update(); 
 
-    collision_detection::CollisionRobotConstPtr robot1 = monitor->getPlanningScene()->getCollisionRobot();
+    std::vector<std::string> names = scene->getWorld()->getObjectIds();
+
+    collision_detection::CollisionRobotConstPtr robot1 = scene->getCollisionRobot();
     std::string name = robot1->getRobotModel()->getName();
 
     std::cout << "==========================" << std::endl;
@@ -182,7 +197,7 @@ namespace grid {
     std:: cout << name << std::endl;
     state->printStateInfo(std::cout);
 
-    bool colliding = monitor->getPlanningScene()->isStateColliding(*state,"",true);
+    bool colliding = scene->isStateColliding(*state,"",true);
     std::cout << "Colliding: " << colliding << std::endl;
 
     std::cout << "==========================" << std::endl;
@@ -192,20 +207,25 @@ namespace grid {
    * returns an empty trajectory if no valid path was found. */
   Traj_t GridPlanner::TryPrimitives(std::vector<double> primitives) {
 
+    moveit_msgs::PlanningScene ps_msg;
+    monitor->getPlanningScene()->getPlanningSceneMsg(ps_msg);
+    scene->setPlanningSceneMsg(ps_msg);
+    scene->getCurrentStateNonConst().update(); 
+
     Traj_t traj;
     bool colliding, bounds_satisfied;
 
-    collision_detection::CollisionRobotConstPtr robot1 = monitor->getPlanningScene()->getCollisionRobot();
+    collision_detection::CollisionRobotConstPtr robot1 = scene->getCollisionRobot();
     std::string name = robot1->getRobotModel()->getName();
 
-    state->update(true); // not sure if this should be moved outside of the "if"
+    state->update(); // not sure if this should be moved outside of the "if"
 
     if (verbose) {
       std::cout << "==========================" << std::endl;
       std:: cout << name << std::endl;
       state->printStateInfo(std::cout);
 
-      colliding = monitor->getPlanningScene()->isStateColliding(*state,"",true);
+      colliding = scene->isStateColliding(*state,"",true);
       std::cout << "Colliding: " << colliding << std::endl;
 
       std::cout << "--------------------------" << std::endl;
@@ -274,19 +294,23 @@ namespace grid {
       }
 
       //bounds_satisfied = true; //model->satisfiesPositionBounds(traj_pt.positions.data());
-      bounds_satisfied = search_state->satisfiesBounds();
+      ///bounds_satisfied = search_state->satisfiesBounds();
       search_state->setVariablePositions(joint_names,traj_pt.positions);
-      colliding = monitor->getPlanningScene()->isStateColliding(*search_state,"",false);
+      search_state->update(true);
+      //colliding = scene->isStateColliding(*search_state,"",false);
 
       //if (verbose) {
       //  std::cout << " = colliding? " << colliding << ", = bounds? " << bounds_satisfied << std::endl;
       //}
 
-      drop_trajectory |= colliding | !bounds_satisfied;
+      //drop_trajectory |= colliding | !bounds_satisfied;
+      drop_trajectory |= !scene->isStateValid(*search_state,"",true);
 
-      if (drop_trajectory) { break; }
-
-      traj.points.push_back(traj_pt);
+      if (drop_trajectory) {
+        break;
+      } else {
+        traj.points.push_back(traj_pt);
+      }
     }
 
     if (verbose) {
@@ -305,8 +329,13 @@ namespace grid {
   boost::python::list GridPlanner::pyTryPrimitives(const boost::python::list &list) {
     std::vector<double> primitives = to_std_vector<double>(list);
 
+    moveit_msgs::PlanningScene ps_msg;
+    monitor->getPlanningScene()->getPlanningSceneMsg(ps_msg);
+    scene->setPlanningSceneMsg(ps_msg);
+    scene->getCurrentStateNonConst().update(); 
+
 #if _DEBUG_OUTPUT
-    std::vector<std::string> names = monitor->getPlanningScene()->getWorld()->getObjectIds();
+    std::vector<std::string> names = scene->getWorld()->getObjectIds();
 
     std::cout << "==========================" << std::endl;
     std::cout << "OBJECTS IN WORLD: " << std::endl;
@@ -397,5 +426,6 @@ namespace grid {
       .def("SetDof", &grid::GridPlanner::SetDof)
       .def("SetNumBasisFunctions", &grid::GridPlanner::SetNumBasisFunctions)
       .def("SetGoalThreshold", &grid::GridPlanner::SetGoalThreshold)
-      .def("SetVerbose", &grid::GridPlanner::SetVerbose);
+      .def("SetVerbose", &grid::GridPlanner::SetVerbose)
+      .def("PrintInfo", &grid::GridPlanner::PrintInfo);
   }

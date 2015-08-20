@@ -84,6 +84,7 @@ namespace grid {
 
     static const std::string TIME;
     static const std::string GRIPPER; // fixed to BHand for now!
+    static const std::string PS_TOPIC;
 
     /* instantiate a planning request with the given objects */
     bool Plan(const std::string &action1,
@@ -147,11 +148,15 @@ namespace grid {
   private:
     ros::NodeHandle nh;
     std::shared_ptr<robot_state::RobotState> state;
-    //std::shared_ptr<planning_scene::PlanningScene> scene;
+    std::shared_ptr<planning_scene::PlanningScene> scene;
     ros::Subscriber js_sub;
+    ros::Subscriber ps_sub;
 
     /* keep robot joints up to date */
     void JointStateCallback(const sensor_msgs::JointState::ConstPtr &msg);
+
+    /* keep scene up to date */
+    void PlanningSceneCallback(const moveit_msgs::PlanningScene::ConstPtr &msg);
   };
 
 }

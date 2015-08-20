@@ -57,7 +57,7 @@ gp.SetTau(2.0);
 gp.SetGoalThreshold(0.1);
 gp.SetVerbose(False);
 
-NUM_VALID = 25
+NUM_VALID = 100
 NUM_SAMPLES = 2500
 
 """ ========================================================================= """
@@ -94,6 +94,8 @@ pps()
 rospy.sleep(rospy.Duration(0.1))
 pps()
 
+gp.PrintInfo();
+
 Z = copy.deepcopy(approach.trajectory_model)
 for i in range(Z.n_components):
     Z.covars_[i,:,:] += 0.00001 * np.eye(Z.covars_.shape[1])
@@ -106,7 +108,7 @@ valid = []
 count = 0
 j = 0
 #for z in traj_params:
-while len(valid) < NUM_VALID and j < NUM_SAMPLES:
+while len(valid) < NUM_VALID / 4 and j < NUM_SAMPLES:
     traj_ = gp.TryPrimitives(list(traj_params[j]))
 
     if not len(traj_) == 0:
@@ -117,13 +119,14 @@ while len(valid) < NUM_VALID and j < NUM_SAMPLES:
     j += 1
 
 elite = valid
-for i in range(1,5):
+for i in range(1,15):
     print "Iteration %d... (based on %d valid samples)"%(i,count)
     Z = Z.fit(elite)
     Z.covars_[0,:,:] += 0.000001 * np.eye(Z.covars_.shape[1])
     traj_params = Z.sample(NUM_SAMPLES)
     valid = []
     elite = []
+    trajs = []
     lls = np.zeros(NUM_VALID)
     count = 0
     j = 0
@@ -133,19 +136,24 @@ for i in range(1,5):
 
         if not len(traj_) == 0:
             count += 1
-            traj = traj_
             valid.append(traj_params[j])
-            pts = [p for p,v in traj]
-            lls[len(valid)-1] = robot.GetTrajectoryLikelihood(pts,world,objs=['link'])
-
-        ll_threshold = np.percentile(lls,90)
-        for (ll,z) in zip(lls,valid):
-            if ll > ll_threshold:
-                elite.append(z)
+            pts = [p for p,v in traj_]
+            ll = robot.GetTrajectoryLikelihood(pts,world,objs=['link'])
+            lls[len(valid)-1] = ll
+            trajs.append(traj_)
 
         j += 1
 
+    ll_threshold = np.percentile(lls,95)
+    for (ll,z) in zip(lls,valid):
+        if ll >= ll_threshold:
+            elite.append(z)
+
+    print "... avg ll = %f, percentile = %f"%(np.mean(lls),ll_threshold)
+
 print lls
+
+traj = trajs[lls.tolist().index(np.max(lls))]
 
 print "Found %d total valid trajectories."%(count)
 
@@ -157,7 +165,7 @@ vels = []
 for (pt,vel) in traj:
     cmd_pt = JointTrajectoryPoint()
     cmd_pt.positions = pt
-    cmd_pt.velocities = np.array(vel)*0.05
+    #cmd_pt.velocities = np.array(vel)*0.05
     pts.append(pt)
     vels.append(vel)
     cmd.points.append(cmd_pt)
@@ -170,19 +178,18 @@ if len(cmd.points) > 0:
 pub = rospy.Publisher('/gazebo/traj_rml/joint_traj_cmd',JointTrajectory)
 pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray)
 
-if False:
+rospy.sleep(rospy.Duration(0.5))
+pub.publish(cmd)
+pa_ee_pub.publish(msg)
+
+# plot desired position and velocity
+if True:
     from matplotlib import pyplot as plt
     plt.figure(1)
     plt.plot(pts)
     plt.figure(2)
     plt.plot(vels)
     plt.show()
-
-# plot desired position and velocity
-
-rospy.sleep(rospy.Duration(0.5))
-pub.publish(cmd)
-pa_ee_pub.publish(msg)
 
 try:
     rate = rospy.Rate(10)
