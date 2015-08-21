@@ -76,8 +76,8 @@ if __name__ == "__main__":
         #dbg_ee_poses = GetPoseMessage(fx,4,'/wam/hand/bhand_palm_link') #"/gbeam_link_1/gbeam_link")
         #dbg_ee_poses2 = GetPoseMessage(fx,12,'/wam/hand/bhand_palm_link')#"/gbeam_node_1/gbeam_node")
 
-        dbg_ee_poses_ = grid.GetPoseMessage(fx,10,"/gbeam_link_1/gbeam_link")
-        dbg_ee_poses2_ = grid.GetPoseMessage(fx,3,"/gbeam_node_1/gbeam_node")
+        dbg_ee_poses_ = grid.GetPoseMessage(fx,8,"/gbeam_link_1/gbeam_link")
+        dbg_ee_poses2_ = grid.GetPoseMessage(fx,0,"/gbeam_node_1/gbeam_node")
         #dbg_ee_ = demo.get_world_pose_msg("ee")
         dbg_ee_ = demo.GetFwdPoseMsg()
         #dbg_link_ = demo.get_world_pose_msg("link")
