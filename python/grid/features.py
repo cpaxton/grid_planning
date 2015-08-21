@@ -278,32 +278,14 @@ class RobotFeatures:
     '''
     def GetTrajectoryLikelihood(self,traj,world,objs,step=1.,sigma=0.000):
 
-        lls = np.zeros(len(traj)-1)
-        isum = len(traj)-1
-
-        i = 0
-        for i in range(len(traj)-1):
-            t = float(i) / len(traj)
-            f = self.GetFeatures(traj[i],t,world,objs)
-
-            diff = self.GetDiffFeatures(traj[i-1][:self.dof],traj[i][:self.dof])
-
-            #lls[i] = self.traj_model.score(f + diff)
-            #ll = self.traj_model.score(f + diff)
-            lls[i] = self.traj_model.score(f + diff)
-            isum += i
-
-            i += 1
+        features,goal_features = self.GetFeaturesForTrajectory(traj,world,objs)
+        isum = np.sum(range(len(features)))
 
         avg = 0
-        i = 0
-        while i < len(traj)-1:
-            avg += (float(i) / float(isum)) * lls[i] 
-            i += 1
+        for i in range(len(features)):
+            avg += (float(i) / float(isum)) * self.traj_model.score(features[i])
 
-        f = self.GetFeatures(traj[-1],1,world,objs)
-
-        return self.goal_model.score(f) + avg
+        return self.goal_model.score(goal_features) + avg
 
     '''
     GetFeatures
@@ -311,10 +293,8 @@ class RobotFeatures:
     def GetFeaturesForTrajectory(self,traj,world,objs):
 
         features = [[]]*(len(traj)-1)
-        #diffs = [[]]*(len(traj)-1)
 
         i = 0
-        #while i < len(traj)-1:
         for i in range(len(traj)-1):
             t = float(i) / len(traj)
 
