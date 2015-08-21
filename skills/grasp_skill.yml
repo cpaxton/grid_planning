@@ -131,6 +131,7 @@ goal_model: !!python/object:sklearn.mixture.gmm.GMM
     - !!binary |
       +///////7z8=
 name: grasp
+objs: [link]
 trajectory_model: !!python/object:sklearn.mixture.gmm.GMM
   converged_: true
   covariance_type: full

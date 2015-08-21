@@ -41,7 +41,7 @@ for name,filenames in skill_filenames.items():
         training_data = np.concatenate((training_data,data[i][1]))
 
     # create the skill object
-    skill = grid.RobotSkill(name=name,action_k=ak,goal_k=gk,data=training_data,params=params,goals=goals)#,num_weights=num_weights)
+    skill = grid.RobotSkill(name=name,action_k=ak,goal_k=gk,data=training_data,objs=skill_objs[name],params=params,goals=goals)#,num_weights=num_weights)
 
     skill.save(name+"_skill.yml")
 

@@ -54,23 +54,21 @@ class PyPlanner:
     
         global roscpp_set
         if not roscpp_set:
-            roscpp_init('grid_planning_node_cpp')
+            roscpp_init('grid_planning_node_cpp',[])
 
+        self.gp = grid_plan.GridPlanner(
+                robot_description,
+                joint_states_topic,
+                planning_scene_topic,
+                0.0)
+        self.gp.SetDof(7);
+        self.gp.SetNumBasisFunctions(5);
+        self.gp.SetK(100);
+        self.gp.SetD(20);
+        self.gp.SetTau(2.0);
+        self.gp.SetGoalThreshold(0.1);
+        self.gp.SetVerbose(False);
         if preset == "wam":
-            self.gp = grid_plan.GridPlanner(
-                    robot_description,
-                    joint_states_topic,
-                    planning_scene_topic,
-                    0.0)
-            self.gp.SetDof(7);
-            self.gp.SetNumBasisFunctions(5);
-            self.gp.SetK(100);
-            self.gp.SetD(20);
-            self.gp.SetTau(2.0);
-            self.gp.SetGoalThreshold(0.1);
-            self.gp.SetVerbose(False);
-
-
             self.robot = grid.RobotFeatures()
             self.base_link = 'wam/base_link'
             self.end_link = 'wam/wrist_palm_link'
@@ -81,7 +79,7 @@ class PyPlanner:
     - objs is a mapping between tf frames and names
     - skill is a RobotSkill
     '''
-    def plan(self,action_model,goal_model,trajectory_model,objs,num_iter=20):
+    def plan(self,skill,objs,num_iter=20):
 
         print " - adding objects: "
 
@@ -89,16 +87,19 @@ class PyPlanner:
             print "    - %s = %s"%(obj,frame)
             self.robot.AddObject(obj,frame)
 
+        self.robot.traj_model = skill.action_model
+        self.robot.goal_model = skill.goal_model
+
         print " - getting TF information for generating trajectories..."
 
         world = None
-        while world == None or not robot.TfUpdateWorld():
-            world = robot.TfCreateWorld()
+        while world == None or not self.robot.TfUpdateWorld():
+            world = self.robot.TfCreateWorld()
 
         print world
 
         
-        Z = copy.deepcopy(trajectory_model)
+        Z = copy.deepcopy(skill.trajectory_model)
         for i in range(Z.n_components):
             Z.covars_[i,:,:] += 0.00001 * np.eye(Z.covars_.shape[1])
             for j in range(7):
@@ -118,7 +119,7 @@ class PyPlanner:
                 count += 1
                 valid.append(traj_params[j])
                 pts = [p for p,v in traj_]
-                ll = self.robot.GetTrajectoryLikelihood(pts,world,objs=['link'])
+                ll = self.robot.GetTrajectoryLikelihood(pts,world,objs=skill.objs)
                 lls[len(valid)-1] = ll
 
             j+=1
@@ -141,7 +142,7 @@ class PyPlanner:
             j = 0
             #for z in traj_params:
             while len(valid) < NUM_VALID and j < NUM_SAMPLES:
-                traj_ = gp.TryPrimitives(list(traj_params[j]))
+                traj_ = self.gp.TryPrimitives(list(traj_params[j]))
 
                 if not len(traj_) == 0:
                     count += 1
@@ -166,7 +167,7 @@ class PyPlanner:
 
         cmd = JointTrajectory()
         msg = PoseArray()
-        msg.header.frame_id = base_link
+        msg.header.frame_id = self.base_link
         pts = []
         vels = []
         for (pt,vel) in traj:
@@ -176,10 +177,10 @@ class PyPlanner:
             pts.append(pt)
             vels.append(vel)
             cmd.points.append(cmd_pt)
-            f = robot.GetForward(pt[:7])
+            f = self.robot.GetForward(pt[:7])
             msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
 
         if len(cmd.points) > 0:
             cmd.points[-1].velocities = [0]*7
 
-        return cmd,msg,Z
+        return cmd,msg,traj,Z

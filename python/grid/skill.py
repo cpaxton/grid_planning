@@ -50,13 +50,13 @@ class RobotSkill:
     they also contain a description for our own purposes
     oh, and which objects are involved
     '''
-    def __init__(self,data=[],params=[],goals=[],action_k=4,goal_k=4,objs={},name="",filename=None):
+    def __init__(self,data=[],params=[],goals=[],action_k=4,goal_k=4,objs=[],name="",filename=None):
         self.name = name
 
         self.action_model = GMM(n_components=action_k,covariance_type="full")
         self.goal_model = GMM(n_components=goal_k,covariance_type="full")
         self.trajectory_model = GMM(n_components=1,covariance_type="full")
-        
+        self.objs = objs
 
         if filename == None and len(data) > 0:
             # learn action, goal, and trajectory models
@@ -73,6 +73,7 @@ class RobotSkill:
             self.action_model = data['action_model']
             self.goal_model = data['goal_model']
             self.trajectory_model = data['trajectory_model']
+            self.objs = data['objs']
             self.t_factor = 0.1
 
     '''
@@ -86,6 +87,7 @@ class RobotSkill:
         out['action_model'] = self.action_model
         out['goal_model'] = self.goal_model
         out['trajectory_model'] = self.trajectory_model
+        out['objs'] = self.objs
 
         yaml.dump(out,stream)
 
