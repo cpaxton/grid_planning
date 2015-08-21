@@ -50,12 +50,14 @@ class RobotSkill:
     they also contain a description for our own purposes
     oh, and which objects are involved
     '''
-    def __init__(self,data=[],params=[],goals=[],action_k=4,goal_k=4,objs=[],name="",filename=None):
+    def __init__(self,data=[],params=[],goals=[],action_k=4,goal_k=4,objs=[],name="",filename=None,num_gripper_vars=3):
         self.name = name
 
+        self.num_gripper_vars = num_gripper_vars
         self.action_model = GMM(n_components=action_k,covariance_type="full")
         self.goal_model = GMM(n_components=goal_k,covariance_type="full")
         self.trajectory_model = GMM(n_components=1,covariance_type="full")
+        self.gripper_model = GMM(n_components=action_k,covariance_type="full")
         self.objs = objs
 
         if filename == None and len(data) > 0:
@@ -65,6 +67,15 @@ class RobotSkill:
             self.trajectory_model.fit(params)
             self.t_factor = 0.1
 
+            if 'gripper' in objs:
+                # remove last few indices from
+                self.gripper_model = self.action_model
+                self.action_model = copy.deepcopy(self.gripper_model)
+
+                # marginalizing out vars in gaussians is easy
+                self.action_model.means_ = self.gripper_model.means_[:,:-num_gripper_vars]
+                self.action_model.covars_ = self.gripper_model.covars_[:,:-num_gripper_vars,:-num_gripper_vars]
+
         elif not filename == None:
             stream = file(filename,'r')
             data = yaml.load(stream,Loader=Loader)
@@ -72,8 +83,10 @@ class RobotSkill:
             self.name = data['name']
             self.action_model = data['action_model']
             self.goal_model = data['goal_model']
+            self.gripper_model = data['gripper_model']
             self.trajectory_model = data['trajectory_model']
             self.objs = data['objs']
+            self.num_gripper_vars = data['num_gripper_vars']
             self.t_factor = 0.1
 
     '''
@@ -86,8 +99,10 @@ class RobotSkill:
         out['name'] = self.name
         out['action_model'] = self.action_model
         out['goal_model'] = self.goal_model
+        out['gripper_model'] = self.gripper_model
         out['trajectory_model'] = self.trajectory_model
         out['objs'] = self.objs
+        out['num_gripper_vars'] = self.num_gripper_vars
 
         yaml.dump(out,stream)
 

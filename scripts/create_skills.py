@@ -35,13 +35,15 @@ skill_fixed = {'approach':[], 'grasp':['link'], 'transport':['link'], 'backoff':
 # load data for each skill
 for name,filenames in skill_filenames.items():
 
-    data,params,num_weights,goals = grid.LoadDataDMP(filenames,skill_objs[name])
+    # create some GMMs for gripper stuff too!
+    # this is just a convenience thing; they really SHOULD be the same as the ones we're using above
+    data,params,num_weights,goals = grid.LoadDataDMP(filenames,skill_objs[name] + ['gripper'])
     training_data = np.array(data[0][1])
     for i in range(1,len(data)):
         training_data = np.concatenate((training_data,data[i][1]))
 
     # create the skill object
-    skill = grid.RobotSkill(name=name,action_k=ak,goal_k=gk,data=training_data,objs=skill_objs[name],params=params,goals=goals)#,num_weights=num_weights)
+    skill = grid.RobotSkill(name=name,action_k=ak,goal_k=gk,data=training_data,objs=(skill_objs[name]+['gripper']),params=params,goals=goals)#,num_weights=num_weights)
 
     skill.save(name+"_skill.yml")
 

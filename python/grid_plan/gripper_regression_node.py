@@ -16,12 +16,14 @@ class GripperRegressor:
     '''
     sets up the node based on a GMM and the gripper topic
     '''
-    def __init__(self,gmm,features,cmd_topic):
-        self.gmm = gmm
-        self.features = features
+    def __init__(self,cmd_topic,skill_topic):
+        #self.gmm = gmm
+        #self.features = features
+        self.gmms = {}
         self.active_skill = None
         
-        self.skill_sub = rospy.Subscriber(SKILL_TOPIC,std_msgs.msg.String,self.skill_cb)
+        self.skill_sub = rospy.Subscriber(skill_topic,std_msgs.msg.String,self.skill_cb)
+        self.cmd_pub = rospy.Publisher(cmd_topic,oro_barrett_msgs.msg.BHandCmd)
 
     '''
     tick()
@@ -39,3 +41,6 @@ class GripperRegressor:
     '''
     def start(self):
         pass
+
+    def addSkill(self,skill):
+        self.gmms[skill.name] = skill.gripper_model
