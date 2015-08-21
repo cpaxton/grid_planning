@@ -21,14 +21,16 @@ gk = 1
 approach_filenames = ['app1.yml','app2.yml','app3.yml']
 grasp_filenames = ['grasp1.yml','grasp2.yml','grasp3.yml']
 transport_filenames = ['transport1.yml','transport2.yml','transport3.yml']
+backoff_filenames = ['backoff1.yml','backoff2.yml','backoff3.yml']
 
 skill_filenames = {}
 skill_filenames['approach'] = approach_filenames
 skill_filenames['grasp'] = grasp_filenames
 skill_filenames['transport'] = transport_filenames
+skill_filenames['backoff'] = backoff_filenames
 
-skill_objs = {'approach':['link'], 'grasp':['link'], 'transport':['link','node']}
-skill_fixed = {'approach':[], 'grasp':['link'], 'transport':['link']}
+skill_objs = {'approach':['link'], 'grasp':['link'], 'transport':['link','node'], 'backoff':['link','node']}
+skill_fixed = {'approach':[], 'grasp':['link'], 'transport':['link'], 'backoff':[]}
 
 # load data for each skill
 for name,filenames in skill_filenames.items():

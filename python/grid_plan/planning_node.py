@@ -81,7 +81,7 @@ class PyPlanner:
     - objs is a mapping between tf frames and names
     - skill is a RobotSkill
     '''
-    def plan(self,skill,objs,num_iter=20):
+    def plan(self,action_model,goal_model,trajectory_model,objs,num_iter=20):
 
         print " - adding objects: "
 
@@ -97,4 +97,89 @@ class PyPlanner:
 
         print world
 
+        
+        Z = copy.deepcopy(trajectory_model)
+        for i in range(Z.n_components):
+            Z.covars_[i,:,:] += 0.00001 * np.eye(Z.covars_.shape[1])
+            for j in range(7):
+                Z.covars_[i,j,j] += 0.2
 
+        traj_params = Z.sample(NUM_SAMPLES)
+        valid = []
+        elite = []
+        lls = np.zeros(NUM_VALID)
+        count = 0
+        j = 0
+
+        while len(valid) < NUM_VALID and j < NUM_SAMPLES:
+            traj_ = self.gp.TryPrimitives(list(traj_params[j]))
+
+            if not len(traj_) == 0:
+                count += 1
+                valid.append(traj_params[j])
+                pts = [p for p,v in traj_]
+                ll = self.robot.GetTrajectoryLikelihood(pts,world,objs=['link'])
+                lls[len(valid)-1] = ll
+
+            j+=1
+
+        ll_threshold = np.percentile(lls,80)
+        for (ll,z) in zip(lls,valid):
+            if ll >= ll_threshold:
+                elite.append(z)
+
+        for i in range(1,20):
+            print "Iteration %d... (based on %d valid samples)"%(i,count)
+            Z = Z.fit(elite)
+            Z.covars_[0,:,:] += 0.00001 * np.eye(Z.covars_.shape[1])
+            traj_params = Z.sample(NUM_SAMPLES)
+            valid = []
+            elite = []
+            trajs = []
+            lls = np.zeros(NUM_VALID)
+            count = 0
+            j = 0
+            #for z in traj_params:
+            while len(valid) < NUM_VALID and j < NUM_SAMPLES:
+                traj_ = gp.TryPrimitives(list(traj_params[j]))
+
+                if not len(traj_) == 0:
+                    count += 1
+                    valid.append(traj_params[j])
+                    pts = [p for p,v in traj_]
+                    ll = self.robot.GetTrajectoryLikelihood(pts,world,objs=['link'])
+                    lls[len(valid)-1] = ll
+                    trajs.append(traj_)
+
+                j += 1
+
+            ll_threshold = np.percentile(lls,97)
+            for (ll,z) in zip(lls,valid):
+                if ll >= ll_threshold:
+                    elite.append(z)
+
+            print "... avg ll = %f, percentile = %f"%(np.mean(lls),ll_threshold)
+
+        traj = trajs[lls.tolist().index(np.max(lls))]
+
+        print "Found %d total valid trajectories."%(count)
+
+        cmd = JointTrajectory()
+        msg = PoseArray()
+        msg.header.frame_id = base_link
+        pts = []
+        vels = []
+        for (pt,vel) in traj:
+            cmd_pt = JointTrajectoryPoint()
+            cmd_pt.positions = pt
+            cmd_pt.velocities = np.array(vel)*0.02
+            pts.append(pt)
+            vels.append(vel)
+            cmd.points.append(cmd_pt)
+            f = robot.GetForward(pt[:7])
+            msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
+
+        if len(cmd.points) > 0:
+            cmd.points[-1].velocities = [0]*7
+
+        return cmd,msg,Z
