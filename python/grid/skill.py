@@ -1,3 +1,4 @@
+import grid
 
 # ROS stuff
 import rospy
@@ -74,9 +75,9 @@ class RobotSkill:
             data = yaml.load(stream,Loader=Loader)
 
             self.name = data['name']
-            self.action_model = data['action_model']
-            self.goal_model = data['goal_model']
-            self.trajectory_model = data['trajectory_model']
+            self.action_model = GMM(config=data['action_model'])
+            self.goal_model = GMM(config=data['goal_model'])
+            self.trajectory_model = GMM(config=data['trajectory_model'])
             self.t_factor = 0.1
 
     '''
@@ -87,9 +88,9 @@ class RobotSkill:
 
         out = {}
         out['name'] = self.name
-        out['action_model'] = self.action_model
-        out['goal_model'] = self.goal_model
-        out['trajectory_model'] = self.trajectory_model
+        out['action_model'] = self.action_model.dict()
+        out['goal_model'] = self.goal_model.dict()
+        out['trajectory_model'] = self.trajectory_model.dict()
 
         yaml.dump(out,stream)
 

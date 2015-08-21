@@ -97,10 +97,10 @@ pps()
 gp.PrintInfo();
 
 Z = copy.deepcopy(approach.trajectory_model)
-for i in range(Z.n_components):
-    Z.covars_[i,:,:] += 0.00001 * np.eye(Z.covars_.shape[1])
+for i in range(Z.k):
+    Z.sigma[i][:,:] += 0.00001 * np.eye(Z.sigma[i].shape[0])
     for j in range(7):
-        Z.covars_[i,j,j] += 0.2
+        Z.sigma[i][j,j] += 0.2
 
 traj_params = Z.sample(NUM_SAMPLES)
 valid = []
@@ -126,11 +126,12 @@ for (ll,z) in zip(lls,valid):
     if ll >= ll_threshold:
         elite.append(z)
 
-elite = valid
+#elite = valid
 for i in range(1,20):
     print "Iteration %d... (based on %d valid samples)"%(i,count)
     Z = Z.fit(elite)
-    Z.covars_[0,:,:] += 0.00001 * np.eye(Z.covars_.shape[1])
+    Z.addNoise(0.00001)
+    #Z.sigma[0][:,:] += 0.00001 * np.eye(Z.sigma[0].shape[0])
     traj_params = Z.sample(NUM_SAMPLES)
     valid = []
     elite = []
@@ -186,7 +187,8 @@ if len(cmd.points) > 0:
 pub = rospy.Publisher('/gazebo/traj_rml/joint_traj_cmd',JointTrajectory)
 pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray)
 
-print traj
+#print traj
+print robot.GetFeatures(traj[-1][0],1,world,['link']) - approach.goal_model.means_
 
 rospy.sleep(rospy.Duration(0.5))
 pub.publish(cmd)
