@@ -1,4 +1,3 @@
-import grid
 
 # ROS stuff
 import rospy
@@ -18,8 +17,7 @@ from pykdl_utils.kdl_kinematics import KDLKinematics
 from pykdl_utils.kdl_parser import kdl_tree_from_urdf_model
 
 # machine learning utils (python)
-# from sklearn.mixture import GMM
-from gmm import GMM
+from sklearn.mixture import GMM
 
 
 # tf stuff
@@ -55,12 +53,9 @@ class RobotSkill:
     def __init__(self,data=[],params=[],goals=[],action_k=4,goal_k=4,objs={},name="",filename=None):
         self.name = name
 
-        self.action_model = GMM(k=action_k)
-        self.goal_model = GMM(k=goal_k)
-        self.trajectory_model = GMM(k=1)
-        #self.action_model = GMM(n_components=action_k,covariance_type="full")
-        #self.goal_model = GMM(n_components=goal_k,covariance_type="full")
-        #self.trajectory_model = GMM(n_components=1,covariance_type="full")
+        self.action_model = GMM(n_components=action_k,covariance_type="full")
+        self.goal_model = GMM(n_components=goal_k,covariance_type="full")
+        self.trajectory_model = GMM(n_components=1,covariance_type="full")
         
 
         if filename == None and len(data) > 0:
@@ -75,9 +70,9 @@ class RobotSkill:
             data = yaml.load(stream,Loader=Loader)
 
             self.name = data['name']
-            self.action_model = GMM(config=data['action_model'])
-            self.goal_model = GMM(config=data['goal_model'])
-            self.trajectory_model = GMM(config=data['trajectory_model'])
+            self.action_model = data['action_model']
+            self.goal_model = data['goal_model']
+            self.trajectory_model = data['trajectory_model']
             self.t_factor = 0.1
 
     '''
@@ -88,9 +83,9 @@ class RobotSkill:
 
         out = {}
         out['name'] = self.name
-        out['action_model'] = self.action_model.dict()
-        out['goal_model'] = self.goal_model.dict()
-        out['trajectory_model'] = self.trajectory_model.dict()
+        out['action_model'] = self.action_model
+        out['goal_model'] = self.goal_model
+        out['trajectory_model'] = self.trajectory_model
 
         yaml.dump(out,stream)
 

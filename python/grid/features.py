@@ -291,7 +291,7 @@ class RobotFeatures:
 
             #lls[i] = self.traj_model.score(f + diff)
             #ll = self.traj_model.score(f + diff)
-            lls[i] = self.traj_model.score(np.array(f + diff))
+            lls[i] = self.traj_model.score(f + diff)
             isum += i
 
             i += 1
@@ -304,14 +304,7 @@ class RobotFeatures:
 
         f = self.GetFeatures(traj[-1],1,world,objs)
 
-        print self.goal_model.mu[0].shape
-        print self.goal_model.sigma
-        print self.goal_model.pi
-        print np.array(f).shape
-
-        print self.goal_model.score(np.array(f))
-
-        return self.goal_model.score(np.array(f)) + avg
+        return self.goal_model.score(f) + avg
 
     '''
     GetFeatures
@@ -452,7 +445,7 @@ class RobotFeatures:
             rv = PyKDL.Vector(theta*w[0], theta*w[1], theta*w[2])
             #diff = [x for x in df.p] + [df.p.Norm(), theta] + [ww for ww in w]
             #diff = [x for x in df.p] + [df.p.Norm()] + list(rv) + [rv.Norm()]
-            diff = [df.p.Norm(), rv.Norm()]
+            diff = [df.p.Norm()] + [rv.Norm()]
             return diff
     '''
     GetJointPositions()
