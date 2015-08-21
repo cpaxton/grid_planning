@@ -20,6 +20,7 @@ import rospy
 import sensor_msgs
 from geometry_msgs.msg import PoseArray
 from std_srvs.srv import Empty
+import std_msgs
 
 " math "
 import numpy as np
@@ -42,6 +43,8 @@ from visualization_msgs.msg import Marker
 NUM_VALID = 50
 NUM_SAMPLES = 2500
 
+SKILL_TOPIC = "current_skill"
+
 roscpp_set = False
 
 class PyPlanner:
@@ -51,7 +54,7 @@ class PyPlanner:
             joint_states_topic="/gazebo/barrett_manager/wam/joint_states",
             planning_scene_topic="/gazebo/planning_scene",
             preset="wam"):
-    
+
         global roscpp_set
         if not roscpp_set:
             roscpp_init('grid_planning_node_cpp',[])
@@ -73,6 +76,8 @@ class PyPlanner:
             self.base_link = 'wam/base_link'
             self.end_link = 'wam/wrist_palm_link'
 
+        self.skill_pub = rospy.Publisher(SKILL_TOPIC,std_msgs.msg.String)
+
     '''
     take a skill and associated objects
     return a trajectory
@@ -80,6 +85,9 @@ class PyPlanner:
     - skill is a RobotSkill
     '''
     def plan(self,skill,objs,num_iter=20):
+
+        print "Planning skill '%s'..."%(skill.name)
+        self.skill_pub.publish(skill.name)
 
         print " - adding objects: "
 
@@ -148,7 +156,7 @@ class PyPlanner:
                     count += 1
                     valid.append(traj_params[j])
                     pts = [p for p,v in traj_]
-                    ll = self.robot.GetTrajectoryLikelihood(pts,world,objs=['link'])
+                    ll = self.robot.GetTrajectoryLikelihood(pts,world,objs=skill.objs)
                     lls[len(valid)-1] = ll
                     trajs.append(traj_)
 

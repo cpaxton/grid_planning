@@ -14,7 +14,7 @@ Create skills
 rospy.init_node('create_skills_node')
 
 # configuration for skills
-ak = 1
+ak = 2
 gk = 1
 
 # first set up filenames
@@ -29,7 +29,7 @@ skill_filenames['grasp'] = grasp_filenames
 skill_filenames['transport'] = transport_filenames
 skill_filenames['backoff'] = backoff_filenames
 
-skill_objs = {'approach':['link'], 'grasp':['link'], 'transport':['link','node'], 'backoff':['link','node']}
+skill_objs = {'approach':['time','link'], 'grasp':['time','link'], 'transport':['time','link','node'], 'backoff':['time','link']}
 skill_fixed = {'approach':[], 'grasp':['link'], 'transport':['link'], 'backoff':[]}
 
 # load data for each skill

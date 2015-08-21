@@ -284,7 +284,7 @@ class RobotFeatures:
         i = 0
         #for i in range(len(traj)-1):
         while i < len(traj)-1:
-            t = i / len(traj)
+            t = float(i) / len(traj)
             f = self.GetFeatures(traj[i],t,world,objs)
 
             diff = self.GetDiffFeatures(traj[i-1][:self.dof],traj[i][:self.dof])
