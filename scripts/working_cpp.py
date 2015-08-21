@@ -186,6 +186,8 @@ if len(cmd.points) > 0:
 pub = rospy.Publisher('/gazebo/traj_rml/joint_traj_cmd',JointTrajectory)
 pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray)
 
+print traj
+
 rospy.sleep(rospy.Duration(0.5))
 pub.publish(cmd)
 pa_ee_pub.publish(msg)
