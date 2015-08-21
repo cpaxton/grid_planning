@@ -127,7 +127,10 @@ class PyPlanner:
                 count += 1
                 valid.append(traj_params[j])
                 pts = [p for p,v in traj_]
-                ll = self.robot.GetTrajectoryLikelihood(pts,world,objs=skill.objs)
+                #p_z = np.exp(Z.score(traj_params[j]))
+                p_z = Z.score(traj_params[j])
+                ll = np.mean(self.robot.GetTrajectoryWeight(pts,world,skill.objs,p_z))
+                #ll = self.robot.GetTrajectoryLikelihood(pts,world,objs=skill.objs)
                 lls[len(valid)-1] = ll
 
             j+=1
@@ -156,7 +159,10 @@ class PyPlanner:
                     count += 1
                     valid.append(traj_params[j])
                     pts = [p for p,v in traj_]
-                    ll = self.robot.GetTrajectoryLikelihood(pts,world,objs=skill.objs)
+                    #p_z = np.exp(Z.score(traj_params[j]))
+                    p_z = Z.score(traj_params[j])
+                    ll = np.mean(self.robot.GetTrajectoryWeight(pts,world,skill.objs,p_z))
+                    #ll = self.robot.GetTrajectoryLikelihood(pts,world,objs=skill.objs)
                     lls[len(valid)-1] = ll
                     trajs.append(traj_)
 
