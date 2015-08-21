@@ -42,14 +42,26 @@ from visualization_msgs.msg import Marker
 NUM_VALID = 50
 NUM_SAMPLES = 2500
 
+roscpp_set = False
+
 class PyPlanner:
 
-    def __init__(self,preset="wam"):
+    def __init__(self,
+            robot_description="robot_description",
+            joint_states_topic="/gazebo/barrett_manager/wam/joint_states",
+            planning_scene_topic="/gazebo/planning_scene",
+            preset="wam"):
+    
+        global roscpp_set
+        if not roscpp_set:
+            roscpp_init('grid_planning_node_cpp')
 
         if preset == "wam":
-            self.gp = grid_plan.GridPlanner('robot_description',
-                    '/gazebo/barrett_manager/wam/joint_states',
-                    '/gazebo/planning_scene',0.0)
+            self.gp = grid_plan.GridPlanner(
+                    robot_description,
+                    joint_states_topic,
+                    planning_scene_topic,
+                    0.0)
             self.gp.SetDof(7);
             self.gp.SetNumBasisFunctions(5);
             self.gp.SetK(100);
@@ -60,10 +72,6 @@ class PyPlanner:
 
 
             self.robot = grid.RobotFeatures()
-            #self.obj1='/gbeam_link_1/gbeam_link'
-            #self.obj2='/gbeam_node_1/gbeam_node'
-            #self.robot.AddObject("link",obj1);
-            #self.robot.AddObject("node",obj2);
             self.base_link = 'wam/base_link'
             self.end_link = 'wam/wrist_palm_link'
 
@@ -74,7 +82,19 @@ class PyPlanner:
     - skill is a RobotSkill
     '''
     def plan(self,skill,objs,num_iter=20):
+
+        print " - adding objects: "
+
         for (obj,frame) in objs:
+            print "    - %s = %s"%(obj,frame)
             self.robot.AddObject(obj,frame)
+
+        print " - getting TF information for generating trajectories..."
+
+        world = None
+        while world == None or not robot.TfUpdateWorld():
+            world = robot.TfCreateWorld()
+
+        print world
 
 
