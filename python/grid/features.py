@@ -279,11 +279,10 @@ class RobotFeatures:
     def GetTrajectoryLikelihood(self,traj,world,objs,step=1.,sigma=0.000):
 
         lls = np.zeros(len(traj)-1)
-        isum = 0
+        isum = len(traj)-1
 
         i = 0
-        #for i in range(len(traj)-1):
-        while i < len(traj)-1:
+        for i in range(len(traj)-1):
             t = float(i) / len(traj)
             f = self.GetFeatures(traj[i],t,world,objs)
 
@@ -305,6 +304,27 @@ class RobotFeatures:
         f = self.GetFeatures(traj[-1],1,world,objs)
 
         return self.goal_model.score(f) + avg
+
+    '''
+    GetFeatures
+    '''
+    def GetFeaturesForTrajectory(self,traj,world,objs):
+
+        features = [[]]*(len(traj)-1)
+        #diffs = [[]]*(len(traj)-1)
+
+        i = 0
+        #while i < len(traj)-1:
+        for i in range(len(traj)-1):
+            t = float(i) / len(traj)
+
+            #features[i] = self.GetFeatures(traj[i],t,world,objs)
+            #diffs[i] = self.GetDiffFeatures(traj[i-1][:self.dof],traj[i][:self.dof])
+            features[i] = self.GetFeatures(traj[i],t,world,objs) + self.GetDiffFeatures(traj[i-1][:self.dof],traj[i][:self.dof])
+
+        goal_features = self.GetFeatures(traj[-1],1,world,objs)
+
+        return features,goal_features
 
     '''
     GetFeatures
@@ -344,14 +364,6 @@ class RobotFeatures:
                 features += list(rv) + [rv.Norm()]
 
         return features
-
-    '''
-    GetFeatures
-    '''
-    def GetFeaturesForTrajectory(self,traj,world):
-        ftraj = []
-
-        print "ERR: not implemented yet!"
 
     '''
     GetTrainingFeatures
