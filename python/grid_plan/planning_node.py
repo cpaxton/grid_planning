@@ -40,9 +40,6 @@ from pykdl_utils.kdl_parser import kdl_tree_from_urdf_model
 from visualization_msgs.msg import MarkerArray
 from visualization_msgs.msg import Marker
 
-NUM_VALID = 50
-NUM_SAMPLES = 2500
-
 SKILL_TOPIC = "current_skill"
 
 roscpp_set = False
@@ -84,7 +81,7 @@ class PyPlanner:
     - objs is a mapping between tf frames and names
     - skill is a RobotSkill
     '''
-    def plan(self,skill,objs,num_iter=20):
+    def plan(self,skill,objs,num_iter=20,tol=0.0001,num_valid=30,num_samples=2500):
 
         print "Planning skill '%s'..."%(skill.name)
         self.skill_pub.publish(skill.name)
@@ -105,7 +102,6 @@ class PyPlanner:
             world = self.robot.TfCreateWorld()
 
         print world
-
         
         Z = copy.deepcopy(skill.trajectory_model)
         for i in range(Z.n_components):
@@ -113,72 +109,85 @@ class PyPlanner:
             for j in range(7):
                 Z.covars_[i,j,j] += 0.2
 
-        traj_params = Z.sample(NUM_SAMPLES)
+        traj_params = Z.sample(num_samples)
         valid = []
         elite = []
-        lls = np.zeros(NUM_VALID)
+        lls = np.zeros(num_valid)
         count = 0
         j = 0
 
-        while len(valid) < NUM_VALID and j < NUM_SAMPLES:
+        while len(valid) < num_valid and j < num_samples:
             traj_ = self.gp.TryPrimitives(list(traj_params[j]))
 
             if not len(traj_) == 0:
-                count += 1
                 valid.append(traj_params[j])
                 pts = [p for p,v in traj_]
-                #p_z = np.exp(Z.score(traj_params[j]))
+
                 p_z = Z.score(traj_params[j])[0]
-                #ll = np.mean(self.robot.GetTrajectoryWeight(pts,world,skill.objs,p_z))
-                wts = self.robot.GetTrajectoryWeight(pts,world,skill.objs,p_z)
-                print wts
-                ll = np.mean(wts)
+                ll,wts = self.robot.GetTrajectoryWeight(pts,world,skill.objs,p_z)
                 #ll = self.robot.GetTrajectoryLikelihood(pts,world,objs=skill.objs)
-                lls[len(valid)-1] = ll
+                lls[count] = ll
+                count += 1
 
             j+=1
 
+        last_avg = np.mean(lls)
         ll_threshold = np.percentile(lls,80)
         for (ll,z) in zip(lls,valid):
             if ll >= ll_threshold:
                 elite.append(z)
 
-        for i in range(1,20):
+        #print wts
+
+        for i in range(1,num_iter):
             print "Iteration %d... (based on %d valid samples)"%(i,count)
             Z = Z.fit(elite)
             Z.covars_[0,:,:] += 0.00001 * np.eye(Z.covars_.shape[1])
-            traj_params = Z.sample(NUM_SAMPLES)
+            traj_params = Z.sample(num_samples)
             valid = []
-            elite = []
             trajs = []
-            wts = []
-            lls = np.zeros(NUM_VALID)
+            lls = np.zeros(num_valid)
             count = 0
             j = 0
             #for z in traj_params:
-            while len(valid) < NUM_VALID and j < NUM_SAMPLES:
+            while len(valid) < num_valid and j < num_samples:
                 traj_ = self.gp.TryPrimitives(list(traj_params[j]))
 
                 if not len(traj_) == 0:
-                    count += 1
                     valid.append(traj_params[j])
                     pts = [p for p,v in traj_]
-                    #p_z = np.exp(Z.score(traj_params[j]))
-                    p_z = Z.score_samples(traj_params[j])[0]
-                    wts = self.robot.GetTrajectoryWeight(pts,world,skill.objs,p_z)
-                    ll = np.mean(wts)
+
+                    p_z = Z.score(traj_params[j])[0]
+                    ll,wts = self.robot.GetTrajectoryWeight(pts,world,skill.objs,p_z)
                     #ll = self.robot.GetTrajectoryLikelihood(pts,world,objs=skill.objs)
-                    lls[len(valid)-1] = ll
+                    lls[count] = ll
                     trajs.append(traj_)
+                    count += 1
 
                 j += 1
 
-            ll_threshold = np.percentile(lls,97)
+            #print wts
+
+            cur_avg = np.mean(lls)
+
+            if cur_avg < last_avg:
+                print "skipping: %f < %f"%(cur_avg, last_avg)
+                continue
+            elif np.abs(cur_avg - last_avg) <= tol:
+                print "Done! %f - %f = %f"%(cur_avg, last_avg, np.abs(cur_avg - last_avg))
+                break
+
+            last_avg = cur_avg
+            elite = []
+            ll_threshold = np.percentile(lls,95)
             for (ll,z) in zip(lls,valid):
                 if ll >= ll_threshold:
                     elite.append(z)
 
-            print "... avg ll = %f, percentile = %f"%(np.mean(lls),ll_threshold)
+
+            print "... avg ll = %f, percentile = %f"%(cur_avg,ll_threshold)
+
+
 
         traj = trajs[lls.tolist().index(np.max(lls))]
 

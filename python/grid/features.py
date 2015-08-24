@@ -284,18 +284,26 @@ class RobotFeatures:
 
         N = len(features)
         scores,_ = self.traj_model.score_samples(features)
-        denom = 1 / (p_obs * p_z )
+        denom = 1 / (p_obs * p_z)
+        #denom = p_obs + p_z
+        #denom = 0
 
         #print scores
 
         for i in range(N):
-            weights[i] = np.exp(scores[i]) * t_lambda**(N-i) * denom
+            #weights[i] = np.exp(scores[i]) * t_lambda**(N-i) * denom
+            #weights[i] = scores[i] * t_lambda**(N-i) * denom
+            #weights[i] = t_lambda**(N-i) * (scores[i] - denom)
+            weights[i] = (1/N) * (scores[i] - denom)
+            #weights[i] = scores[i] + (N-i)*t_lambda**(N-i) - denom
 
         # lambda**(N-i) [where i=N] == lambda**0 == 1
-        weights[-1] = np.exp(self.goal_model.score_samples(goal_features)[0]) * denom
+        score,_ = self.goal_model.score_samples(goal_features)
+        #weights[-1] = np.exp(score)[0] * denom
+        #weights[-1] = score[0] * denom
+        weights[-1] = score[0] - denom
 
-
-        return weights
+        return np.sum(weights),weights
 
     '''
     GetTrajectoryLikelihood
@@ -307,10 +315,12 @@ class RobotFeatures:
 
         features,goal_features = self.GetFeaturesForTrajectory(traj,world,objs)
         isum = np.sum(range(len(features)))
+        scores = self.traj_model.score(features)
 
-        avg = 0
-        for i in range(len(features)):
-            avg += (float(i) / float(isum)) * self.traj_model.score(features[i])
+        #avg = 0
+        #for i in range(len(features)):
+        #    avg += (float(i) / float(isum)) * scores[i
+        avg = np.mean(scores)
 
         return self.goal_model.score(goal_features) + avg
 
@@ -389,7 +399,7 @@ class RobotFeatures:
         for i in range(1,len(traj)):
 
             features = []
-            diff = []
+            #diff = []
 
             # compute features for difference between current and next end effector frame
             #f0 = self.GetForward(traj[i-1][:7])
@@ -463,8 +473,8 @@ class RobotFeatures:
             theta,w = df.M.GetRotAngle()
             rv = PyKDL.Vector(theta*w[0], theta*w[1], theta*w[2])
             #diff = [x for x in df.p] + [df.p.Norm(), theta] + [ww for ww in w]
-            #diff = [x for x in df.p] + [df.p.Norm()] + list(rv) + [rv.Norm()]
-            diff = [df.p.Norm()] + [rv.Norm()]
+            diff = [x for x in df.p] + [df.p.Norm()] + list(rv) + [rv.Norm()]
+            #diff = [df.p.Norm()] + [rv.Norm()]
             return diff
     '''
     GetJointPositions()
