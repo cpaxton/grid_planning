@@ -289,10 +289,10 @@ class RobotFeatures:
         #print scores
 
         for i in range(N):
-            weights[i] = scores[i] * t_lambda**(N-i) * denom
+            weights[i] = np.exp(scores[i]) * t_lambda**(N-i) * denom
 
         # lambda**(N-i) [where i=N] == lambda**0 == 1
-        weights[-1] = self.goal_model.score_samples(goal_features)[0] * denom
+        weights[-1] = np.exp(self.goal_model.score_samples(goal_features)[0]) * denom
 
 
         return weights
