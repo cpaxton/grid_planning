@@ -128,8 +128,11 @@ class PyPlanner:
                 valid.append(traj_params[j])
                 pts = [p for p,v in traj_]
                 #p_z = np.exp(Z.score(traj_params[j]))
-                p_z = Z.score(traj_params[j])
-                ll = np.mean(self.robot.GetTrajectoryWeight(pts,world,skill.objs,p_z))
+                p_z = Z.score(traj_params[j])[0]
+                #ll = np.mean(self.robot.GetTrajectoryWeight(pts,world,skill.objs,p_z))
+                wts = self.robot.GetTrajectoryWeight(pts,world,skill.objs,p_z)
+                print wts
+                ll = np.mean(wts)
                 #ll = self.robot.GetTrajectoryLikelihood(pts,world,objs=skill.objs)
                 lls[len(valid)-1] = ll
 
@@ -148,6 +151,7 @@ class PyPlanner:
             valid = []
             elite = []
             trajs = []
+            wts = []
             lls = np.zeros(NUM_VALID)
             count = 0
             j = 0
@@ -160,8 +164,9 @@ class PyPlanner:
                     valid.append(traj_params[j])
                     pts = [p for p,v in traj_]
                     #p_z = np.exp(Z.score(traj_params[j]))
-                    p_z = Z.score(traj_params[j])
-                    ll = np.mean(self.robot.GetTrajectoryWeight(pts,world,skill.objs,p_z))
+                    p_z = Z.score_samples(traj_params[j])[0]
+                    wts = self.robot.GetTrajectoryWeight(pts,world,skill.objs,p_z)
+                    ll = np.mean(wts)
                     #ll = self.robot.GetTrajectoryLikelihood(pts,world,objs=skill.objs)
                     lls[len(valid)-1] = ll
                     trajs.append(traj_)

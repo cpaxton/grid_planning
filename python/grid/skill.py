@@ -75,6 +75,8 @@ class RobotSkill:
                 # marginalizing out vars in gaussians is easy
                 self.action_model.means_ = self.gripper_model.means_[:,:-num_gripper_vars]
                 self.action_model.covars_ = self.gripper_model.covars_[:,:-num_gripper_vars,:-num_gripper_vars]
+                self.goal_model.covars_ = self.goal_model.covars_[:,:-num_gripper_vars,:-num_gripper_vars]
+                self.goal_model.means_ = self.goal_model.means_[:,:-num_gripper_vars]
 
         elif not filename == None:
             stream = file(filename,'r')

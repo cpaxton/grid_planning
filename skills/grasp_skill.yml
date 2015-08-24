@@ -98,33 +98,24 @@ goal_model: !!python/object:sklearn.mixture.gmm.GMM
     - b
     state: !!python/tuple
     - 1
-    - !!python/tuple [1, 12, 12]
+    - !!python/tuple [1, 9, 9]
     - !!python/object/apply:numpy.dtype
       args: [f8, 0, 1]
       state: !!python/tuple [3, <, null, null, null, -1, -1, 0]
     - false
     - !!binary |
       /Knx0k1iUD/8//////9Dufz//////1M5+v//////bTn6//////99Ofn//////5+5/P//////obn7
-      //////+XOfv//////7k5AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/P//////Q7mkHHlxCWGGP70+
-      HQBQ6mI/z+Cfp1I0eT+YwXjHI74/P/dOYS9SrMK/3akHRSvvwb+9CeFCR8Scv9EnbUKie6A/AAAA
-      AAAAAAAAAAAAAAAAAAAAAAAAAAAA/P//////Uzm9Ph0AUOpiP6rdgWBhQVk/l6mzjqRvWD9bf+hd
-      oH0cP5aTd2GgEKK/7BxisQdLob+DGRnjGYV9vy2yYbfvcIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAA
-      AAAA+v//////bTnP4J+nUjR5P5eps46kb1g/LCdQRKEVdz8smaIgnR8wP3xtCZu53ru/J9P35Mpg
-      ur9MFQvIRzubv8wja5ZV+ps/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA+v//////fTmZwXjHI74/
-      P1t/6F2gfRw/LJmiIJ0fMD8vb/Gga9RQP68c1C3jK3i/LxHIHi+gd7800ORyxxFJvwBFPOy2xVE/
-      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA+f//////n7n3TmEvUqzCv5aTd2GgEKK/fG0Jm7neu7+v
-      HNQt4yt4v49jIHsxeARAHcURLAJhA0ACObYhus3jP2iqGp4MbuS/AAAAAAAAAAAAAAAAAAAAAAAA
-      AAAAAAAA/P//////obndqQdFK+/Bv+wcYrEHS6G/J9P35Mpgur8vEcgeL6B3vx3FESwCYQNAqT4u
-      1GhhAkBBRRdp/3niP6gRHedzL+O/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA+///////lzm9CeFC
-      R8Scv4MZGeMZhX2/TBULyEc7m7800ORyxxFJvwI5tiG6zeM/QUUXaf954j/2Fixyom7HP4ok5R9c
-      Msa/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA+///////uTnRJ21ConugPy2yYbfvcIA/zCNrllX6
-      mz8ARTzstsVRP2iqGp4MbuS/qBEd53Mv47+KJOUfXDLGv0M7sLA38sU/AAAAAAAAAAAAAAAAAAAA
-      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/Knx0k1iUD8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-      AAAAAAAAAAAAAAAAAAD8qfHSTWJQPwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-      AAAAAPyp8dJNYlA/
+      //////+XOfv//////7k5/P//////Q7mkHHlxCWGGP70+HQBQ6mI/z+Cfp1I0eT+YwXjHI74/P/dO
+      YS9SrMK/3akHRSvvwb+9CeFCR8Scv9EnbUKie6A//P//////Uzm9Ph0AUOpiP6rdgWBhQVk/l6mz
+      jqRvWD9bf+hdoH0cP5aTd2GgEKK/7BxisQdLob+DGRnjGYV9vy2yYbfvcIA/+v//////bTnP4J+n
+      UjR5P5eps46kb1g/LCdQRKEVdz8smaIgnR8wP3xtCZu53ru/J9P35Mpgur9MFQvIRzubv8wja5ZV
+      +ps/+v//////fTmZwXjHI74/P1t/6F2gfRw/LJmiIJ0fMD8vb/Gga9RQP68c1C3jK3i/LxHIHi+g
+      d7800ORyxxFJvwBFPOy2xVE/+f//////n7n3TmEvUqzCv5aTd2GgEKK/fG0Jm7neu7+vHNQt4yt4
+      v49jIHsxeARAHcURLAJhA0ACObYhus3jP2iqGp4MbuS//P//////obndqQdFK+/Bv+wcYrEHS6G/
+      J9P35Mpgur8vEcgeL6B3vx3FESwCYQNAqT4u1GhhAkBBRRdp/3niP6gRHedzL+O/+///////lzm9
+      CeFCR8Scv4MZGeMZhX2/TBULyEc7m7800ORyxxFJvwI5tiG6zeM/QUUXaf954j/2Fixyom7HP4ok
+      5R9cMsa/+///////uTnRJ21ConugPy2yYbfvcIA/zCNrllX6mz8ARTzstsVRP2iqGp4MbuS/qBEd
+      53Mv47+KJOUfXDLGv0M7sLA38sU/
   init_params: wmc
   means_: !!python/object/apply:numpy.core.multiarray._reconstruct
     args:
@@ -133,14 +124,14 @@ goal_model: !!python/object:sklearn.mixture.gmm.GMM
     - b
     state: !!python/tuple
     - 1
-    - !!python/tuple [1, 12]
+    - !!python/tuple [1, 9]
     - !!python/object/apply:numpy.dtype
       args: [f8, 0, 1]
       state: !!python/tuple [3, <, null, null, null, -1, -1, 0]
     - false
     - !!binary |
       +v//////7z+GHP1GyYuXv+qBFAqdTaE/Y082ZMsSuT+dNAC1OcbEPxXKvxfTWPC/krsBs+18678i
-      iQNJvfbiP5SfROwGKgVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      iQNJvfbiP5SfROwGKgVA
   min_covar: 0.001
   n_components: 1
   n_init: 1

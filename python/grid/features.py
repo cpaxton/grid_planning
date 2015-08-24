@@ -283,17 +283,17 @@ class RobotFeatures:
         features,goal_features = self.GetFeaturesForTrajectory(traj,world,objs)
 
         N = len(features)
-        #lambdaZ = np.sum(t_lambda**(N-np.array(range(N))))
+        scores,_ = self.traj_model.score_samples(features)
+        denom = 1 / (p_obs * p_z )
+
+        #print scores
+
         for i in range(N):
-            weights[i] = (self.traj_model.score(features[i]) * t_lambda**(N-i)) / (p_obs * p_z )
-            #weights[i] = (np.exp(self.traj_model.score(features[i])) * t_lambda**(N-i)) / (p_obs * p_z )
-            #weights[i] = (np.exp(self.traj_model.score(features[i])) + ((N-i)*t_lambda)) - (p_obs + p_z)
-            #weights[i] = (np.exp(self.traj_model.score(features[i])) + ((N-i)*t_lambda)) - (p_obs + p_z)
+            weights[i] = scores[i] * t_lambda**(N-i) * denom
 
         # lambda**(N-i) [where i=N] == lambda**0 == 1
-        weights[-1] = (self.traj_model.score(features[i])) / (p_obs * p_z)
-        #weights[-1] = (np.exp(self.traj_model.score(features[i]))) / (p_obs * p_z)
-        #weights[-1] = (np.exp(self.traj_model.score(features[i])) + 1) - (p_obs + p_z)
+        weights[-1] = self.goal_model.score_samples(goal_features)[0] * denom
+
 
         return weights
 
