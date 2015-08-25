@@ -410,9 +410,11 @@ class RobotFeatures:
 
             # loop over objects/world at this time step
             t = (self.times[i-1].to_sec() - start_t) / (end_t - start_t)
-            ftraj += [self.GetFeatures(traj[i-1],t,self.world_states[i-1],objs) + diff]
+            #ftraj += [self.GetFeatures(traj[i-1],t,self.world_states[i-1],objs) + diff]
+            ftraj += [self.GetFeatures(traj[i-1],t,self.world_states[0],objs) + diff]
         
-        goal = self.GetFeatures(traj[-1],1.0,self.world_states[-1],objs)
+        #goal = self.GetFeatures(traj[-1],1.0,self.world_states[-1],objs)
+        goal = self.GetFeatures(traj[-1],1.0,self.world_states[0],objs)
 
         return ftraj,goal
 

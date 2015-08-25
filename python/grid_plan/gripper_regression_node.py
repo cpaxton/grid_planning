@@ -14,18 +14,28 @@ class GripperRegressor:
     '''
     def skill_cb(self,msg):
         self.active_skill = msg.data
+        self.skill_is_active = True
+
+    '''
+    keeps progrss up to date
+    '''
+    def progress_cb(self,msg):
+        self.progress = msg.data
 
     '''
     sets up the node based on a GMM and the gripper topic
     '''
-    def __init__(self,cmd_topic,skill_topic,features):
+    def __init__(self,features,cmd_topic,skill_topic,progress_topic):
         #self.gmm = gmm
         #self.features = features
         self.gmms = {}
         self.skills = {}
         self.active_skill = None
         
+        self.progress = 0
+        self.skill_is_active = False
         self.skill_sub = rospy.Subscriber(skill_topic,std_msgs.msg.String,self.skill_cb)
+        self.progress_sub = rospy.Subscriber(progress_topic,std_msgs.msg.Float64,self.progress_cb)
         self.cmd_pub = rospy.Publisher(cmd_topic,oro_barrett_msgs.msg.BHandCmd)
         self.features = grid.RobotFeatures(
                 base_link=features.base_link,
@@ -45,12 +55,18 @@ class GripperRegressor:
     publish a bhandcmd message
     '''
     def tick(self):
-        if self.active_skill in self.gmms:
-            pass
+        if self.skill_is_active and self.active_skill in self.gmms:
             # create new data with gripper indices missing
 
             # use pypr to fill in missing data
-    
+
+
+            # create message to send
+
+            # clean up
+            if progress >= 1.0:
+                print "Done with skill!"
+                self.skill_is_active = False
     '''
     start()
     loop this node in a separate thread

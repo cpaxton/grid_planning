@@ -71,7 +71,7 @@ pps()
 rospy.sleep(rospy.Duration(0.1))
 pps()
 
-reg = GripperRegressor(gp.gripper_topic,gp.skill_topic,gp.robot)
+reg = GripperRegressor(gp.robot,gp.gripper_topic,gp.skill_topic,"/progress")
 reg.addSkill(skill)
 
 tc = TrajectoryCommander(gp.robot,"/trajectory","/progress","/gazebo/traj_rml/action")
