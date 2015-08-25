@@ -54,8 +54,8 @@ elif sys.argv[1] == "transport":
     skill = grid.RobotSkill(filename='skills/transport_skill.yml')
 elif sys.argv[1] == "grasp":
     skill = grid.RobotSkill(filename='skills/grasp_skill.yml')
-elif sys.argv[1] == "backoff":
-    skill = grid.RobotSkill(filename='skills/backoff_skill.yml')
+elif sys.argv[1] == "disengage":
+    skill = grid.RobotSkill(filename='skills/disengage_skill.yml')
 
 print "Loaded skill '%s'"%(skill.name)
 
@@ -72,9 +72,12 @@ pps()
 cmd,msg,traj,Z = gp.plan(
         skill,
         [('link','/gbeam_link_1/gbeam_link'),('node','/gbeam_node_1/gbeam_node')],
-        20)
+        num_iter=50,
+        tol=0.001,
+        num_valid=50,
+        num_samples=2500)
 
-pub = rospy.Publisher('/gazebo/traj_rml/joint_traj_cmd',JointTrajectory)
+pub = rospy.Publisher(gp.command_topic,JointTrajectory)
 pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray)
 
 rospy.sleep(rospy.Duration(0.5))
