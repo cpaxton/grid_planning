@@ -86,7 +86,7 @@ cmd,msg,traj,Z = gp.plan(
         num_iter=30,
         tol=0.001,
         num_valid=50,
-        num_samples=2500,preset="ur5_sim")
+        num_samples=2500)
 
 print "Publishing."
 
