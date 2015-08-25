@@ -1,7 +1,7 @@
 
 # ROS stuff
 import rospy
-from urdf_parser_py.urdf import URDF
+from grid.urdf_parser_py.urdf import URDF
 import yaml
 try:
     from yaml import CLoader as Loader, CDumper as Dumper
