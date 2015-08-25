@@ -7,10 +7,10 @@ add_definitions(-g -std=c++0x -pthread)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  ascent_mk2
+  #ascent_mk2
   dmp
-  grid_experiments
-  grid_tasks
+  #grid_experiments
+  #grid_tasks
 
   # TF
   tf
@@ -33,7 +33,7 @@ find_package(Boost REQUIRED COMPONENTS python thread)
 find_package(PythonLibs 2.7 REQUIRED)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
-find_package(GCOP REQUIRED)
+#find_package(GCOP REQUIRED)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -52,7 +52,8 @@ catkin_python_setup()
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES grid_planner
-  CATKIN_DEPENDS ascent_mk2 dmp grid_experiments grid_tasks tf tf_conversions moveit_core
+  #CATKIN_DEPENDS ascent_mk2 dmp grid_experiments grid_tasks tf tf_conversions moveit_core
+  CATKIN_DEPENDS dmp tf tf_conversions moveit_core
   DEPENDS GCOP
 )
 
@@ -96,12 +97,15 @@ add_dependencies(grid_plan_node grid_planner)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(grid_planner
-  ${catkin_LIBRARIES} ${GCOP_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
+  #${catkin_LIBRARIES} ${GCOP_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
+  ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
 )
 target_link_libraries(pygrid_planner
-  ${catkin_LIBRARIES} ${GCOP_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
+  #${catkin_LIBRARIES} ${GCOP_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
+  ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
 )
 target_link_libraries(grid_plan_node
-  grid_planner ${catkin_LIBRARIES} ${GCOP_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
+  #grid_planner ${catkin_LIBRARIES} ${GCOP_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
+  grid_planner ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
 )
 
