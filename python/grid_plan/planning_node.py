@@ -219,8 +219,6 @@ class PyPlanner:
 
             print "... avg ll = %f, percentile = %f"%(cur_avg,ll_threshold)
 
-
-
         traj = trajs[lls.tolist().index(np.max(lls))]
 
         print "Found %d total valid trajectories."%(count)

@@ -71,18 +71,24 @@ pps()
 rospy.sleep(rospy.Duration(0.1))
 pps()
 
+config = [('link','/gbeam_link_1/gbeam_link'),('node','/gbeam_node_1/gbeam_node')]
+
 reg = GripperRegressor(gp.robot,gp.gripper_topic,gp.skill_topic,"/progress")
 reg.addSkill(skill)
+reg.configure(config)
+#reg.start()
 
 tc = TrajectoryCommander(gp.robot,"/trajectory","/progress","/gazebo/traj_rml/action")
 
 cmd,msg,traj,Z = gp.plan(
         skill,
-        [('link','/gbeam_link_1/gbeam_link'),('node','/gbeam_node_1/gbeam_node')],
-        num_iter=30,
+        config,
+        num_iter=2,
         tol=0.001,
         num_valid=50,
         num_samples=2500)
+
+print "Publishing."
 
 pub = rospy.Publisher("/trajectory",JointTrajectory)
 pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray)

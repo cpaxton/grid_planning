@@ -168,6 +168,9 @@ class RobotFeatures:
     for now number of gripper, object variables are all hard coded
     '''
     def AddObject(self,obj,frame=""):
+
+        self.max_index = max([0]+[v[1] for k,v in self.indices.items()])
+
         if obj == TIME:
             nvars = NUM_TIME_VARS
         elif obj == GRIPPER:
