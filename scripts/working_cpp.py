@@ -72,12 +72,12 @@ pps()
 cmd,msg,traj,Z = gp.plan(
         skill,
         [('link','/gbeam_link_1/gbeam_link'),('node','/gbeam_node_1/gbeam_node')],
-        num_iter=30,
+        num_iter=50,
         tol=0.001,
         num_valid=50,
         num_samples=2500)
 
-pub = rospy.Publisher('/gazebo/traj_rml/joint_traj_cmd',JointTrajectory)
+pub = rospy.Publisher(gp.command_topic,JointTrajectory)
 pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray)
 
 rospy.sleep(rospy.Duration(0.5))

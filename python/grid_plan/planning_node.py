@@ -50,29 +50,51 @@ class PyPlanner:
             robot_description="robot_description",
             joint_states_topic="/gazebo/barrett_manager/wam/joint_states",
             planning_scene_topic="/gazebo/planning_scene",
-            preset="wam"):
+            gripper_topic='/gazebo/barrett_manager/hand/cmd',
+            preset="wam_sim"):
 
         global roscpp_set
         if not roscpp_set:
             roscpp_init('grid_planning_node_cpp',[])
 
+
+        if preset == "wam_sim":
+            self.base_link = 'wam/base_link'
+            self.end_link = 'wam/wrist_palm_link'
+            robot_description="robot_description"
+            joint_states_topic="/gazebo/barrett_manager/wam/joint_states"
+            planning_scene_topic="/gazebo/planning_scene"
+            gripper_topic="/gazebo/barrett_manager/hand/cmd"
+            self.command_topic="/gazebo/traj_rml/joint_traj_cmd"
+            dof = 7
+
+        elif preset == "ur5_sim":
+            self.base_link = '/base_link'
+            self.end_link = '/ee_link'
+            robot_description="robot_description"
+            joint_states_topic="/joint_states"
+            planning_scene_topic="/gazebo/planning_scene"
+            self.command_topic='/arm_controller/command'
+            dof = 6
+
+        self.planning_scene_topic = planning_scene_topic
+        self.robot = grid.RobotFeatures(
+                base_link=self.base_link,
+                end_link=self.end_link,
+                js_topic=joint_states_topic,
+                gripper_topic=gripper_topic)
         self.gp = grid_plan.GridPlanner(
                 robot_description,
                 joint_states_topic,
                 planning_scene_topic,
                 0.0)
-        self.gp.SetDof(7);
+        self.gp.SetDof(dof);
         self.gp.SetNumBasisFunctions(5);
         self.gp.SetK(100);
         self.gp.SetD(20);
         self.gp.SetTau(2.0);
         self.gp.SetGoalThreshold(0.1);
         self.gp.SetVerbose(False);
-        if preset == "wam":
-            self.robot = grid.RobotFeatures()
-            self.base_link = 'wam/base_link'
-            self.end_link = 'wam/wrist_palm_link'
-
         self.skill_pub = rospy.Publisher(SKILL_TOPIC,std_msgs.msg.String)
 
     '''
@@ -81,7 +103,7 @@ class PyPlanner:
     - objs is a mapping between tf frames and names
     - skill is a RobotSkill
     '''
-    def plan(self,skill,objs,num_iter=20,tol=0.0001,num_valid=30,num_samples=2500):
+    def plan(self,skill,objs,num_iter=20,tol=0.0001,num_valid=30,num_samples=2500,give_up=5):
 
         print "Planning skill '%s'..."%(skill.name)
         self.skill_pub.publish(skill.name)
@@ -139,6 +161,7 @@ class PyPlanner:
 
         #print wts
 
+        skipped = 0
         for i in range(1,num_iter):
             print "Iteration %d... (based on %d valid samples)"%(i,count)
             Z = Z.fit(elite)
@@ -172,11 +195,17 @@ class PyPlanner:
 
             if cur_avg < last_avg:
                 print "skipping: %f < %f"%(cur_avg, last_avg)
-                continue
+                skipped += 1
+                if skipped >= give_up:
+                    print "Stuck after %d skipped; let's just give up."%(skipped)
+                    break
+                else:
+                    continue
             elif np.abs(cur_avg - last_avg) <= tol:
                 print "Done! %f - %f = %f"%(cur_avg, last_avg, np.abs(cur_avg - last_avg))
                 break
 
+            skipped = 0
             last_avg = cur_avg
             elite = []
             ll_threshold = np.percentile(lls,95)
