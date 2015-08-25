@@ -211,7 +211,7 @@ class PyPlanner:
             skipped = 0
             last_avg = cur_avg
             elite = []
-            ll_threshold = np.percentile(lls,95)
+            ll_threshold = np.percentile(lls,92)
             for (ll,z) in zip(lls,valid):
                 if ll >= ll_threshold:
                     elite.append(z)

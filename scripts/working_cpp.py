@@ -3,6 +3,7 @@
 import grid_plan
 from grid_plan import PyPlanner
 from grid_plan import GripperRegressor
+from grid_plan import TrajectoryCommander
 
 from moveit_ros_planning_interface._moveit_roscpp_initializer import roscpp_init
 
@@ -73,15 +74,17 @@ pps()
 reg = GripperRegressor(gp.gripper_topic,gp.skill_topic,gp.robot)
 reg.addSkill(skill)
 
+tc = TrajectoryCommander(gp.robot,"/trajectory","/progress","/gazebo/traj_rml/action")
+
 cmd,msg,traj,Z = gp.plan(
         skill,
         [('link','/gbeam_link_1/gbeam_link'),('node','/gbeam_node_1/gbeam_node')],
-        num_iter=50,
+        num_iter=30,
         tol=0.001,
         num_valid=50,
         num_samples=2500)
 
-pub = rospy.Publisher(gp.command_topic,JointTrajectory)
+pub = rospy.Publisher("/trajectory",JointTrajectory)
 pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray)
 
 rospy.sleep(rospy.Duration(0.5))
