@@ -51,6 +51,7 @@ class PyPlanner:
             joint_states_topic="/gazebo/barrett_manager/wam/joint_states",
             planning_scene_topic="/gazebo/planning_scene",
             gripper_topic='/gazebo/barrett_manager/hand/cmd',
+            skill_topic=SKILL_TOPIC,
             preset="wam_sim"):
 
         global roscpp_set
@@ -77,6 +78,8 @@ class PyPlanner:
             self.command_topic='/arm_controller/command'
             dof = 6
 
+        self.gripper_topic = gripper_topic
+        self.skill_topic = skill_topic
         self.planning_scene_topic = planning_scene_topic
         self.robot = grid.RobotFeatures(
                 base_link=self.base_link,
@@ -225,14 +228,11 @@ class PyPlanner:
         cmd = JointTrajectory()
         msg = PoseArray()
         msg.header.frame_id = self.base_link
-        pts = []
-        vels = []
         for (pt,vel) in traj:
             cmd_pt = JointTrajectoryPoint()
             cmd_pt.positions = pt
             cmd_pt.velocities = np.array(vel)*0.02
-            pts.append(pt)
-            vels.append(vel)
+            #cmd_pt.time_from_start = rospy.Duration.from_sec(t)
             cmd.points.append(cmd_pt)
             f = self.robot.GetForward(pt[:7])
             msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))

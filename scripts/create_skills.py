@@ -14,7 +14,7 @@ Create skills
 rospy.init_node('create_skills_node')
 
 # configuration for skills
-ak = 2
+ak = 1
 gk = 1
 
 # first set up filenames

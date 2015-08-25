@@ -2,6 +2,7 @@
 
 import grid_plan
 from grid_plan import PyPlanner
+from grid_plan import GripperRegressor
 
 from moveit_ros_planning_interface._moveit_roscpp_initializer import roscpp_init
 
@@ -68,6 +69,9 @@ pps = rospy.ServiceProxy('/gazebo/publish_planning_scene',Empty)
 pps()
 rospy.sleep(rospy.Duration(0.1))
 pps()
+
+reg = GripperRegressor(gp.gripper_topic,gp.skill_topic,gp.robot)
+reg.addSkill(skill)
 
 cmd,msg,traj,Z = gp.plan(
         skill,
