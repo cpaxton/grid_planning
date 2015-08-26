@@ -211,7 +211,7 @@ class PyPlanner:
             skipped = 0
             last_avg = cur_avg
             elite = []
-            ll_threshold = np.percentile(lls,92)
+            ll_threshold = np.percentile(lls,90)
             for (ll,z) in zip(lls,valid):
                 if ll >= ll_threshold:
                     elite.append(z)
@@ -229,7 +229,7 @@ class PyPlanner:
         for (pt,vel) in traj:
             cmd_pt = JointTrajectoryPoint()
             cmd_pt.positions = pt
-            cmd_pt.velocities = np.array(vel)*0.02
+            cmd_pt.velocities = np.array(vel)*0.1
             #cmd_pt.time_from_start = rospy.Duration.from_sec(t)
             cmd.points.append(cmd_pt)
             f = self.robot.GetForward(pt[:7])
