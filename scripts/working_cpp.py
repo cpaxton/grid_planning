@@ -88,6 +88,12 @@ cmd,msg,traj,Z = gp.plan(
         num_valid=50,
         num_samples=2500)
 
+print "Saving trajectory result."
+
+stream = file('traj.yml','w')
+stream.write(yaml.dump(traj,Dumper=Dumper))
+stream.close()
+
 print "Publishing."
 
 pub = rospy.Publisher("/trajectory",JointTrajectory)

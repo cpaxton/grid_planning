@@ -29,7 +29,8 @@ skill_filenames['grasp'] = grasp_filenames
 skill_filenames['transport'] = transport_filenames
 skill_filenames['disengage'] = disengage_filenames
 
-skill_objs = {'approach':['time','link'], 'grasp':['time','link'], 'transport':['time','link','node'], 'disengage':['time','link']}
+#skill_objs = {'approach':['time','link'], 'grasp':['time','link'], 'transport':['time','link','node'], 'disengage':['time','link']}
+skill_objs = {'approach':['time','link'], 'grasp':['time','link'], 'transport':['time','node'], 'disengage':['time','link']}
 skill_fixed = {'approach':[], 'grasp':['link'], 'transport':['link'], 'disengage':[]}
 
 # load data for each skill
