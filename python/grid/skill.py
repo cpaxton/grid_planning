@@ -50,7 +50,7 @@ class RobotSkill:
     they also contain a description for our own purposes
     oh, and which objects are involved
     '''
-    def __init__(self,data=[],params=[],goals=[],action_k=4,goal_k=4,objs=[],name="",filename=None,num_gripper_vars=3):
+    def __init__(self,data=[],params=[],goals=[],action_k=4,goal_k=4,objs=[],manip_objs=[],name="",filename=None,num_gripper_vars=3):
         self.name = name
 
         self.num_gripper_vars = num_gripper_vars
@@ -59,6 +59,7 @@ class RobotSkill:
         self.trajectory_model = GMM(n_components=1,covariance_type="full")
         self.gripper_model = GMM(n_components=action_k,covariance_type="full")
         self.objs = objs
+        self.manip_objs = manip_objs
 
         if filename == None and len(data) > 0:
             # learn action, goal, and trajectory models
@@ -88,6 +89,7 @@ class RobotSkill:
             self.gripper_model = data['gripper_model']
             self.trajectory_model = data['trajectory_model']
             self.objs = data['objs']
+            self.manip_objs = data['manip_objs']
             self.num_gripper_vars = data['num_gripper_vars']
             self.t_factor = 0.1
 
@@ -104,6 +106,7 @@ class RobotSkill:
         out['gripper_model'] = self.gripper_model
         out['trajectory_model'] = self.trajectory_model
         out['objs'] = self.objs
+        out['manip_objs'] = self.manip_objs
         out['num_gripper_vars'] = self.num_gripper_vars
 
         yaml.dump(out,stream)

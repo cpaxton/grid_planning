@@ -36,7 +36,7 @@ class GripperRegressor:
     '''
     def progress_cb(self,msg):
         self.progress = msg.data
-        self.tick()
+        #self.tick()
 
     '''
     keep joints up to date
@@ -91,7 +91,7 @@ class GripperRegressor:
             return
 
         world = None
-        print self.robot.objects
+        #print self.robot.objects
         while world is None:
             world = self.robot.TfCreateWorld()
 
@@ -130,10 +130,16 @@ class GripperRegressor:
             msg.mode = [4]*4
             self.cmd_pub.publish(msg)
 
-            # clean up
-            if self.progress >= 1.0:
-                print "Done with skill!"
-                self.skill_is_active = False
+        # clean up and stop gripper
+        if self.progress >= 1.0 and self.skill_is_active:
+            print "Done with skill!"
+            self.skill_is_active = False
+
+            msg = BHandCmd()
+            idx = self.robot.indices['gripper']
+            msg.cmd = [0,0,0,0]
+            msg.mode = [4]*4
+            self.cmd_pub.publish(msg)
     '''
     configure()
     sets up the objects associated with this regressor

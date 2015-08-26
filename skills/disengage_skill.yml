@@ -272,6 +272,7 @@ gripper_model: !!python/object:sklearn.mixture.gmm.GMM
     - false
     - !!binary |
       AQAAAAAA8D8=
+manip_objs: []
 name: disengage
 num_gripper_vars: 3
 objs: [time, link, gripper]

@@ -96,6 +96,8 @@ class RobotFeatures:
         self.js_topic = js_topic
         self.gripper_topic = gripper_topic
 
+        self.manip_obj = None
+
         self.recorded = False
         self.quiet = True # by default hide TF error messages
 
@@ -106,6 +108,10 @@ class RobotFeatures:
             self.world_states = data['world_states']
             self.times = data['times']
             self.base_tform = data['base_tform']
+            self.manip_obj = data['manip_obj']
+            self.world_frame = data['world_frame']
+            self.base_link = data['base_link']
+            self.end_link = data['end_link']
 
             if data.has_key('indices'):
                 self.indices = data['indices']
@@ -143,6 +149,7 @@ class RobotFeatures:
             data['objects'] = self.objects
             data['indices'] = self.indices
             data['max_index'] = self.max_index
+            data['manip_obj'] = self.manip_obj
 
             yaml.dump(data,stream)
 
@@ -163,6 +170,13 @@ class RobotFeatures:
         self.gripper_cmd = msg
         self.last_gripper_msg = rospy.Time.now()
 
+    '''
+    Set up manipulation object frame
+    '''
+    def UpdateManipObj(self,manip_objs):
+        if len(manip_objs) > 0:
+            self.manip_obj = manip_objs[0]
+    
     '''
     Add an object we can use as a reference
     for now number of gripper, object variables are all hard coded
@@ -506,6 +520,9 @@ def LoadRobotFeatures(filename):
     r.world_states = data['world_states']
     r.times = data['times']
     r.base_tform = data['base_tform']
+    r.world_frame = data['world_frame']
+    r.base_link = data['base_link']
+    r.end_link = data['end_link']
 
     if data.has_key('indices'):
         r.indices = data['indices']

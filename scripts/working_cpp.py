@@ -76,7 +76,6 @@ config = [('link','/gbeam_link_1/gbeam_link'),('node','/gbeam_node_1/gbeam_node'
 reg = GripperRegressor(gp.robot,gp.gripper_topic,gp.skill_topic,"/progress")
 reg.addSkill(skill)
 reg.configure(config)
-#reg.start()
 
 tc = TrajectoryCommander(gp.robot,"/trajectory","/progress","/gazebo/traj_rml/action")
 
@@ -95,6 +94,8 @@ stream.write(yaml.dump(traj,Dumper=Dumper))
 stream.close()
 
 print "Publishing."
+
+reg.start()
 
 pub = rospy.Publisher("/trajectory",JointTrajectory)
 pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray)
