@@ -19,7 +19,6 @@ class GripperRegressor:
     def skill_cb(self,msg):
 
         self.active_skill = msg.data
-        self.skill_is_active = True
 
         if self.active_skill in self.skills:
             skill = self.skills[self.active_skill]
@@ -30,6 +29,10 @@ class GripperRegressor:
             self.weights = skill.gripper_model.weights_
 
         self.ndims = self.robot.max_index
+        while self.world is None:
+            self.world = self.robot.TfCreateWorld()
+
+        self.skill_is_active = True
 
     '''
     keeps progrss up to date
@@ -95,10 +98,10 @@ class GripperRegressor:
             rospy.logerr('Regressor missing information!')
             return
         
-        if not self.skill_is_active:
-            #print self.robot.objects
-            while self.world is None:
-                self.world = self.robot.TfCreateWorld()
+        #if not self.skill_is_active:
+        #    #print self.robot.objects
+        #    while self.world is None:
+        #        self.world = self.robot.TfCreateWorld()
         elif self.skill_is_active and self.active_skill in self.gmms:
 
             # get features for current time step
