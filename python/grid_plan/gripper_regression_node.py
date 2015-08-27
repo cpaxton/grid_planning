@@ -33,6 +33,7 @@ class GripperRegressor:
             self.world = self.robot.TfCreateWorld()
 
         self.skill_is_active = True
+        self.world = None
 
     '''
     keeps progrss up to date
@@ -100,9 +101,9 @@ class GripperRegressor:
         
         #if not self.skill_is_active:
         #    #print self.robot.objects
-        #    while self.world is None:
-        #        self.world = self.robot.TfCreateWorld()
-        elif self.skill_is_active and self.active_skill in self.gmms:
+        while self.world is None:
+            self.world = self.robot.TfCreateWorld()
+        if self.skill_is_active and self.active_skill in self.gmms:
 
             # get features for current time step
             objs = self.skills[self.active_skill].objs
@@ -131,7 +132,7 @@ class GripperRegressor:
             #print msg.cmd[0:(idx[1]-idx[0])]
             msg.cmd[0:(idx[1]-idx[0])] = data[0,np.ix_(np.r_[idx[0]:idx[1]])].tolist()[0]
             if any(np.isnan(msg.cmd)):
-                print msg.cmd
+                print "ERR: Expected gripper command not defined!"
                 msg.cmd = [0,0,0,0]
             msg.mode = [4]*4
             self.cmd_pub.publish(msg)
