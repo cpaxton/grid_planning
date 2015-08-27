@@ -59,6 +59,7 @@ class GripperRegressor:
         self.objs = {}
         self.js = None
         self.ndims = 0
+        self.world = None
 
         self.progress = 0
         self.skill_is_active = False
@@ -90,21 +91,20 @@ class GripperRegressor:
             rospy.logerr('Regressor world not configured!')
             return
 
-        world = None
-        #print self.robot.objects
-        while world is None:
-            world = self.robot.TfCreateWorld()
-
         if self.js is None:
             rospy.logerr('Regressor missing information!')
             return
-
-        if self.skill_is_active and self.active_skill in self.gmms:
+        
+        if not self.skill_is_active:
+            #print self.robot.objects
+            while self.world is None:
+                self.world = self.robot.TfCreateWorld()
+        elif self.skill_is_active and self.active_skill in self.gmms:
 
             # get features for current time step
             objs = self.skills[self.active_skill].objs
 
-            f = self.robot.GetFeatures(self.js.position,self.progress,world,objs)
+            f = self.robot.GetFeatures(self.js.position,self.progress,self.world,objs)
 
             # create new data with gripper indices missing
             data = np.zeros((1,self.ndims)) * np.nan
@@ -112,7 +112,7 @@ class GripperRegressor:
                 if obj == "gripper":
                     continue
 
-                f = self.robot.GetFeatures(self.js.position,self.progress,world,[obj])
+                f = self.robot.GetFeatures(self.js.position,self.progress,self.world,[obj])
                 #print (np.r_[idx[0]:idx[1]], self.ndims, f)
                 #print (data[0,np.ix_(np.r_[idx[0]:idx[1]])],f)
                 data[0,np.ix_(np.r_[idx[0]:idx[1]])] = f
@@ -127,6 +127,9 @@ class GripperRegressor:
             msg.cmd = [0,0,0,0]
             #print msg.cmd[0:(idx[1]-idx[0])]
             msg.cmd[0:(idx[1]-idx[0])] = data[0,np.ix_(np.r_[idx[0]:idx[1]])].tolist()[0]
+            if any(np.isnan(msg.cmd)):
+                print msg.cmd
+                msg.cmd = [0,0,0,0]
             msg.mode = [4]*4
             self.cmd_pub.publish(msg)
 

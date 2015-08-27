@@ -82,9 +82,9 @@ tc = TrajectoryCommander(gp.robot,"/trajectory","/progress","/gazebo/traj_rml/ac
 cmd,msg,traj,Z = gp.plan(
         skill,
         config,
-        num_iter=30,
+        num_iter=50,
         tol=0.001,
-        num_valid=30,
+        num_valid=40,
         num_samples=2500)
 
 print "Saving trajectory result."

@@ -106,7 +106,7 @@ class PyPlanner:
     - objs is a mapping between tf frames and names
     - skill is a RobotSkill
     '''
-    def plan(self,skill,objs,num_iter=20,tol=0.0001,num_valid=30,num_samples=2500,give_up=5):
+    def plan(self,skill,objs,num_iter=20,tol=0.0001,num_valid=30,num_samples=2500,give_up=10):
 
         print "Planning skill '%s'..."%(skill.name)
         self.skill_pub.publish(skill.name)
@@ -130,7 +130,7 @@ class PyPlanner:
         
         Z = copy.deepcopy(skill.trajectory_model)
         for i in range(Z.n_components):
-            Z.covars_[i,:,:] += 0.00001 * np.eye(Z.covars_.shape[1])
+            Z.covars_[i,:,:] += 0.000001 * np.eye(Z.covars_.shape[1])
             for j in range(7):
                 Z.covars_[i,j,j] += 0.2
 
@@ -211,7 +211,7 @@ class PyPlanner:
             skipped = 0
             last_avg = cur_avg
             elite = []
-            ll_threshold = np.percentile(lls,90)
+            ll_threshold = np.percentile(lls,92)
             for (ll,z) in zip(lls,valid):
                 if ll >= ll_threshold:
                     elite.append(z)
