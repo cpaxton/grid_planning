@@ -113,6 +113,7 @@ class PyPlanner:
 
         print " - adding objects: "
 
+        self.robot.indices={}
         for (obj,frame) in objs:
             print "    - %s = %s"%(obj,frame)
             self.robot.AddObject(obj,frame)

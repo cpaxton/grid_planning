@@ -36,6 +36,7 @@ from oro_barrett_msgs.msg import BHandCmd
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import PoseArray
 
+from features import RobotFeatures
 
 '''
 RobotSkill
@@ -92,6 +93,39 @@ class RobotSkill:
             self.manip_objs = data['manip_objs']
             self.num_gripper_vars = data['num_gripper_vars']
             self.t_factor = 0.1
+
+    def GetGoalModel(self,objs):
+        robot = RobotFeatures()
+        for obj in objs:
+            if obj == 'gripper':
+                continue
+            else:
+                robot.AddObject(obj)
+
+        dims = robot.max_index
+        K = self.action_model.n_components
+
+        goal = GMM(n_components=K,covariance_type="full")
+        goal.weights_ = self.action_model.weights_
+        goal.means_ = np.zeros((K,dims))
+        goal.covars_ = np.zeros((K,dims,dims))
+
+        #for (obj,idx) in robot.indices.items():
+        for k in range(K):
+            goal.means_[k,np.ix_(np.r_[0:dims])] = self.action_model.means_[k,np.ix_(np.r_[0:dims])]
+            for j in range(dims):
+                goal.covars_[k,j,np.ix_(np.r_[0:dims])] = self.action_model.covars_[k,j,np.ix_(np.r_[0:dims])]
+                #print self.action_model.covars_[k,j,np.ix_(np.r_[0:dims])]
+                #print self.action_model.covars_[k,j,np.ix_(np.r_[0:dims])].shape
+            goal.covars_[k] += 0.00001*np.eye(dims)
+
+        #print goal.means_
+        #print goal.covars_
+        #print goal.covars_.shape
+        #print self.action_model.covars_
+
+        #print robot.indices
+        return goal
 
     '''
     save the robot skill to a file

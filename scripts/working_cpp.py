@@ -67,7 +67,10 @@ if len(sys.argv) > 2:
     goal_filename = 'skills/%s_skill.yml'%(sys.argv[2])
     goal = grid.RobotSkill(filename=goal_filename)
     print "Loaded next skill '%s'"%(goal.name)
-
+    #print skill.goal_model.covars_.shape
+    skill.goal_model = goal.GetGoalModel(skill.objs)
+    #print skill.goal_model.score(np.array([0,1,2,3,4,5,6,7,8]))
+    #print skill.action_model.covars_
 
 """ ========================================================================= """
 
@@ -87,13 +90,7 @@ reg.configure(config)
 
 tc = TrajectoryCommander(gp.robot,"/trajectory","/progress","/gazebo/traj_rml/action")
 
-print gp.robot.objects
-print reg.robot.objects
-
 rospy.sleep(rospy.Duration(0.1))
-
-print gp.robot.objects
-print reg.robot.objects
 
 cmd,msg,traj,Z = gp.plan(
         skill,

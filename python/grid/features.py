@@ -353,11 +353,10 @@ class RobotFeatures:
         for i in range(len(traj)-1):
             t = float(i) / len(traj)
 
-            #features[i] = self.GetFeatures(traj[i],t,world,objs)
-            #diffs[i] = self.GetDiffFeatures(traj[i-1][:self.dof],traj[i][:self.dof])
             features[i] = self.GetFeatures(traj[i],t,world,objs) + self.GetDiffFeatures(traj[i-1][:self.dof],traj[i][:self.dof])
 
-        goal_features = self.GetFeatures(traj[-1],1,world,objs)
+        #goal_features = self.GetFeatures(traj[-1],1,world,objs)
+        goal_features = self.GetFeatures(traj[-1],0.0,world,objs)
 
         return features,goal_features
 
@@ -393,8 +392,6 @@ class RobotFeatures:
 
                 # ... and use axis/angle representation
                 (theta,w) = offset.M.GetRotAngle()
-                #features += [theta] + [ww for ww in w]
-                #features += [theta*ww for ww in w] # rotation vector
                 rv = PyKDL.Vector(theta*w[0],theta*w[1],theta*w[2])
                 features += list(rv) + [rv.Norm()]
 
@@ -416,23 +413,15 @@ class RobotFeatures:
         end_t = self.times[-1].to_sec()
         for i in range(1,len(traj)):
 
-            features = []
-            #diff = []
-
             # compute features for difference between current and next end effector frame
-            #f0 = self.GetForward(traj[i-1][:7])
-            #f1 = self.GetForward(traj[i][:7])
-            #df = f1.Inverse() * f0
-            #diff = [df.p.Norm(), df.M.GetRotAngle()[0]]
             diff = self.GetDiffFeatures(traj[i-1][:self.dof],traj[i][:self.dof])
 
             # loop over objects/world at this time step
             t = (self.times[i-1].to_sec() - start_t) / (end_t - start_t)
-            #ftraj += [self.GetFeatures(traj[i-1],t,self.world_states[i-1],objs) + diff]
             ftraj += [self.GetFeatures(traj[i-1],t,self.world_states[0],objs) + diff]
         
-        #goal = self.GetFeatures(traj[-1],1.0,self.world_states[-1],objs)
-        goal = self.GetFeatures(traj[-1],1.0,self.world_states[0],objs)
+        #goal = self.GetFeatures(traj[-1],1.0,self.world_states[0],objs)
+        goal = self.GetFeatures(traj[-1],0.0,self.world_states[0],objs)
 
         return ftraj,goal
 
