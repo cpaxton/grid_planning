@@ -193,8 +193,9 @@ class RobotFeatures:
             nvars = NUM_OBJ_VARS
             self.objects[obj] = frame
 
-        self.indices[obj] = (self.max_index,self.max_index+nvars)
-        self.max_index += nvars
+        if not obj in self.indices:
+            self.indices[obj] = (self.max_index,self.max_index+nvars)
+            self.max_index += nvars
 
     '''
     GetForward

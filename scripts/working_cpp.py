@@ -50,16 +50,24 @@ rospy.init_node('ipython2')
 """ ========================================================================= """
 gp = PyPlanner()
 
-if sys.argv[1] == "approach":
-    skill = grid.RobotSkill(filename='skills/approach_skill.yml')
-elif sys.argv[1] == "transport":
-    skill = grid.RobotSkill(filename='skills/transport_skill.yml')
-elif sys.argv[1] == "grasp":
-    skill = grid.RobotSkill(filename='skills/grasp_skill.yml')
-elif sys.argv[1] == "disengage":
-    skill = grid.RobotSkill(filename='skills/disengage_skill.yml')
+#if sys.argv[1] == "approach":
+#    skill = grid.RobotSkill(filename='skills/approach_skill.yml')
+#elif sys.argv[1] == "transport":
+#    skill = grid.RobotSkill(filename='skills/transport_skill.yml')
+#elif sys.argv[1] == "grasp":
+#    skill = grid.RobotSkill(filename='skills/grasp_skill.yml')
+#elif sys.argv[1] == "disengage":
+#    skill = grid.RobotSkill(filename='skills/disengage_skill.yml')
 
+skill_filename = 'skills/%s_skill.yml'%(sys.argv[1])
+skill = grid.RobotSkill(filename=skill_filename)
 print "Loaded skill '%s'"%(skill.name)
+
+if len(sys.argv) > 2:
+    goal_filename = 'skills/%s_skill.yml'%(sys.argv[2])
+    goal = grid.RobotSkill(filename=goal_filename)
+    print "Loaded next skill '%s'"%(goal.name)
+
 
 """ ========================================================================= """
 
@@ -78,6 +86,14 @@ reg.addSkill(skill)
 reg.configure(config)
 
 tc = TrajectoryCommander(gp.robot,"/trajectory","/progress","/gazebo/traj_rml/action")
+
+print gp.robot.objects
+print reg.robot.objects
+
+rospy.sleep(rospy.Duration(0.1))
+
+print gp.robot.objects
+print reg.robot.objects
 
 cmd,msg,traj,Z = gp.plan(
         skill,

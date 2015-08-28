@@ -17,23 +17,28 @@ class GripperRegressor:
     reads in a std_msgs/string object
     '''
     def skill_cb(self,msg):
+        
+        rospy.logwarn('GripperRegressor not set up to handle diff variables yet!')
 
         self.active_skill = msg.data
-
+    
         if self.active_skill in self.skills:
             skill = self.skills[self.active_skill]
             self.robot.indices = {}
             [self.robot.AddObject(obj) for obj in skill.objs]
+            [self.robot.AddObject(obj,frame) for obj,frame in self.config if obj in skill.objs]
             self.means = [i for i in skill.gripper_model.means_]
             self.covars = [i for i in skill.gripper_model.covars_]
             self.weights = skill.gripper_model.weights_
+            self.objs = skill.objs
 
         self.ndims = self.robot.max_index
+
+        print self.robot.objects
         while self.world is None:
             self.world = self.robot.TfCreateWorld()
 
         self.skill_is_active = True
-        self.world = None
 
     '''
     keeps progrss up to date
@@ -60,10 +65,9 @@ class GripperRegressor:
         self.means = []
         self.covars = []
         self.weights = []
-        self.objs = {}
+        self.config = []
         self.js = None
         self.ndims = 0
-        self.world = None
 
         self.progress = 0
         self.skill_is_active = False
@@ -76,12 +80,14 @@ class GripperRegressor:
                 end_link=features.end_link,
                 world_frame=features.world_frame,
                 gripper_topic=features.gripper_topic,
-                objects=features.objects,
-                indices=features.indices,
+                objects=copy.deepcopy(features.objects),
+                indices=copy.deepcopy(features.indices),
                 robot_description_param=features.robot_description_param,
                 dof=features.dof
                 )
         self.configured = False
+
+        self.world = None
 
     '''
     tick()
@@ -99,10 +105,6 @@ class GripperRegressor:
             rospy.logerr('Regressor missing information!')
             return
         
-        #if not self.skill_is_active:
-        #    #print self.robot.objects
-        while self.world is None:
-            self.world = self.robot.TfCreateWorld()
         if self.skill_is_active and self.active_skill in self.gmms:
 
             # get features for current time step
@@ -120,7 +122,6 @@ class GripperRegressor:
                 #print (np.r_[idx[0]:idx[1]], self.ndims, f)
                 #print (data[0,np.ix_(np.r_[idx[0]:idx[1]])],f)
                 data[0,np.ix_(np.r_[idx[0]:idx[1]])] = f
-
 
             # use pypr to fill in missing data
             gmm.predict(data,self.means,self.covars,self.weights)
@@ -147,6 +148,9 @@ class GripperRegressor:
             msg.cmd = [0,0,0,0]
             msg.mode = [4]*4
             self.cmd_pub.publish(msg)
+            return True
+
+        return False
     '''
     configure()
     sets up the objects associated with this regressor
@@ -154,14 +158,18 @@ class GripperRegressor:
     def configure(self,objs):
         for obj,frame in objs:
             self.robot.AddObject(obj,frame)
+        self.config = objs
         self.configured = True
-
-        print self.robot.objects
 
     '''
     start a loop
     '''
     def start(self):
+        #print "Getting world..."
+        #while self.world is None:
+        #    print self.robot.objects
+        #    self.world = self.robot.TfCreateWorld()
+        #print "...done."
         try:
             thread.start_new_thread(self.loop,())
         except Exception, ex:
@@ -169,11 +177,12 @@ class GripperRegressor:
 
     def loop(self):
         rate = rospy.Rate(10)
+        done = False
         while not rospy.is_shutdown():
-            try:
-                self.tick()
-            except Exception, ex:
-                print ex
+            #try:
+            done = self.tick()
+            #except Exception, ex:
+            #    print ex
             rate.sleep()
 
     def addSkill(self,skill):
