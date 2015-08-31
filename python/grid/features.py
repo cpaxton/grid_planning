@@ -36,7 +36,9 @@ TIME = 'time'
 GRIPPER = 'gripper'
 JOINT = 'joint' # features indicating total joint velocity/effort
 NUM_OBJ_VARS = 8
+NUM_OBJ_DIFF_VARS = 8
 NUM_GRIPPER_VARS = 3
+NUM_GRIPPER_DIFF_VARS = 0
 NUM_TIME_VARS = 1
 
 class RobotFeatures:
@@ -52,7 +54,7 @@ class RobotFeatures:
             world_frame='/world',
             js_topic='/gazebo/barrett_manager/wam/joint_states',
             gripper_topic='/gazebo/barrett_manager/hand/cmd',
-            objects={}, indices={},
+            objects={}, indices={}, diff_indices={},
             robot_description_param='robot_description',
             dof=7,
             filename=None
@@ -88,7 +90,9 @@ class RobotFeatures:
         self.world_states = []
 
         self.indices = indices
+        self.diff_indices = diff_indices
         self.max_index = 0
+        self.max_diff_index = 0
 
         self.feature_model = None
         self.sub_model = None
@@ -113,8 +117,9 @@ class RobotFeatures:
             self.base_link = data['base_link']
             self.end_link = data['end_link']
 
-            if data.has_key('indices'):
+            if data.has_key('indices') and data.has_key('diff_indices'):
                 self.indices = data['indices']
+                self.diff_indices = data['diff_indices']
                 self.max_index = data['max_index']
             else: # initialize the indices
                 for obj in self.world_states[0].keys():
@@ -148,6 +153,7 @@ class RobotFeatures:
             data['base_tform'] = self.base_tform
             data['objects'] = self.objects
             data['indices'] = self.indices
+            data['diff_indices'] = self.diff_indices
             data['max_index'] = self.max_index
             data['manip_obj'] = self.manip_obj
 
@@ -176,6 +182,10 @@ class RobotFeatures:
     def UpdateManipObj(self,manip_objs):
         if len(manip_objs) > 0:
             self.manip_obj = manip_objs[0]
+
+    def ResetIndices(self):
+        self.indices = {}
+        self.diff_indices = {}
     
     '''
     Add an object we can use as a reference
@@ -187,15 +197,23 @@ class RobotFeatures:
 
         if obj == TIME:
             nvars = NUM_TIME_VARS
+            ndvars = 0
         elif obj == GRIPPER:
             nvars = NUM_GRIPPER_VARS
+            ndvars = NUM_GRIPPER_DIFF_VARS
         else:
             nvars = NUM_OBJ_VARS
+            ndvars = NUM_OBJ_DIFF_VARS
             self.objects[obj] = frame
 
         if not obj in self.indices:
             self.indices[obj] = (self.max_index,self.max_index+nvars)
+            self.diff_indices[obj] = (self.max_index,self.max_index+nvars)
             self.max_index += nvars
+            self.max_diff_index += nvars + ndvars
+
+            if ndvars > 0:
+                self.diff_indices["diff_" + obj] = (self.max_index+nvars,self.max_index+ndvars)
 
     '''
     GetForward
@@ -285,7 +303,7 @@ class RobotFeatures:
             ee_frame = self.base_tform * pm.fromMatrix(mat)
             pmsg = pm.toMsg(ee_frame * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2)))
             msg.poses.append(pmsg)
-
+#
         return msg
 
     '''
@@ -394,6 +412,40 @@ class RobotFeatures:
         return features
 
     '''
+    GetDiffIndices
+    '''
+    def GetDiffIndices(self,objs=None):
+
+        if objs == None:
+            objs = self.diff_indices.keys()
+
+        idx = []
+        for obj in objs:
+            if obj in self.diff_indices:
+                idx += range(*self.diff_indices[obj])
+            else:
+                Exception('Missing object!')
+
+        return idx
+
+    '''
+    GetIndices
+    '''
+    def GetIndices(self,objs=None):
+
+        if objs == None:
+            objs = self.indices.keys()
+
+        idx = []
+        for obj in objs:
+            if obj in self.indices:
+                idx += range(*self.indices[obj])
+            else:
+                Exception('Missing object!')
+
+        return idx
+
+    '''
     GetTrainingFeatures
     Takes a joint-space trajectory (with times) and produces an output vector of (expected) features based on known object positions
     '''
@@ -405,37 +457,20 @@ class RobotFeatures:
         ftraj = [] # feature-space trajectory
         traj = self.GetTrajectory()
 
-        start_t = self.times[0].to_sec()
-        end_t = self.times[-1].to_sec()
-        for i in range(1,len(traj)):
+        #start_t = self.times[0].to_sec()
+        #end_t = self.times[-1].to_sec()
+        #for i in range(1,len(traj)):
 
-            # compute features for difference between current and next end effector frame
-            diff = self.GetDiffFeatures(traj[i-1][:self.dof],traj[i][:self.dof])
+        #    # compute features for difference between current and next end effector frame
+        #    diff = self.GetDiffFeatures(traj[i-1][:self.dof],traj[i][:self.dof])
 
-            # loop over objects/world at this time step
-            t = (self.times[i-1].to_sec() - start_t) / (end_t - start_t)
-            ftraj += [self.GetFeatures(traj[i-1],t,self.world_states[0],objs) + diff]
+        #    # loop over objects/world at this time step
+        #    t = (self.times[i-1].to_sec() - start_t) / (end_t - start_t)
+        #    ftraj += [self.GetFeatures(traj[i-1],t,self.world_states[0],objs) + diff]
         
-        #goal = self.GetFeatures(traj[-1],1.0,self.world_states[0],objs)
-        goal = self.GetFeatures(traj[-1],0.0,self.world_states[0],objs)
+        #goal = self.GetFeatures(traj[-1],0.0,self.world_states[0],objs)
 
-        return ftraj,goal
-
-    '''
-    Compute velocity features
-    How much did the end effector move over the course of the trajectory?
-    '''
-    def GetVelocityFeatures(self):
-        ftraj = []
-
-        for i in range(2,len(traj)):
-
-            ee = GetForward(self.joint_states[i].positions)
-            ee0 = GetForward(self.joint_states[i-1].positions)
-
-            dee = ee0.Inverse() * ee
-
-            ftraj += [dee.p + dee.M.GetRPY() + dee.p.Norm()]
+        return self.GetFeaturesForTrajectory(traj,self.world_states[0],objs)
 
     '''
     GetFeatureLabels()

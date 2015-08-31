@@ -96,11 +96,12 @@ class RobotSkill:
 
     def GetGoalModel(self,objs):
         robot = RobotFeatures()
+
+        if 'gripper' in objs:
+            objs.remove('gripper')
+
         for obj in objs:
-            if obj == 'gripper':
-                continue
-            else:
-                robot.AddObject(obj)
+            robot.AddObject(obj)
 
         dims = robot.max_index
         K = self.action_model.n_components
@@ -110,14 +111,17 @@ class RobotSkill:
         goal.means_ = np.zeros((K,dims))
         goal.covars_ = np.zeros((K,dims,dims))
 
+        idx = robot.GetDiffIndices(objs)
+        print objs
+
         #for (obj,idx) in robot.indices.items():
         for k in range(K):
-            goal.means_[k,np.ix_(np.r_[0:dims])] = self.action_model.means_[k,np.ix_(np.r_[0:dims])]
+            goal.means_[k,:] = self.action_model.means_[k,idx]
             for j in range(dims):
-                goal.covars_[k,j,np.ix_(np.r_[0:dims])] = self.action_model.covars_[k,j,np.ix_(np.r_[0:dims])]
+                goal.covars_[k,j,idx] = self.action_model.covars_[k,j,idx]
                 #print self.action_model.covars_[k,j,np.ix_(np.r_[0:dims])]
                 #print self.action_model.covars_[k,j,np.ix_(np.r_[0:dims])].shape
-            goal.covars_[k] += 0.00001*np.eye(dims)
+            #goal.covars_[k] += 0.00001*np.eye(dims)
 
         #print goal.means_
         #print goal.covars_

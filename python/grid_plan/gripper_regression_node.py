@@ -31,6 +31,7 @@ class GripperRegressor:
             self.covars = [i for i in skill.gripper_model.covars_]
             self.weights = skill.gripper_model.weights_
             self.objs = skill.objs
+        self.robot.AddObject('gripper')
 
         self.ndims = self.robot.max_index
 
@@ -82,6 +83,7 @@ class GripperRegressor:
                 gripper_topic=features.gripper_topic,
                 objects=copy.deepcopy(features.objects),
                 indices=copy.deepcopy(features.indices),
+                diff_indices=copy.deepcopy(features.diff_indices),
                 robot_description_param=features.robot_description_param,
                 dof=features.dof
                 )
@@ -114,14 +116,20 @@ class GripperRegressor:
 
             # create new data with gripper indices missing
             data = np.zeros((1,self.ndims)) * np.nan
-            for obj,idx in self.robot.indices.items():
+            for obj,idx in self.robot.diff_indices.items():
                 if obj == "gripper":
                     continue
 
-                f = self.robot.GetFeatures(self.js.position,self.progress,self.world,[obj])
-                #print (np.r_[idx[0]:idx[1]], self.ndims, f)
-                #print (data[0,np.ix_(np.r_[idx[0]:idx[1]])],f)
-                data[0,np.ix_(np.r_[idx[0]:idx[1]])] = f
+            obj_req = copy.copy(objs)
+            if 'gripper' in obj_req:
+                obj_req.remove('gripper')
+
+            idx = self.robot.GetIndices(obj_req)
+
+            #f = self.robot.GetFeatures(self.js.position,self.progress,self.world,[obj])
+            #print (np.r_[idx[0]:idx[1]], self.ndims, f)
+            #print (data[0,np.ix_(np.r_[idx[0]:idx[1]])],f)
+            data[0,np.ix_(idx)] = f
 
             # use pypr to fill in missing data
             gmm.predict(data,self.means,self.covars,self.weights)
@@ -129,14 +137,18 @@ class GripperRegressor:
             # create message to send
             msg = BHandCmd()
             idx = self.robot.indices['gripper']
+            #idx = self.robot.GetIndices(['gripper'])
             msg.cmd = [0,0,0,0]
             #print msg.cmd[0:(idx[1]-idx[0])]
             msg.cmd[0:(idx[1]-idx[0])] = data[0,np.ix_(np.r_[idx[0]:idx[1]])].tolist()[0]
+            #msg.cmd[0:(max(idx)+1-min(idx))] = data[0,np.ix(idx)].tolist()[0]
             if any(np.isnan(msg.cmd)):
                 print "ERR: Expected gripper command not defined!"
                 msg.cmd = [0,0,0,0]
             msg.mode = [4]*4
             self.cmd_pub.publish(msg)
+
+            print (msg.cmd, self.progress)
 
         # clean up and stop gripper
         if self.progress >= 1.0 and self.skill_is_active:

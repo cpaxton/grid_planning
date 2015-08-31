@@ -113,10 +113,14 @@ class PyPlanner:
 
         print " - adding objects: "
 
-        self.robot.indices={}
+        self.robot.ResetIndices()
         for (obj,frame) in objs:
             print "    - %s = %s"%(obj,frame)
             self.robot.AddObject(obj,frame)
+
+        obj_keys = copy.copy(skill.objs)
+        if 'gripper' in obj_keys:
+            obj_keys.remove('gripper')
 
         self.robot.traj_model = skill.action_model
         self.robot.goal_model = skill.goal_model
@@ -150,7 +154,7 @@ class PyPlanner:
                 pts = [p for p,v in traj_]
 
                 p_z = Z.score(traj_params[j])[0]
-                ll,wts = self.robot.GetTrajectoryWeight(pts,world,skill.objs,p_z)
+                ll,wts = self.robot.GetTrajectoryWeight(pts,world,obj_keys,p_z)
                 #ll = self.robot.GetTrajectoryLikelihood(pts,world,objs=skill.objs)
                 lls[count] = ll
                 count += 1
@@ -185,7 +189,7 @@ class PyPlanner:
                     pts = [p for p,v in traj_]
 
                     p_z = Z.score(traj_params[j])[0]
-                    ll,wts = self.robot.GetTrajectoryWeight(pts,world,skill.objs,p_z)
+                    ll,wts = self.robot.GetTrajectoryWeight(pts,world,obj_keys,p_z)
                     #ll = self.robot.GetTrajectoryLikelihood(pts,world,objs=skill.objs)
                     lls[count] = ll
                     trajs.append(traj_)

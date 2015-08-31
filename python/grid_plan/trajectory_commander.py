@@ -39,3 +39,5 @@ class TrajectoryCommander:
 
             self.pub.publish(progress)
 
+        self.pub.publish(1.01) # make sure it's clearly done
+
