@@ -10,6 +10,7 @@ except ImportError:
 import copy
 
 import numpy as np
+from scipy.stats import multivariate_normal as mvn
 
 # KDL utilities
 import PyKDL
@@ -106,6 +107,8 @@ class RobotFeatures:
         self.goal_inv = []
         self.action_det = []
         self.goal_det = []
+        self.action_pdf = []
+        self.goal_pdf = []
 
         self.recorded = False
         self.quiet = True # by default hide TF error messages
@@ -138,12 +141,17 @@ class RobotFeatures:
         self.goal_inv = np.zeros(goal.covars_.shape)
         self.action_def = []
         self.goal_det = []
+
+        self.action_pdf = mvn(mean=action.means_[0],cov=action.covars_[0])
+        self.goal_pdf = mvn(mean=goal.means_[0],cov=goal.covars_[0])
+
         for i in range(action.n_components):
             self.action_inv[i,:,:] = np.linalg.inv(action.covars_[i,:,:])
             self.action_det.append(np.linalg.det(action.covars_[i,:,:]))
         for i in range(goal.n_components):
             self.goal_inv[i,:,:] = np.linalg.inv(goal.covars_[i,:,:])
             self.goal_det.append(np.linalg.det(goal.covars_[i,:,:]))
+
         self.traj_model = action;
         self.goal_model = goal;
         
@@ -173,6 +181,7 @@ class RobotFeatures:
         return self.P_Gauss(X,self.traj_model.means_,self.action_inv,self.action_det,self.traj_model.weights_)
 
     def P_Goal(self,X):
+        #print self.goal_pdf.pdf(X)
         return self.P_Gauss(X,self.goal_model.means_,self.goal_inv,self.goal_det,self.goal_model.weights_)
 
     def StartRecording(self):
@@ -378,13 +387,16 @@ class RobotFeatures:
         for i in range(N):
             #weights[i] = t_lambda**(N-i) * (scores[i] - denom)
             #weights[i] = (1./(4*N)) * (scores[i] - denom)
-            weights[i] = (1./(4*N)) * 0.0 * (probs[i] / denom)
+            weights[i] = (1./(4*N)) * (probs[i] / denom)
 
         # lambda**(N-i) [where i=N] == lambda**0 == 1
         if not self.goal_model is None:
             score,prob = self.P_Goal(goal_features)
             #weights[-1] = (score[0] - denom)
             weights[-1] = prob[0] / denom
+            #if weights[-1] > 1:
+            #    print goal_features
+            #    print self.goal_model.means_
 
         return np.sum(weights),weights
 
@@ -400,15 +412,13 @@ class RobotFeatures:
         isum = np.sum(range(len(features)))
         scores = self.traj_model.score(features)
 
-        #avg = 0
-        #for i in range(len(features)):
-        #    avg += (float(i) / float(isum)) * scores[i
+        # average score
         avg = np.mean(scores)
 
         return self.goal_model.score(goal_features) + avg
 
     '''
-    GetFeatures
+    GetFeaturesForTrajectory
     '''
     def GetFeaturesForTrajectory(self,traj,world,objs):
 
@@ -418,9 +428,10 @@ class RobotFeatures:
         for i in range(len(traj)-1):
             t = float(i) / len(traj)
 
+            # compute diff and final features
             features[i] = self.GetFeatures(traj[i],t,world,objs) + self.GetDiffFeatures(traj[i-1][:self.dof],traj[i][:self.dof])
 
-        #goal_features = self.GetFeatures(traj[-1],1,world,objs)
+        # compute goal features
         goal_features = self.GetFeatures(traj[-1],0.0,world,objs)
 
         return features,goal_features
@@ -457,8 +468,6 @@ class RobotFeatures:
 
                 # ... and use axis/angle representation
                 (theta,w) = offset.M.GetRotAngle()
-                #rv = PyKDL.Vector(theta*w[0],theta*w[1],theta*w[2])
-                #features += list(rv) #+ [rv.Norm()]
                 features += [theta*w[0],theta*w[1],theta*w[2],theta]
 
         return features
@@ -506,21 +515,7 @@ class RobotFeatures:
         if objs == None:
             objs = self.indices.keys()
         
-        ftraj = [] # feature-space trajectory
         traj = self.GetTrajectory()
-
-        #start_t = self.times[0].to_sec()
-        #end_t = self.times[-1].to_sec()
-        #for i in range(1,len(traj)):
-
-        #    # compute features for difference between current and next end effector frame
-        #    diff = self.GetDiffFeatures(traj[i-1][:self.dof],traj[i][:self.dof])
-
-        #    # loop over objects/world at this time step
-        #    t = (self.times[i-1].to_sec() - start_t) / (end_t - start_t)
-        #    ftraj += [self.GetFeatures(traj[i-1],t,self.world_states[0],objs) + diff]
-        
-        #goal = self.GetFeatures(traj[-1],0.0,self.world_states[0],objs)
 
         return self.GetFeaturesForTrajectory(traj,self.world_states[0],objs)
 
