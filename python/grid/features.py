@@ -147,19 +147,12 @@ class RobotFeatures:
         self.traj_model = action;
         self.goal_model = goal;
         
+    '''
+    P_Gauss
+    Compute the Gaussian probability of something
+    '''
     def P_Gauss(self,x,mu,inv,det,wts):
 
-        #print "data"
-        #print x
-        #print "mean"
-        #print mu
-        #print "inv covar"
-        #print inv
-        #print "det"
-        #print det
-
-        #print len(x)
-        #print len(x[0])
         nvar = mu.shape[1]
         p = np.zeros(len(x))
 
@@ -177,7 +170,10 @@ class RobotFeatures:
 
 
     def P_Action(self,X):
-        return self.P_Gauss(X,self.traj_model.means_,self.action_inv,self.action_det,self.traj_model.weights_)       
+        return self.P_Gauss(X,self.traj_model.means_,self.action_inv,self.action_det,self.traj_model.weights_)
+
+    def P_Goal(self,X):
+        return self.P_Gauss(X,self.goal_model.means_,self.goal_inv,self.goal_det,self.goal_model.weights_)
 
     def StartRecording(self):
         if self.recorded:
@@ -372,9 +368,10 @@ class RobotFeatures:
         N = len(features)
         #scores,_ = self.traj_model.score_samples(features)
         scores,probs = self.P_Action(features)
+
         #denom = 1 / (p_obs * p_z)
         denom = np.log(p_obs) + p_z
-        #denom = 0
+        denom = 0
         #print denom
 
         #print scores
@@ -386,8 +383,9 @@ class RobotFeatures:
 
         # lambda**(N-i) [where i=N] == lambda**0 == 1
         if not self.goal_model is None:
-            score,_ = self.goal_model.score_samples(goal_features)
-            weights[-1] = score[0] - denom
+            #score,_ = self.goal_model.score_samples(goal_features)
+            score,prob = self.P_Goal(goal_features)
+            weights[-1] = (score[0] - denom)
 
         #print weights
         #pause
