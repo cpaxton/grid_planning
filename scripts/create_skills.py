@@ -14,7 +14,7 @@ Create skills
 rospy.init_node('create_skills_node')
 
 # configuration for skills
-ak = 3
+ak = 1
 gk = 1
 
 # first set up filenames
@@ -39,6 +39,7 @@ for name,filenames in skill_filenames.items():
     # create some GMMs for gripper stuff too!
     # this is just a convenience thing; they really SHOULD be the same as the ones we're using above
     data,params,num_weights,goals = grid.LoadDataDMP(filenames,skill_objs[name] + ['gripper'],manip_objs=skill_fixed[name])
+
     training_data = np.array(data[0][1])
     for i in range(1,len(data)):
         training_data = np.concatenate((training_data,data[i][1]))

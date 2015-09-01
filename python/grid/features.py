@@ -35,7 +35,7 @@ from geometry_msgs.msg import PoseArray
 TIME = 'time'
 GRIPPER = 'gripper'
 JOINT = 'joint' # features indicating total joint velocity/effort
-NUM_OBJ_VARS = 8
+NUM_OBJ_VARS = 6
 NUM_OBJ_DIFF_VARS = 2
 NUM_GRIPPER_VARS = 3
 NUM_GRIPPER_DIFF_VARS = 0
@@ -147,7 +147,7 @@ class RobotFeatures:
         self.traj_model = action;
         self.goal_model = goal;
         
-    def P_Gauss(self,x,mu,inv,det):
+    def P_Gauss(self,x,mu,inv,det,wts):
 
         #print "data"
         #print x
@@ -158,21 +158,26 @@ class RobotFeatures:
         #print "det"
         #print det
 
+        #print len(x)
+        #print len(x[0])
         nvar = mu.shape[1]
-        p = np.zeros(mu.shape)
+        p = np.zeros(len(x))
 
         for i in range(inv.shape[0]):
             res = (x - mu).dot(inv[0]) * (x - mu)
             #print np.sum(res,axis=0).shape
-            res = -0.5 * np.sum(res,axis=0)
-            print res
-            p += res / (np.sqrt((2*np.pi)**nvar * np.abs(det[i])))
-        print p
-        pause
+            res = -0.5 * np.sum(res,axis=1)
+            #print res
+            #print wts[i]
+            #print (np.sqrt((2*np.pi)**nvar * np.abs(det[i])))
+            #print wts[i] * np.exp(res) / (np.sqrt((2*np.pi)**nvar * np.abs(det[i])))
+            p += wts[i] * np.exp(res) / (np.sqrt((2*np.pi)**nvar * np.abs(det[i])))
+
+        return np.log(p),p
 
 
     def P_Action(self,X):
-        return self.P_Gauss(X,self.traj_model.means_,self.action_inv,self.action_det)       
+        return self.P_Gauss(X,self.traj_model.means_,self.action_inv,self.action_det,self.traj_model.weights_)       
 
     def StartRecording(self):
         if self.recorded:
@@ -365,8 +370,8 @@ class RobotFeatures:
         features,goal_features = self.GetFeaturesForTrajectory(traj,world,objs)
 
         N = len(features)
-        scores,_ = self.traj_model.score_samples(features)
-        #scores = self.P_Action(features)
+        #scores,_ = self.traj_model.score_samples(features)
+        scores,probs = self.P_Action(features)
         #denom = 1 / (p_obs * p_z)
         denom = np.log(p_obs) + p_z
         #denom = 0
@@ -453,12 +458,13 @@ class RobotFeatures:
 
                 # ... use position offset and distance ...
                 features += offset.p
-                features += [offset.p.Norm()]
+                #features += [offset.p.Norm()]
 
                 # ... and use axis/angle representation
                 (theta,w) = offset.M.GetRotAngle()
-                rv = PyKDL.Vector(theta*w[0],theta*w[1],theta*w[2])
-                features += list(rv) + [rv.Norm()]
+                #rv = PyKDL.Vector(theta*w[0],theta*w[1],theta*w[2])
+                #features += list(rv) #+ [rv.Norm()]
+                features += [theta*w[0],theta*w[1],theta*w[2]]
 
         return features
 
@@ -564,8 +570,8 @@ class RobotFeatures:
             theta,w = df.M.GetRotAngle()
             rv = PyKDL.Vector(theta*w[0], theta*w[1], theta*w[2])
             #diff = [x for x in df.p] + [df.p.Norm(), theta] + [ww for ww in w]
-            diff = [x for x in df.p] + [df.p.Norm()] + list(rv) + [rv.Norm()]
-            #diff = [df.p.Norm()] + [rv.Norm()]
+            #diff = [x for x in df.p] + [df.p.Norm()] + list(rv) + [rv.Norm()]
+            diff = [df.p.Norm()] + [rv.Norm()]
             return diff
     '''
     GetJointPositions()
