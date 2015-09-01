@@ -35,7 +35,7 @@ from geometry_msgs.msg import PoseArray
 TIME = 'time'
 GRIPPER = 'gripper'
 JOINT = 'joint' # features indicating total joint velocity/effort
-NUM_OBJ_VARS = 6
+NUM_OBJ_VARS = 8
 NUM_OBJ_DIFF_VARS = 2
 NUM_GRIPPER_VARS = 3
 NUM_GRIPPER_DIFF_VARS = 0
@@ -366,29 +366,26 @@ class RobotFeatures:
         features,goal_features = self.GetFeaturesForTrajectory(traj,world,objs)
 
         N = len(features)
-        #scores,_ = self.traj_model.score_samples(features)
         scores,probs = self.P_Action(features)
 
         #denom = 1 / (p_obs * p_z)
-        denom = np.log(p_obs) + p_z
-        denom = 0
+        #denom = np.log(p_obs) + p_z
+        denom = 1
         #print denom
 
         #print scores
 
         for i in range(N):
             #weights[i] = t_lambda**(N-i) * (scores[i] - denom)
-            weights[i] = (1./(4*N)) * (scores[i] - denom)
-            #weights[i] = (scores[i] - denom)
+            #weights[i] = (1./(4*N)) * (scores[i] - denom)
+            weights[i] = (1./(4*N)) * 0.0 * (probs[i] / denom)
 
         # lambda**(N-i) [where i=N] == lambda**0 == 1
         if not self.goal_model is None:
-            #score,_ = self.goal_model.score_samples(goal_features)
             score,prob = self.P_Goal(goal_features)
-            weights[-1] = (score[0] - denom)
+            #weights[-1] = (score[0] - denom)
+            weights[-1] = prob[0] / denom
 
-        #print weights
-        #pause
         return np.sum(weights),weights
 
     '''
@@ -456,13 +453,13 @@ class RobotFeatures:
 
                 # ... use position offset and distance ...
                 features += offset.p
-                #features += [offset.p.Norm()]
+                features += [offset.p.Norm()]
 
                 # ... and use axis/angle representation
                 (theta,w) = offset.M.GetRotAngle()
                 #rv = PyKDL.Vector(theta*w[0],theta*w[1],theta*w[2])
                 #features += list(rv) #+ [rv.Norm()]
-                features += [theta*w[0],theta*w[1],theta*w[2]]
+                features += [theta*w[0],theta*w[1],theta*w[2],theta]
 
         return features
 
