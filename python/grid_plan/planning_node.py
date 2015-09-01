@@ -44,6 +44,37 @@ SKILL_TOPIC = "current_skill"
 
 roscpp_set = False
 
+def Sample(gmm):
+    idx = int(np.floor((np.random.rand() * gmm.n_components)))
+    A = np.linalg.cholesky(gmm.covars_[idx,:,:])
+    ndim = gmm.means_.shape[1]
+
+    n = np.random.normal(0,1,ndim)
+    
+    # cholesky returns the transpose of the MATLAB function chol()
+    return gmm.means_[idx,:] + A.dot(n)
+
+def Update(Z,wts,params):
+    print "Updating Z..."
+    sum_wts = sum(wts)
+    Z.means_ = np.zeros(Z.means_.shape)
+    Z.covars_ = np.zeros(Z.covars_.shape)
+    for wt,param in zip(wts,params):
+        Z.means_[0,:] += np.array(param) * wt / sum_wts
+    for wt,param in zip(wts,params):
+        ar = np.array([param])
+        diff = Z.means_[0,:] - ar
+        #print "---"
+        #print diff.T.dot(diff)
+        Z.covars_[0,:,:] += wt / sum_wts * diff.T.dot(diff)
+
+    Z.covars_[0,:,:] += 0.00001 * np.eye(Z.covars_.shape[1])
+
+    print Z.means_
+    print Z.covars_
+
+    return Z
+
 class PyPlanner:
 
     def __init__(self,
@@ -122,8 +153,16 @@ class PyPlanner:
         if 'gripper' in obj_keys:
             obj_keys.remove('gripper')
 
-        self.robot.traj_model = skill.action_model
-        self.robot.goal_model = skill.goal_model
+        nvars = skill.action_model.covars_.shape[1]
+        for i in range(skill.action_model.n_components):
+            skill.action_model.covars_[i,:,:] += 0.00001*np.eye(nvars)
+        if not skill.goal_model is None:
+            nvars = skill.goal_model.covars_.shape[1]
+            for i in range(skill.goal_model.n_components):
+                skill.goal_model.covars_[i,:,:] += 0.00001*np.eye(nvars)
+        #self.robot.traj_model = skill.action_model
+        #self.robot.goal_model = skill.goal_model
+        self.robot.ConfigureSkill(skill.action_model,skill.goal_model)
 
         print " - getting TF information for generating trajectories..."
 
@@ -137,9 +176,9 @@ class PyPlanner:
         for i in range(Z.n_components):
             Z.covars_[i,:,:] += 0.000001 * np.eye(Z.covars_.shape[1])
             for j in range(7):
-                Z.covars_[i,j,j] += 0.2
+                Z.covars_[i,j,j] += 0.1
 
-        traj_params = Z.sample(num_samples)
+        params = [0]*num_valid #Z.sample(num_samples)
         valid = []
         elite = []
         lls = np.zeros(num_valid)
@@ -147,16 +186,19 @@ class PyPlanner:
         j = 0
 
         while len(valid) < num_valid and j < num_samples:
-            traj_ = self.gp.TryPrimitives(list(traj_params[j]))
+            traj_params = Sample(Z)
+            #print traj_params[j]
+            traj_ = self.gp.TryPrimitives(list(traj_params))
 
             if not len(traj_) == 0:
-                valid.append(traj_params[j])
+                valid.append(traj_params)
                 pts = [p for p,v in traj_]
 
-                p_z = Z.score(traj_params[j])[0]
+                p_z = Z.score(traj_params)[0]
                 ll,wts = self.robot.GetTrajectoryWeight(pts,world,obj_keys,p_z)
                 #ll = self.robot.GetTrajectoryLikelihood(pts,world,objs=skill.objs)
                 lls[count] = ll
+                params[count] = traj_params
                 count += 1
 
             j+=1
@@ -173,8 +215,7 @@ class PyPlanner:
         for i in range(1,num_iter):
             print "Iteration %d... (based on %d valid samples)"%(i,count)
             Z = Z.fit(elite)
-            Z.covars_[0,:,:] += 0.00001 * np.eye(Z.covars_.shape[1])
-            traj_params = Z.sample(num_samples)
+            #Z = Update(Z,lls,params)
             valid = []
             trajs = []
             lls = np.zeros(num_valid)
@@ -182,16 +223,18 @@ class PyPlanner:
             j = 0
             #for z in traj_params:
             while len(valid) < num_valid and j < num_samples:
-                traj_ = self.gp.TryPrimitives(list(traj_params[j]))
+                traj_params = Sample(Z)
+                traj_ = self.gp.TryPrimitives(list(traj_params))
 
                 if not len(traj_) == 0:
-                    valid.append(traj_params[j])
+                    valid.append(traj_params)
                     pts = [p for p,v in traj_]
 
-                    p_z = Z.score(traj_params[j])[0]
+                    p_z = 0 #Z.score(traj_params)[0]
                     ll,wts = self.robot.GetTrajectoryWeight(pts,world,obj_keys,p_z)
                     #ll = self.robot.GetTrajectoryLikelihood(pts,world,objs=skill.objs)
                     lls[count] = ll
+                    params[count] = traj_params
                     trajs.append(traj_)
                     count += 1
 
@@ -202,15 +245,15 @@ class PyPlanner:
             cur_avg = np.mean(lls)
 
             if cur_avg < last_avg:
-                print "skipping: %f < %f"%(cur_avg, last_avg)
+                print "skipping: %g < %g"%(cur_avg, last_avg)
                 skipped += 1
                 if skipped >= give_up:
                     print "Stuck after %d skipped; let's just give up."%(skipped)
                     break
                 else:
                     continue
-            elif np.abs(cur_avg - last_avg) <= tol:
-                print "Done! %f - %f = %f"%(cur_avg, last_avg, np.abs(cur_avg - last_avg))
+            elif np.abs(cur_avg - last_avg) <= tol*last_avg and i > 5:
+                print "Done! %g - %g = %g"%(cur_avg, last_avg, np.abs(cur_avg - last_avg))
                 break
 
             skipped = 0

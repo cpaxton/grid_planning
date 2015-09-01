@@ -36,7 +36,7 @@ TIME = 'time'
 GRIPPER = 'gripper'
 JOINT = 'joint' # features indicating total joint velocity/effort
 NUM_OBJ_VARS = 8
-NUM_OBJ_DIFF_VARS = 8
+NUM_OBJ_DIFF_VARS = 2
 NUM_GRIPPER_VARS = 3
 NUM_GRIPPER_DIFF_VARS = 0
 NUM_TIME_VARS = 1
@@ -102,6 +102,11 @@ class RobotFeatures:
 
         self.manip_obj = None
 
+        self.action_inv = []
+        self.goal_inv = []
+        self.action_det = []
+        self.goal_det = []
+
         self.recorded = False
         self.quiet = True # by default hide TF error messages
 
@@ -127,6 +132,47 @@ class RobotFeatures:
 
             self.recorded = True
             self.gripper_cmds = data['gripper_cmds']
+
+    def ConfigureSkill(self,action,goal):
+        self.action_inv = np.zeros(action.covars_.shape)
+        self.goal_inv = np.zeros(goal.covars_.shape)
+        self.action_def = []
+        self.goal_det = []
+        for i in range(action.n_components):
+            self.action_inv[i,:,:] = np.linalg.inv(action.covars_[i,:,:])
+            self.action_det.append(np.linalg.det(action.covars_[i,:,:]))
+        for i in range(goal.n_components):
+            self.goal_inv[i,:,:] = np.linalg.inv(goal.covars_[i,:,:])
+            self.goal_det.append(np.linalg.det(goal.covars_[i,:,:]))
+        self.traj_model = action;
+        self.goal_model = goal;
+        
+    def P_Gauss(self,x,mu,inv,det):
+
+        #print "data"
+        #print x
+        #print "mean"
+        #print mu
+        #print "inv covar"
+        #print inv
+        #print "det"
+        #print det
+
+        nvar = mu.shape[1]
+        p = np.zeros(mu.shape)
+
+        for i in range(inv.shape[0]):
+            res = (x - mu).dot(inv[0]) * (x - mu)
+            #print np.sum(res,axis=0).shape
+            res = -0.5 * np.sum(res,axis=0)
+            print res
+            p += res / (np.sqrt((2*np.pi)**nvar * np.abs(det[i])))
+        print p
+        pause
+
+
+    def P_Action(self,X):
+        return self.P_Gauss(X,self.traj_model.means_,self.action_inv,self.action_det)       
 
     def StartRecording(self):
         if self.recorded:
@@ -320,21 +366,26 @@ class RobotFeatures:
 
         N = len(features)
         scores,_ = self.traj_model.score_samples(features)
-        denom = 1 / (p_obs * p_z)
-        #denom = p_obs + p_z
+        #scores = self.P_Action(features)
+        #denom = 1 / (p_obs * p_z)
+        denom = np.log(p_obs) + p_z
         #denom = 0
+        #print denom
 
         #print scores
 
         for i in range(N):
             #weights[i] = t_lambda**(N-i) * (scores[i] - denom)
-            weights[i] = (1/N) * scores[i] - denom
+            weights[i] = (1./(4*N)) * (scores[i] - denom)
+            #weights[i] = (scores[i] - denom)
 
         # lambda**(N-i) [where i=N] == lambda**0 == 1
         if not self.goal_model is None:
             score,_ = self.goal_model.score_samples(goal_features)
             weights[-1] = score[0] - denom
 
+        #print weights
+        #pause
         return np.sum(weights),weights
 
     '''

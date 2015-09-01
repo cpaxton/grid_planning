@@ -96,7 +96,7 @@ cmd,msg,traj,Z = gp.plan(
         skill,
         config,
         num_iter=50,
-        tol=0.001,
+        tol=0.00001,
         num_valid=40,
         num_samples=2500)
 
