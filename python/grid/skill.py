@@ -66,6 +66,7 @@ class RobotSkill:
             # learn action, goal, and trajectory models
             self.goal_model.fit(goals)
             self.action_model.fit(data)
+
             self.trajectory_model.fit(params)
             self.t_factor = 0.1
 
@@ -114,21 +115,11 @@ class RobotSkill:
         idx = robot.GetDiffIndices(objs)
         print objs
 
-        #for (obj,idx) in robot.indices.items():
         for k in range(K):
             goal.means_[k,:] = self.action_model.means_[k,idx]
             for j in range(dims):
                 goal.covars_[k,j,idx] = self.action_model.covars_[k,j,idx]
-                #print self.action_model.covars_[k,j,np.ix_(np.r_[0:dims])]
-                #print self.action_model.covars_[k,j,np.ix_(np.r_[0:dims])].shape
-            #goal.covars_[k] += 0.00001*np.eye(dims)
 
-        #print goal.means_
-        #print goal.covars_
-        #print goal.covars_.shape
-        #print self.action_model.covars_
-
-        #print robot.indices
         return goal
 
     '''

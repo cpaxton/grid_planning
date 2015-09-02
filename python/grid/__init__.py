@@ -18,6 +18,7 @@ from dmp_utils import SearchDMP
 from segmentation import GetSegment
 
 " feature extraction "
+from features import P_Gauss
 from features import RobotFeatures
 from features import LoadRobotFeatures
 

@@ -42,6 +42,28 @@ NUM_GRIPPER_VARS = 3
 NUM_GRIPPER_DIFF_VARS = 0
 NUM_TIME_VARS = 1
 
+'''
+P_Gauss
+Compute the Gaussian probability of something
+'''
+def P_Gauss(x,mu,inv,det,wts):
+
+    nvar = mu.shape[1]
+    p = np.zeros(len(x))
+
+    for i in range(wts.shape[0]):
+        res = (x - mu).dot(inv[0]) * (x - mu)
+        #print np.sum(res,axis=0).shape
+        res = -0.5 * np.sum(res,axis=1)
+        #print res
+        #print wts[i]
+        #print (np.sqrt((2*np.pi)**nvar * np.abs(det[i])))
+        #print wts[i] * np.exp(res) / (np.sqrt((2*np.pi)**nvar * np.abs(det[i])))
+        p += wts[i] * np.exp(res) / (np.sqrt((2*np.pi)**nvar * np.abs(det[i])))
+
+    #print p
+    return np.log(p),p
+
 class RobotFeatures:
 
     '''
@@ -154,35 +176,13 @@ class RobotFeatures:
 
         self.traj_model = action;
         self.goal_model = goal;
-        
-    '''
-    P_Gauss
-    Compute the Gaussian probability of something
-    '''
-    def P_Gauss(self,x,mu,inv,det,wts):
-
-        nvar = mu.shape[1]
-        p = np.zeros(len(x))
-
-        for i in range(inv.shape[0]):
-            res = (x - mu).dot(inv[0]) * (x - mu)
-            #print np.sum(res,axis=0).shape
-            res = -0.5 * np.sum(res,axis=1)
-            #print res
-            #print wts[i]
-            #print (np.sqrt((2*np.pi)**nvar * np.abs(det[i])))
-            #print wts[i] * np.exp(res) / (np.sqrt((2*np.pi)**nvar * np.abs(det[i])))
-            p += wts[i] * np.exp(res) / (np.sqrt((2*np.pi)**nvar * np.abs(det[i])))
-
-        return np.log(p),p
-
 
     def P_Action(self,X):
-        return self.P_Gauss(X,self.traj_model.means_,self.action_inv,self.action_det,self.traj_model.weights_)
+        return P_Gauss(X,self.traj_model.means_,self.action_inv,self.action_det,self.traj_model.weights_)
 
     def P_Goal(self,X):
         #print self.goal_pdf.pdf(X)
-        return self.P_Gauss(X,self.goal_model.means_,self.goal_inv,self.goal_det,self.goal_model.weights_)
+        return P_Gauss(X,self.goal_model.means_,self.goal_inv,self.goal_det,self.goal_model.weights_)
 
     def StartRecording(self):
         if self.recorded:
@@ -368,7 +368,7 @@ class RobotFeatures:
     - Z is the trajectory distribution
     - p_obs is the probability of these feature observations (fixed at one)
     '''
-    def GetTrajectoryWeight(self,traj,world,objs,p_z,p_obs=1,t_lambda=0.5):
+    def GetTrajectoryWeight(self,traj,world,objs,p_z,p_obs=0,t_lambda=0.5):
 
         weights = [0.0]*len(traj)
 
@@ -377,28 +377,19 @@ class RobotFeatures:
         N = len(features)
         scores,probs = self.P_Action(features)
 
-        #denom = 1 / (p_obs * p_z)
-        #denom = np.log(p_obs) + p_z
-        denom = 1
-        #print denom
-
-        #print scores
+        denom = 0 #p_obs + p_z
 
         for i in range(N):
             #weights[i] = t_lambda**(N-i) * (scores[i] - denom)
             #weights[i] = (1./(4*N)) * (scores[i] - denom)
-            weights[i] = (1./(4*N)) * (probs[i] / denom)
+            weights[i] = (1./(N)) * (probs[i])
 
         # lambda**(N-i) [where i=N] == lambda**0 == 1
         if not self.goal_model is None:
             score,prob = self.P_Goal(goal_features)
-            #weights[-1] = (score[0] - denom)
-            weights[-1] = prob[0] / denom
-            #if weights[-1] > 1:
-            #    print goal_features
-            #    print self.goal_model.means_
+            weights[-1] = prob[0]
 
-        return np.sum(weights),weights
+        return np.exp(np.log(np.sum(weights)) - denom),np.sum(weights),weights
 
     '''
     GetTrajectoryLikelihood

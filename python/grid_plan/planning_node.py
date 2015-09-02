@@ -54,24 +54,23 @@ def Sample(gmm):
     # cholesky returns the transpose of the MATLAB function chol()
     return gmm.means_[idx,:] + A.dot(n)
 
-def Update(Z,wts,params):
+def Update(Z,wts,params,step_size):
     print "Updating Z..."
-    sum_wts = sum(wts)
+    wts /= np.sum(wts)
     Z.means_ = np.zeros(Z.means_.shape)
-    Z.covars_ = np.zeros(Z.covars_.shape)
+    n_covars_ = np.zeros(Z.covars_.shape)
     for wt,param in zip(wts,params):
-        Z.means_[0,:] += np.array(param) * wt / sum_wts
+        Z.means_[0,:] += np.array(param) * wt
     for wt,param in zip(wts,params):
         ar = np.array([param])
         diff = Z.means_[0,:] - ar
-        #print "---"
-        #print diff.T.dot(diff)
-        Z.covars_[0,:,:] += wt / sum_wts * diff.T.dot(diff)
+        Z.covars_[0,:,:] += wt * diff.T.dot(diff)
 
-    Z.covars_[0,:,:] += 0.00001 * np.eye(Z.covars_.shape[1])
+    covar_diff = Z.covars_ - n_covars_
+    print covar_diff
+    Z.covars = Z.covars_ - (step_size * n_covars_)
 
-    print Z.means_
-    print Z.covars_
+    #Z.covars_[0,:,:] += 0.00001 * np.eye(Z.covars_.shape[1])
 
     return Z
 
@@ -137,7 +136,7 @@ class PyPlanner:
     - objs is a mapping between tf frames and names
     - skill is a RobotSkill
     '''
-    def plan(self,skill,objs,num_iter=20,tol=0.0001,num_valid=30,num_samples=2500,give_up=10):
+    def plan(self,skill,objs,num_iter=20,tol=0.0001,num_valid=30,num_samples=2500,give_up=10,step_size=0.5):
 
         print "Planning skill '%s'..."%(skill.name)
         self.skill_pub.publish(skill.name)
@@ -153,6 +152,7 @@ class PyPlanner:
         if 'gripper' in obj_keys:
             obj_keys.remove('gripper')
 
+        print ' - configuring skill...'
         nvars = skill.action_model.covars_.shape[1]
         for i in range(skill.action_model.n_components):
             skill.action_model.covars_[i,:,:] += 0.00001*np.eye(nvars)
@@ -162,65 +162,39 @@ class PyPlanner:
             for i in range(skill.goal_model.n_components):
                 skill.goal_model.covars_[i,:,:] += 0.00001*np.eye(nvars)
                 skill.goal_model.covars_[i,:,:] *= 10
-        #self.robot.traj_model = skill.action_model
-        #self.robot.goal_model = skill.goal_model
         self.robot.ConfigureSkill(skill.action_model,skill.goal_model)
 
         print " - getting TF information for generating trajectories..."
-
         world = None
         while world == None or not self.robot.TfUpdateWorld():
             world = self.robot.TfCreateWorld()
-
-        print world
         
         Z = copy.deepcopy(skill.trajectory_model)
+        Zinv = [0]*Z.n_components
+        Zdet = [0]*Z.n_components
         for i in range(Z.n_components):
-            Z.covars_[i,:,:] += 0.000001 * np.eye(Z.covars_.shape[1])
-            for j in range(7):
-                Z.covars_[i,j,j] += 0.1
+            #Z.covars_[i,:,:] += 0.000001 * np.eye(Z.covars_.shape[1])
+            #for j in range(3):
+            #    Z.means_[i,j] = world[skill.objs[1]].p[j]
+            Zinv[i] = np.linalg.inv(Z.covars_[i])
+            Zdet[i] = np.linalg.det(Z.covars_[i])
+
+        print world[skill.objs[1]]
+            
 
         params = [0]*num_valid #Z.sample(num_samples)
-        valid = []
-        elite = []
         lls = np.zeros(num_valid)
+        wts = np.zeros(num_valid)
         count = 0
-        j = 0
-
-        while len(valid) < num_valid and j < num_samples:
-            traj_params = Sample(Z)
-            #print traj_params[j]
-            traj_ = self.gp.TryPrimitives(list(traj_params))
-
-            if not len(traj_) == 0:
-                valid.append(traj_params)
-                pts = [p for p,v in traj_]
-
-                p_z = Z.score(traj_params)[0]
-                ll,wts = self.robot.GetTrajectoryWeight(pts,world,obj_keys,p_z)
-                #ll = self.robot.GetTrajectoryLikelihood(pts,world,objs=skill.objs)
-                lls[count] = ll
-                params[count] = traj_params
-                count += 1
-
-            j+=1
-
-        last_avg = np.mean(lls)
-        ll_threshold = np.percentile(lls,80)
-        for (ll,z) in zip(lls,valid):
-            if ll >= ll_threshold:
-                elite.append(z)
-
-        #print wts
+        last_avg = 0
 
         skipped = 0
         for i in range(1,num_iter):
             print "Iteration %d... (based on %d valid samples)"%(i,count)
-            Z = Z.fit(elite)
-            #Z = Update(Z,lls,params)
+
             valid = []
             trajs = []
-            lls = np.zeros(num_valid)
+
             count = 0
             j = 0
             #for z in traj_params:
@@ -232,10 +206,12 @@ class PyPlanner:
                     valid.append(traj_params)
                     pts = [p for p,v in traj_]
 
-                    p_z = 0 #Z.score(traj_params)[0]
-                    ll,wts = self.robot.GetTrajectoryWeight(pts,world,obj_keys,p_z)
+                    p_z = Z.score(traj_params)[0]
+
+                    wt,p,_ = self.robot.GetTrajectoryWeight(pts,world,obj_keys,p_z)
                     #ll = self.robot.GetTrajectoryLikelihood(pts,world,objs=skill.objs)
-                    lls[count] = ll
+                    lls[count] = p
+                    wts[count] = wt
                     params[count] = traj_params
                     trajs.append(traj_)
                     count += 1
@@ -266,8 +242,16 @@ class PyPlanner:
                 if ll >= ll_threshold:
                     elite.append(z)
 
+            #Z = Update(Z,wts,params,step_size)
+            Z = Z.fit(elite)
 
-            print "... avg ll = %f, percentile = %f"%(cur_avg,ll_threshold)
+            Zinv = [0]*Z.n_components
+            Zdet = [0]*Z.n_components
+            for i in range(Z.n_components):
+                Zinv[i] = np.linalg.inv(Z.covars_[i])
+                Zdet[i] = np.linalg.det(Z.covars_[i])
+
+            print "... avg ll = %g, percentile = %g"%(cur_avg,ll_threshold)
 
         traj = trajs[lls.tolist().index(np.max(lls))]
 
