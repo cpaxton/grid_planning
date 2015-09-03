@@ -413,15 +413,18 @@ class RobotFeatures:
 
         features = [[]]*(len(traj)-1)
 
+        ee_frame = [self.GetForward(q[:self.dof]) for q in traj]
+
         i = 0
         for i in range(len(traj)-1):
             t = float(i) / len(traj)
 
             # compute diff and final features
-            features[i] = self.GetFeatures(traj[i],t,world,objs) + self.GetDiffFeatures(traj[i-1][:self.dof],traj[i][:self.dof])
+            #features[i] = self.GetFeatures(traj[i],t,world,objs) + self.GetDiffFeatures(traj[i-1][:self.dof],traj[i][:self.dof])
+            features[i] = self.GetFeatures(ee_frame[i],t,world,objs) + self.GetDiffFeatures(ee_frame[i-1],ee_frame[i])
 
         # compute goal features
-        goal_features = self.GetFeatures(traj[-1],0.0,world,objs)
+        goal_features = self.GetFeatures(ee_frame[-1],0.0,world,objs)
 
         return features,goal_features
 
@@ -429,13 +432,13 @@ class RobotFeatures:
     GetFeatures
     Gets the features for a particular combination of world, time, and point.
     '''
-    def GetFeatures(self,pt,t,world,objs):
+    def GetFeatures(self,ee_frame,t,world,objs):
 
         features = []
 
         # compute forward transform
-        q = pt[:self.dof]
-        ee_frame = self.GetForward(q)
+        #q = pt[:self.dof]
+        #ee_frame = self.GetForward(q)
 
         for obj in objs:
 
@@ -542,9 +545,9 @@ class RobotFeatures:
     Get the diff features we are using
     These are the translation, distance, and axis-angle rotation between frames
     '''
-    def GetDiffFeatures(self,q0,q1):
-            f0 = self.GetForward(q0)
-            f1 = self.GetForward(q1)
+    def GetDiffFeatures(self,f0,f1):
+            #f0 = self.GetForward(q0)
+            #f1 = self.GetForward(q1)
             df = f1.Inverse() * f0
             theta,w = df.M.GetRotAngle()
             #diff = [x for x in df.p] + [df.p.Norm(), theta] + [ww for ww in w]

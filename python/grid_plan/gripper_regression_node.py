@@ -112,7 +112,8 @@ class GripperRegressor:
             # get features for current time step
             objs = self.skills[self.active_skill].objs
 
-            f = self.robot.GetFeatures(self.js.position,self.progress,self.world,objs)
+            ee = self.robot.GetForward(self.js.position)
+            f = self.robot.GetFeatures(ee,self.progress,self.world,objs)
 
             # create new data with gripper indices missing
             data = np.zeros((1,self.ndims)) * np.nan

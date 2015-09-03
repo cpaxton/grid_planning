@@ -307,7 +307,7 @@ namespace grid {
       search_state->setVariablePositions(joint_names,traj_pt.positions);
       search_state->setVariableVelocities(joint_names,traj_pt.velocities);
       search_state->update(true);
-      colliding = scene->isStateColliding(*search_state,"",verbose);
+      //colliding = scene->isStateColliding(*search_state,"",verbose);
       //bounds_satisfied = search_state->satisfiesBounds();
 
       if (verbose) {

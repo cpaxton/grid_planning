@@ -191,32 +191,26 @@ class PyPlanner:
             count = 0
             j = 0
             #for z in traj_params:
+            start = time.clock()
             while len(valid) < num_valid and j < num_samples:
                 traj_params = Sample(Z)
-                start = time.clock()
                 traj_ = self.gp.TryPrimitives(list(traj_params))
-                print "[TRY PRIMITIVES] elapsed: %f"%(time.clock() - start)
                 search_pts += traj_
 
-                start = time.clock()
                 if not len(traj_) == 0:
                     valid.append(traj_params)
-                    pts = [p for p,v in traj_]
 
                     p_z = Z.score(traj_params)[0]
 
-                    wt,p,_ = self.robot.GetTrajectoryWeight(pts,world,obj_keys,p_z)
-                    #ll = self.robot.GetTrajectoryLikelihood(pts,world,objs=skill.objs)
+                    wt,p,_ = self.robot.GetTrajectoryWeight([p for p,v in traj_],world,obj_keys,p_z)
                     lls[count] = p
                     wts[count] = wt
                     params[count] = traj_params
                     trajs.append(traj_)
                     count += 1
-                print "[COMPUTE WEIGHT] elapsed: %f"%(time.clock() - start)
 
                 j += 1
-
-            #print wts
+            print "[SAMPLE] elapsed: %f"%(time.clock() - start)
 
             cur_avg = np.mean(lls)
 
@@ -239,8 +233,8 @@ class PyPlanner:
                     if ll >= ll_threshold:
                         elite.append(z)
 
-                Z = Update(Z,wts,params,step_size)
-                #Z = Z.fit(elite)
+                #Z = Update(Z,wts,params,step_size)
+                Z = Z.fit(elite)
 
                 print "... avg ll = %g, percentile = %g"%(cur_avg,ll_threshold)
 
@@ -254,7 +248,7 @@ class PyPlanner:
 
             # PAUSE
             print "\t\tpress [ENTER] to continue..."
-            raw_input();
+            #raw_input();
 
         traj = trajs[lls.tolist().index(np.max(lls))]
 
