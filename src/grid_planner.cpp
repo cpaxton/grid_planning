@@ -6,6 +6,8 @@
 
 #include <boost/python/tuple.hpp>
 
+//#include <ctime>
+
 #define _DEBUG_OUTPUT 0
 
 /*****************************************************************************************/
@@ -277,7 +279,9 @@ namespace grid {
 
     unsigned char at_goal;
     DMPTraj plan;
+    //clock_t start_time = clock();
     dmp::generatePlan(dmp_list,x0,x0_dot,0,goal,goal_threshold,-1,tau,0.1,5,plan,at_goal);
+    //std::cout << "DMP time: " << clock() - start_time << std::endl;
 
     if (verbose) {
       std::cout << "--------------------------" << std::endl;

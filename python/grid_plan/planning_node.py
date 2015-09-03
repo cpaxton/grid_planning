@@ -14,6 +14,7 @@ except ImportError:
     from yaml import Loader, Dumper
 
 import copy
+import time
 
 " ROS "
 import rospy
@@ -41,6 +42,7 @@ from visualization_msgs.msg import MarkerArray
 from visualization_msgs.msg import Marker
 
 SKILL_TOPIC = "current_skill"
+MSG_TOPIC = "search_trajectories"
 
 roscpp_set = False
 
@@ -129,6 +131,7 @@ class PyPlanner:
         self.gp.SetGoalThreshold(0.1);
         self.gp.SetVerbose(False);
         self.skill_pub = rospy.Publisher(SKILL_TOPIC,std_msgs.msg.String)
+        self.msg_pub = rospy.Publisher(MSG_TOPIC,PoseArray)
 
     '''
     take a skill and associated objects
@@ -183,14 +186,19 @@ class PyPlanner:
 
             valid = []
             trajs = []
+            search_pts = []
 
             count = 0
             j = 0
             #for z in traj_params:
             while len(valid) < num_valid and j < num_samples:
                 traj_params = Sample(Z)
+                start = time.clock()
                 traj_ = self.gp.TryPrimitives(list(traj_params))
+                print "[TRY PRIMITIVES] elapsed: %f"%(time.clock() - start)
+                search_pts += traj_
 
+                start = time.clock()
                 if not len(traj_) == 0:
                     valid.append(traj_params)
                     pts = [p for p,v in traj_]
@@ -204,6 +212,7 @@ class PyPlanner:
                     params[count] = traj_params
                     trajs.append(traj_)
                     count += 1
+                print "[COMPUTE WEIGHT] elapsed: %f"%(time.clock() - start)
 
                 j += 1
 
@@ -217,24 +226,35 @@ class PyPlanner:
                 if skipped >= give_up:
                     print "Stuck after %d skipped; let's just give up."%(skipped)
                     break
-                else:
-                    continue
             elif np.abs(cur_avg - last_avg) <= tol*last_avg and i > 5:
                 print "Done! %g - %g = %g"%(cur_avg, last_avg, np.abs(cur_avg - last_avg))
                 break
+            else:
 
-            skipped = 0
-            last_avg = cur_avg
-            elite = []
-            ll_threshold = np.percentile(lls,92)
-            for (ll,z) in zip(lls,valid):
-                if ll >= ll_threshold:
-                    elite.append(z)
+                skipped = 0
+                last_avg = cur_avg
+                elite = []
+                ll_threshold = np.percentile(lls,92)
+                for (ll,z) in zip(lls,valid):
+                    if ll >= ll_threshold:
+                        elite.append(z)
 
-            #Z = Update(Z,wts,params,step_size)
-            Z = Z.fit(elite)
+                Z = Update(Z,wts,params,step_size)
+                #Z = Z.fit(elite)
 
-            print "... avg ll = %g, percentile = %g"%(cur_avg,ll_threshold)
+                print "... avg ll = %g, percentile = %g"%(cur_avg,ll_threshold)
+
+            # send message
+            msg = PoseArray()
+            msg.header.frame_id = self.base_link
+            for (pt,vel) in search_pts:
+                f = self.robot.GetForward(pt[:7])
+                msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
+            self.msg_pub.publish(msg);
+
+            # PAUSE
+            print "\t\tpress [ENTER] to continue..."
+            raw_input();
 
         traj = trajs[lls.tolist().index(np.max(lls))]
 
