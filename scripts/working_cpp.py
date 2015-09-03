@@ -97,9 +97,9 @@ cmd,msg,traj,Z = gp.plan(
         config,
         num_iter=75,
         tol=0.00001,
-        num_valid=40,
+        num_valid=50,
         num_samples=2500,
-        step_size=0.1)
+        step_size=0.50)
 
 print "Saving trajectory result."
 

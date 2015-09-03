@@ -149,7 +149,7 @@ class GripperRegressor:
             msg.mode = [4]*4
             self.cmd_pub.publish(msg)
 
-            print (msg.cmd, self.progress)
+            #print (msg.cmd, self.progress)
 
         # clean up and stop gripper
         if self.progress >= 1.0 and self.skill_is_active:

@@ -59,22 +59,24 @@ def Sample(gmm):
 def Update(Z,wts,params,step_size):
     print "Updating Z..."
     wts /= np.sum(wts)
-    Z.means_ = np.zeros(Z.means_.shape)
+    n_means_ = np.zeros(Z.means_.shape)
     n_covars_ = np.zeros(Z.covars_.shape)
     for wt,param in zip(wts,params):
-        Z.means_[0,:] += np.array(param) * wt
+        n_means_[0,:] += np.array(param) * wt
     for wt,param in zip(wts,params):
         ar = np.array([param])
         diff = Z.means_[0,:] - ar
-        Z.covars_[0,:,:] += wt * diff.T.dot(diff)
+        n_covars_[0,:,:] += wt * diff.T.dot(diff)
 
-    covar_diff = Z.covars_ - n_covars_
-    print covar_diff
-    Z.covars = Z.covars_ - (step_size * n_covars_)
+    means_ = ((1 - step_size)*Z.means_) + (step_size * n_means_)
+    covars_ = ((1 - step_size)*Z.covars_) + (step_size * n_covars_)
+
+    #Z.means_ = means_
+    #Z.covars_ = covars_
 
     #Z.covars_[0,:,:] += 0.00001 * np.eye(Z.covars_.shape[1])
 
-    return Z
+    return means_,covars_
 
 class PyPlanner:
 
@@ -159,12 +161,10 @@ class PyPlanner:
         nvars = skill.action_model.covars_.shape[1]
         for i in range(skill.action_model.n_components):
             skill.action_model.covars_[i,:,:] += 0.00001*np.eye(nvars)
-            #skill.action_model.covars_[i,:,:] *= 10
         if not skill.goal_model is None:
             nvars = skill.goal_model.covars_.shape[1]
             for i in range(skill.goal_model.n_components):
                 skill.goal_model.covars_[i,:,:] += 0.00001*np.eye(nvars)
-                #skill.goal_model.covars_[i,:,:] *= 10
         self.robot.ConfigureSkill(skill.action_model,skill.goal_model)
 
         print " - getting TF information for generating trajectories..."
@@ -172,7 +172,19 @@ class PyPlanner:
         while world == None or not self.robot.TfUpdateWorld():
             world = self.robot.TfCreateWorld()
         
+        #qs = []
+        #important_objs = [obj for (obj,frame) in objs if obj in skill.objs]
+        #while len(qs) < 1:
+        #    qs = self.robot.SampleInverseKinematics(copy.deepcopy(world[important_objs[0]]),dist=0.20,nsamples=250)
+        #print qs
+        #print important_objs
+        #print skill.trajectory_model.means_[0,:self.robot.dof]
+
+        #print " - sampled %d positions near objects to initialize search"%len(qs)
+
         Z = copy.deepcopy(skill.trajectory_model)
+        #Z.means_[0,:self.robot.dof] = np.mean(qs,axis=0)
+        Z.covars_[0,:self.robot.dof,:self.robot.dof] += 0.1*np.eye(self.robot.dof)
 
         params = [0]*num_valid #Z.sample(num_samples)
         lls = np.zeros(num_valid)
@@ -205,7 +217,6 @@ class PyPlanner:
                     wt,p,_ = self.robot.GetTrajectoryWeight([p for p,v in traj_],world,obj_keys,p_z)
                     lls[count] = p
                     wts[count] = wt
-                    params[count] = traj_params
                     trajs.append(traj_)
                     count += 1
 
@@ -228,13 +239,24 @@ class PyPlanner:
                 skipped = 0
                 last_avg = cur_avg
                 elite = []
-                ll_threshold = np.percentile(lls,92)
-                for (ll,z) in zip(lls,valid):
+                elite_wts = []
+                #ll_threshold = np.percentile(lls,92)
+                #for (ll,z) in zip(lls,valid):
+                #    if ll >= ll_threshold:
+                #        elite.append(z)
+                #        elite_wts.append(ll)
+                ll_threshold = np.percentile(wts,25) # was 92
+                for (ll,z) in zip(wts,valid):
                     if ll >= ll_threshold:
                         elite.append(z)
+                        elite_wts.append(ll)
 
-                #Z = Update(Z,wts,params,step_size)
-                Z = Z.fit(elite)
+                #print elite
+                #print elite_wts
+                mu,sig = Update(Z,elite_wts,elite,step_size)
+                #Z = Z.fit(elite)
+                Z.means_ = mu
+                Z.covars_ = sig
 
                 print "... avg ll = %g, percentile = %g"%(cur_avg,ll_threshold)
 
@@ -247,7 +269,7 @@ class PyPlanner:
             self.msg_pub.publish(msg);
 
             # PAUSE
-            print "\t\tpress [ENTER] to continue..."
+            #print "\n\t\tpress [ENTER] to continue...\n"
             #raw_input();
 
         traj = trajs[lls.tolist().index(np.max(lls))]

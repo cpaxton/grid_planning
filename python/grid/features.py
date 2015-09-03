@@ -328,10 +328,13 @@ class RobotFeatures:
     '''
     def GetTrajectory(self):
         traj = []
+        gripper = []
         for i in range(len(self.times)):
-            pt = [j for j in self.joint_states[i].position[:self.dof]] + [k for k in self.gripper_cmds[i].cmd[:NUM_GRIPPER_VARS]]
+            pt = [j for j in self.joint_states[i].position[:self.dof]]
+            g = [k for k in self.gripper_cmds[i].cmd[:NUM_GRIPPER_VARS]]
             traj.append(pt)
-        return traj
+            gripper.append(g)
+        return traj,gripper
 
     def GetWorldPoseMsg(self,frame):
 
@@ -407,24 +410,51 @@ class RobotFeatures:
         return self.goal_model.score(goal_features) + avg
 
     '''
+    SampleInverseKinemantics
+    Generates a bunch of inverse kinematics positions based on different observed objects.
+    We use the PyKDL solver to find these, and arbitrarily rotate each of the objects to get our positions.
+    '''
+    def SampleInverseKinematics(self,frame,dist = 0.5,nsamples=100):
+        qs = []
+        for i in range(nsamples):
+            q = self.kdl_kin.random_joint_angles()
+
+            ee = self.base_tform * self.GetForward(q)
+            if (ee.p - frame.p).Norm() < dist:
+                print ee.p
+                qs.append(q)
+                break
+
+        #for frame in world.values():
+        #    f0 = copy.copy(frame)
+        #    for i in range(4):
+        #        f0.M *= PyKDL.Rotation.RotY(np.pi / 2)
+        #        q = self.kdl_kin.inverse(pm.toMatrix(f0))
+        #        print q
+
+        return qs
+
+    '''
     GetFeaturesForTrajectory
     '''
-    def GetFeaturesForTrajectory(self,traj,world,objs):
+    def GetFeaturesForTrajectory(self,traj,world,objs,gripper=None):
 
         features = [[]]*(len(traj)-1)
 
         ee_frame = [self.GetForward(q[:self.dof]) for q in traj]
 
-        i = 0
-        for i in range(len(traj)-1):
-            t = float(i) / len(traj)
-
-            # compute diff and final features
-            #features[i] = self.GetFeatures(traj[i],t,world,objs) + self.GetDiffFeatures(traj[i-1][:self.dof],traj[i][:self.dof])
-            features[i] = self.GetFeatures(ee_frame[i],t,world,objs) + self.GetDiffFeatures(ee_frame[i-1],ee_frame[i])
+        if not gripper is None:
+            for i in range(len(traj)-1):
+                t = float(i) / len(traj)
+                features[i] = self.GetFeatures(ee_frame[i],t,world,objs,gripper[i]) + self.GetDiffFeatures(ee_frame[i-1],ee_frame[i])
+            goal_features = self.GetFeatures(ee_frame[-1],0.0,world,objs,gripper[i-1])
+        else:
+            for i in range(len(traj)-1):
+                t = float(i) / len(traj)
+                features[i] = self.GetFeatures(ee_frame[i],t,world,objs) + self.GetDiffFeatures(ee_frame[i-1],ee_frame[i])
+            goal_features = self.GetFeatures(ee_frame[-1],0.0,world,objs)
 
         # compute goal features
-        goal_features = self.GetFeatures(ee_frame[-1],0.0,world,objs)
 
         return features,goal_features
 
@@ -432,20 +462,18 @@ class RobotFeatures:
     GetFeatures
     Gets the features for a particular combination of world, time, and point.
     '''
-    def GetFeatures(self,ee_frame,t,world,objs):
+    def GetFeatures(self,ee_frame,t,world,objs,gripper=[0]*NUM_GRIPPER_VARS):
 
+        # initialize empty features list
+        # TODO: allocate this more intelligently
         features = []
-
-        # compute forward transform
-        #q = pt[:self.dof]
-        #ee_frame = self.GetForward(q)
 
         for obj in objs:
 
             if obj == TIME:
                 features += [t]
             elif obj == GRIPPER:
-                features += pt[self.dof:]
+                features += gripper
             else:
 
                 # we care about this world object...
@@ -507,9 +535,9 @@ class RobotFeatures:
         if objs == None:
             objs = self.indices.keys()
         
-        traj = self.GetTrajectory()
+        traj,gripper = self.GetTrajectory()
 
-        return self.GetFeaturesForTrajectory(traj,self.world_states[0],objs)
+        return self.GetFeaturesForTrajectory(traj,self.world_states[0],objs,gripper)
 
     '''
     GetFeatureLabels()
