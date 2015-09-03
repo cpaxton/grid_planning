@@ -95,7 +95,7 @@ rospy.sleep(rospy.Duration(0.1))
 cmd,msg,traj,Z = gp.plan(
         skill,
         config,
-        num_iter=50,
+        num_iter=75,
         tol=0.00001,
         num_valid=40,
         num_samples=2500,

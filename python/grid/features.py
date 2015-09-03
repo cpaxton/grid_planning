@@ -37,7 +37,7 @@ TIME = 'time'
 GRIPPER = 'gripper'
 JOINT = 'joint' # features indicating total joint velocity/effort
 NUM_OBJ_VARS = 8
-NUM_OBJ_DIFF_VARS = 2
+NUM_OBJ_DIFF_VARS = 1
 NUM_GRIPPER_VARS = 3
 NUM_GRIPPER_DIFF_VARS = 0
 NUM_TIME_VARS = 1
@@ -548,10 +548,10 @@ class RobotFeatures:
             f1 = self.GetForward(q1)
             df = f1.Inverse() * f0
             theta,w = df.M.GetRotAngle()
-            rv = PyKDL.Vector(theta*w[0], theta*w[1], theta*w[2])
             #diff = [x for x in df.p] + [df.p.Norm(), theta] + [ww for ww in w]
             #diff = [x for x in df.p] + [df.p.Norm()] + list(rv) + [rv.Norm()]
-            diff = [df.p.Norm()] + [rv.Norm()]
+            #diff = [df.p.Norm()] + [rv.Norm()]
+            diff = [theta]
             return diff
     '''
     GetJointPositions()
