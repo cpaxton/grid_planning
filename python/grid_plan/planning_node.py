@@ -170,17 +170,6 @@ class PyPlanner:
             world = self.robot.TfCreateWorld()
         
         Z = copy.deepcopy(skill.trajectory_model)
-        Zinv = [0]*Z.n_components
-        Zdet = [0]*Z.n_components
-        for i in range(Z.n_components):
-            #Z.covars_[i,:,:] += 0.000001 * np.eye(Z.covars_.shape[1])
-            #for j in range(3):
-            #    Z.means_[i,j] = world[skill.objs[1]].p[j]
-            Zinv[i] = np.linalg.inv(Z.covars_[i])
-            Zdet[i] = np.linalg.det(Z.covars_[i])
-
-        print world[skill.objs[1]]
-            
 
         params = [0]*num_valid #Z.sample(num_samples)
         lls = np.zeros(num_valid)
@@ -244,12 +233,6 @@ class PyPlanner:
 
             #Z = Update(Z,wts,params,step_size)
             Z = Z.fit(elite)
-
-            Zinv = [0]*Z.n_components
-            Zdet = [0]*Z.n_components
-            for i in range(Z.n_components):
-                Zinv[i] = np.linalg.inv(Z.covars_[i])
-                Zdet[i] = np.linalg.det(Z.covars_[i])
 
             print "... avg ll = %g, percentile = %g"%(cur_avg,ll_threshold)
 

@@ -181,7 +181,6 @@ class RobotFeatures:
         return P_Gauss(X,self.traj_model.means_,self.action_inv,self.action_det,self.traj_model.weights_)
 
     def P_Goal(self,X):
-        #print self.goal_pdf.pdf(X)
         return P_Gauss(X,self.goal_model.means_,self.goal_inv,self.goal_det,self.goal_model.weights_)
 
     def StartRecording(self):
@@ -377,7 +376,7 @@ class RobotFeatures:
         N = len(features)
         scores,probs = self.P_Action(features)
 
-        denom = 0 #p_obs + p_z
+        denom = p_obs + p_z
 
         for i in range(N):
             #weights[i] = t_lambda**(N-i) * (scores[i] - denom)
