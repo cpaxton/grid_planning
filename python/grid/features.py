@@ -380,7 +380,6 @@ class RobotFeatures:
 
         for i in range(N):
             #weights[i] = t_lambda**(N-i) * (scores[i] - denom)
-            #weights[i] = (1./(4*N)) * (scores[i] - denom)
             weights[i] = (1./(N)) * (probs[i])
 
         # lambda**(N-i) [where i=N] == lambda**0 == 1
