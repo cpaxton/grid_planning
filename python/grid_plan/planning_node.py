@@ -103,12 +103,12 @@ class PyPlanner:
             self.command_topic="/gazebo/traj_rml/joint_traj_cmd"
             dof = 7
 
-        elif preset == "ur5_sim":
+        elif preset == "ur5":
             self.base_link = '/base_link'
             self.end_link = '/ee_link'
-            robot_description="robot_description"
+            robot_description="/robot_description"
             joint_states_topic="/joint_states"
-            planning_scene_topic="/gazebo/planning_scene"
+            planning_scene_topic="/planning_scene"
             self.command_topic='/arm_controller/command'
             dof = 6
 
@@ -120,7 +120,8 @@ class PyPlanner:
                 base_link=self.base_link,
                 end_link=self.end_link,
                 js_topic=joint_states_topic,
-                gripper_topic=gripper_topic)
+                gripper_topic=gripper_topic,
+		dof=dof)
         self.gp = grid_plan.GridPlanner(
                 robot_description,
                 joint_states_topic,
