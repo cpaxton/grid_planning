@@ -173,33 +173,26 @@ class PyPlanner:
         while world == None or not self.robot.TfUpdateWorld():
             world = self.robot.TfCreateWorld()
         
+        Z = copy.deepcopy(self.traj_model)
+
         q = self.gp.GetJointPositions()
         ee = self.robot.GetForward(q)
         important_objs = [obj for (obj,frame) in objs if obj in skill.objs]
-        if False and len(important_objs) > 0:
+        if guess_goal_x == None and len(important_objs) > 0:
             print world[important_objs[0]]
             fobj = world[important_objs[0]].Inverse() * (self.robot.base_tform * ee)
-            f = PyKDL.Frame()
-            f.p = fobj.p
+            Z.means_[0,:self.robot.dof] = [fobj.p.x(),fobj.p.y(),fobj.p.z()] + [0,0,0,0];
+        elif guess_goal_x == None:
+            Z.means_[0,:self.robot.dof] = [0,0,0,0,0,0,0];
         else:
-            f = PyKDL.Frame()
-            f.p = PyKDL.Vector(0,0,0.4)
-        gf = ee * f
-        print f
-        #print q
-        #print ee
-        #print gf
-        q_init = self.robot.kdl_kin.inverse(pm.toMatrix(gf),q)
-        print q_init
+            Z.means_[0,:self.robot.dof] = guess_goal_x + [0,0,0,0];
 
-        Z = copy.deepcopy(self.traj_model)
-        #Z.means_[0,:self.robot.dof] = np.mean(qs,axis=0)
-        #Z.means_[0,:self.robot.dof] = q_init;
-        Z.means_[0,:self.robot.dof] = guess_goal_x + [0,0,0,0];
-        print Z.means_
+        #gf = ee * f
+        #q_init = self.robot.kdl_kin.inverse(pm.toMatrix(gf),q)
+
         #Z.covars_[0,:self.robot.dof,:self.robot.dof] += 0.00001*np.eye(self.robot.dof)
         Z.covars_[0] = 0.01*np.eye(Z.covars_.shape[1])
-        Z.covars_[0,:self.robot.dof,:self.robot.dof] = 0.01*np.eye(self.robot.dof)
+        Z.covars_[0,:self.robot.dof,:self.robot.dof] = 0.1*np.eye(self.robot.dof)
         #Z.covars_[0,self.robot.dof:,self.robot.dof:] *= 10;
 
         params = [0]*num_valid #Z.sample(num_samples)
