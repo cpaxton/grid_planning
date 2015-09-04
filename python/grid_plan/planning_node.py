@@ -142,7 +142,7 @@ class PyPlanner:
     - objs is a mapping between tf frames and names
     - skill is a RobotSkill
     '''
-    def plan(self,skill,objs,num_iter=20,tol=0.0001,num_valid=30,num_samples=2500,give_up=10,step_size=0.5):
+    def plan(self,skill,objs,num_iter=20,tol=0.0001,num_valid=30,num_samples=2500,give_up=10,step_size=0.5, guess_goal_x=[0,0,0]):
 
         print "Planning skill '%s'..."%(skill.name)
         self.skill_pub.publish(skill.name)
@@ -173,21 +173,34 @@ class PyPlanner:
         while world == None or not self.robot.TfUpdateWorld():
             world = self.robot.TfCreateWorld()
         
-        #qs = []
-        #important_objs = [obj for (obj,frame) in objs if obj in skill.objs]
-        #while len(qs) < 1:
-        #    qs = self.robot.SampleInverseKinematics(copy.deepcopy(world[important_objs[0]]),dist=0.20,nsamples=250)
-        #print qs
-        #print important_objs
-        #print skill.trajectory_model.means_[0,:self.robot.dof]
-
-        #print " - sampled %d positions near objects to initialize search"%len(qs)
+        q = self.gp.GetJointPositions()
+        ee = self.robot.GetForward(q)
+        important_objs = [obj for (obj,frame) in objs if obj in skill.objs]
+        if False and len(important_objs) > 0:
+            print world[important_objs[0]]
+            fobj = world[important_objs[0]].Inverse() * (self.robot.base_tform * ee)
+            f = PyKDL.Frame()
+            f.p = fobj.p
+        else:
+            f = PyKDL.Frame()
+            f.p = PyKDL.Vector(0,0,0.4)
+        gf = ee * f
+        print f
+        #print q
+        #print ee
+        #print gf
+        q_init = self.robot.kdl_kin.inverse(pm.toMatrix(gf),q)
+        print q_init
 
         Z = copy.deepcopy(self.traj_model)
         #Z.means_[0,:self.robot.dof] = np.mean(qs,axis=0)
+        #Z.means_[0,:self.robot.dof] = q_init;
+        Z.means_[0,:self.robot.dof] = guess_goal_x + [0,0,0,0];
+        print Z.means_
         #Z.covars_[0,:self.robot.dof,:self.robot.dof] += 0.00001*np.eye(self.robot.dof)
-        #Z.covars_[0,:self.robot.dof,:self.robot.dof] = np.eye(self.robot.dof)
-        Z.covars_[0] = 0.1*np.eye(Z.covars_.shape[1])
+        Z.covars_[0] = 0.01*np.eye(Z.covars_.shape[1])
+        Z.covars_[0,:self.robot.dof,:self.robot.dof] = 0.01*np.eye(self.robot.dof)
+        #Z.covars_[0,self.robot.dof:,self.robot.dof:] *= 10;
 
         params = [0]*num_valid #Z.sample(num_samples)
         lls = np.zeros(num_valid)
@@ -209,7 +222,24 @@ class PyPlanner:
             start = time.clock()
             while len(valid) < num_valid and j < num_samples:
                 traj_params = Sample(Z)
-                traj_ = self.gp.TryPrimitives(list(traj_params))
+                
+                cpy_traj_params = list(copy.copy(traj_params))
+                
+                #print "---"
+                #print cpy_traj_params[:self.robot.dof]
+                f = PyKDL.Frame(PyKDL.Rotation.RPY(traj_params[3],traj_params[4],traj_params[5]), 
+                        PyKDL.Vector(traj_params[0],traj_params[1],traj_params[2]))
+                #print f
+
+                q_guess = self.robot.kdl_kin.inverse(pm.toMatrix(ee*f),q)
+                #print q_guess
+                if q_guess == None:
+                    continue
+                cpy_traj_params[:self.robot.dof] = q_guess
+
+                traj_ = self.gp.TryPrimitives(list(cpy_traj_params))
+                #traj_ = self.gp.TryPrimitives(list(traj_params))
+
                 search_pts += traj_
 
                 if not len(traj_) == 0:
@@ -250,7 +280,6 @@ class PyPlanner:
                         elite.append(z)
                         elite_wts.append(ll)
                 Z = Z.fit(elite)
-
                 '''
                 ll_threshold = np.percentile(lls,25) # was 92
                 for (ll,z) in zip(lls,valid):

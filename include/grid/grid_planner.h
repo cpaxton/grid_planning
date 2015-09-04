@@ -114,6 +114,9 @@ namespace grid {
     /* configure number of basis functions */
     void SetNumBasisFunctions(const unsigned int num);
 
+    /* get current joint positions */
+    boost::python::list GetJointPositions() const;
+
     void SetK(const double k_gain);
     void SetD(const double d_gain);
     void SetTau(const double tau);

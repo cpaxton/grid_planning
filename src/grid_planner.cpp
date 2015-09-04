@@ -107,6 +107,15 @@ namespace grid {
     }
   }
 
+  /* get current joint positions */
+  boost::python::list GridPlanner::GetJointPositions() const {
+    boost::python::list res;
+    for (double x: x0) {
+      res.append<double>(x);
+    }
+    return res;
+  }
+
   void GridPlanner::PlanningSceneCallback(const moveit_msgs::PlanningScene::ConstPtr &msg) {
     boost::mutex::scoped_lock lock(*ps_mutex);
     if (msg->is_diff) {
@@ -279,9 +288,7 @@ namespace grid {
 
     unsigned char at_goal;
     DMPTraj plan;
-    //clock_t start_time = clock();
     dmp::generatePlan(dmp_list,x0,x0_dot,0,goal,goal_threshold,-1,tau,0.1,5,plan,at_goal);
-    //std::cout << "DMP time: " << clock() - start_time << std::endl;
 
     if (verbose) {
       std::cout << "--------------------------" << std::endl;
@@ -303,19 +310,10 @@ namespace grid {
         }
       }
 
-      //bounds_satisfied = true; //model->satisfiesPositionBounds(traj_pt.positions.data());
       search_state->setVariablePositions(joint_names,traj_pt.positions);
       search_state->setVariableVelocities(joint_names,traj_pt.velocities);
       search_state->update(true);
-      //colliding = scene->isStateColliding(*search_state,"",verbose);
-      //bounds_satisfied = search_state->satisfiesBounds();
 
-      if (verbose) {
-        //std::cout << " = colliding? " << colliding << ", = bounds? " << bounds_satisfied << std::endl;
-        std::cout << " = colliding? " << colliding << std::endl;
-      }
-
-      //drop_trajectory |= colliding | !bounds_satisfied;
       drop_trajectory |= !scene->isStateValid(*search_state,"",verbose);
 
       if (verbose) {
@@ -445,5 +443,6 @@ namespace grid {
       .def("SetNumBasisFunctions", &grid::GridPlanner::SetNumBasisFunctions)
       .def("SetGoalThreshold", &grid::GridPlanner::SetGoalThreshold)
       .def("SetVerbose", &grid::GridPlanner::SetVerbose)
-      .def("PrintInfo", &grid::GridPlanner::PrintInfo);
+      .def("PrintInfo", &grid::GridPlanner::PrintInfo)
+      .def("GetJointPositions", &grid::GridPlanner::GetJointPositions);
   }

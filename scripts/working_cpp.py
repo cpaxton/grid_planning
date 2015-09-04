@@ -96,6 +96,8 @@ tc = TrajectoryCommander(gp.robot,"/trajectory","/progress","/gazebo/traj_rml/ac
 
 rospy.sleep(rospy.Duration(0.1))
 
+skill_guesses = {'approach':[0,0,0.4],'grasp':[0,0,0],'transport':[0,0.4,0],'disengage':[0,0,-0.4]}
+
 cmd,msg,traj,Z = gp.plan(
         skill,
         config,
@@ -103,7 +105,8 @@ cmd,msg,traj,Z = gp.plan(
         tol=0.00001,
         num_valid=50,
         num_samples=2500,
-        step_size=0.50)
+        step_size=0.50,
+        guess_goal_x=skill_guesses[skill.name])
 
 print "Saving trajectory result."
 
