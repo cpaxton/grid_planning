@@ -86,14 +86,14 @@ class PyPlanner:
             planning_scene_topic="/gazebo/planning_scene",
             gripper_topic='/gazebo/barrett_manager/hand/cmd',
             skill_topic=SKILL_TOPIC,
-            preset="wam_sim"):
+            preset="wam7_sim"):
 
         global roscpp_set
         if not roscpp_set:
             roscpp_init('grid_planning_node_cpp',[])
 
 
-        if preset == "wam_sim":
+        if preset == "wam7_sim":
             self.base_link = 'wam/base_link'
             self.end_link = 'wam/wrist_palm_link'
             robot_description="robot_description"

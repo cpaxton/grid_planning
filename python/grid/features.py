@@ -84,8 +84,20 @@ class RobotFeatures:
             objects={}, indices={}, diff_indices={},
             robot_description_param='robot_description',
             dof=7,
+            preset='wam7_sim',
             filename=None
             ):
+
+	if preset == 'wam7_sim':
+		base_link='wam/base_link'
+		end_link='wam/wrist_palm_link'
+		js_topic='/gazebo/barrett_manager/wam/joint_states'
+		gripper_topic='/gazebo/barrett_manager/hand/cmd'
+	elif preset == 'ur5':
+		base_link='base_link'
+		end_link='end_link'
+		js_topic='/joint_states'
+		gripper_topic='/robotiq_c_model_gripper/gripper_command'
 
         self.dof = dof;
         self.world_frame = world_frame
