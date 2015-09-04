@@ -26,11 +26,15 @@ import tf_conversions.posemath as pm
 
 # input message types 
 import sensor_msgs
-import oro_barrett_msgs
 import trajectory_msgs
 from trajectory_msgs.msg import JointTrajectoryPoint
 from sensor_msgs.msg import JointState
-from oro_barrett_msgs.msg import BHandCmd
+try:
+	from oro_barrett_msgs.msg import BHandCmd as GripperCmd
+except ImportError:
+	print "[GRID.SKILL] Warning: could not import Barrett messages."
+	from robotiq_c_model_control.msg import CModel_gripper_command as GripperCmd
+
 
 # output message types
 from geometry_msgs.msg import Pose

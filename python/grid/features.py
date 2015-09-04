@@ -10,7 +10,7 @@ except ImportError:
 import copy
 
 import numpy as np
-from scipy.stats import multivariate_normal as mvn
+#from scipy.stats import multivariate_normal as mvn
 
 # KDL utilities
 import PyKDL
@@ -23,11 +23,16 @@ import tf_conversions.posemath as pm
 
 # input message types 
 import sensor_msgs
-import oro_barrett_msgs
 import trajectory_msgs
 from trajectory_msgs.msg import JointTrajectoryPoint
 from sensor_msgs.msg import JointState
-from oro_barrett_msgs.msg import BHandCmd
+
+try:
+	import oro_barrett_msgs
+	from oro_barrett_msgs.msg import BHandCmd as GripperCmd
+except ImportError:
+	print "[GRID.FEATURES] Warning: could not import Barrett messages."
+	from robotiq_c_model_control.msg import CModel_gripper_command as GripperCmd
 
 # output message types
 from geometry_msgs.msg import Pose
@@ -163,8 +168,8 @@ class RobotFeatures:
         self.action_def = []
         self.goal_det = []
 
-        self.action_pdf = mvn(mean=action.means_[0],cov=action.covars_[0])
-        self.goal_pdf = mvn(mean=goal.means_[0],cov=goal.covars_[0])
+        #self.action_pdf = mvn(mean=action.means_[0],cov=action.covars_[0])
+        #self.goal_pdf = mvn(mean=goal.means_[0],cov=goal.covars_[0])
 
         for i in range(action.n_components):
             self.action_inv[i,:,:] = np.linalg.inv(action.covars_[i,:,:])
@@ -188,7 +193,7 @@ class RobotFeatures:
 
         self.recorded = True
         self.js_sub = rospy.Subscriber(self.js_topic,sensor_msgs.msg.JointState,self.js_cb)
-        self.gripper_sub = rospy.Subscriber(self.gripper_topic,oro_barrett_msgs.msg.BHandCmd,self.gripper_cb)
+        self.gripper_sub = rospy.Subscriber(self.gripper_topic,GripperCmd,self.gripper_cb)
 
     def save(self,filename):
 
