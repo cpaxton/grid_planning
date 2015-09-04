@@ -112,6 +112,7 @@ class PyPlanner:
             self.command_topic='/arm_controller/command'
             dof = 6
 
+        self.traj_model = None
         self.gripper_topic = gripper_topic
         self.skill_topic = skill_topic
         self.planning_scene_topic = planning_scene_topic
@@ -182,7 +183,7 @@ class PyPlanner:
 
         #print " - sampled %d positions near objects to initialize search"%len(qs)
 
-        Z = copy.deepcopy(skill.trajectory_model)
+        Z = copy.deepcopy(self.traj_model)
         #Z.means_[0,:self.robot.dof] = np.mean(qs,axis=0)
         Z.covars_[0,:self.robot.dof,:self.robot.dof] += 0.1*np.eye(self.robot.dof)
 
@@ -240,23 +241,24 @@ class PyPlanner:
                 last_avg = cur_avg
                 elite = []
                 elite_wts = []
-                #ll_threshold = np.percentile(lls,92)
-                #for (ll,z) in zip(lls,valid):
-                #    if ll >= ll_threshold:
-                #        elite.append(z)
-                #        elite_wts.append(ll)
+
+                ll_threshold = np.percentile(lls,92)
+                for (ll,z) in zip(lls,valid):
+                    if ll >= ll_threshold:
+                        elite.append(z)
+                        elite_wts.append(ll)
+                Z = Z.fit(elite)
+
+                '''
                 ll_threshold = np.percentile(wts,25) # was 92
                 for (ll,z) in zip(wts,valid):
                     if ll >= ll_threshold:
                         elite.append(z)
                         elite_wts.append(ll)
-
-                #print elite
-                #print elite_wts
                 mu,sig = Update(Z,elite_wts,elite,step_size)
-                #Z = Z.fit(elite)
                 Z.means_ = mu
                 Z.covars_ = sig
+                '''
 
                 print "... avg ll = %g, percentile = %g"%(cur_avg,ll_threshold)
 
@@ -292,3 +294,6 @@ class PyPlanner:
             cmd.points[-1].velocities = [0]*7
 
         return cmd,msg,traj,Z
+
+    def SetTrajectory(self, traj_model):
+        self.traj_model = traj_model

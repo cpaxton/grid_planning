@@ -102,7 +102,7 @@ def LoadDataDMP(filenames,objs,manip_objs=[]):
         dt = 0.1
         K = 100
         D = 2.0 * np.sqrt(K)
-        num_bases = 8
+        num_bases = 5
 
         resp = RequestDMP(x,0.1,K,D,5)
         dmp = resp.dmp_list

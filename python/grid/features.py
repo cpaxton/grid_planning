@@ -61,8 +61,7 @@ def P_Gauss(x,mu,inv,det,wts):
         #print wts[i] * np.exp(res) / (np.sqrt((2*np.pi)**nvar * np.abs(det[i])))
         p += wts[i] * np.exp(res) / (np.sqrt((2*np.pi)**nvar * np.abs(det[i])))
 
-    #print p
-    return np.log(p),p
+    return p
 
 class RobotFeatures:
 
@@ -377,7 +376,7 @@ class RobotFeatures:
         features,goal_features = self.GetFeaturesForTrajectory(traj,world,objs)
 
         N = len(features)
-        scores,probs = self.P_Action(features)
+        probs = self.P_Action(features)
 
         denom = p_obs + p_z
 
@@ -387,7 +386,7 @@ class RobotFeatures:
 
         # lambda**(N-i) [where i=N] == lambda**0 == 1
         if not self.goal_model is None:
-            score,prob = self.P_Goal(goal_features)
+            prob = self.P_Goal(goal_features)
             weights[-1] = prob[0]
 
         return np.exp(np.log(np.sum(weights)) - denom),np.sum(weights),weights

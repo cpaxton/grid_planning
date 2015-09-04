@@ -72,6 +72,9 @@ if len(sys.argv) > 2:
     #print skill.goal_model.score(np.array([0,1,2,3,4,5,6,7,8]))
     #print skill.action_model.covars_
 
+#default = grid.RobotSkill(filename='default.yml')
+gp.SetTrajectory(skill.trajectory_model)
+
 """ ========================================================================= """
 
 print "Starting search:"
@@ -95,7 +98,7 @@ rospy.sleep(rospy.Duration(0.1))
 cmd,msg,traj,Z = gp.plan(
         skill,
         config,
-        num_iter=75,
+        num_iter=50,
         tol=0.00001,
         num_valid=50,
         num_samples=2500,

@@ -113,7 +113,6 @@ class GripperRegressor:
             objs = self.skills[self.active_skill].objs
 
             ee = self.robot.GetForward(self.js.position)
-            f = self.robot.GetFeatures(ee,self.progress,self.world,objs)
 
             # create new data with gripper indices missing
             data = np.zeros((1,self.ndims)) * np.nan
@@ -124,6 +123,7 @@ class GripperRegressor:
             obj_req = copy.copy(objs)
             if 'gripper' in obj_req:
                 obj_req.remove('gripper')
+            f = self.robot.GetFeatures(ee,self.progress,self.world,obj_req)
 
             idx = self.robot.GetIndices(obj_req)
 
