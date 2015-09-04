@@ -73,6 +73,7 @@ if len(sys.argv) > 2:
     #print skill.action_model.covars_
 
 #default = grid.RobotSkill(filename='default.yml')
+#gp.SetTrajectory(default.trajectory_model)
 gp.SetTrajectory(skill.trajectory_model)
 
 """ ========================================================================= """

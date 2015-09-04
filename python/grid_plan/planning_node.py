@@ -185,7 +185,9 @@ class PyPlanner:
 
         Z = copy.deepcopy(self.traj_model)
         #Z.means_[0,:self.robot.dof] = np.mean(qs,axis=0)
-        Z.covars_[0,:self.robot.dof,:self.robot.dof] += 0.1*np.eye(self.robot.dof)
+        #Z.covars_[0,:self.robot.dof,:self.robot.dof] += 0.00001*np.eye(self.robot.dof)
+        #Z.covars_[0,:self.robot.dof,:self.robot.dof] = np.eye(self.robot.dof)
+        Z.covars_[0] = 0.1*np.eye(Z.covars_.shape[1])
 
         params = [0]*num_valid #Z.sample(num_samples)
         lls = np.zeros(num_valid)
@@ -250,8 +252,8 @@ class PyPlanner:
                 Z = Z.fit(elite)
 
                 '''
-                ll_threshold = np.percentile(wts,25) # was 92
-                for (ll,z) in zip(wts,valid):
+                ll_threshold = np.percentile(lls,25) # was 92
+                for (ll,z) in zip(lls,valid):
                     if ll >= ll_threshold:
                         elite.append(z)
                         elite_wts.append(ll)
