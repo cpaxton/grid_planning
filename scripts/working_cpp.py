@@ -61,6 +61,7 @@ if len(sys.argv) > 2:
     skill.goal_model = goal.GetGoalModel(skill.objs)
 
 gp.SetTrajectory(skill.trajectory_model)
+gp.gp.SetCollisions('gbeam_soup',True)
 
 """ ========================================================================= """
 
