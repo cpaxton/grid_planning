@@ -50,15 +50,6 @@ rospy.init_node('ipython2')
 """ ========================================================================= """
 gp = PyPlanner()
 
-#if sys.argv[1] == "approach":
-#    skill = grid.RobotSkill(filename='skills/approach_skill.yml')
-#elif sys.argv[1] == "transport":
-#    skill = grid.RobotSkill(filename='skills/transport_skill.yml')
-#elif sys.argv[1] == "grasp":
-#    skill = grid.RobotSkill(filename='skills/grasp_skill.yml')
-#elif sys.argv[1] == "disengage":
-#    skill = grid.RobotSkill(filename='skills/disengage_skill.yml')
-
 skill_filename = 'skills/%s_skill.yml'%(sys.argv[1])
 skill = grid.RobotSkill(filename=skill_filename)
 print "Loaded skill '%s'"%(skill.name)
@@ -67,15 +58,9 @@ if len(sys.argv) > 2:
     goal_filename = 'skills/%s_skill.yml'%(sys.argv[2])
     goal = grid.RobotSkill(filename=goal_filename)
     print "Loaded next skill '%s'"%(goal.name)
-    #print skill.goal_model.covars_.shape
     skill.goal_model = goal.GetGoalModel(skill.objs)
-    #print skill.goal_model.score(np.array([0,1,2,3,4,5,6,7,8]))
-    #print skill.action_model.covars_
 
-#default = grid.RobotSkill(filename='default.yml')
-#gp.SetTrajectory(default.trajectory_model)
 gp.SetTrajectory(skill.trajectory_model)
-#gp.gp.SetCollisions('gbeam_soup',True)
 
 """ ========================================================================= """
 
@@ -105,8 +90,9 @@ cmd,msg,traj,Z = gp.plan(
         num_iter=20,
         tol=0.00001,
         num_valid=50,
-        num_samples=2500,
-        step_size=0.75,
+        num_samples=250,
+        step_size=0.3,
+        npts=2,
         guess_goal_x=skill_guesses[skill.name])
 
 print "Saving trajectory result."

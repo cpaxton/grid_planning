@@ -144,7 +144,7 @@ class PyPlanner:
     - objs is a mapping between tf frames and names
     - skill is a RobotSkill
     '''
-    def plan(self,skill,objs,num_iter=20,tol=0.0001,num_valid=30,num_samples=2500,give_up=10,step_size=0.5, guess_goal_x=[0,0,0]):
+    def plan(self,skill,objs,num_iter=20,tol=0.0001,num_valid=30,num_samples=2500,give_up=10,step_size=0.5, guess_goal_x=[0,0,0],npts=5):
 
         print "Planning skill '%s'..."%(skill.name)
         self.skill_pub.publish(skill.name)
@@ -175,27 +175,30 @@ class PyPlanner:
         while world == None or not self.robot.TfUpdateWorld():
             world = self.robot.TfCreateWorld()
         
-        Z = copy.deepcopy(self.traj_model)
-
+        print " - setting up initial search distribution..."
         q = self.gp.GetJointPositions()
         ee = self.robot.GetForward(q)
         important_objs = [obj for (obj,frame) in objs if obj in skill.objs]
         print important_objs
         if guess_goal_x == None and len(important_objs) > 0:
-            print "Found world object named %s"%(important_objs[0])
+            print "   ... found world object named %s"%(important_objs[0])
             fobj = (self.robot.base_tform * ee).Inverse() * world[important_objs[0]]
-            Z.means_[0,:self.robot.dof] = [fobj.p.x(),fobj.p.y(),fobj.p.z()] + [0,0,0,0];
+            guess_goal_x = [fobj.p.x(),fobj.p.y(),fobj.p.z()]
+            #Z.means_[0,:self.robot.dof] = [fobj.p.x(),fobj.p.y(),fobj.p.z()] + [0,0,0,0];
         elif guess_goal_x == None:
-            Z.means_[0,:self.robot.dof] = [0,0,0,0,0,0,0];
-        else:
-            Z.means_[0,:self.robot.dof] = guess_goal_x + [0,0,0,0];
+            #Z.means_[0,:self.robot.dof] = [0,0,0,0,0,0,0];
+            guess_goal_x = [0,0,0]
+        #else:
+        #    Z.means_[0,:self.robot.dof] = guess_goal_x + [0,0,0,0];
 
-        print Z.means_[0,:self.robot.dof]
+        #print Z.means_[0,:self.robot.dof]
+        Z = grid_plan.InitSearch(npts,np.array(guess_goal_x))
+        print Z.means_
+        raw_input()
 
-        Z.covars_[0] = 0.1*np.eye(Z.covars_.shape[1])
-        Z.covars_[0,:self.robot.dof,:self.robot.dof] = 0.1*np.eye(self.robot.dof)
-
-        self.gp.PrintInfo()
+        #Z.covars_[0] = 0.1*np.eye(Z.covars_.shape[1])
+        #Z.covars_[0,:self.robot.dof,:self.robot.dof] = 0.1*np.eye(self.robot.dof)
+        #self.gp.PrintInfo()
 
         params = [0]*num_valid #Z.sample(num_samples)
         lls = np.zeros(num_valid)
@@ -218,8 +221,10 @@ class PyPlanner:
             smsg = PoseArray()
             smsg.header.frame_id = self.base_link
             while len(valid) < num_valid and j < num_samples:
-                traj_params = Sample(Z)
+                #traj_params,traj = Sample(Z)
+                traj_params,traj = grid_plan.SamplePrimitives(ee,Z,self.robot.kdl_kin,q)
                 
+                '''
                 cpy_traj_params = list(copy.copy(traj_params))
                 
                 #print "---"
@@ -234,21 +239,29 @@ class PyPlanner:
                 if q_guess == None:
                     continue
                 cpy_traj_params[:self.robot.dof] = q_guess
+                '''
 
-                traj_ = self.gp.TryPrimitives(list(cpy_traj_params))
-                #traj_ = self.gp.TryPrimitives(list(traj_params))
+                #traj_ = self.gp.TryPrimitives(list(cpy_traj_params))
+                print traj
+                traj_valid = not any([pt is None for pt in traj])#self.gp.TryTrajectory(traj)
+                for pt in traj:
+                    f = PyKDL.Frame(PyKDL.Rotation.RPY(traj_params[3],traj_params[4],traj_params[5]), 
+                        PyKDL.Vector(traj_params[0],traj_params[1],traj_params[2]))
+                    smsg.poses.append(pm.toMsg(ee*f))
 
-                search_pts += traj_
-
-                if not len(traj_) == 0:
+                search_pts += traj
+                
+                #if not len(traj_) == 0:
+                if traj_valid:
                     valid.append(traj_params)
 
                     p_z = Z.score(traj_params)[0]
 
-                    wt,p,_ = self.robot.GetTrajectoryWeight([p for p,v in traj_],world,obj_keys,p_z)
+                    #wt,p,_ = self.robot.GetTrajectoryWeight([p for p,v in traj],world,obj_keys,p_z)
+                    wt,p,_ = self.robot.GetTrajectoryWeight(traj,world,obj_keys,p_z)
                     lls[count] = p
                     wts[count] = wt
-                    trajs.append(traj_)
+                    trajs.append(traj)
                     count += 1
 
                 j += 1
@@ -294,11 +307,13 @@ class PyPlanner:
             # send message
             msg = PoseArray()
             msg.header.frame_id = self.base_link
-            for (pt,vel) in search_pts:
-                f = self.robot.GetForward(pt[:7])
-                msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
-            self.msg_pub.publish(msg)
+            #for (pt,vel) in search_pts:
             self.sample_pub.publish(smsg)
+            for pt in search_pts:
+                if not pt == None:
+                    f = self.robot.GetForward(pt[:7])
+                    msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
+            self.msg_pub.publish(msg)
 
             # PAUSE
             print "\n\t\tpress [ENTER] to continue...\n"
@@ -311,10 +326,11 @@ class PyPlanner:
         cmd = JointTrajectory()
         msg = PoseArray()
         msg.header.frame_id = self.base_link
-        for (pt,vel) in traj:
+        #for (pt,vel) in traj:
+        for pt in traj:
             cmd_pt = JointTrajectoryPoint()
             cmd_pt.positions = pt
-            cmd_pt.velocities = np.array(vel)*0.1
+            #cmd_pt.velocities = np.array(vel)*0.1
             #cmd_pt.time_from_start = rospy.Duration.from_sec(t)
             cmd.points.append(cmd_pt)
             f = self.robot.GetForward(pt[:7])
