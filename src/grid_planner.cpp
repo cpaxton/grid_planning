@@ -223,11 +223,11 @@ namespace grid {
     bool colliding = scene->isStateColliding(*state,"",true);
     std::cout << "Colliding: " << colliding << std::endl;
 
-      std::cout << "--------------------------" << std::endl;
+    std::cout << "--------------------------" << std::endl;
 
-      std::cout << "Collisions: " << std::endl;
+    std::cout << "Collisions: " << std::endl;
 
-      scene->getAllowedCollisionMatrix().print(std::cout);
+    scene->getAllowedCollisionMatrix().print(std::cout);
     std::cout << "==========================" << std::endl;
   }
 
@@ -235,10 +235,6 @@ namespace grid {
    * returns an empty trajectory if no valid path was found. */
   Traj_t GridPlanner::TryPrimitives(std::vector<double> primitives) {
     boost::mutex::scoped_lock lock(*ps_mutex);
-
-    //moveit_msgs::PlanningScene ps_msg;
-    //monitor->getPlanningScene()->getPlanningSceneMsg(ps_msg);
-    //scene->setPlanningSceneMsg(ps_msg);
     scene->getCurrentStateNonConst().update(); 
 
     Traj_t traj;
@@ -437,6 +433,64 @@ namespace grid {
       //}
       scene->getAllowedCollisionMatrixNonConst().setEntry(obj,allowed);
     }
+
+
+    /* try a single trajectory and see if it works.
+     * this is aimed at the python version of the code. */
+    bool GridPlanner::pyTryTrajectory(const boost::python::list &trajectory) {
+      std::vector< std::vector<double> > traj;
+      std::vector< boost::python::list > tmp = to_std_vector<boost::python::list>(trajectory);
+
+      for (boost::python::list &pt: tmp) {
+        traj.push_back(to_std_vector<double>(pt));
+        for (double d: *traj.rbegin()) {
+          std::cout << d << " ";
+        }
+        std::cout << std::endl;
+      }
+
+      return TryTrajectory(traj);
+    }
+
+    /* try a single trajectory and see if it works. */
+    bool GridPlanner::TryTrajectory(const std::vector <std::vector<double> > &traj) {
+      boost::mutex::scoped_lock lock(*ps_mutex);
+      scene->getCurrentStateNonConst().update(); 
+
+      bool colliding, bounds_satisfied;
+
+      collision_detection::CollisionRobotConstPtr robot1 = scene->getCollisionRobot();
+      std::string name = robot1->getRobotModel()->getName();
+
+      state->update();
+
+      bool drop_trajectory = false;
+      for (const std::vector<double> &positions: traj) {
+        if (verbose) {
+          std::cout << "pt: ";
+          for (double q: positions) {
+            std::cout << q << " ";
+          }
+        }
+
+        search_state->setVariablePositions(joint_names,positions);
+        search_state->update(true);
+
+        drop_trajectory |= !scene->isStateValid(*search_state,"",verbose);
+
+        if (verbose) {
+          std::cout << " = dropped? " << drop_trajectory << std::endl;
+        }
+
+
+        if (drop_trajectory) {
+          break;
+        }
+      }
+
+      return !drop_trajectory;
+    }
+
   }
 
   BOOST_PYTHON_MODULE(pygrid_planner) {
@@ -445,6 +499,7 @@ namespace grid {
       .def("AddAction", &grid::GridPlanner::AddAction)
       .def("AddObject", &grid::GridPlanner::AddObject)
       .def("TryPrimitives", &grid::GridPlanner::pyTryPrimitives)
+      .def("TryTrajectory", &grid::GridPlanner::pyTryTrajectory)
       .def("SetK", &grid::GridPlanner::SetK)
       .def("SetD", &grid::GridPlanner::SetD)
       .def("SetTau", &grid::GridPlanner::SetTau)

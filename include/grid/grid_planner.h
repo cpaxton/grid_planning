@@ -102,8 +102,15 @@ namespace grid {
      * this is aimed at the python version of the code. */
     boost::python::list pyTryPrimitives(const boost::python::list &primitives);
 
+    /* try a single trajectory and see if it works.
+     * this is aimed at the python version of the code. */
+    bool pyTryTrajectory(const boost::python::list &trajectory);
+
     /* try a set of motion primitives; see if they work. */
     Traj_t TryPrimitives(std::vector<double> primitives);
+
+    /* try a single trajectory and see if it works. */
+    bool TryTrajectory(const std::vector <std::vector<double> > &traj);
 
     /* update planning scene topic */
     void  SetPlanningSceneTopic(const std::string &topic);
