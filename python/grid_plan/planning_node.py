@@ -221,6 +221,7 @@ class PyPlanner:
             while len(valid) < num_valid and j < num_samples:
                 #traj_params,traj = Sample(Z)
                 traj_params,traj = grid_plan.SamplePrimitives(ee,Z,self.robot.kdl_kin,q)
+                #print traj
                 
                 '''
                 cpy_traj_params = list(copy.copy(traj_params))

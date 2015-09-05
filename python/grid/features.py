@@ -42,7 +42,8 @@ TIME = 'time'
 GRIPPER = 'gripper'
 JOINT = 'joint' # features indicating total joint velocity/effort
 NUM_OBJ_VARS = 8
-NUM_OBJ_DIFF_VARS = 9
+#NUM_OBJ_DIFF_VARS = 9
+NUM_OBJ_DIFF_VARS = 1
 NUM_GRIPPER_VARS = 3
 NUM_GRIPPER_DIFF_VARS = 0
 NUM_TIME_VARS = 1
@@ -398,8 +399,8 @@ class RobotFeatures:
         denom = p_obs + p_z
 
         for i in range(N):
-            #weights[i] = t_lambda**(N-i) * (scores[i] - denom)
-            weights[i] = (1./(N)) * 0 * (probs[i])
+            weights[i] = t_lambda**(N-i) * (probs[i])
+            #weights[i] = (1./(N)) * (probs[i])
 
         # lambda**(N-i) [where i=N] == lambda**0 == 1
         if not self.goal_model is None:
@@ -574,9 +575,10 @@ class RobotFeatures:
                 if not (obj == TIME or obj == GRIPPER):
                     dists[i] = ((self.base_tform*ees[i]).p - world[obj].p).Norm()
                     if i > 0:
-                        df = ees[i-1].Inverse() * ees[i]
-                        (theta,w) = df.M.GetRotAngle()
-                        diffs[i-1] = [dists[i] - dists[i-1],df.p.x(),df.p.y(),df.p.z(),df.p.Norm(),theta*w[0],theta*w[1],theta*w[2],theta]
+                        #df = ees[i-1].Inverse() * ees[i]
+                        #(theta,w) = df.M.GetRotAngle()
+                        #diffs[i-1] = [dists[i] - dists[i-1],df.p.x(),df.p.y(),df.p.z(),df.p.Norm(),theta*w[0],theta*w[1],theta*w[2],theta]
+                        diffs[i-1] = [dists[i] - dists[i-1]]
 
         return diffs
 
