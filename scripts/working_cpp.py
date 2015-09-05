@@ -91,8 +91,8 @@ cmd,msg,traj,Z = gp.plan(
         tol=0.00001,
         num_valid=50,
         num_samples=250,
-        step_size=0.3,
-        npts=2,
+        step_size=0.5,
+        npts=3,
         guess_goal_x=skill_guesses[skill.name])
 
 print "Saving trajectory result."

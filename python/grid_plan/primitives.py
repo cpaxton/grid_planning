@@ -35,7 +35,7 @@ def InitSearch(npts,guess):
     Z = GMM(n_components=1,covariance_type="full")
     Z.means_ = np.zeros((1,6*npts))
     Z.covars_ = np.zeros((1,6*npts,6*npts))
-    Z.covars_[0] = 0.01*np.eye(6*npts)
+    Z.covars_[0] = 1*np.eye(6*npts)
     for i in range(npts):
         p = (i+1) * guess / float(npts) * 10
         ii = 6*i
