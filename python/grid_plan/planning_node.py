@@ -136,6 +136,7 @@ class PyPlanner:
         self.gp.SetVerbose(False);
         self.skill_pub = rospy.Publisher(SKILL_TOPIC,std_msgs.msg.String)
         self.msg_pub = rospy.Publisher(MSG_TOPIC,PoseArray)
+        self.sample_pub = rospy.Publisher('samples',PoseArray)
 
     '''
     take a skill and associated objects
@@ -179,22 +180,22 @@ class PyPlanner:
         q = self.gp.GetJointPositions()
         ee = self.robot.GetForward(q)
         important_objs = [obj for (obj,frame) in objs if obj in skill.objs]
+        print important_objs
         if guess_goal_x == None and len(important_objs) > 0:
-            print world[important_objs[0]]
-            fobj = world[important_objs[0]].Inverse() * (self.robot.base_tform * ee)
+            print "Found world object named %s"%(important_objs[0])
+            fobj = (self.robot.base_tform * ee).Inverse() * world[important_objs[0]]
             Z.means_[0,:self.robot.dof] = [fobj.p.x(),fobj.p.y(),fobj.p.z()] + [0,0,0,0];
         elif guess_goal_x == None:
             Z.means_[0,:self.robot.dof] = [0,0,0,0,0,0,0];
         else:
             Z.means_[0,:self.robot.dof] = guess_goal_x + [0,0,0,0];
 
-        #gf = ee * f
-        #q_init = self.robot.kdl_kin.inverse(pm.toMatrix(gf),q)
+        print Z.means_[0,:self.robot.dof]
 
-        #Z.covars_[0,:self.robot.dof,:self.robot.dof] += 0.00001*np.eye(self.robot.dof)
-        Z.covars_[0] = 0.01*np.eye(Z.covars_.shape[1])
+        Z.covars_[0] = 0.1*np.eye(Z.covars_.shape[1])
         Z.covars_[0,:self.robot.dof,:self.robot.dof] = 0.1*np.eye(self.robot.dof)
-        #Z.covars_[0,self.robot.dof:,self.robot.dof:] *= 10;
+
+        self.gp.PrintInfo()
 
         params = [0]*num_valid #Z.sample(num_samples)
         lls = np.zeros(num_valid)
@@ -214,6 +215,8 @@ class PyPlanner:
             j = 0
             #for z in traj_params:
             start = time.clock()
+            smsg = PoseArray()
+            smsg.header.frame_id = self.base_link
             while len(valid) < num_valid and j < num_samples:
                 traj_params = Sample(Z)
                 
@@ -223,6 +226,7 @@ class PyPlanner:
                 #print cpy_traj_params[:self.robot.dof]
                 f = PyKDL.Frame(PyKDL.Rotation.RPY(traj_params[3],traj_params[4],traj_params[5]), 
                         PyKDL.Vector(traj_params[0],traj_params[1],traj_params[2]))
+                smsg.poses.append(pm.toMsg(ee*f))
                 #print f
 
                 q_guess = self.robot.kdl_kin.inverse(pm.toMatrix(ee*f),q)
@@ -268,6 +272,7 @@ class PyPlanner:
                 elite = []
                 elite_wts = []
 
+                '''
                 ll_threshold = np.percentile(lls,92)
                 for (ll,z) in zip(lls,valid):
                     if ll >= ll_threshold:
@@ -275,7 +280,7 @@ class PyPlanner:
                         elite_wts.append(ll)
                 Z = Z.fit(elite)
                 '''
-                ll_threshold = np.percentile(lls,25) # was 92
+                ll_threshold = np.percentile(wts,2) # was 92
                 for (ll,z) in zip(lls,valid):
                     if ll >= ll_threshold:
                         elite.append(z)
@@ -283,7 +288,6 @@ class PyPlanner:
                 mu,sig = Update(Z,elite_wts,elite,step_size)
                 Z.means_ = mu
                 Z.covars_ = sig
-                '''
 
                 print "... avg ll = %g, percentile = %g"%(cur_avg,ll_threshold)
 
@@ -293,11 +297,12 @@ class PyPlanner:
             for (pt,vel) in search_pts:
                 f = self.robot.GetForward(pt[:7])
                 msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
-            self.msg_pub.publish(msg);
+            self.msg_pub.publish(msg)
+            self.sample_pub.publish(smsg)
 
             # PAUSE
-            #print "\n\t\tpress [ENTER] to continue...\n"
-            #raw_input();
+            print "\n\t\tpress [ENTER] to continue...\n"
+            raw_input();
 
         traj = trajs[lls.tolist().index(np.max(lls))]
 

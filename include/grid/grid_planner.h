@@ -122,6 +122,9 @@ namespace grid {
     void SetTau(const double tau);
     void SetGoalThreshold(const double threshold);
 
+    /* Are we allowed to collide? */
+    void SetCollisions(const std::string obj, bool allowed);
+
     void SetVerbose(const bool verbose);
 
     void PrintInfo() const;
@@ -147,6 +150,7 @@ namespace grid {
     std::vector<double> x0_dot;
 
     std::vector<std::string> joint_names;
+    std::vector<std::string> entry_names;
 
     bool verbose;
 

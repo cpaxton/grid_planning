@@ -42,7 +42,7 @@ TIME = 'time'
 GRIPPER = 'gripper'
 JOINT = 'joint' # features indicating total joint velocity/effort
 NUM_OBJ_VARS = 8
-NUM_OBJ_DIFF_VARS = 1
+NUM_OBJ_DIFF_VARS = 9
 NUM_GRIPPER_VARS = 3
 NUM_GRIPPER_DIFF_VARS = 0
 NUM_TIME_VARS = 1
@@ -426,31 +426,6 @@ class RobotFeatures:
         return self.goal_model.score(goal_features) + avg
 
     '''
-    SampleInverseKinemantics
-    Generates a bunch of inverse kinematics positions based on different observed objects.
-    We use the PyKDL solver to find these, and arbitrarily rotate each of the objects to get our positions.
-    '''
-    def SampleInverseKinematics(self,frame,dist = 0.5,nsamples=100):
-        qs = []
-        for i in range(nsamples):
-            q = self.kdl_kin.random_joint_angles()
-
-            ee = self.base_tform * self.GetForward(q)
-            if (ee.p - frame.p).Norm() < dist:
-                print ee.p
-                qs.append(q)
-                break
-
-        #for frame in world.values():
-        #    f0 = copy.copy(frame)
-        #    for i in range(4):
-        #        f0.M *= PyKDL.Rotation.RotY(np.pi / 2)
-        #        q = self.kdl_kin.inverse(pm.toMatrix(f0))
-        #        print q
-
-        return qs
-
-    '''
     GetFeaturesForTrajectory
     '''
     def GetFeaturesForTrajectory(self,traj,world,objs,gripper=None):
@@ -458,16 +433,17 @@ class RobotFeatures:
         features = [[]]*(len(traj)-1)
 
         ee_frame = [self.GetForward(q[:self.dof]) for q in traj]
+        diffs = self.GetDiffFeatures(ee_frame,world,objs)
 
         if not gripper is None:
             for i in range(len(traj)-1):
                 t = float(i) / len(traj)
-                features[i] = self.GetFeatures(ee_frame[i],t,world,objs,gripper[i]) + self.GetDiffFeatures(ee_frame[i-1],ee_frame[i])
+                features[i] = self.GetFeatures(ee_frame[i],t,world,objs,gripper[i]) + diffs[i]
             goal_features = self.GetFeatures(ee_frame[-1],0.0,world,objs,gripper[i-1])
         else:
             for i in range(len(traj)-1):
                 t = float(i) / len(traj)
-                features[i] = self.GetFeatures(ee_frame[i],t,world,objs) + self.GetDiffFeatures(ee_frame[i-1],ee_frame[i])
+                features[i] = self.GetFeatures(ee_frame[i],t,world,objs) + diffs[i]
             goal_features = self.GetFeatures(ee_frame[-1],0.0,world,objs)
 
         # compute goal features
@@ -589,16 +565,21 @@ class RobotFeatures:
     Get the diff features we are using
     These are the translation, distance, and axis-angle rotation between frames
     '''
-    def GetDiffFeatures(self,f0,f1):
-            #f0 = self.GetForward(q0)
-            #f1 = self.GetForward(q1)
-            df = f1.Inverse() * f0
-            theta,w = df.M.GetRotAngle()
-            #diff = [x for x in df.p] + [df.p.Norm(), theta] + [ww for ww in w]
-            #diff = [x for x in df.p] + [df.p.Norm()] + list(rv) + [rv.Norm()]
-            #diff = [df.p.Norm()] + [rv.Norm()]
-            diff = [theta]
-            return diff
+    def GetDiffFeatures(self,ees,world,objs):
+        diffs = [[]]*(len(ees)-1)
+        dists = [0]*(len(ees))
+
+        for i in range(len(ees)):
+            for obj in objs:
+                if not (obj == TIME or obj == GRIPPER):
+                    dists[i] = ((self.base_tform*ees[i]).p - world[obj].p).Norm()
+                    if i > 0:
+                        df = ees[i-1].Inverse() * ees[i]
+                        (theta,w) = df.M.GetRotAngle()
+                        diffs[i-1] = [dists[i] - dists[i-1],df.p.x(),df.p.y(),df.p.z(),df.p.Norm(),theta*w[0],theta*w[1],theta*w[2],theta]
+
+        return diffs
+
     '''
     GetJointPositions()
     Just get the positions of each joint

@@ -148,6 +148,7 @@ namespace grid {
       }
 
       scene = std::shared_ptr<PlanningScene>(new PlanningScene(model));
+      scene->getAllowedCollisionMatrix().getAllEntryNames(entry_names);
       scene->getCollisionRobotNonConst()->setPadding(padding);
       scene->propogateRobotPadding();
       state = std::shared_ptr<RobotState>(new RobotState(model));
@@ -428,6 +429,14 @@ namespace grid {
     void GridPlanner::SetVerbose(const bool verbose_) {
       verbose = verbose_;
     }
+
+
+    /* Are we allowed to collide? */
+    void GridPlanner::SetCollisions(const std::string obj, bool allowed) {
+      //for (std::string &entry: entry_names) {
+      //}
+      scene->getAllowedCollisionMatrixNonConst().setEntry(obj,allowed);
+    }
   }
 
   BOOST_PYTHON_MODULE(pygrid_planner) {
@@ -444,5 +453,6 @@ namespace grid {
       .def("SetGoalThreshold", &grid::GridPlanner::SetGoalThreshold)
       .def("SetVerbose", &grid::GridPlanner::SetVerbose)
       .def("PrintInfo", &grid::GridPlanner::PrintInfo)
-      .def("GetJointPositions", &grid::GridPlanner::GetJointPositions);
+      .def("GetJointPositions", &grid::GridPlanner::GetJointPositions)
+      .def("SetCollisions", &grid::GridPlanner::SetCollisions);
   }
