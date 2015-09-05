@@ -193,8 +193,6 @@ class PyPlanner:
 
         #print Z.means_[0,:self.robot.dof]
         Z = grid_plan.InitSearch(npts,np.array(guess_goal_x))
-        print Z.means_
-        raw_input()
 
         #Z.covars_[0] = 0.1*np.eye(Z.covars_.shape[1])
         #Z.covars_[0,:self.robot.dof,:self.robot.dof] = 0.1*np.eye(self.robot.dof)
@@ -242,12 +240,11 @@ class PyPlanner:
                 '''
 
                 #traj_ = self.gp.TryPrimitives(list(cpy_traj_params))
-                print traj
-                traj_valid = not any([pt is None for pt in traj])#self.gp.TryTrajectory(traj)
+                traj_valid = not any([pt is None for pt in traj]) and self.gp.TryTrajectory(traj)
+
                 for pt in traj:
-                    f = PyKDL.Frame(PyKDL.Rotation.RPY(traj_params[3],traj_params[4],traj_params[5]), 
-                        PyKDL.Vector(traj_params[0],traj_params[1],traj_params[2]))
-                    smsg.poses.append(pm.toMsg(ee*f))
+                    if not pt is None:
+                        smsg.poses.append(pm.toMsg(self.robot.GetForward(pt)))
 
                 search_pts += traj
                 

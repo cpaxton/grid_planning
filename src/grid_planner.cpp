@@ -443,10 +443,10 @@ namespace grid {
 
       for (boost::python::list &pt: tmp) {
         traj.push_back(to_std_vector<double>(pt));
-        for (double d: *traj.rbegin()) {
-          std::cout << d << " ";
-        }
-        std::cout << std::endl;
+        //for (double d: *traj.rbegin()) {
+        //  std::cout << d << " ";
+        //}
+        //std::cout << std::endl;
       }
 
       return TryTrajectory(traj);
