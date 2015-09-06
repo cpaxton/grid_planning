@@ -256,7 +256,7 @@ class PyPlanner:
                     p_z = Z.score(traj_params)[0]
 
                     #wt,p,_ = self.robot.GetTrajectoryWeight([p for p,v in traj],world,obj_keys,p_z)
-                    wt,p,_ = self.robot.GetTrajectoryWeight(traj,world,obj_keys,p_z)
+                    wt,p = self.robot.GetTrajectoryWeight(traj,world,obj_keys,p_z)
                     lls[count] = p
                     wts[count] = wt
                     trajs.append(traj)

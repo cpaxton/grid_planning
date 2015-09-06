@@ -55,7 +55,7 @@ Compute the Gaussian probability of something
 def P_Gauss(x,mu,inv,det,wts):
 
     nvar = mu.shape[1]
-    p = np.zeros(len(x))
+    p = np.zeros(x.shape[0])
 
     for i in range(wts.shape[0]):
         res = (x - mu).dot(inv[0]) * (x - mu)
@@ -393,28 +393,37 @@ class RobotFeatures:
 
         features,goal_features = self.GetFeaturesForTrajectory(traj,world,objs)
 
-        N = len(features)
-        #probs = self.P_Action(features)
-        probs = self.P_Action(features) + self.P_Goal(features)
+        N = features.shape[0]
+        #print N,features.shape
         pa = self.P_Action(features)
+        features[:,0] = 0
         pg = self.P_Goal(features)
-        print pa
-        print pg
-        raw_input()
+        #print pa+pg
+        avg = np.mean(pg)
+        #print avg
+        #raw_input()
 
+        #print features
+        #print goal_features
 
         denom = p_obs + p_z
 
-        for i in range(N):
-            #weights[i] = t_lambda**(N-i) * (probs[i])
-            weights[i] = (1./(N)) * (probs[i])
+        #for i in range(N):
+        #    #weights[i] = t_lambda**(N-i) * (probs[i])
+        #    weights[i] = (1./(N)) * (probs[i])
 
         # lambda**(N-i) [where i=N] == lambda**0 == 1
         if not self.goal_model is None:
-            prob = self.P_Goal(goal_features)
-            weights[-1] = prob[0]
+            goal_prob = self.P_Goal(goal_features)
+            print goal_prob
+            #weights[-1] = prob[0]
 
-        return np.exp(np.log(np.sum(weights)) - denom),np.sum(weights),weights
+        #print "aa"
+        #print avg+goal_prob
+        #print "bb"
+
+        #return np.exp(np.log(np.sum(weights)) - denom),np.sum(weights),weights
+        return np.exp(np.log(avg+goal_prob) - denom),(avg+goal_prob)
 
     '''
     GetTrajectoryLikelihood
@@ -458,7 +467,7 @@ class RobotFeatures:
 
         # compute goal features
 
-        return features,goal_features
+        return np.array(features),np.array([goal_features])
 
     '''
     GetFeatures
@@ -469,11 +478,11 @@ class RobotFeatures:
         # initialize empty features list
         # TODO: allocate this more intelligently
         features = []
-
+    
         for obj in objs:
 
             if obj == TIME:
-                features += [0*t]
+                features += [t]
             elif obj == GRIPPER:
                 features += gripper
             else:
