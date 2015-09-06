@@ -13,7 +13,7 @@ def Sample(gmm):
     # cholesky returns the transpose of the MATLAB function chol()
     return gmm.means_[idx,:] + A.dot(n)
 
-def SamplePrimitives(ee,Z,kdl_kin,q,num_interp=2):
+def SamplePrimitives(ee,Z,kdl_kin,q,num_interp=1):
     z = Sample(Z)
     nvars = Z.means_.shape[1]
     nframes = nvars / 6
@@ -29,7 +29,7 @@ def SamplePrimitives(ee,Z,kdl_kin,q,num_interp=2):
         for j in range(num_interp):
             interp_param = last_param - ((float(j+1)/num_interp)*d_param)
             p = PyKDL.Vector(interp_param[0],interp_param[1],interp_param[2])/10
-            M = PyKDL.Rotation.RPY(interp_param[3]/3,interp_param[4]/3,interp_param[5]/3)
+            M = PyKDL.Rotation.RPY(interp_param[3]/10,interp_param[4]/10,interp_param[5]/10)
             frame = last_frame*PyKDL.Frame(M,p)
             res = kdl_kin.inverse(pm.toMatrix(frame),q)
             if not res is None:
@@ -45,7 +45,7 @@ def InitSearch(npts,guess):
     Z = GMM(n_components=1,covariance_type="full")
     Z.means_ = np.zeros((1,6*npts))
     Z.covars_ = np.zeros((1,6*npts,6*npts))
-    Z.covars_[0] = 1*np.eye(6*npts)
+    Z.covars_[0] = np.eye(6*npts)
     for i in range(npts):
         p = guess / float(npts) * 10
         ii = 6*i

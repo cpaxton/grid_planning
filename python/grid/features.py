@@ -399,8 +399,8 @@ class RobotFeatures:
         denom = p_obs + p_z
 
         for i in range(N):
-            weights[i] = t_lambda**(N-i) * (probs[i])
-            #weights[i] = (1./(N)) * (probs[i])
+            #weights[i] = t_lambda**(N-i) * (probs[i])
+            weights[i] = (1./(N)) * 0 * (probs[i])
 
         # lambda**(N-i) [where i=N] == lambda**0 == 1
         if not self.goal_model is None:

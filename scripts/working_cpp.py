@@ -61,7 +61,7 @@ if len(sys.argv) > 2:
     skill.goal_model = goal.GetGoalModel(skill.objs)
 
 gp.SetTrajectory(skill.trajectory_model)
-gp.gp.SetCollisions('gbeam_soup',True)
+#gp.gp.SetCollisions('gbeam_soup',True)
 
 """ ========================================================================= """
 
@@ -90,10 +90,10 @@ cmd,msg,traj,Z = gp.plan(
         config,
         num_iter=20,
         tol=0.00001,
-        num_valid=25,
+        num_valid=5,
         num_samples=250,
         step_size=0.75,
-        npts=3,
+        npts=8,
         guess_goal_x=skill_guesses[skill.name])
 
 print "Saving trajectory result."
