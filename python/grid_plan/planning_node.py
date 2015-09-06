@@ -205,7 +205,7 @@ class PyPlanner:
         last_avg = 0
 
         skipped = 0
-        for i in range(1,num_iter):
+        for i in range(0,num_iter):
             print "Iteration %d... (based on %d valid samples)"%(i,count)
 
             valid = []

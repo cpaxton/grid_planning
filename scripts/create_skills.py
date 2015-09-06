@@ -32,8 +32,8 @@ skill_filenames['disengage'] = disengage_filenames
 skill_filenames['init'] = init_filenames
 
 #skill_objs = {'approach':['time','link'], 'grasp':['time','link'], 'transport':['time','link','node'], 'disengage':['time','link']}
-skill_objs = {'approach':['time','link'], 'grasp':['time','link'], 'transport':['time','node'], 'disengage':['time','link'], 'init':[]}
-skill_fixed = {'approach':[], 'grasp':[''], 'transport':['link'], 'disengage':[],'init':[]}
+skill_objs = {'approach':['time','link'], 'grasp':['time','link'], 'transport':['time','node'], 'disengage':['time','link']} #, 'init':[]}
+skill_fixed = {'approach':[], 'grasp':[''], 'transport':['link'], 'disengage':[]} #,'init':[]}
 
 all_params = []
 
@@ -58,10 +58,10 @@ for name,filenames in skill_filenames.items():
 
 print "... Done creating skills."
 
-skill = grid.RobotSkill(name='default',action_k=ak,goal_k=gk,data=training_data,params=params,goals=goals)
-skill.save('default.yml')
+#skill = grid.RobotSkill(name='default',action_k=ak,goal_k=gk,data=training_data,params=params,goals=goals)
+#skill.save('default.yml')
 
-print '... Done creating default.'
+#print '... Done creating default.'
 
 try:
     while not rospy.is_shutdown():

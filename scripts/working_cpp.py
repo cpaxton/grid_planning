@@ -88,12 +88,12 @@ skill_guesses = {'approach':None,'grasp':[0,0,0],'transport':None,'disengage':[0
 cmd,msg,traj,Z = gp.plan(
         skill,
         config,
-        num_iter=20,
+        num_iter=10,
         tol=0.00001,
-        num_valid=5,
+        num_valid=4,
         num_samples=250,
-        step_size=0.75,
-        npts=8,
+        step_size=0.25,
+        npts=3,
         guess_goal_x=skill_guesses[skill.name])
 
 print "Saving trajectory result."

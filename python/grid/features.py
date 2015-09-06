@@ -394,13 +394,20 @@ class RobotFeatures:
         features,goal_features = self.GetFeaturesForTrajectory(traj,world,objs)
 
         N = len(features)
-        probs = self.P_Action(features)
+        #probs = self.P_Action(features)
+        probs = self.P_Action(features) + self.P_Goal(features)
+        pa = self.P_Action(features)
+        pg = self.P_Goal(features)
+        print pa
+        print pg
+        raw_input()
+
 
         denom = p_obs + p_z
 
         for i in range(N):
             #weights[i] = t_lambda**(N-i) * (probs[i])
-            weights[i] = (1./(N)) * 0 * (probs[i])
+            weights[i] = (1./(N)) * (probs[i])
 
         # lambda**(N-i) [where i=N] == lambda**0 == 1
         if not self.goal_model is None:
@@ -434,17 +441,19 @@ class RobotFeatures:
         features = [[]]*(len(traj)-1)
 
         ee_frame = [self.GetForward(q[:self.dof]) for q in traj]
-        diffs = self.GetDiffFeatures(ee_frame,world,objs)
+        #diffs = self.GetDiffFeatures(ee_frame,world,objs)
 
         if not gripper is None:
             for i in range(len(traj)-1):
-                t = float(i) / len(traj)
-                features[i] = self.GetFeatures(ee_frame[i],t,world,objs,gripper[i]) + diffs[i]
+                t = float(i+1) / len(traj)
+                #features[i] = self.GetFeatures(ee_frame[i],t,world,objs,gripper[i]) + diffs[i]
+                features[i] = self.GetFeatures(ee_frame[i],t,world,objs,gripper[i]) #+ diffs[i]
             goal_features = self.GetFeatures(ee_frame[-1],0.0,world,objs,gripper[i-1])
         else:
             for i in range(len(traj)-1):
-                t = float(i) / len(traj)
-                features[i] = self.GetFeatures(ee_frame[i],t,world,objs) + diffs[i]
+                t = float(i+1) / len(traj)
+                #features[i] = self.GetFeatures(ee_frame[i],t,world,objs) + diffs[i]
+                features[i] = self.GetFeatures(ee_frame[i],t,world,objs) #+ diffs[i]
             goal_features = self.GetFeatures(ee_frame[-1],0.0,world,objs)
 
         # compute goal features
@@ -464,7 +473,7 @@ class RobotFeatures:
         for obj in objs:
 
             if obj == TIME:
-                features += [t]
+                features += [0*t]
             elif obj == GRIPPER:
                 features += gripper
             else:
