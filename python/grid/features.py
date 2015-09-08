@@ -401,7 +401,9 @@ class RobotFeatures:
 
         N = features.shape[0]
         #print N,features.shape
-        pa = self.P_Action(features)
+        pa = self.P_Action(features) #* t_lambda**np.array(range(N,0,-1))
+        #pa = np.min([pa,np.ones(N)])
+
         #features[:,0] = 0
         #pg = self.P_Goal(features)
         #print pa+pg
@@ -420,8 +422,9 @@ class RobotFeatures:
 
         # lambda**(N-i) [where i=N] == lambda**0 == 1
         if not self.goal_model is None:
-            goal_prob = self.P_Goal(goal_features)
-            print "%f+%f"%(avg,goal_prob)
+            #goal_prob = min([self.P_Goal(goal_features)[0],1])
+            goal_prob = self.P_Goal(goal_features)[0]
+            print "a=%f / g=%f / %f"%(avg,goal_prob,avg*goal_prob)
             #weights[-1] = prob[0]
 
         #print "aa"
@@ -429,7 +432,7 @@ class RobotFeatures:
         #print "bb"
 
         #return np.exp(np.log(np.sum(weights)) - denom),np.sum(weights),weights
-        return np.exp(np.log(avg+goal_prob) - denom),(avg+goal_prob)
+        return np.exp(np.log(avg*goal_prob) - denom),(avg+goal_prob)
 
     '''
     GetTrajectoryLikelihood

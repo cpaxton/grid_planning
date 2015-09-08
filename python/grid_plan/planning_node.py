@@ -68,6 +68,10 @@ def Update(Z,wts,params,step_size):
         diff = Z.means_[0,:] - ar
         n_covars_[0,:,:] += wt * diff.T.dot(diff)
 
+    print Z.means_
+    print step_size
+    print n_means_
+
     means_ = ((1 - step_size)*Z.means_) + (step_size * n_means_)
     covars_ = ((1 - step_size)*Z.covars_) + (step_size * n_covars_)
 
@@ -218,36 +222,23 @@ class PyPlanner:
             j = 0
             #for z in traj_params:
             start = time.clock()
+            '''
             smsg = PoseArray()
             smsg.header.frame_id = self.base_link
+            '''
             while len(valid) < num_valid and j < num_samples:
                 #traj_params,traj = Sample(Z)
                 traj_params,traj = grid_plan.SamplePrimitives(ee,Z,self.robot.kdl_kin,q)
                 #print traj
-                
-                '''
-                cpy_traj_params = list(copy.copy(traj_params))
-                
-                #print "---"
-                #print cpy_traj_params[:self.robot.dof]
-                f = PyKDL.Frame(PyKDL.Rotation.RPY(traj_params[3],traj_params[4],traj_params[5]), 
-                        PyKDL.Vector(traj_params[0],traj_params[1],traj_params[2]))
-                smsg.poses.append(pm.toMsg(ee*f))
-                #print f
-
-                q_guess = self.robot.kdl_kin.inverse(pm.toMatrix(ee*f),q)
-                #print q_guess
-                if q_guess == None:
-                    continue
-                cpy_traj_params[:self.robot.dof] = q_guess
-                '''
 
                 #traj_ = self.gp.TryPrimitives(list(cpy_traj_params))
                 traj_valid = not any([pt is None for pt in traj]) and self.gp.TryTrajectory(traj)
 
+                '''
                 for pt in traj:
                     if not pt is None:
                         smsg.poses.append(pm.toMsg(self.robot.GetForward(pt)))
+                '''
 
                 search_pts += traj
                 
@@ -293,7 +284,7 @@ class PyPlanner:
                         elite_wts.append(ll)
                 Z = Z.fit(elite)
                 '''
-                ll_threshold = np.percentile(wts,2) # was 92
+                ll_threshold = np.percentile(wts,0) # was 92
                 for (ll,z) in zip(lls,valid):
                     if ll >= ll_threshold:
                         elite.append(z)
@@ -302,13 +293,17 @@ class PyPlanner:
                 Z.means_ = mu
                 Z.covars_ = sig
 
+                print mu
+
                 print "... avg ll = %g, percentile = %g"%(cur_avg,ll_threshold)
 
             # send message
             msg = PoseArray()
             msg.header.frame_id = self.base_link
             #for (pt,vel) in search_pts:
+            '''
             self.sample_pub.publish(smsg)
+            '''
             for pt in search_pts:
                 if not pt == None:
                     f = self.robot.GetForward(pt[:7])
