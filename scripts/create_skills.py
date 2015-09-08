@@ -14,7 +14,7 @@ Create skills
 rospy.init_node('create_skills_node')
 
 # configuration for skills
-ak = 1
+ak = 5
 gk = 1
 
 # first set up filenames
@@ -58,10 +58,10 @@ for name,filenames in skill_filenames.items():
 
 print "... Done creating skills."
 
-skill = grid.RobotSkill(name='default',action_k=ak,goal_k=gk,data=training_data,params=params,goals=goals)
-skill.save('default.yml')
+#skill = grid.RobotSkill(name='default',action_k=ak,goal_k=gk,data=training_data,params=params,goals=goals)
+#skill.save('default.yml')
 
-print '... Done creating default.'
+#print '... Done creating default.'
 
 try:
     while not rospy.is_shutdown():
