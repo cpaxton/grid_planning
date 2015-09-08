@@ -164,10 +164,12 @@ class PyPlanner:
         nvars = skill.action_model.covars_.shape[1]
         for i in range(skill.action_model.n_components):
             skill.action_model.covars_[i,:,:] += 0.00001*np.eye(nvars)
+        #skill.action_model.covars_ *= 10
         if not skill.goal_model is None:
             nvars = skill.goal_model.covars_.shape[1]
             for i in range(skill.goal_model.n_components):
                 skill.goal_model.covars_[i,:,:] += 0.00001*np.eye(nvars)
+            #skill.goal_model.covars_ *= 10
         self.robot.ConfigureSkill(skill.action_model,skill.goal_model)
 
         print " - getting TF information for generating trajectories..."

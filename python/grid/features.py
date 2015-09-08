@@ -421,7 +421,7 @@ class RobotFeatures:
         # lambda**(N-i) [where i=N] == lambda**0 == 1
         if not self.goal_model is None:
             goal_prob = self.P_Goal(goal_features)
-            print goal_prob
+            print "%f+%f"%(avg,goal_prob)
             #weights[-1] = prob[0]
 
         #print "aa"
