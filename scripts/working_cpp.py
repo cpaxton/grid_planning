@@ -90,7 +90,7 @@ cmd,msg,traj,Z = gp.plan(
         config,
         num_iter=10,
         tol=0.00001,
-        num_valid=50,
+        num_valid=25,
         num_samples=250,
         step_size=0.5,
         npts=3,
