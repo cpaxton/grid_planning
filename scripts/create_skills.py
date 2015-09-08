@@ -22,17 +22,17 @@ approach_filenames = ['data/app1.yml','data/app2.yml','data/app3.yml']
 grasp_filenames = ['data/grasp1.yml','data/grasp2.yml','data/grasp3.yml']
 transport_filenames = ['data/transport1.yml','data/transport2.yml','data/transport3.yml']
 disengage_filenames = ['data/disengage1.yml','data/disengage2.yml','data/disengage3.yml']
-init_filenames = ['data/init11.yml','data/init12.yml','data/init13.yml','data/init14.yml']
+#init_filenames = ['data/init11.yml','data/init12.yml','data/init13.yml','data/init14.yml']
 
 skill_filenames = {}
 skill_filenames['approach'] = approach_filenames
 skill_filenames['grasp'] = grasp_filenames
 skill_filenames['transport'] = transport_filenames
 skill_filenames['disengage'] = disengage_filenames
-skill_filenames['init'] = init_filenames
+#skill_filenames['init'] = init_filenames
 
 #skill_objs = {'approach':['time','link'], 'grasp':['time','link'], 'transport':['time','link','node'], 'disengage':['time','link']}
-skill_objs = {'approach':['time','link'], 'grasp':['time','link'], 'transport':['time','node'], 'disengage':['time','link']} #, 'init':[]}
+skill_objs = {'approach':['time','link'], 'grasp':['time','link'], 'transport':['time','node'], 'disengage':['time','link']}#, 'init':[]}
 skill_fixed = {'approach':[], 'grasp':[''], 'transport':['link'], 'disengage':[]} #,'init':[]}
 
 all_params = []
@@ -58,10 +58,10 @@ for name,filenames in skill_filenames.items():
 
 print "... Done creating skills."
 
-#skill = grid.RobotSkill(name='default',action_k=ak,goal_k=gk,data=training_data,params=params,goals=goals)
-#skill.save('default.yml')
+skill = grid.RobotSkill(name='default',action_k=ak,goal_k=gk,data=training_data,params=params,goals=goals)
+skill.save('default.yml')
 
-#print '... Done creating default.'
+print '... Done creating default.'
 
 try:
     while not rospy.is_shutdown():

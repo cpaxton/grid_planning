@@ -195,10 +195,16 @@ class RobotFeatures:
         self.goal_model = goal;
 
     def P_Action(self,X):
-        return P_Gauss(X,self.traj_model.means_,self.action_inv,self.action_det,self.traj_model.weights_)
+        if self.traj_model.n_components == 1:
+            return P_Gauss(X,self.traj_model.means_,self.action_inv,self.action_det,self.traj_model.weights_)
+        else:
+            return self.traj_model.score(X)
 
     def P_Goal(self,X):
-        return P_Gauss(X,self.goal_model.means_,self.goal_inv,self.goal_det,self.goal_model.weights_)
+        if self.goal_model.n_components == 1:
+            return P_Gauss(X,self.goal_model.means_,self.goal_inv,self.goal_det,self.goal_model.weights_)
+        else:
+            return self.goal_model.score(X)
 
     def StartRecording(self):
         if self.recorded:
@@ -397,9 +403,9 @@ class RobotFeatures:
         #print N,features.shape
         pa = self.P_Action(features)
         features[:,0] = 0
-        pg = self.P_Goal(features)
+        #pg = self.P_Goal(features)
         #print pa+pg
-        avg = np.mean(pg)
+        avg = np.mean(pa)
         #print avg
         #raw_input()
 

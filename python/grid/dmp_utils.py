@@ -115,7 +115,7 @@ def LoadDataDMP(filenames,objs,manip_objs=[]):
         params += [[i for i in x[-1]] + dmp_weights]
 
         data.append((demo, fx, resp))
-        goals.append(g)
+        goals.append(g.squeeze())
     return (data, params, num_weights, goals)
 
 '''
