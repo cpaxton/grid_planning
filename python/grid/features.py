@@ -407,7 +407,7 @@ class RobotFeatures:
         #features[:,0] = 0
         #pg = self.P_Goal(features)
         #print pa+pg
-        avg = np.mean(pa)
+        avg = np.prod(pa)
         #print avg
         #raw_input()
 
@@ -432,7 +432,7 @@ class RobotFeatures:
         #print "bb"
 
         #return np.exp(np.log(np.sum(weights)) - denom),np.sum(weights),weights
-        return np.exp(np.log(avg*goal_prob) - denom),(avg+goal_prob)
+        return np.exp(np.log(avg*goal_prob) - denom),(avg*goal_prob)
 
     '''
     GetTrajectoryLikelihood

@@ -311,8 +311,8 @@ class PyPlanner:
             self.msg_pub.publish(msg)
 
             # PAUSE
-            print "\n\t\tpress [ENTER] to continue...\n"
-            raw_input();
+            #print "\n\t\tpress [ENTER] to continue...\n"
+            #raw_input();
 
         traj = trajs[lls.tolist().index(np.max(lls))]
 

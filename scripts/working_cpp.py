@@ -88,11 +88,11 @@ skill_guesses = {'approach':None,'grasp':[0,0,0],'transport':None,'disengage':[0
 cmd,msg,traj,Z = gp.plan(
         skill,
         config,
-        num_iter=10,
+        num_iter=20,
         tol=0.00001,
-        num_valid=25,
+        num_valid=20,
         num_samples=250,
-        step_size=0.5,
+        step_size=0.75,
         npts=3,
         guess_goal_x=skill_guesses[skill.name])
 
