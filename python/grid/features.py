@@ -336,6 +336,20 @@ class RobotFeatures:
                 print "ERR: %s"%(e)
             return False
 
+        if (not self.manip_obj is None) and (self.manip_obj in self.world.keys()):
+            print self.manip_obj
+            obj_frame = self.world[self.manip_obj]
+            
+            try:
+                (trans,rot) = self.tfl.lookupTransform(self.world_frame,self.end_link,rospy.Time(0))
+                ee_tform = pm.fromTf((trans,rot))
+                print "--- manip frame ---"
+                print (self.base_tform * ee_tform).Inverse() * obj_frame
+
+            except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException), e:
+                if not self.quiet:
+                    print "ERR: %s"%(e)
+                return False
 
         return True
 
