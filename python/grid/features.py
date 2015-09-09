@@ -407,7 +407,8 @@ class RobotFeatures:
         #features[:,0] = 0
         #pg = self.P_Goal(features)
         #print pa+pg
-        avg = np.prod(pa)
+        #avg = np.prod(pa)/N
+        avg = np.mean(pa)
         #print avg
         #raw_input()
 
