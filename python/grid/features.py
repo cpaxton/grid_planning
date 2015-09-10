@@ -515,7 +515,7 @@ class RobotFeatures:
                 obj_frame = world[obj]
 
                 # ... so get object offset to end effector ...
-                offset = obj_frame.Inverse() * (self.base_tform * ee_frame)
+                offset = (obj_frame*PyKDL.Frame(PyKDL.Rotation.RotY(np.pi/2))).Inverse() * (self.base_tform * ee_frame)
 
                 # ... use position offset and distance ...
                 features += offset.p
@@ -524,6 +524,7 @@ class RobotFeatures:
                 # ... and use axis/angle representation
                 (theta,w) = offset.M.GetRotAngle()
                 features += [theta*w[0],theta*w[1],theta*w[2],theta]
+                #features += [w[0],w[1],w[2],theta]
 
         return features
 
@@ -597,10 +598,10 @@ class RobotFeatures:
                 labels += ["%s_ee_y"%obj]
                 labels += ["%s_ee_z"%obj]
                 labels += ["%s_ee_dist"%obj]
-                labels += ["%s_ee_theta"%obj]
                 labels += ["%s_ee_wx"%obj]
                 labels += ["%s_ee_wy"%obj]
                 labels += ["%s_ee_wz"%obj]
+                labels += ["%s_ee_theta"%obj]
 
         return labels
 

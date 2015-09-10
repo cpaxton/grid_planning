@@ -4,7 +4,7 @@
 try:
     from pygrid_planner import *
 except ImportError, e:
-    print "Could not bind Boost::python bindings!"
+    print "[GRID_PLAN] Could not bind Boost::python bindings!"
 
 from planning_node import *
 from gripper_regression_node import *
