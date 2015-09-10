@@ -148,6 +148,10 @@ class RobotFeatures:
         self.goal_det = []
         self.action_pdf = []
         self.goal_pdf = []
+        self.action_mean = None
+        self.action_std = None
+        self.goal_mean = None
+        self.goal_std = None
 
         self.recorded = False
         self.quiet = True # by default hide TF error messages
@@ -413,6 +417,9 @@ class RobotFeatures:
 
         features,goal_features = self.GetFeaturesForTrajectory(traj,world,objs)
 
+        features = self.NormalizeAction(features)
+        goal_features = self.NormalizeGoal(goal_features)
+
         N = features.shape[0]
         #print N,features.shape
         pa = self.P_Action(features) #* t_lambda**np.array(range(N,0,-1))
@@ -634,6 +641,24 @@ class RobotFeatures:
 
     def Dims(self):
         return len(self.joint_states[0].position) + 3
+
+    '''
+    Set up mean/std to normalize incoming action data
+    '''
+    def SetActionNormalizer(self,skill):
+        self.action_mean = skill.action_mean
+        self.action_std = skill.action_std
+    def NormalizeAction(self,features):
+        return (features - self.action_mean) / self.action_std
+
+    '''
+    Set up mean/std to normalize incoming goal data
+    '''
+    def SetGoalNormalizer(self,skill):
+        self.goal_mean = skill.goal_mean
+        self.goal_std = skill.goal_std
+    def NormalizeGoal(self,features):
+        return (features - self.goal_mean) / self.goal_std
 
 def LoadRobotFeatures(filename):
 

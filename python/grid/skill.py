@@ -67,6 +67,16 @@ class RobotSkill:
         self.manip_objs = manip_objs
 
         if filename == None and len(data) > 0:
+
+            ''' compute means and normalize incoming data '''
+            self.action_mean = np.mean(data)
+            self.action_std = np.std(data)
+            self.goal_mean = np.mean(data)
+            self.goal_std = np.std(data)
+            goals = (goals - self.goal_mean) / self.goal_std
+            data = (data - self.action_mean) / self.action_std
+
+            ''' compute the actual models '''
             # learn action, goal, and trajectory models
             if goal_k > 1 or True:
                 self.goal_model.fit(goals)
@@ -107,6 +117,10 @@ class RobotSkill:
             self.objs = data['objs']
             self.manip_objs = data['manip_objs']
             self.num_gripper_vars = data['num_gripper_vars']
+            self.action_mean = data['action_mean']
+            self.action_std = data['action_std']
+            self.goal_mean = data['goal_mean']
+            self.goal_std = data['goal_std']
             self.t_factor = 0.1
 
     def GetGoalModel(self,objs):
@@ -151,6 +165,10 @@ class RobotSkill:
         out['objs'] = self.objs
         out['manip_objs'] = self.manip_objs
         out['num_gripper_vars'] = self.num_gripper_vars
+        out['action_mean'] = self.action_mean
+        out['action_std'] = self.action_std
+        out['goal_mean'] = self.goal_mean
+        out['goal_std'] = self.goal_std
 
         yaml.dump(out,stream)
 

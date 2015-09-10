@@ -53,7 +53,7 @@ for name,filenames in skill_filenames.items():
 for name,training_data,goals in examples:
     plt.figure(nfig);
     plt.subplot(1,2,1);
-    for i in range(2,training_data.shape[1]):
+    for i in range(1,training_data.shape[1]):
         plt.plot(training_data[:,0],training_data[:,i]);
     plt.title('action %s'%(name))
     plt.subplot(1,2,2);
@@ -63,5 +63,103 @@ for name,training_data,goals in examples:
     nfig += 1
     plt.legend(labels=data[0][0].GetFeatureLabels([skill_objs[name][1]]));
     plt.title('end %s'%(name))
+
+
+'''
+==========================================================================
+'''
+import itertools
+color_iter = itertools.cycle(['r', 'g', 'b', 'c', 'm'])
+for name,training_data,goals in examples:
+    if name == app.name:
+        plt.figure(nfig);
+        clf = app.action_model
+        labels=data[0][0].GetFeatureLabels([skill_objs[name][1]])
+        for i, (mean, covar) in enumerate(zip(clf.means_, clf._get_covars())):
+            for j in range(1,clf.covars_.shape[1]):
+                print "name=%s,var=%d,component=%d"%(labels[j-1],j,i)
+                splot = plt.subplot(3,3,j)
+                plt.title(labels[j-1])
+                idx = [0,j]
+                print covar[idx,:][:,idx]
+                v, w = linalg.eigh(covar[idx,:][:,idx])
+                print v
+                u = w[0] / linalg.norm(w[0])
+                print u
+                # as the DP will not use every component it has access to
+                # unless it needs it, we shouldn't plot the redundant
+                # components.
+                plt.scatter(training_data[:, 0], training_data[:, j], .8, color='r')
+
+                # Plot an ellipse to show the Gaussian component
+                angle = np.arctan(u[1] / u[0])
+                angle = 180 * angle / np.pi  # convert to degrees
+                ell = mpl.patches.Ellipse(mean[idx], v[0], v[1], 180 + angle, color='b')
+                ell.set_clip_box(splot.bbox)
+                ell.set_alpha(0.5)
+                splot.add_artist(ell)
+
+        nfig += 1
+
+        plt.figure(nfig);
+        clf = GMM(n_components=1).fit(training_data)
+        for i, (mean, covar) in enumerate(zip(clf.means_, clf._get_covars())):
+            for j in range(1,clf.covars_.shape[1]):
+                print "name=%s,var=%d,component=%d"%(labels[j-1],j,i)
+                splot = plt.subplot(3,3,j)
+                plt.title(labels[j-1])
+                idx = [0,j]
+                print covar[idx,:][:,idx]
+                v, w = linalg.eigh(covar[idx,:][:,idx])
+                print v
+                u = w[0] / linalg.norm(w[0])
+                print u
+                # as the DP will not use every component it has access to
+                # unless it needs it, we shouldn't plot the redundant
+                # components.
+                plt.scatter(training_data[:, 0], training_data[:, j], .8, color='r')
+
+                # Plot an ellipse to show the Gaussian component
+                angle = np.arctan(u[1] / u[0])
+                angle = 180 * angle / np.pi  # convert to degrees
+                ell = mpl.patches.Ellipse(mean[idx], v[0], v[1], 180 + angle, color='b')
+                ell.set_clip_box(splot.bbox)
+                ell.set_alpha(0.5)
+                splot.add_artist(ell)
+
+        nfig += 1
+
+        plt.figure(nfig)
+        norm_mean = np.mean(training_data,axis=0)
+        norm_std = np.std(training_data,axis=0)
+        new_td = (training_data - norm_mean) / norm_std
+        clf = GMM(n_components=1,covariance_type="full").fit(new_td)
+        for i, (mean, covar) in enumerate(zip(clf.means_, clf._get_covars())):
+            for j in range(1,clf.covars_.shape[1]):
+                print "name=%s,var=%d,component=%d"%(labels[j-1],j,i)
+                splot = plt.subplot(3,3,j)
+                plt.title(labels[j-1])
+                idx = [0,j]
+                print covar[idx,:][:,idx]
+                v, w = linalg.eigh(covar[idx,:][:,idx])
+                print v
+                u = w[0] / linalg.norm(w[0])
+                print u
+                # as the DP will not use every component it has access to
+                # unless it needs it, we shouldn't plot the redundant
+                # components.
+                plt.scatter(new_td[:, 0], new_td[:, j], .8, color='r')
+
+                # Plot an ellipse to show the Gaussian component
+                angle = np.arctan(u[1] / u[0])
+                angle = 180 * angle / np.pi  # convert to degrees
+                ell = mpl.patches.Ellipse(mean[idx], v[0], v[1], 180 + angle, color='b')
+                ell.set_clip_box(splot.bbox)
+                ell.set_alpha(0.5)
+                splot.add_artist(ell)
+        new_td = (training_data - norm_mean) / norm_std
+
+
+
 plt.show()    
 

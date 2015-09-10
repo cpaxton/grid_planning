@@ -54,15 +54,18 @@ skill_filename = 'skills/%s_skill.yml'%(sys.argv[1])
 skill = grid.RobotSkill(filename=skill_filename)
 print "Loaded skill '%s'"%(skill.name)
 
+gp.robot.SetActionNormalizer(skill)
 if len(sys.argv) > 2:
     goal_filename = 'skills/%s_skill.yml'%(sys.argv[2])
     goal = grid.RobotSkill(filename=goal_filename)
     print "Loaded next skill '%s'"%(goal.name)
     skill.goal_model = goal.GetGoalModel(skill.objs)
+    gp.robot.SetGoalNormalizer(goal)
+else:
+    gp.robot.SetGoalNormalizer(skill)
 
 gp.SetTrajectory(skill.trajectory_model)
 gp.robot.UpdateManipObj(skill.manip_objs)
-
 if skill=='transport':
     gp.gp.SetCollisions('gbeam_soup',True)
 
