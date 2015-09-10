@@ -68,8 +68,18 @@ class RobotSkill:
 
         if filename == None and len(data) > 0:
             # learn action, goal, and trajectory models
-            self.goal_model.fit(goals)
-            self.action_model.fit(data)
+            if goal_k > 1 or True:
+                self.goal_model.fit(goals)
+            else:
+                self.goal_model.means_ = np.array([np.mean(goals,axis=0)])
+                self.goal_model.covars_ = np.array([np.cov(goals,rowvar=False)])
+                self.goal_model.covars_[0] += 1e-5 * np.eye(self.goal_model.covars_.shape[1])
+            if action_k > 1 or True:
+                self.action_model.fit(data)
+            else:
+                self.action_model.means_ = np.array([np.mean(data,axis=0)])
+                self.action_model.covars_ = np.array([np.cov(data,rowvar=False)])
+                self.action_model.covars_[0] += 1e-5 * np.eye(self.action_model.covars_.shape[1])
 
             self.trajectory_model.fit(params)
             self.t_factor = 0.1
