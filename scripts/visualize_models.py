@@ -70,8 +70,9 @@ for name,training_data,goals in examples:
 '''
 import itertools
 color_iter = itertools.cycle(['r', 'g', 'b', 'c', 'm'])
-for name,training_data,goals in examples:
+for name,training_data_,goals in examples:
     if name == app.name:
+        training_data = (training_data_ - app.action_mean) / app.action_std
         plt.figure(nfig);
         clf = app.action_model
         labels=data[0][0].GetFeatureLabels([skill_objs[name][1]])
@@ -158,8 +159,6 @@ for name,training_data,goals in examples:
                 ell.set_alpha(0.5)
                 splot.add_artist(ell)
         new_td = (training_data - norm_mean) / norm_std
-
-
 
 plt.show()    
 

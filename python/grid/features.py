@@ -650,6 +650,8 @@ class RobotFeatures:
         self.action_std = skill.action_std
     def NormalizeAction(self,features):
         return (features - self.action_mean) / self.action_std
+    def DenormalizeAction(self,features):
+        return (features * self.action_std) + self.action_mean
 
     '''
     Set up mean/std to normalize incoming goal data
@@ -659,6 +661,8 @@ class RobotFeatures:
         self.goal_std = skill.goal_std
     def NormalizeGoal(self,features):
         return (features - self.goal_mean) / self.goal_std
+    def DenormalizeGoal(self,features):
+        return (features * self.goal_std) + self.goal_mean
 
 def LoadRobotFeatures(filename):
 

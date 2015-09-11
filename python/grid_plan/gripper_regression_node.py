@@ -31,6 +31,7 @@ class GripperRegressor:
             self.covars = [i for i in skill.gripper_model.covars_]
             self.weights = skill.gripper_model.weights_
             self.objs = skill.objs
+            self.robot.SetActionNormalizer(skill)
         self.robot.AddObject('gripper')
 
         self.ndims = self.robot.max_index
@@ -128,8 +129,11 @@ class GripperRegressor:
             #f = self.robot.GetFeatures(self.js.position,self.progress,self.world,[obj])
             data[0,np.ix_(idx)] = f
 
+            #data[0,np.ix_(idx)] = self.robot.NormalizeAction(data[0,np.ix_(idx)])
+            data = self.robot.NormalizeAction(data)
             # use pypr to fill in missing data
             gmm.predict(data,self.means,self.covars,self.weights)
+            data = self.robot.DenormalizeAction(data)
 
             # create message to send
             msg = BHandCmd()
