@@ -42,7 +42,6 @@ TIME = 'time'
 GRIPPER = 'gripper'
 JOINT = 'joint' # features indicating total joint velocity/effort
 NUM_OBJ_VARS = 8
-#NUM_OBJ_DIFF_VARS = 9
 NUM_OBJ_DIFF_VARS = 1
 NUM_GRIPPER_VARS = 3
 NUM_GRIPPER_DIFF_VARS = 0
