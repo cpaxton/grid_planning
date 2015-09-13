@@ -12,7 +12,8 @@ from sklearn.mixture import GMM
 
 rospy.init_node('visualize_models_etc')
 
-app = grid.RobotSkill(filename="skills/approach_skill.yml")
+#app = grid.RobotSkill(filename="skills/approach_skill.yml")
+app = grid.RobotSkill(filename="skills/transport_skill.yml")
 grasp = grid.RobotSkill(filename="skills/grasp_skill.yml")
 
 '''
@@ -26,7 +27,7 @@ disengage_filenames = ['data/disengage1.yml','data/disengage2.yml','data/disenga
 #init_filenames = ['data/init11.yml','data/init12.yml','data/init13.yml','data/init14.yml']
 
 skill_filenames = {}
-skill_filenames['approach'] = approach_filenames
+skill_filenames['transport'] = transport_filenames #approach_filenames
 skill_filenames['grasp'] = grasp_filenames
 
 skill_objs = {'approach':['time','link'], 'grasp':['time','link'], 'transport':['time','node'], 'disengage':['time','link']}#, 'init':[]}
