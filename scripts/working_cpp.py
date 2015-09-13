@@ -67,7 +67,7 @@ else:
 
 gp.SetTrajectory(skill.trajectory_model)
 gp.robot.UpdateManipObj(skill.manip_objs)
-if skill=='transport':
+if skill.name=='transport':
     gp.gp.SetCollisions('gbeam_soup',True)
 
 """ ========================================================================= """
@@ -86,45 +86,65 @@ reg = GripperRegressor(gp.robot,gp.gripper_topic,gp.skill_topic,"/progress")
 reg.addSkill(skill)
 reg.configure(config)
 
-tc = TrajectoryCommander(gp.robot,"/trajectory","/progress","/gazebo/traj_rml/action")
+if not skill.name=='grasp':
+    tc = TrajectoryCommander(gp.robot,"/trajectory","/progress","/gazebo/traj_rml/action")
 
-rospy.sleep(rospy.Duration(0.1))
+    rospy.sleep(rospy.Duration(0.1))
 
-skill_guesses = {'approach':None,'grasp':[0,0,0],'transport':None,'disengage':[0,0,-0.4]}
+    skill_guesses = {'approach':None,'grasp':[0,0,0],'transport':None,'disengage':[0,0,-0.4]}
 
-cmd,msg,traj,Z = gp.plan(
-        skill,
-        config,
-        num_iter=20,
-        tol=1e-10,
-        num_valid=20,
-        num_samples=250,
-        step_size=0.95,
-        npts=4,
-        guess_goal_x=skill_guesses[skill.name])
+    cmd,msg,traj,Z = gp.plan(
+            skill,
+            config,
+            num_iter=20,
+            tol=1e-20,
+            num_valid=20,
+            num_samples=250,
+            step_size=0.95,
+            npts=4,
+            guess_goal_x=skill_guesses[skill.name])
 
-print "Saving trajectory result."
+    print "Saving trajectory result."
 
-stream = file('traj.yml','w')
-stream.write(yaml.dump(traj,Dumper=Dumper))
-stream.close()
+    stream = file('traj.yml','w')
+    stream.write(yaml.dump(traj,Dumper=Dumper))
+    stream.close()
 
-print "Publishing."
+    print "Publishing."
 
-reg.start()
+    reg.start()
 
-pub = rospy.Publisher("/trajectory",JointTrajectory)
-pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray)
+    pub = rospy.Publisher("/trajectory",JointTrajectory)
+    pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray)
 
-rospy.sleep(rospy.Duration(0.5))
-pub.publish(cmd)
-pa_ee_pub.publish(msg)
+    rospy.sleep(rospy.Duration(0.5))
+    pub.publish(cmd)
+    pa_ee_pub.publish(msg)
 
-try:
-    rate = rospy.Rate(10)
-    while not rospy.is_shutdown():
-        pa_ee_pub.publish(msg)
-        rate.sleep()
-except rospy.ROSInterruptException, ex:
-    pass
+    try:
+        rate = rospy.Rate(10)
+        while not rospy.is_shutdown():
+            pa_ee_pub.publish(msg)
+            rate.sleep()
+    except rospy.ROSInterruptException, ex:
+        pass
 
+else:
+
+    print "Publishing."
+    gp.notify(skill.name)
+    rospy.sleep(rospy.Duration(0.1))
+    gp.notify(skill.name)
+    rospy.sleep(rospy.Duration(0.1))
+    reg.start()
+
+    tc = TrajectoryCommander(gp.robot,None,"/progress",None,step=0.03)
+    tc.play(0.05)
+
+    print "Done."
+    try:
+        rate = rospy.Rate(10)
+        while not rospy.is_shutdown():
+            rate.sleep()
+    except rospy.ROSInterruptException, ex:
+        pass

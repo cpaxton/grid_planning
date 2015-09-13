@@ -18,6 +18,7 @@ class GripperRegressor:
     '''
     def skill_cb(self,msg):
         
+        print "Skill message received: %s",msg
         rospy.logwarn('GripperRegressor not set up to handle diff variables yet!')
 
         self.active_skill = msg.data
@@ -36,9 +37,14 @@ class GripperRegressor:
 
         self.ndims = self.robot.max_index
 
-        print self.robot.objects
         while self.world is None:
             self.world = self.robot.TfCreateWorld()
+            #print self.config
+            #print self.robot.indices
+            #print "!!!!!!!!!!"
+            #print "---------"
+            #print self.objs
+            #print self.world
 
         self.skill_is_active = True
 
@@ -122,6 +128,8 @@ class GripperRegressor:
             obj_req = copy.copy(objs)
             if 'gripper' in obj_req:
                 obj_req.remove('gripper')
+
+            obj_req=['time'] # or we can just do this if it's a problem
             f = self.robot.GetFeatures(ee,self.progress,self.world,obj_req)
 
             idx = self.robot.GetIndices(obj_req)

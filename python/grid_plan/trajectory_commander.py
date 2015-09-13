@@ -13,14 +13,28 @@ The reason we do this is to let us sync up with time commands.
 
 class TrajectoryCommander:
 
-    def __init__(self,robot,command_topic,output_topic,action):
+    def __init__(self,robot,command_topic,output_topic,action,step=0.01):
 
         self.robot = robot
         self.output_topic = output_topic
         self.action = action
         self.command_topic = command_topic
-        self.sub = rospy.Subscriber(command_topic,trajectory_msgs.msg.JointTrajectory,self.cmd_cb)
+        self.step = abs(step);
+
         self.pub = rospy.Publisher(output_topic,std_msgs.msg.Float64)
+        if not command_topic is None:
+            self.sub = rospy.Subscriber(command_topic,trajectory_msgs.msg.JointTrajectory,self.cmd_cb)
+
+    '''
+    instead of messing around with actions, just publish progress messages to synchronize other nodes
+    '''
+    def play(self,rate=0.05):
+        t = 0
+        while t <= 1:
+            t = t + self.step
+            print "t = %f"%(t)
+            rospy.sleep(rate)
+            
 
     def cmd_cb(self,msg):
         client = actionlib.SimpleActionClient(self.action, control_msgs.msg.FollowJointTrajectoryAction)

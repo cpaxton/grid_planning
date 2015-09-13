@@ -73,9 +73,9 @@ def Update(Z,wts,params,step_size):
         diff = Z.means_[0,:] - ar
         n_covars_[0,:,:] += wt * diff.T.dot(diff)
 
-    print Z.means_
-    print step_size
-    print n_means_
+    #print Z.means_
+    #print step_size
+    #print n_means_
 
     means_ = ((1 - step_size)*Z.means_) + (step_size * n_means_)
     covars_ = ((1 - step_size)*Z.covars_) + (step_size * n_covars_)
@@ -147,6 +147,10 @@ class PyPlanner:
         self.msg_pub = rospy.Publisher(MSG_TOPIC,PoseArray)
         self.sample_pub = rospy.Publisher('samples',PoseArray)
 
+    def notify(self,skill_name):
+        print "Planning skill '%s'..."%(skill_name)
+        self.skill_pub.publish(skill_name)
+
     '''
     take a skill and associated objects
     return a trajectory
@@ -155,8 +159,8 @@ class PyPlanner:
     '''
     def plan(self,skill,objs,num_iter=20,tol=0.0001,num_valid=30,num_samples=2500,give_up=10,step_size=0.5, guess_goal_x=[0,0,0],npts=5):
 
-        print "Planning skill '%s'..."%(skill.name)
-        self.skill_pub.publish(skill.name)
+        # send planning message to other nodes
+        self.notify(skill.name)
 
         print " - adding objects: "
 
@@ -172,12 +176,14 @@ class PyPlanner:
         print ' - configuring skill...'
         nvars = skill.action_model.covars_.shape[1]
         for i in range(skill.action_model.n_components):
-            skill.action_model.covars_[i,:,:] += 0.00001*np.eye(nvars)
+            #skill.action_model.covars_[i,:,:] += 0.00001*np.eye(nvars)
+            skill.action_model.covars_[i,:,:] += 0.001*np.eye(nvars)
         #skill.action_model.covars_ *= 1
         if not skill.goal_model is None:
             nvars = skill.goal_model.covars_.shape[1]
             for i in range(skill.goal_model.n_components):
-                skill.goal_model.covars_[i,:,:] += 0.00001*np.eye(nvars)
+                #skill.goal_model.covars_[i,:,:] += 0.00001*np.eye(nvars)
+                skill.goal_model.covars_[i,:,:] += 0.001*np.eye(nvars)
             #skill.goal_model.covars_ *= 1
         self.robot.ConfigureSkill(skill.action_model,skill.goal_model)
 
