@@ -137,8 +137,8 @@ goal_mean: !!python/object/apply:numpy.core.multiarray._reconstruct
     state: !!python/tuple [3, <, null, null, null, -1, -1, 0]
   - false
   - !!binary |
-    AAAAAAAA4D+LIqG6wLTcv4zjn8x5HZU/UwPPEf+JlD8XKGhRnB3dP1LUcXGl098/xzTd3MBz2z8j
-    khZDj4fgP3a3uglCUeE/4asjdbXfUb9od1NvXxZSvyyERnm7pFC/
+    AAAAAAAAAAAsb28woAfmv5XUlZzol3q/FRvepiZPlD9nUlQ+r2DmP5QNTzOi5N0/LTYO3YNX2T+L
+    KeXl09XhP2sJt2qSe+E/AMDHseEOVb8A4CVmpn5Vv6uqlDdviU2/
 goal_mean_ng: !!python/object/apply:numpy.core.multiarray._reconstruct
   args:
   - *id001
@@ -152,8 +152,8 @@ goal_mean_ng: !!python/object/apply:numpy.core.multiarray._reconstruct
     state: !!python/tuple [3, <, null, null, null, -1, -1, 0]
   - false
   - !!binary |
-    AAAAAAAA4D+LIqG6wLTcv4zjn8x5HZU/UwPPEf+JlD8XKGhRnB3dP1LUcXGl098/xzTd3MBz2z8j
-    khZDj4fgP3a3uglCUeE/
+    AAAAAAAAAAAsb28woAfmv5XUlZzol3q/FRvepiZPlD9nUlQ+r2DmP5QNTzOi5N0/LTYO3YNX2T+L
+    KeXl09XhP2sJt2qSe+E/
 goal_model: !!python/object:sklearn.mixture.gmm.GMM
   converged_: false
   covariance_type: full
@@ -170,18 +170,18 @@ goal_model: !!python/object:sklearn.mixture.gmm.GMM
       state: !!python/tuple [3, <, null, null, null, -1, -1, 0]
     - false
     - !!binary |
-      u73X2d982z0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB2C9xjbPDCPy+l2Vm17NI/0KepBDrB5L+F05SAxUjCv9Zs
-      rvsl4ay/iQ06qxTT3b/pQG85Y5HBP7E9dAb9tt4/AAAAAAAAAAAvpdlZtezSP2htpIDuqhBA1LmT
-      3gLC8j/weRQtbM3Qv47XaGoAzg9A7XonZNip/7+DVptkHogHwIMALDZG3AZAAAAAAAAAAADQp6kE
-      OsHkv9S5k94CwvI/jiKc1EIwEkCPpKoAM4vkPxT+4KtCjghA+8Qj7L0c9T/Rnr4TcJIGwLZiFjm+
-      Yem/AAAAAAAAAACF05SAxUjCv/B5FC1szdC/j6SqADOL5D85b6yYvKvBP1iweDskp7Q/MZ0qavtc
-      3D92qhxvsZnDv5KTg8Gb39y/AAAAAAAAAADWbK77JeGsv47XaGoAzg9AFP7gq0KOCEBXsHg7JKe0
-      P296x+w7yBJAuZX3PmFS8L8RHruYkNQNwBLP5tXDzP8/AAAAAAAAAACJDTqrFNPdv+16J2TYqf+/
-      +8Qj7L0c9T8xnSpq+1zcP7mV9z5hUvC/fecELudk/D+FH+vXwFDgP+7RkgGoigDAAAAAAAAAAADp
-      QG85Y5HBP4NWm2QeiAfA0Z6+E3CSBsB2qhxvsZnDvxEeu5iQ1A3AhR/r18BQ4D/wOheXKScIQF4k
-      xghQMfS/AAAAAAAAAACxPXQG/bbeP4MALDZG3AZAtmIWOb5h6b+Sk4PBm9/cvxLP5tXDzP8/7tGS
-      AaiKAMBeJMYIUDH0v1Zx1nkXhARA
+      AAAAAAAA+P8AAAAAAAD4/wAAAAAAAPj/AAAAAAAA+P8AAAAAAAD4/wAAAAAAAPj/AAAAAAAA+P8A
+      AAAAAAD4/wAAAAAAAPj/AAAAAAAA+P843wYAAAD4P04dmB9+E+I/FGNZ3DP68r8ZnxXaufz3vyq5
+      Fa5P/Lm/FXA1GHjT9b8jaoCNrrbTPwaNf73EsvI/AAAAAAAA+P9OHZgffhPiPznfBgAAAPg/ep8s
+      bRXb2T9hIWRpdJ3gv9eFkGkRkvU/K0EYfDt38b8vjX0wQ+fzv7SILyzG+vQ/AAAAAAAA+P8UY1nc
+      M/ryv3qfLG0V29k/Od8GAAAA+D8OLrunYnLzP5Vxsuuq4u8/gtQKVdtL5j9wRHk0rEbyv+B0s9Vk
+      TNa/AAAAAAAA+P8ZnxXaufz3v2EhZGl0neC/Di67p2Jy8z843wYAAAD4P5ONBW8bPcM/W5tMJxZ9
+      9T9KllrwGMXWv9FhDvN9MvK/AAAAAAAA+P8quRWuT/y5v9eFkGkRkvU/lXGy66ri7z+TjQVvGz3D
+      PzjfBgAAAPg/CmKQrWv24L8EaB1EqMT3v9aWWtfjfes/AAAAAAAA+P8VcDUYeNP1vytBGHw7d/G/
+      g9QKVdtL5j9bm0wnFn31PwpikK1r9uC/ON8GAAAA+D9IpuzmViXVPzoI/xIHQ/e/AAAAAAAA+P8j
+      aoCNrrbTPy+NfTBD5/O/cER5NKxG8r9LllrwGMXWvwRoHUSoxPe/SKbs5lYl1T863wYAAAD4P3W2
+      qyVNxeW/AAAAAAAA+P8GjX+9xLLyP7SILyzG+vQ/4HSz1WRM1r/RYQ7zfTLyv9aWWtfjfes/Ogj/
+      EgdD9791tqslTcXlvznfBgAAAPg/
   init_params: wmc
   means_: !!python/object/apply:numpy.core.multiarray._reconstruct
     args:
@@ -196,8 +196,8 @@ goal_model: !!python/object:sklearn.mixture.gmm.GMM
       state: !!python/tuple [3, <, null, null, null, -1, -1, 0]
     - false
     - !!binary |
-      a2AOlNbS+7/wYkSV3nb1v/vwDuiuL+e/qzsL5oAub7/z4NDa/uP1P0SRyE+QTuq/1CUJA9yk4L+7
-      RoFN6U7rP5tGyXYZ38E/
+      AAAAAAAA+P8AAAAAAADIvAAAAAAAAAAAVVVVVVVVdTwAAAAAAADIvKuqqqqqqrI8q6qqqqqqwjyr
+      qqqqqqrCPAAAAAAAANQ8
   min_covar: 0.001
   n_components: 1
   n_init: 1
@@ -233,8 +233,8 @@ goal_std: !!python/object/apply:numpy.core.multiarray._reconstruct
     state: !!python/tuple [3, <, null, null, null, -1, -1, 0]
   - false
   - !!binary |
-    9qiCwtJm0j90RhLjw+PGP5AvmIiYKKM/W3YJO+Mxrj8xK6w1wNzGP6rBwcMc0aI/muGJT686sD9a
-    NUAMKnuoP46ajg0D8aI/aKJ9QitqSD/JKUqoo6xIP9CxbJLK1kc/
+    AAAAAAAAAADdlrpyj8GsPxnMbYmU7q8/r81mTz5Juj/aNQTuSL6rP1wYGppqpbA/3KzrLwynsT8w
+    rPvNp12xP0FnnQVJxKg/7LHRvBklUz9Av0ra/TdTP+rwp2dd5lM/
 goal_std_ng: !!python/object/apply:numpy.core.multiarray._reconstruct
   args:
   - *id001
@@ -248,8 +248,8 @@ goal_std_ng: !!python/object/apply:numpy.core.multiarray._reconstruct
     state: !!python/tuple [3, <, null, null, null, -1, -1, 0]
   - false
   - !!binary |
-    9qiCwtJm0j90RhLjw+PGP5AvmIiYKKM/W3YJO+Mxrj8xK6w1wNzGP6rBwcMc0aI/muGJT686sD9a
-    NUAMKnuoP46ajg0D8aI/
+    AAAAAAAAAADdlrpyj8GsPxnMbYmU7q8/r81mTz5Juj/aNQTuSL6rP1wYGppqpbA/3KzrLwynsT8w
+    rPvNp12xP0FnnQVJxKg/
 gripper_model: !!python/object:sklearn.mixture.gmm.GMM
   converged_: false
   covariance_type: full

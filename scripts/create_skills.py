@@ -33,7 +33,7 @@ skill_filenames['disengage'] = disengage_filenames
 
 #skill_objs = {'approach':['time','link'], 'grasp':['time','link'], 'transport':['time','link','node'], 'disengage':['time','link']}
 skill_objs = {'approach':['time','link'], 'grasp':['time','link'], 'transport':['time','node'], 'disengage':['time','link']}#, 'init':[]}
-skill_fixed = {'approach':[], 'grasp':[''], 'transport':['link'], 'disengage':[]} #,'init':[]}
+skill_fixed = {'approach':[], 'grasp':[], 'transport':['link'], 'disengage':[]} #,'init':[]}
 
 all_params = []
 

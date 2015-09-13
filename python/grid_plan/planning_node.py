@@ -177,13 +177,13 @@ class PyPlanner:
         nvars = skill.action_model.covars_.shape[1]
         for i in range(skill.action_model.n_components):
             #skill.action_model.covars_[i,:,:] += 0.00001*np.eye(nvars)
-            skill.action_model.covars_[i,:,:] += 0.0001*np.eye(nvars)
+            skill.action_model.covars_[i,:,:] += 0.1*np.eye(nvars)
         #skill.action_model.covars_ *= 1
         if not skill.goal_model is None:
             nvars = skill.goal_model.covars_.shape[1]
             for i in range(skill.goal_model.n_components):
                 #skill.goal_model.covars_[i,:,:] += 0.00001*np.eye(nvars)
-                skill.goal_model.covars_[i,:,:] += 0.0001*np.eye(nvars)
+                skill.goal_model.covars_[i,:,:] += 0.1*np.eye(nvars)
             #skill.goal_model.covars_ *= 1
         self.robot.ConfigureSkill(skill.action_model,skill.goal_model)
 
@@ -215,14 +215,14 @@ class PyPlanner:
         #else:
         #    Z.means_[0,:self.robot.dof] = guess_goal_x + [0,0,0,0];
 
-        if False and not self.robot.manip_frame is None:
-            guess_frame = PyKDL.Frame(PyKDL.Rotation(),PyKDL.Vector(guess_goal_x[0],guess_goal_x[1],guess_goal_x[2]))
-            guess_frame = guess_frame * self.robot.manip_frame.Inverse()
-            print 'FRAJKSFBWAOFEF'
-            print guess_frame
-            guess_goal_x = [x for x in guess_frame.p]
+        if not self.robot.manip_frame is None:
+            #guess_frame = PyKDL.Frame(PyKDL.Rotation(),PyKDL.Vector(guess_goal_x[0],guess_goal_x[1],guess_goal_x[2]))
+            #print self.robot.manip_frame.p
             print guess_goal_x
-        #print Z.means_[0,:self.robot.dof]
+            guess_goal_x = [x - y for x,y in zip(guess_goal_x,self.robot.manip_frame.p)]
+            print "Updating [x,y,z] taking manipulated object into account..."
+            print guess_goal_x
+
         Z = grid_plan.InitSearch(npts,np.array(guess_goal_x))
 
         params = [0]*num_valid #Z.sample(num_samples)
@@ -246,9 +246,7 @@ class PyPlanner:
             while len(valid) < num_valid and j < num_samples:
                 traj_params,traj = grid_plan.SamplePrimitives(ee,Z,self.robot.kdl_kin,q)
 
-                #traj_ = self.gp.TryPrimitives(list(cpy_traj_params))
                 traj_valid = not any([pt is None for pt in traj]) and self.gp.TryTrajectory(traj)
-                print (traj_valid, not any([pt is None for pt in traj]))
 
                 search_pts += traj
                 
@@ -286,14 +284,6 @@ class PyPlanner:
                 elite = []
                 elite_wts = []
 
-                '''
-                ll_threshold = np.percentile(lls,92)
-                for (ll,z) in zip(lls,valid):
-                    if ll >= ll_threshold:
-                        elite.append(z)
-                        elite_wts.append(ll)
-                Z = Z.fit(elite)
-                '''
                 ll_threshold = np.percentile(wts,0) # was 92
                 for (ll,z) in zip(lls,valid):
                     if ll >= ll_threshold:

@@ -96,10 +96,10 @@ if not skill.name=='grasp':
     cmd,msg,traj,Z = gp.plan(
             skill,
             config,
-            num_iter=1,#20,
+            num_iter=10,
             tol=1e-20,
             num_valid=20,
-            num_samples=250,
+            num_samples=25,
             step_size=0.95,
             npts=4,
             guess_goal_x=skill_guesses[skill.name])
@@ -138,7 +138,7 @@ else:
     rospy.sleep(rospy.Duration(0.1))
     reg.start()
 
-    tc = TrajectoryCommander(gp.robot,None,"/progress",None,step=0.03)
+    tc = TrajectoryCommander(gp.robot,None,"/progress",None,step=0.02)
     tc.play(0.05)
 
     print "Done."

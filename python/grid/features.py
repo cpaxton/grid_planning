@@ -272,6 +272,8 @@ class RobotFeatures:
     def UpdateManipObj(self,manip_objs):
         if len(manip_objs) > 0:
             self.manip_obj = manip_objs[0]
+        else:
+            self.manip_obj = None
 
     def ResetIndices(self):
         self.indices = {}
@@ -364,9 +366,7 @@ class RobotFeatures:
                 print " ... obj=%s"%(self.manip_obj)
                 print " ... tf=%s"%(self.objects[self.manip_obj])
                 #print ee_tform2
-                #self.manip_frame = obj_frame.Inverse() * (self.base_tform * ee_tform)
                 self.manip_frame = ee_tform.Inverse() * obj_frame
-                #self.manip_frame = obj_frame.Inverse() * (self.base_tform * ee_tform)
 
             except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException), e:
                 if not self.quiet:
@@ -433,7 +433,7 @@ class RobotFeatures:
 
         weights = [0.0]*len(traj)
 
-        ee_frame = [self.GetForward(q[:self.dof]) for q in traj]
+        ee_frame = [self.base_tform * self.GetForward(q[:self.dof]) for q in traj]
         features,goal_features = self.GetFeaturesForTrajectory(ee_frame,world,objs)
 
         features = self.NormalizeActionNG(features)
@@ -463,7 +463,7 @@ class RobotFeatures:
     '''
     def GetTrajectoryLikelihood(self,traj,world,objs,step=1.,sigma=0.000):
 
-        ee_frame = [self.GetForward(q[:self.dof]) for q in traj]
+        ee_frame = [self.base_tform * self.GetForward(q[:self.dof]) for q in traj]
         features,goal_features = self.GetFeaturesForTrajectory(ee_frame,world,objs)
         isum = np.sum(range(len(features)))
         scores = self.traj_model.score(features)
@@ -524,7 +524,7 @@ class RobotFeatures:
                 obj_frame = world[obj]
 
                 # ... so get object offset to end effector ...
-                offset = (obj_frame*PyKDL.Frame(PyKDL.Rotation.RotY(np.pi/2))).Inverse() * (self.base_tform * ee_frame)
+                offset = (obj_frame*PyKDL.Frame(PyKDL.Rotation.RotY(np.pi/2))).Inverse() * (ee_frame)
                 #offset = obj_frame.Inverse() * (self.base_tform * ee_frame)
 
                 # ... use position offset and distance ...
@@ -583,18 +583,19 @@ class RobotFeatures:
     Takes a joint-space trajectory (with times) and produces an output vector of (expected) features based on known object positions
     '''
     def GetTrainingFeatures(self,objs=None):
-        
 
         if objs == None:
             objs = self.indices.keys()
 
         traj,gripper = self.GetTrajectory()
 
-        if not manip_obj == None:
+        if not self.manip_obj == None:
             self.manip_frame = None
-            manip_frame = (self.base_tform * self.GetForward(traj[0])).Inverse() * self.self.world_states[0]
+            manip_frame = (self.base_tform * self.GetForward(traj[0])).Inverse() * self.world_states[0][self.manip_obj]
+            ee_frame = [x[self.manip_obj] for x in self.world_states]
+        else:
+            ee_frame = [self.base_tform * self.GetForward(q[:self.dof]) for q in traj]
 
-        ee_frame = [self.GetForward(q[:self.dof]) for q in traj]
         return self.GetFeaturesForTrajectory(ee_frame,self.world_states[0],objs,gripper)
 
     '''
@@ -638,7 +639,7 @@ class RobotFeatures:
         for i in range(len(ees)):
             for obj in objs:
                 if not (obj == TIME or obj == GRIPPER):
-                    dists[i] = ((self.base_tform*ees[i]).p - world[obj].p).Norm()
+                    dists[i] = ((ees[i]).p - world[obj].p).Norm()
                     if i > 0:
                         #df = ees[i-1].Inverse() * ees[i]
                         #(theta,w) = df.M.GetRotAngle()
