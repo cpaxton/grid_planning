@@ -1,15 +1,24 @@
-action_mean: !!python/object/apply:numpy.core.multiarray.scalar
-- !!python/object/apply:numpy.dtype
-  args: [f8, 0, 1]
-  state: !!python/tuple [3, <, null, null, null, -1, -1, 0]
-- !!binary |
-  OHdUbKXwxD8=
+action_mean: !!python/object/apply:numpy.core.multiarray._reconstruct
+  args:
+  - &id001 !!python/name:numpy.ndarray ''
+  - !!python/tuple [0]
+  - b
+  state: !!python/tuple
+  - 1
+  - !!python/tuple [12]
+  - !!python/object/apply:numpy.dtype
+    args: [f8, 0, 1]
+    state: !!python/tuple [3, <, null, null, null, -1, -1, 0]
+  - false
+  - !!binary |
+    AQAAAAAA4D+ph1XFQZ+vP7KH3imPRsK/H8GdL3+yyD97qW6jYgjRPy9RCUxJkNS/nzcbrUch4r+J
+    FKIUUGjUvwqjGtoB6eQ/cI3aYnh00T+2cSujGIfSP/m9oejj6/A/
 action_model: !!python/object:sklearn.mixture.gmm.GMM
-  converged_: true
+  converged_: false
   covariance_type: full
   covars_: !!python/object/apply:numpy.core.multiarray._reconstruct
     args:
-    - &id001 !!python/name:numpy.ndarray ''
+    - *id001
     - !!python/tuple [0]
     - b
     state: !!python/tuple
@@ -20,18 +29,18 @@ action_model: !!python/object:sklearn.mixture.gmm.GMM
       state: !!python/tuple [3, <, null, null, null, -1, -1, 0]
     - false
     - !!binary |
-      NUWcxRaUqj+z10GKW3doP0v8fHzt+IE/t5zSzwAIdj9qhDThiOp+v4w7jcqSb2y/2HaWr/Ettr/g
-      EKmWzhmHvyvPcnwVB1M/s9dBilt3aD8ExUTCKFdiP138pjuBOwy/78m5r2gSTD8o8CCkbi0/v5yd
-      9/kVuz0/JzllRT2Hkb9Tmq0Rqod1vxrw7Ynf4lu/S/x8fO34gT9d/KY7gTsMv7dzG7ERAnU/OcZV
-      jduWYD9Rd/T3T4BnvyJtPZeT+Vw/N3hIxEbHjb9pylPPk7mKP+O+/r9ln1Q/t5zSzwAIdj/vybmv
-      aBJMPznGVY3blmA/PVuBjNg/bz9y+2As97FZv7/fV66vLVc/p4cpx9N1kL85IWQJs3uFP5CAN+7S
-      Gcy+aoQ04Yjqfr8o8CCkbi0/v1F39PdPgGe/cvtgLPexWb+3cb4z9xRsP+2XiWtbK1m/sfIddrHB
-      kD8gN3hO1ERwv599dW8ZTBm/jDuNypJvbL+cnff5Fbs9PyJtPZeT+Vw/v99Xrq8tVz/tl4lrWytZ
-      vxaKfSytcII/Gh1KHCQOcL8FM/2P5CGYP5T4Bqei9km/2HaWr/Ettr8nOWVFPYeRvzd4SMRGx42/
-      p4cpx9N1kL+x8h12scGQPxodShwkDnC/E7NPmGJc+T+D7qvUfJPmP4XM/uscs5Y/4BCpls4Zh79T
-      mq0Rqod1v2nKU8+TuYo/OSFkCbN7hT8gN3hO1ERwvwUz/Y/kIZg/g+6r1HyT5j8LZ6L5OkXjPwUq
-      PNHTgJA/K89yfBUHUz8a8O2J3+Jbv+O+/r9ln1Q/kIA37tIZzL6ffXVvGUwZv5T4Bqei9km/hcz+
-      6xyzlj8FKjzR04CQP7lenSAsOHs/
+      EcplumIB8D9wVPwnRsTcPx7y6lYRYOM/eZbpd5MT2L9FXMSfVLvlv5GukJC2WNM/r1xSH78JzL+S
+      aUrJJ+7bP8EpmvVr888/cFT8J0bE3D8fymW6YgHwP+ZjwI7yA+M/pTlSSjtf3b/5G2f4SDTjvx5G
+      FBqkNuU/c2V88Zuh4b/nGGe/2PLlP8VCuvG8reQ/HvLqVhFg4z/mY8CO8gPjPxbKZbpiAfA/NCkg
+      YLFjmD/Cs3tOBAHtv5dP3NrJveQ/cFaZQtTz478STJ/UmbfkP1CWxOZz9N8/eZbpd5MT2L+lOVJK
+      O1/dvzQpIGCxY5g/HMplumIB8D8zkvWavY/RP3oHO08tbtK/98RhRZLUwb9hMjXbWbDQv5oEop1i
+      qd6/RVzEn1S75b/5G2f4SDTjv8Kze04EAe2/M5L1mr2P0T8NymW6YgHwPyGgRlqIL+K/eLYvz+HL
+      2j8soRPqT4/gvwjuHFRXrd+/ka6QkLZY0z8eRhQapDblP5dP3NrJveQ/egc7Ty1u0r8hoEZaiC/i
+      vxLKZbpiAfA/Lm5/leaM6r8ApRnjU9ftPyzKK/OzqO0/r1xSH78JzL9zZXzxm6Hhv3BWmULU8+O/
+      98RhRZLUwb94ti/P4cvaPy5uf5XmjOq/HcplumIB8D9NEsNRgPPqvzz5s3an8eO/kmlKySfu2z/n
+      GGe/2PLlPxJMn9SZt+Q/YTI121mw0L8soRPqT4/gvwClGeNT1+0/TRLDUYDz6r8QymW6YgHwP0BF
+      jxErwus/wSma9Wvzzz/FQrrxvK3kP1CWxOZz9N8/mgSinWKp3r8I7hxUV63fvyzKK/OzqO0/PPmz
+      dqfx479ARY8RK8LrPxTKZbpiAfA/
   init_params: wmc
   means_: !!python/object/apply:numpy.core.multiarray._reconstruct
     args:
@@ -46,8 +55,8 @@ action_model: !!python/object:sklearn.mixture.gmm.GMM
       state: !!python/tuple [3, <, null, null, null, -1, -1, 0]
     - false
     - !!binary |
-      SKdXpWvY0D9kFuv6iNrRv4KsXwTUrs6/YNTRsZNltL9m8dSUBoq0Pys9GCKqfcC/MTnk3/EY/L91
-      v9/4ixTvvxPI+yBc0gFA
+      sNoqlZnav7ysGC9gjdvivPhyEMrqCNO85pY1KbTrEL2aC+JB4/vnPBae1tVC7OM8CfjL/PhUAL1q
+      olyabcbgPBzdnmksu/O8
   min_covar: 0.001
   n_components: 1
   n_init: 1
@@ -69,21 +78,39 @@ action_model: !!python/object:sklearn.mixture.gmm.GMM
       state: !!python/tuple [3, <, null, null, null, -1, -1, 0]
     - false
     - !!binary |
-      AQAAAAAA8D8=
-action_std: !!python/object/apply:numpy.core.multiarray.scalar
-- !!python/object/apply:numpy.dtype
-  args: [f8, 0, 1]
-  state: !!python/tuple [3, <, null, null, null, -1, -1, 0]
-- !!binary |
-  sQirPhJz9D8=
-goal_mean: !!python/object/apply:numpy.core.multiarray.scalar
-- !!python/object/apply:numpy.dtype
-  args: [f8, 0, 1]
-  state: !!python/tuple [3, <, null, null, null, -1, -1, 0]
-- !!binary |
-  OHdUbKXwxD8=
+      AAAAAAAA8D8=
+action_std: !!python/object/apply:numpy.core.multiarray._reconstruct
+  args:
+  - *id001
+  - !!python/tuple [0]
+  - b
+  state: !!python/tuple
+  - 1
+  - !!python/tuple [12]
+  - !!python/object/apply:numpy.dtype
+    args: [f8, 0, 1]
+    state: !!python/tuple [3, <, null, null, null, -1, -1, 0]
+  - false
+  - !!binary |
+    j4aFl9t00j9ZSjw5yFuxP12CYGI3BrU/BxLgokYIpz+BSNSKRx+wP8DMG/68CcI/rYxQt9cYtz/z
+    C1jzl+y8P4I5alhHYrQ/r7JtJAWFoT+s1u7dZQW1P7vMCKpvObY/
+goal_mean: !!python/object/apply:numpy.core.multiarray._reconstruct
+  args:
+  - *id001
+  - !!python/tuple [0]
+  - b
+  state: !!python/tuple
+  - 1
+  - !!python/tuple [12]
+  - !!python/object/apply:numpy.dtype
+    args: [f8, 0, 1]
+    state: !!python/tuple [3, <, null, null, null, -1, -1, 0]
+  - false
+  - !!binary |
+    AQAAAAAA4D+ph1XFQZ+vP7KH3imPRsK/H8GdL3+yyD97qW6jYgjRPy9RCUxJkNS/nzcbrUch4r+J
+    FKIUUGjUvwqjGtoB6eQ/cI3aYnh00T+2cSujGIfSP/m9oejj6/A/
 goal_model: !!python/object:sklearn.mixture.gmm.GMM
-  converged_: true
+  converged_: false
   covariance_type: full
   covars_: !!python/object/apply:numpy.core.multiarray._reconstruct
     args:
@@ -98,18 +125,18 @@ goal_model: !!python/object:sklearn.mixture.gmm.GMM
       state: !!python/tuple [3, <, null, null, null, -1, -1, 0]
     - false
     - !!binary |
-      /Knx0k1iUD/8//////9QOfr//////005/P//////MDn8//////8yufv//////0Y5/P//////hDn7
-      //////94Ofv//////4W5/P//////UDkEYfzxmVFbP+16e8YciTk/gSLPouXOUT9kedaWyMU6v1BX
-      hdYT7WQ/8tUdawaUfL/jUwpP4iCFP5iLP+nK8zA/+v//////TTntenvGHIk5PxCTe4doHlg/Bsm0
-      Q5gNUj+Y5iJBRxQwv7BBj7umh2A/J7Ogop/dfb8Phhz6XA2GPzFcQyBlsDk/p6qqqqqqMTmBIs+i
-      5c5RPwbJtEOYDVI/6DN+/aQBbj+e8J7JwjpGv2xaTiPcKHU/wH68KE3ukb9wFN/UhnyaP6Jous96
-      40w//P//////MrlkedaWyMU6v5jmIkFHFDC/nvCeycI6Rr/6GdIC6HtUP3Qf7kb021m/eJMi5p7c
-      cT+C6Vtr22h6v/qprFwtoyW/+///////RjlQV4XWE+1kP7BBj7umh2A/bFpOI9wodT9zH+5G9NtZ
-      v5j2nWZYZIg/H8IrhAk4ob/cX4PSBnKpP1dHxFXZt1g//P//////hDny1R1rBpR8vyezoKKf3X2/
-      wH68KE3ukb94kyLmntxxPx/CK4QJOKG/CqwgTTzEvT+3M6PLa8vFv3wiHT2gD3i/+///////eDnj
-      UwpP4iCFPw+GHPpcDYY/cBTf1IZ8mj+C6Vtr22h6v9xfg9IGcqk/tzOjy2vLxb9OIc91/yjQP4Fz
-      PbrXwoE/+///////hbmYiz/pyvMwPzFcQyBlsDk/omi6z3rjTD/6qaxcLaMlv1dHxFXZt1g/fCId
-      PaAPeL+Bcz2618KBP/6Wgcps6lU/
+      u73X2d982z0AAAAAAAAAAAAAAAAAAFA5AAAAAAAAUDkAAAAAAABAuQAAAAAAAFC5AAAAAAAAUDkA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoZ91RyrT2P82DHcOLB98/vpn68qDw679tgWN0pOnYv1uy
+      kT3nB/4/r0ZE6r8b+7+zI0aZGRn5P9Z2oL87Mvo/AAAAAAAAUDnNgx3DiwffP5BMdm/y88U/P2Vo
+      gwaK0L8y5G6ckMG9v0WmFvKhceQ/miB45hut4r8gG97WJIbhPyYjM5LU1+E/AAAAAAAAUDm+mfry
+      oPDrvz9laIMGitC/ilbJZwfc6T9B6Ado45zWPyyqRNDJu/K/LndyXSIo8D992MHAz1Xsv+eq0Jb7
+      TvC/AAAAAAAAQLlugWN0pOnYvzLkbpyQwb2/QegHaOOc1j99ZIPg+snDP53udfnJsOC/B5sv6avd
+      3D/M1XVHU2XZv0oqYvM4EN2/AAAAAAAAULlbspE95wf+P0WmFvKhceQ/LKpE0Mm78r+c7nX5ybDg
+      v4SKgH/m3QNAILBnqj3pAcAg2/g5Mo8AQBMMhRM7VAFAAAAAAAAAUDmvRkTqvxv7v5ogeOYbreK/
+      LndyXSIo8D8Hmy/pq93cPyCwZ6o96QHA6CmhgaI2AEDUpAqvBB7+vzlC5wGEQP+/AAAAAAAAAACz
+      I0aZGRn5PyAb3tYkhuE/fdjBwM9V7L/M1XVHU2XZvyDb+DkyjwBA1KQKrwQe/r+gn3bxwR38P/Fw
+      TC9D5vw/AAAAAAAAAADWdqC/OzL6PyYjM5LU1+E/56rQlvtO8L9KKmLzOBDdvxMMhRM7VAFAOULn
+      AYRA/7/xcEwvQ+b8P0DnNL8pO/4/
   init_params: wmc
   means_: !!python/object/apply:numpy.core.multiarray._reconstruct
     args:
@@ -124,8 +151,8 @@ goal_model: !!python/object:sklearn.mixture.gmm.GMM
       state: !!python/tuple [3, <, null, null, null, -1, -1, 0]
     - false
     - !!binary |
-      xevwcUBiwL/9nVQMoRfRv3j4FpoK3cu/ZjIVT9u7rr/ISImDOwKvPxu+M3iUaMS/P5pc+JJyAcD8
-      p1xltKjyv7gtVRbWBgJA
+      hbnlS669+7/Qy5dAvrPXP51k4xlu8NU/5W1qR5Sh1b8zpA7VcovZvyC9ipBxH5U/M2tAia7Ls7/L
+      N0ISNw3GP7Xug5ZzFMG/
   min_covar: 0.001
   n_components: 1
   n_init: 1
@@ -147,15 +174,24 @@ goal_model: !!python/object:sklearn.mixture.gmm.GMM
       state: !!python/tuple [3, <, null, null, null, -1, -1, 0]
     - false
     - !!binary |
-      +///////7z8=
-goal_std: !!python/object/apply:numpy.core.multiarray.scalar
-- !!python/object/apply:numpy.dtype
-  args: [f8, 0, 1]
-  state: !!python/tuple [3, <, null, null, null, -1, -1, 0]
-- !!binary |
-  sQirPhJz9D8=
+      AAAAAAAA8D8=
+goal_std: !!python/object/apply:numpy.core.multiarray._reconstruct
+  args:
+  - *id001
+  - !!python/tuple [0]
+  - b
+  state: !!python/tuple
+  - 1
+  - !!python/tuple [12]
+  - !!python/object/apply:numpy.dtype
+    args: [f8, 0, 1]
+    state: !!python/tuple [3, <, null, null, null, -1, -1, 0]
+  - false
+  - !!binary |
+    j4aFl9t00j9ZSjw5yFuxP12CYGI3BrU/BxLgokYIpz+BSNSKRx+wP8DMG/68CcI/rYxQt9cYtz/z
+    C1jzl+y8P4I5alhHYrQ/r7JtJAWFoT+s1u7dZQW1P7vMCKpvObY/
 gripper_model: !!python/object:sklearn.mixture.gmm.GMM
-  converged_: true
+  converged_: false
   covariance_type: full
   covars_: !!python/object/apply:numpy.core.multiarray._reconstruct
     args:
@@ -170,27 +206,27 @@ gripper_model: !!python/object:sklearn.mixture.gmm.GMM
       state: !!python/tuple [3, <, null, null, null, -1, -1, 0]
     - false
     - !!binary |
-      NUWcxRaUqj+z10GKW3doP0v8fHzt+IE/t5zSzwAIdj9qhDThiOp+v4w7jcqSb2y/2HaWr/Ettr/g
-      EKmWzhmHvyvPcnwVB1M/SzWvQXSWZb+TFa15+M5Tv2+qf0jgAXU/s9dBilt3aD8ExUTCKFdiP138
-      pjuBOwy/78m5r2gSTD8o8CCkbi0/v5yd9/kVuz0/JzllRT2Hkb9Tmq0Rqod1vxrw7Ynf4lu/Hq9f
-      goxRNL81baxhIK49v6TRS9Ela0M/S/x8fO34gT9d/KY7gTsMv7dzG7ERAnU/OcZVjduWYD9Rd/T3
-      T4BnvyJtPZeT+Vw/N3hIxEbHjb9pylPPk7mKP+O+/r9ln1Q/70xVLYAtS785evoNgw1Kvw1RLjhi
-      q1w/t5zSzwAIdj/vybmvaBJMPznGVY3blmA/PVuBjNg/bz9y+2As97FZv7/fV66vLVc/p4cpx9N1
-      kL85IWQJs3uFP5CAN+7SGcy+/jnrXjZwTL9PLPneRh8uvyAGiGtF81U/aoQ04Yjqfr8o8CCkbi0/
-      v1F39PdPgGe/cvtgLPexWb+3cb4z9xRsP+2XiWtbK1m/sfIddrHBkD8gN3hO1ERwv599dW8ZTBm/
-      T2d+uChfQj/52yN/PzBBPyuiWI86AVS/jDuNypJvbL+cnff5Fbs9PyJtPZeT+Vw/v99Xrq8tVz/t
-      l4lrWytZvxaKfSytcII/Gh1KHCQOcL8FM/2P5CGYP5T4Bqei9km/cBIg+gS1Qr/+EfJzIpJlv5up
-      9wnvB1w/2HaWr/Ettr8nOWVFPYeRvzd4SMRGx42/p4cpx9N1kL+x8h12scGQPxodShwkDnC/E7NP
-      mGJc+T+D7qvUfJPmP4XM/uscs5Y/Ij+vloOhgj9LixaBXU+CP6MJ+0cJqY+/4BCpls4Zh79Tmq0R
-      qod1v2nKU8+TuYo/OSFkCbN7hT8gN3hO1ERwvwUz/Y/kIZg/g+6r1HyT5j8LZ6L5OkXjPwUqPNHT
-      gJA/68+JFlredb/ASoJ2/FKQv12h1ICAFY4/K89yfBUHUz8a8O2J3+Jbv+O+/r9ln1Q/kIA37tIZ
-      zL6ffXVvGUwZv5T4Bqei9km/hcz+6xyzlj8FKjzR04CQP7lenSAsOHs/lzAdadhyLL+NWd1FtGYl
-      v+omPaNzrkM/SzWvQXSWZb8er1+CjFE0v+9MVS2ALUu//jnrXjZwTL9PZ364KF9CP3ASIPoEtUK/
-      Ij+vloOhgj/rz4kWWt51v5cwHWnYciy/qkZ9ga4gXD9j7S3kvPFQP/k/M0mdM0e/kxWtefjOU781
-      baxhIK49vzl6+g2DDUq/Tyz53kYfLr/52yN/PzBBP/4R8nMikmW/S4sWgV1Pgj/ASoJ2/FKQv41Z
-      3UW0ZiW/Y+0t5LzxUD9jCJikwAB1Pz5UtjNcrGK/b6p/SOABdT+k0UvRJWtDPw1RLjhiq1w/IAaI
-      a0XzVT8roliPOgFUv5up9wnvB1w/own7Rwmpj79dodSAgBWOP+omPaNzrkM/+T8zSZ0zR78+VLYz
-      XKxiv+h9oWBv/nY/
+      EcplumIB8D9wVPwnRsTcPx7y6lYRYOM/eZbpd5MT2L9FXMSfVLvlv5GukJC2WNM/r1xSH78JzL+S
+      aUrJJ+7bP8EpmvVr888/KSYZi6nt27/D7z79oVu1vwLrQXOZbNU/cFT8J0bE3D8fymW6YgHwP+Zj
+      wI7yA+M/pTlSSjtf3b/5G2f4SDTjvx5GFBqkNuU/c2V88Zuh4b/nGGe/2PLlP8VCuvG8reQ/8Y1s
+      qCGP478jGNqRL0SxvyjfZvBDzdc/HvLqVhFg4z/mY8CO8gPjPxbKZbpiAfA/NCkgYLFjmD/Cs3tO
+      BAHtv5dP3NrJveQ/cFaZQtTz478STJ/UmbfkP1CWxOZz9N8//Hg7zK/d3r8uZIEK6qjIvzPU0J/Y
+      qtk/eZbpd5MT2L+lOVJKO1/dvzQpIGCxY5g/HMplumIB8D8zkvWavY/RP3oHO08tbtK/98RhRZLU
+      wb9hMjXbWbDQv5oEop1iqd6/PGKa72cQ1T+0DLsT3aTJPzzMvAYovc+/RVzEn1S75b/5G2f4SDTj
+      v8Kze04EAe2/M5L1mr2P0T8NymW6YgHwPyGgRlqIL+K/eLYvz+HL2j8soRPqT4/gvwjuHFRXrd+/
+      MIR25oQ12z8+U12HYTfFPzd3rTsQW9e/ka6QkLZY0z8eRhQapDblP5dP3NrJveQ/egc7Ty1u0r8h
+      oEZaiC/ivxLKZbpiAfA/Lm5/leaM6r8ApRnjU9ftPyzKK/OzqO0/XFu0K9MZ579b79pFFm7mvy5E
+      S6LbYuU/r1xSH78JzL9zZXzxm6Hhv3BWmULU8+O/98RhRZLUwb94ti/P4cvaPy5uf5XmjOq/Hcpl
+      umIB8D9NEsNRgPPqvzz5s3an8eO/HgPdI+XL5D+CWbJccnTiP56LqwTUPuO/kmlKySfu2z/nGGe/
+      2PLlPxJMn9SZt+Q/YTI121mw0L8soRPqT4/gvwClGeNT1+0/TRLDUYDz6r8QymW6YgHwP0BFjxEr
+      wus//hw10K6r6L8JJSAZl1bkv7QrInsEnOU/wSma9Wvzzz/FQrrxvK3kP1CWxOZz9N8/mgSinWKp
+      3r8I7hxUV63fvyzKK/OzqO0/PPmzdqfx479ARY8RK8LrPxTKZbpiAfA/pEIKnTkN5r8YDn/t3+bk
+      v/JkoPOkiuM/KSYZi6nt27/xjWyoIY/jv/x4O8yv3d6/PGKa72cQ1T8whHbmhDXbP1xbtCvTGee/
+      HgPdI+XL5D/+HDXQrqvov6RCCp05Dea/EcplumIB8D9OvVa5Jj/jP8goRTpp7di/w+8+/aFbtb8j
+      GNqRL0Sxvy5kgQrqqMi/tAy7E92kyT8+U12HYTfFP1vv2kUWbua/glmyXHJ04j8JJSAZl1bkvxgO
+      f+3f5uS/Tr1WuSY/4z8IymW6YgHwP5iyjolwuOC/AutBc5ls1T8o32bwQ83XPzPU0J/Yqtk/PMy8
+      Bii9z783d607EFvXvy5ES6LbYuU/nourBNQ+47+0KyJ7BJzlP/JkoPOkiuM/yChFOmnt2L+Yso6J
+      cLjgvxTKZbpiAfA/
   init_params: wmc
   means_: !!python/object/apply:numpy.core.multiarray._reconstruct
     args:
@@ -205,8 +241,8 @@ gripper_model: !!python/object:sklearn.mixture.gmm.GMM
       state: !!python/tuple [3, <, null, null, null, -1, -1, 0]
     - false
     - !!binary |
-      SKdXpWvY0D9kFuv6iNrRv4KsXwTUrs6/YNTRsZNltL9m8dSUBoq0Pys9GCKqfcC/MTnk3/EY/L91
-      v9/4ixTvvxPI+yBc0gFAQucyhUvctT9OBugDyDe5P1oCnZscYuY/
+      sNoqlZnav7ysGC9gjdvivPhyEMrqCNO85pY1KbTrEL2aC+JB4/vnPBae1tVC7OM8CfjL/PhUAL1q
+      olyabcbgPBzdnmksu/O81i4vG16FJT2HJg/Vr5UTPVDD8G9/QOO8
   min_covar: 0.001
   n_components: 1
   n_init: 1
@@ -228,7 +264,7 @@ gripper_model: !!python/object:sklearn.mixture.gmm.GMM
       state: !!python/tuple [3, <, null, null, null, -1, -1, 0]
     - false
     - !!binary |
-      AQAAAAAA8D8=
+      AAAAAAAA8D8=
 manip_objs: [link]
 name: transport
 num_gripper_vars: 3

@@ -18,8 +18,8 @@ ak = 1
 gk = 1
 
 # first set up filenames
-approach_filenames = ['data/app1.yml','data/app2.yml','data/app3.yml']
-grasp_filenames = ['data/grasp1.yml','data/grasp2.yml','data/grasp3.yml']
+approach_filenames = ['data/app1.yml','data/app1b.yml','data/app2.yml','data/app3.yml']
+grasp_filenames = ['data/grasp1.yml','data/grasp1b.yml','data/grasp2.yml','data/grasp3.yml']
 transport_filenames = ['data/transport1.yml','data/transport2.yml','data/transport3.yml']
 disengage_filenames = ['data/disengage1.yml','data/disengage2.yml','data/disengage3.yml']
 #init_filenames = ['data/init11.yml','data/init12.yml','data/init13.yml','data/init14.yml']

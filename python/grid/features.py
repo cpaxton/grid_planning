@@ -151,6 +151,10 @@ class RobotFeatures:
         self.action_std = None
         self.goal_mean = None
         self.goal_std = None
+        self.action_mean_ng = None
+        self.action_std_ng = None
+        self.goal_mean_ng = None
+        self.goal_std_ng = None
 
         self.recorded = False
         self.quiet = True # by default hide TF error messages
@@ -416,8 +420,9 @@ class RobotFeatures:
 
         features,goal_features = self.GetFeaturesForTrajectory(traj,world,objs)
 
-        features = self.NormalizeAction(features)
-        goal_features = self.NormalizeGoal(goal_features)
+        features = self.NormalizeActionNG(features)
+        if not self.goal_model is None:
+            goal_features = self.NormalizeGoalNG(goal_features)
 
         N = features.shape[0]
         #print N,features.shape
@@ -521,16 +526,23 @@ class RobotFeatures:
                 obj_frame = world[obj]
 
                 # ... so get object offset to end effector ...
-                offset = (obj_frame*PyKDL.Frame(PyKDL.Rotation.RotY(np.pi/2))).Inverse() * (self.base_tform * ee_frame)
+                #offset = (obj_frame*PyKDL.Frame(PyKDL.Rotation.RotY(np.pi/2))).Inverse() * (self.base_tform * ee_frame)
+                offset = obj_frame.Inverse() * (self.base_tform * ee_frame)
 
                 # ... use position offset and distance ...
                 features += offset.p
                 features += [offset.p.Norm()]
 
                 # ... and use axis/angle representation
-                (theta,w) = offset.M.GetRotAngle()
-                features += [theta*w[0],theta*w[1],theta*w[2],theta]
-                #features += [w[0],w[1],w[2],theta]
+                #(theta,w) = offset.M.GetRotAngle()
+                #features += [theta*w[0],theta*w[1],theta*w[2],theta]
+                #(theta,w) = offset.M.GetRotAngle()
+                (x,y,z,w) = offset.M.GetQuaternion()
+                #print offset.M.GetQuaternion()
+                #print PyKDL.Rotation.Quaternion(x,y,z,w).GetQuaternion()
+                #print '----'
+                #raw_input()
+                features += [x,y,z,w]
 
         return features
 
@@ -647,10 +659,16 @@ class RobotFeatures:
     def SetActionNormalizer(self,skill):
         self.action_mean = skill.action_mean
         self.action_std = skill.action_std
+        self.action_mean_ng = skill.action_mean_ng
+        self.action_std_ng = skill.action_std_ng
     def NormalizeAction(self,features):
         return (features - self.action_mean) / self.action_std
+    def NormalizeActionNG(self,features):
+        return (features - self.action_mean_ng) / self.action_std_ng
     def DenormalizeAction(self,features):
         return (features * self.action_std) + self.action_mean
+    def DenormalizeActionNG(self,features):
+        return (features * self.action_std_ng) + self.action_mean_ng
 
     '''
     Set up mean/std to normalize incoming goal data
@@ -658,10 +676,16 @@ class RobotFeatures:
     def SetGoalNormalizer(self,skill):
         self.goal_mean = skill.goal_mean
         self.goal_std = skill.goal_std
+        self.goal_mean_ng = skill.goal_mean_ng
+        self.goal_std_ng = skill.goal_std_ng
     def NormalizeGoal(self,features):
         return (features - self.goal_mean) / self.goal_std
+    def NormalizeGoalNG(self,features):
+        return (features - self.goal_mean_ng) / self.goal_std_ng
     def DenormalizeGoal(self,features):
         return (features * self.goal_std) + self.goal_mean
+    def DenormalizeGoalNG(self,features):
+        return (features * self.goal_std_ng) + self.goal_mean_ng
 
 def LoadRobotFeatures(filename):
 

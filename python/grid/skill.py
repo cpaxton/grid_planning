@@ -69,10 +69,10 @@ class RobotSkill:
         if filename == None and len(data) > 0:
 
             ''' compute means and normalize incoming data '''
-            self.action_mean = np.mean(data)
-            self.action_std = np.std(data)
-            self.goal_mean = np.mean(data)
-            self.goal_std = np.std(data)
+            self.action_mean = np.mean(data,axis=0)
+            self.action_std = np.std(data,axis=0)
+            self.goal_mean = np.mean(data,axis=0)
+            self.goal_std = np.std(data,axis=0)
             goals = (goals - self.goal_mean) / self.goal_std
             data = (data - self.action_mean) / self.action_std
 
@@ -83,13 +83,13 @@ class RobotSkill:
             else:
                 self.goal_model.means_ = np.array([np.mean(goals,axis=0)])
                 self.goal_model.covars_ = np.array([np.cov(goals,rowvar=False)])
-                self.goal_model.covars_[0] += 1e-5 * np.eye(self.goal_model.covars_.shape[1])
+                self.goal_model.covars_[0] += 1e-10 * np.eye(self.goal_model.covars_.shape[1])
             if action_k > 1:# or True:
                 self.action_model.fit(data)
             else:
                 self.action_model.means_ = np.array([np.mean(data,axis=0)])
                 self.action_model.covars_ = np.array([np.cov(data,rowvar=False)])
-                self.action_model.covars_[0] += 1e-5 * np.eye(self.action_model.covars_.shape[1])
+                self.action_model.covars_[0] += 1e-10 * np.eye(self.action_model.covars_.shape[1])
 
             self.trajectory_model.fit(params)
             self.t_factor = 0.1
@@ -104,6 +104,11 @@ class RobotSkill:
                 self.action_model.covars_ = self.gripper_model.covars_[:,:-num_gripper_vars,:-num_gripper_vars]
                 self.goal_model.covars_ = self.goal_model.covars_[:,:-num_gripper_vars,:-num_gripper_vars]
                 self.goal_model.means_ = self.goal_model.means_[:,:-num_gripper_vars]
+
+                self.action_mean_ng = self.action_mean[:-num_gripper_vars]
+                self.action_std_ng = self.action_std[:-num_gripper_vars]
+                self.goal_mean_ng = self.goal_mean[:-num_gripper_vars]
+                self.goal_std_ng = self.goal_std[:-num_gripper_vars]
 
         elif not filename == None:
             stream = file(filename,'r')
@@ -121,6 +126,10 @@ class RobotSkill:
             self.action_std = data['action_std']
             self.goal_mean = data['goal_mean']
             self.goal_std = data['goal_std']
+            self.action_mean_ng = data['action_mean_ng']
+            self.action_std_ng = data['action_std_ng']
+            self.goal_mean_ng = data['goal_mean_ng']
+            self.goal_std_ng = data['goal_std_ng']
             self.t_factor = 0.1
 
     def GetGoalModel(self,objs):
@@ -169,6 +178,10 @@ class RobotSkill:
         out['action_std'] = self.action_std
         out['goal_mean'] = self.goal_mean
         out['goal_std'] = self.goal_std
+        out['action_mean_ng'] = self.action_mean_ng
+        out['action_std_ng'] = self.action_std_ng
+        out['goal_mean_ng'] = self.goal_mean_ng
+        out['goal_std_ng'] = self.goal_std_ng
 
         yaml.dump(out,stream)
 
