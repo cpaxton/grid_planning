@@ -287,15 +287,16 @@ class PyPlanner:
 
                 skipped = 0
                 last_avg = cur_avg
-                elite = []
-                elite_wts = []
+                #elite = []
+                #elite_wts = []
 
-                ll_threshold = np.percentile(wts,0) # was 92
-                for (ll,z) in zip(lls,valid):
-                    if ll >= ll_threshold:
-                        elite.append(z)
-                        elite_wts.append(ll)
-                mu,sig = Update(Z,elite_wts,elite,step_size)
+                ll_threshold = np.percentile(wts,90) # was 92
+                #for (ll,z) in zip(lls,valid):
+                #    if ll >= ll_threshold:
+                #        elite.append(z)
+                #        elite_wts.append(ll)
+                #mu,sig = Update(Z,elite_wts,elite,step_size)
+                mu,sig = Update(Z,wts,valid,step_size)
                 Z.means_ = mu
                 Z.covars_ = sig
 

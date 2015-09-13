@@ -15,6 +15,7 @@ from geometry_msgs.msg import PoseArray
 " tf/ros utilities "
 import tf_conversions.posemath as pm
 import PyKDL
+import numpy as np
 
 '''
 Demonstration
@@ -117,7 +118,7 @@ def GetPoseMessage(fx, idx, frame_id="/world"):
         q = np.array([fx[i][idx+3],fx[i][idx+4],fx[i][idx+5],fx[i][idx+6]])
         q = q / np.linalg.norm(q)
         rot = PyKDL.Rotation.Quaternion(q[0],q[1],q[2],q[3])
-        frame = PyKDL.Frame(rot,pose) * PyKDL.Frame(PyKDL.Rotation.RotZ(-1*np.pi/2))
+        frame = PyKDL.Frame(PyKDL.Rotation.RotY(np.pi/2)) * PyKDL.Frame(rot,pose) * PyKDL.Frame(PyKDL.Rotation.RotZ(-1*np.pi/2))
         pmsg = pm.toMsg(frame)
         msg.poses.append(pmsg)
 

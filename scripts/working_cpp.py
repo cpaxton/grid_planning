@@ -67,7 +67,7 @@ else:
 
 gp.SetTrajectory(skill.trajectory_model)
 gp.robot.UpdateManipObj(skill.manip_objs)
-if skill.name=='transport':
+if skill.name in ['transport','align','place','release']:
     gp.gp.SetCollisions('gbeam_soup',True)
 
 """ ========================================================================= """
@@ -91,7 +91,7 @@ if not skill.name=='grasp':
 
     rospy.sleep(rospy.Duration(0.1))
 
-    skill_guesses = {'approach':None,'grasp':[0,0,0],'transport':None,'disengage':[0,0,-0.4]}
+    skill_guesses = {'approach':None,'grasp':[0,0,0],'release':[0,0,0],'transport':None,'align':[0,0,0.3],'place':None,'disengage':[0,0,-0.4]}
 
     cmd,msg,traj,Z = gp.plan(
             skill,
