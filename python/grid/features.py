@@ -140,6 +140,7 @@ class RobotFeatures:
         self.gripper_topic = gripper_topic
 
         self.manip_obj = None
+        self.manip_frame = None
 
         self.action_inv = []
         self.goal_inv = []
@@ -314,6 +315,9 @@ class RobotFeatures:
         mat = self.kdl_kin.forward(q)
         f = pm.fromMatrix(mat)
 
+        #if not self.manip_frame is None:
+        #    f = f * self.manip_frame
+
         return f
 
     '''
@@ -354,8 +358,15 @@ class RobotFeatures:
             try:
                 (trans,rot) = self.tfl.lookupTransform(self.world_frame,self.end_link,rospy.Time(0))
                 ee_tform = pm.fromTf((trans,rot))
-                #print "--- manip frame ---"
-                #print (self.base_tform * ee_tform).Inverse() * obj_frame
+                #(trans,rot) = self.tfl.lookupTransform(self.objects[self.manip_obj],self.end_link,rospy.Time(0))
+                #ee_tform2 = pm.fromTf((trans,rot))
+                print "-- manip frame ---"
+                print " ... obj=%s"%(self.manip_obj)
+                print " ... tf=%s"%(self.objects[self.manip_obj])
+                #print ee_tform2
+                #self.manip_frame = obj_frame.Inverse() * (self.base_tform * ee_tform)
+                self.manip_frame = ee_tform.Inverse() * obj_frame
+                #self.manip_frame = obj_frame.Inverse() * (self.base_tform * ee_tform)
 
             except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException), e:
                 if not self.quiet:
@@ -422,7 +433,8 @@ class RobotFeatures:
 
         weights = [0.0]*len(traj)
 
-        features,goal_features = self.GetFeaturesForTrajectory(traj,world,objs)
+        ee_frame = [self.GetForward(q[:self.dof]) for q in traj]
+        features,goal_features = self.GetFeaturesForTrajectory(ee_frame,world,objs)
 
         features = self.NormalizeActionNG(features)
         if not self.goal_model is None:
@@ -451,7 +463,8 @@ class RobotFeatures:
     '''
     def GetTrajectoryLikelihood(self,traj,world,objs,step=1.,sigma=0.000):
 
-        features,goal_features = self.GetFeaturesForTrajectory(traj,world,objs)
+        ee_frame = [self.GetForward(q[:self.dof]) for q in traj]
+        features,goal_features = self.GetFeaturesForTrajectory(ee_frame,world,objs)
         isum = np.sum(range(len(features)))
         scores = self.traj_model.score(features)
 
@@ -463,22 +476,24 @@ class RobotFeatures:
     '''
     GetFeaturesForTrajectory
     '''
-    def GetFeaturesForTrajectory(self,traj,world,objs,gripper=None):
+    def GetFeaturesForTrajectory(self,ee_frame,world,objs,gripper=None):
 
-        features = [[]]*(len(traj)-1)
+        #features = [[]]*(len(traj)-1)
+        npts = len(ee_frame)-1
+        features = [[]]*(npts)
 
-        ee_frame = [self.GetForward(q[:self.dof]) for q in traj]
+        #ee_frame = [self.GetForward(q[:self.dof]) for q in traj]
         #diffs = self.GetDiffFeatures(ee_frame,world,objs)
 
         if not gripper is None:
-            for i in range(len(traj)-1):
-                t = float(i+1) / len(traj)
+            for i in range(npts):
+                t = float(i+1) / (npts+1)
                 #features[i] = self.GetFeatures(ee_frame[i],t,world,objs,gripper[i]) + diffs[i]
                 features[i] = self.GetFeatures(ee_frame[i],t,world,objs,gripper[i]) #+ diffs[i]
             goal_features = self.GetFeatures(ee_frame[-1],0.0,world,objs,gripper[i-1])
         else:
-            for i in range(len(traj)-1):
-                t = float(i+1) / len(traj)
+            for i in range(npts):
+                t = float(i+1) / (npts+1)
                 #features[i] = self.GetFeatures(ee_frame[i],t,world,objs) + diffs[i]
                 features[i] = self.GetFeatures(ee_frame[i],t,world,objs) #+ diffs[i]
             goal_features = self.GetFeatures(ee_frame[-1],0.0,world,objs)
@@ -569,12 +584,18 @@ class RobotFeatures:
     '''
     def GetTrainingFeatures(self,objs=None):
         
+
         if objs == None:
             objs = self.indices.keys()
-        
+
         traj,gripper = self.GetTrajectory()
 
-        return self.GetFeaturesForTrajectory(traj,self.world_states[0],objs,gripper)
+        if not manip_obj == None:
+            self.manip_frame = None
+            manip_frame = (self.base_tform * self.GetForward(traj[0])).Inverse() * self.self.world_states[0]
+
+        ee_frame = [self.GetForward(q[:self.dof]) for q in traj]
+        return self.GetFeaturesForTrajectory(ee_frame,self.world_states[0],objs,gripper)
 
     '''
     GetFeatureLabels()

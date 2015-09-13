@@ -96,7 +96,7 @@ if not skill.name=='grasp':
     cmd,msg,traj,Z = gp.plan(
             skill,
             config,
-            num_iter=20,
+            num_iter=1,#20,
             tol=1e-20,
             num_valid=20,
             num_samples=250,
