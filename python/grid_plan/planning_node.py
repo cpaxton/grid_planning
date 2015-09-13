@@ -58,7 +58,12 @@ def Sample(gmm):
 
 def Update(Z,wts,params,step_size):
     print "Updating Z..."
-    wts /= np.sum(wts)
+    if np.sum(wts) == 0:
+        wts = np.ones(len(wts)) / len(wts)
+        print "ERR! No plausible locations to go!"
+        return Z.means_, Z.covars_
+    else:
+        wts /= np.sum(wts)
     n_means_ = np.zeros(Z.means_.shape)
     n_covars_ = np.zeros(Z.covars_.shape)
     for wt,param in zip(wts,params):
@@ -168,12 +173,12 @@ class PyPlanner:
         nvars = skill.action_model.covars_.shape[1]
         for i in range(skill.action_model.n_components):
             skill.action_model.covars_[i,:,:] += 0.00001*np.eye(nvars)
-        #skill.action_model.covars_ *= 10
+        #skill.action_model.covars_ *= 1
         if not skill.goal_model is None:
             nvars = skill.goal_model.covars_.shape[1]
             for i in range(skill.goal_model.n_components):
                 skill.goal_model.covars_[i,:,:] += 0.00001*np.eye(nvars)
-            #skill.goal_model.covars_ *= 10
+            #skill.goal_model.covars_ *= 1
         self.robot.ConfigureSkill(skill.action_model,skill.goal_model)
 
         print " - getting TF information for generating trajectories..."
@@ -266,7 +271,7 @@ class PyPlanner:
                 if skipped >= give_up:
                     print "Stuck after %d skipped; let's just give up."%(skipped)
                     break
-            elif np.abs(cur_avg - last_avg) <= tol*last_avg and i > 5:
+            elif np.abs(cur_avg - last_avg) <= tol and i > 5:
                 print "Done! %g - %g = %g"%(cur_avg, last_avg, np.abs(cur_avg - last_avg))
                 break
             else:

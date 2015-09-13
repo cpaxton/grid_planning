@@ -66,7 +66,7 @@ def P_Gauss(x,mu,inv,det,wts):
         #print wts[i] * np.exp(res) / (np.sqrt((2*np.pi)**nvar * np.abs(det[i])))
         p += wts[i] * np.exp(res) / (np.sqrt((2*np.pi)**nvar * np.abs(det[i])))
 
-    return p
+    return np.log(p)
 
 class RobotFeatures:
 
@@ -183,8 +183,9 @@ class RobotFeatures:
             self.gripper_cmds = data['gripper_cmds']
 
     def ConfigureSkill(self,action,goal):
+
         self.action_inv = np.zeros(action.covars_.shape)
-        self.goal_inv = np.zeros(goal.covars_.shape)
+
         self.action_def = []
         self.goal_det = []
 
@@ -194,9 +195,12 @@ class RobotFeatures:
         for i in range(action.n_components):
             self.action_inv[i,:,:] = np.linalg.inv(action.covars_[i,:,:])
             self.action_det.append(np.linalg.det(action.covars_[i,:,:]))
-        for i in range(goal.n_components):
-            self.goal_inv[i,:,:] = np.linalg.inv(goal.covars_[i,:,:])
-            self.goal_det.append(np.linalg.det(goal.covars_[i,:,:]))
+
+        if not goal is None:
+            self.goal_inv = np.zeros(goal.covars_.shape)
+            for i in range(goal.n_components):
+                self.goal_inv[i,:,:] = np.linalg.inv(goal.covars_[i,:,:])
+                self.goal_det.append(np.linalg.det(goal.covars_[i,:,:]))
 
         self.traj_model = action;
         self.goal_model = goal;
@@ -205,13 +209,13 @@ class RobotFeatures:
         if self.traj_model.n_components == 1:
             return P_Gauss(X,self.traj_model.means_,self.action_inv,self.action_det,self.traj_model.weights_)
         else:
-            return np.exp(self.traj_model.score(X))
+            return self.traj_model.score(X)
 
     def P_Goal(self,X):
         if self.goal_model.n_components == 1:
             return P_Gauss(X,self.goal_model.means_,self.goal_inv,self.goal_det,self.goal_model.weights_)
         else:
-            return np.exp(self.goal_model.score(X))
+            return self.goal_model.score(X)
 
     def StartRecording(self):
         if self.recorded:
@@ -425,40 +429,19 @@ class RobotFeatures:
             goal_features = self.NormalizeGoalNG(goal_features)
 
         N = features.shape[0]
-        #print N,features.shape
-        pa = self.P_Action(features) #* t_lambda**np.array(range(N,0,-1))
-        #pa = np.min([pa,np.ones(N)])
+        pa = self.P_Action(features)
 
-        #features[:,0] = 0
-        #pg = self.P_Goal(features)
-        #print pa+pg
-        #avg = np.prod(pa)/N
         avg = np.mean(pa)
-        #print avg
-        #raw_input()
-
-        #print features
-        #print goal_features
-
         denom = p_obs + p_z
 
-        #for i in range(N):
-        #    #weights[i] = t_lambda**(N-i) * (probs[i])
-        #    weights[i] = (1./(N)) * (probs[i])
-
-        # lambda**(N-i) [where i=N] == lambda**0 == 1
         if not self.goal_model is None:
-            #goal_prob = min([self.P_Goal(goal_features)[0],1])
             goal_prob = self.P_Goal(goal_features)[0]
-            print "a=%f / g=%f / %f"%(avg,goal_prob,avg*goal_prob)
-            #weights[-1] = prob[0]
+            print "a=%g / g=%g / %g"%(avg,goal_prob,avg + goal_prob)
+        else:
+            goal_prob = 0;
+            print "a=%g //"%(avg)
 
-        #print "aa"
-        #print avg+goal_prob
-        #print "bb"
-
-        #return np.exp(np.log(np.sum(weights)) - denom),np.sum(weights),weights
-        return np.exp(np.log(avg*goal_prob) - denom),(avg*goal_prob)
+        return np.exp(avg + goal_prob - denom),np.exp(avg + goal_prob)
 
     '''
     GetTrajectoryLikelihood
@@ -526,8 +509,8 @@ class RobotFeatures:
                 obj_frame = world[obj]
 
                 # ... so get object offset to end effector ...
-                #offset = (obj_frame*PyKDL.Frame(PyKDL.Rotation.RotY(np.pi/2))).Inverse() * (self.base_tform * ee_frame)
-                offset = obj_frame.Inverse() * (self.base_tform * ee_frame)
+                offset = (obj_frame*PyKDL.Frame(PyKDL.Rotation.RotY(np.pi/2))).Inverse() * (self.base_tform * ee_frame)
+                #offset = obj_frame.Inverse() * (self.base_tform * ee_frame)
 
                 # ... use position offset and distance ...
                 features += offset.p

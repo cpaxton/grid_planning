@@ -71,8 +71,8 @@ class RobotSkill:
             ''' compute means and normalize incoming data '''
             self.action_mean = np.mean(data,axis=0)
             self.action_std = np.std(data,axis=0)
-            self.goal_mean = np.mean(data,axis=0)
-            self.goal_std = np.std(data,axis=0)
+            self.goal_mean = np.mean(goals,axis=0)
+            self.goal_std = np.std(goals,axis=0)
             goals = (goals - self.goal_mean) / self.goal_std
             data = (data - self.action_mean) / self.action_std
 

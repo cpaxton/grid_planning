@@ -72,7 +72,7 @@ import itertools
 color_iter = itertools.cycle(['r', 'g', 'b', 'c', 'm'])
 for name,training_data_,goals in examples:
     if name == app.name:
-        training_data = (training_data_ - app.action_mean) / app.action_std
+        training_data = (training_data_ - app.action_mean_ng) / app.action_std_ng
         plt.figure(nfig);
         clf = app.action_model
         labels=data[0][0].GetFeatureLabels([skill_objs[name][1]])

@@ -62,7 +62,8 @@ if len(sys.argv) > 2:
     skill.goal_model = goal.GetGoalModel(skill.objs)
     gp.robot.SetGoalNormalizer(goal)
 else:
-    gp.robot.SetGoalNormalizer(skill)
+    skill.goal_model = None
+    #gp.robot.SetGoalNormalizer(skill)
 
 gp.SetTrajectory(skill.trajectory_model)
 gp.robot.UpdateManipObj(skill.manip_objs)
@@ -95,10 +96,10 @@ cmd,msg,traj,Z = gp.plan(
         skill,
         config,
         num_iter=20,
-        tol=0.00001,
+        tol=1e-10,
         num_valid=20,
         num_samples=250,
-        step_size=0.75,
+        step_size=0.95,
         npts=4,
         guess_goal_x=skill_guesses[skill.name])
 
