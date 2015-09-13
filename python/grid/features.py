@@ -498,8 +498,6 @@ class RobotFeatures:
                 features[i] = self.GetFeatures(ee_frame[i],t,world,objs) #+ diffs[i]
             goal_features = self.GetFeatures(ee_frame[-1],0.0,world,objs)
 
-        # compute goal features
-
         return np.array(features),np.array([goal_features])
 
     '''
@@ -679,10 +677,14 @@ class RobotFeatures:
     Set up mean/std to normalize incoming goal data
     '''
     def SetGoalNormalizer(self,skill):
-        self.goal_mean = skill.goal_mean
-        self.goal_std = skill.goal_std
-        self.goal_mean_ng = skill.goal_mean_ng
-        self.goal_std_ng = skill.goal_std_ng
+        #self.goal_mean = skill.goal_mean
+        #self.goal_std = skill.goal_std
+        #self.goal_mean_ng = skill.goal_mean_ng
+        #self.goal_std_ng = skill.goal_std_ng
+        self.goal_mean = skill.action_mean
+        self.goal_std = skill.action_std
+        self.goal_mean_ng = skill.action_mean_ng
+        self.goal_std_ng = skill.action_std_ng
     def NormalizeGoal(self,features):
         return (features - self.goal_mean) / self.goal_std
     def NormalizeGoalNG(self,features):

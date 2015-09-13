@@ -177,13 +177,13 @@ class PyPlanner:
         nvars = skill.action_model.covars_.shape[1]
         for i in range(skill.action_model.n_components):
             #skill.action_model.covars_[i,:,:] += 0.00001*np.eye(nvars)
-            skill.action_model.covars_[i,:,:] += 0.1*np.eye(nvars)
+            skill.action_model.covars_[i,:,:] += 0.0001*np.eye(nvars)
         #skill.action_model.covars_ *= 1
         if not skill.goal_model is None:
             nvars = skill.goal_model.covars_.shape[1]
             for i in range(skill.goal_model.n_components):
                 #skill.goal_model.covars_[i,:,:] += 0.00001*np.eye(nvars)
-                skill.goal_model.covars_[i,:,:] += 0.1*np.eye(nvars)
+                skill.goal_model.covars_[i,:,:] += 0.01*np.eye(nvars)
             #skill.goal_model.covars_ *= 1
         self.robot.ConfigureSkill(skill.action_model,skill.goal_model)
 
@@ -212,8 +212,6 @@ class PyPlanner:
         elif guess_goal_x == None:
             #Z.means_[0,:self.robot.dof] = [0,0,0,0,0,0,0];
             guess_goal_x = [0,0,0]
-        #else:
-        #    Z.means_[0,:self.robot.dof] = guess_goal_x + [0,0,0,0];
 
         if not self.robot.manip_frame is None:
             #guess_frame = PyKDL.Frame(PyKDL.Rotation(),PyKDL.Vector(guess_goal_x[0],guess_goal_x[1],guess_goal_x[2]))
