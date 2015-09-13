@@ -151,6 +151,23 @@ class PyPlanner:
         print "Planning skill '%s'..."%(skill_name)
         self.skill_pub.publish(skill_name)
 
+    def UpdateModels(self,skill,i):
+        print "Updating model for iteration %d..."%(i)
+        if i > 5:
+            i = 5
+        action = copy.deepcopy(skill.action_model)
+        for i in range(action.n_components):
+            nvars = action.covars_.shape[1]
+            action.covars_[i,:,:] += 0.1*((0.1)**i)*np.eye(nvars)
+        if not skill.goal_model is None:
+            goal = copy.deepcopy(skill.goal_model)
+            nvars = goal.covars_.shape[1]
+            for i in range(goal.n_components):
+                goal.covars_[i,:,:] += ((0.1)**i)*np.eye(nvars)
+            self.robot.ConfigureSkill(action,goal)
+        else:
+            self.robot.ConfigureSkill(action,None)
+
     '''
     take a skill and associated objects
     return a trajectory
@@ -175,17 +192,8 @@ class PyPlanner:
 
         print ' - configuring skill...'
         nvars = skill.action_model.covars_.shape[1]
-        for i in range(skill.action_model.n_components):
-            #skill.action_model.covars_[i,:,:] += 0.00001*np.eye(nvars)
-            skill.action_model.covars_[i,:,:] += 0.0001*np.eye(nvars)
-        #skill.action_model.covars_ *= 1
-        if not skill.goal_model is None:
-            nvars = skill.goal_model.covars_.shape[1]
-            for i in range(skill.goal_model.n_components):
-                #skill.goal_model.covars_[i,:,:] += 0.00001*np.eye(nvars)
-                skill.goal_model.covars_[i,:,:] += 0.01*np.eye(nvars)
-            #skill.goal_model.covars_ *= 1
-        self.robot.ConfigureSkill(skill.action_model,skill.goal_model)
+
+        self.UpdateModels(skill,0)
 
         print " - getting TF information for generating trajectories..."
         world = None
@@ -294,6 +302,7 @@ class PyPlanner:
                 print mu
 
                 print "... avg ll = %g, percentile = %g"%(cur_avg,ll_threshold)
+                self.UpdateModels(skill,i)
 
             # send message
             msg = PoseArray()
