@@ -23,18 +23,12 @@ close_filenames = ['data/close1.yml']
 lift_filenames = ['data/lift1.yml','data/lift2.yml']
 
 skill_filenames = {}
-skill_filenames['approach'] = approach_filenames
-skill_filenames['grasp'] = grasp_filenames
-skill_filenames['transport'] = transport_filenames
-skill_filenames['disengage'] = disengage_filenames
-skill_filenames['release'] = release_filenames
-skill_filenames['align'] = align_filenames
-skill_filenames['place'] = place_filenames
-#skill_filenames['init'] = init_filenames
+skill_filenames['take'] = take_filenames
+skill_filenames['close'] = close_filenames
+skill_filenames['lift'] = lift_filenames
 
-#skill_objs = {'approach':['time','link'], 'grasp':['time','link'], 'transport':['time','link','node'], 'disengage':['time','link']}
-skill_objs = {'approach':['time','link'], 'grasp':['time','link'], 'transport':['time','node'], 'align':['time','node'], 'release':['time','node'],'place':['time','node'],'disengage':['time','link']}#, 'init':[]}
-skill_fixed = {'approach':[], 'grasp':[], 'transport':['link'], 'align':['link'],'place':['link'],'disengage':[],'release':['link']} #,'init':[]}
+skill_objs = {'take':['time','tool'], 'close':['time','tool'], 'lift':['time','vise']}
+skill_fixed = {'take':[], 'close':[], 'lift':[]}
 
 all_params = []
 
@@ -43,7 +37,7 @@ for name,filenames in skill_filenames.items():
 
     # create some GMMs for gripper stuff too!
     # this is just a convenience thing; they really SHOULD be the same as the ones we're using above
-    data,params,num_weights,goals = grid.LoadDataDMP(filenames,skill_objs[name] + ['gripper'],manip_objs=skill_fixed[name])
+    data,params,num_weights,goals = grid.LoadDataDMP(filenames,skill_objs[name],manip_objs=skill_fixed[name])
 
     training_data = np.array(data[0][1])
     for i in range(1,len(data)):
@@ -53,16 +47,11 @@ for name,filenames in skill_filenames.items():
         all_params += params
 
     # create the skill object
-    skill = grid.RobotSkill(name=name,action_k=ak,goal_k=gk,data=training_data,objs=(skill_objs[name]+['gripper']),manip_objs=skill_fixed[name],params=params,goals=goals)#,num_weights=num_weights)
+    skill = grid.RobotSkill(name=name,action_k=ak,goal_k=gk,data=training_data,objs=(skill_objs[name]),manip_objs=skill_fixed[name],params=params,goals=goals))
 
     skill.save(name+"_skill.yml")
 
 print "... Done creating skills."
-
-#skill = grid.RobotSkill(name='default',action_k=ak,goal_k=gk,data=training_data,params=params,goals=goals)
-#skill.save('default.yml')
-
-#print '... Done creating default.'
 
 try:
     while not rospy.is_shutdown():
