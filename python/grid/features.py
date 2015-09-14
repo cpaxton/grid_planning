@@ -406,7 +406,7 @@ class RobotFeatures:
 	    if i < len(self.gripper_cmds):
                 g = [k for k in self.gripper_cmds[i].cmd[:NUM_GRIPPER_VARS]]
 	    else:
-                g = [0]
+                g = None
             gripper.append(g)
         return traj,gripper
 

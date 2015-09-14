@@ -18,7 +18,7 @@ ak = 1
 gk = 1
 
 # first set up filenames
-take_filenames = ['ur5_data/take1.yml','ur5_data/take1b.yml','ur5_data/take2.yml','ur5_data/take3.yml']
+take_filenames = ['ur5_data/take1.yml','ur5_data/take2.yml','ur5_data/take3.yml']
 close_filenames = ['ur5_data/close1.yml','ur5_data/close2.yml']
 lift_filenames = ['ur5_data/lift1.yml','ur5_data/lift2.yml']
 
