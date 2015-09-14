@@ -56,7 +56,7 @@ if len(sys.argv) > 2:
     goal_filename = 'ur5_skills/%s_skill.yml'%(sys.argv[2])
     goal = grid.RobotSkill(filename=goal_filename)
     print "Loaded next skill '%s'"%(goal.name)
-    skill.goal_model = goal.GetGoalModel(skill.objs)
+    skill.goal_model = goal.GetGoalModel(skill.objs,preset="ur5")
     gp.robot.SetGoalNormalizer(goal)
 else:
     skill.goal_model = None

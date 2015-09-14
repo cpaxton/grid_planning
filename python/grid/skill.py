@@ -138,8 +138,11 @@ class RobotSkill:
             self.goal_std_ng = data['goal_std_ng']
             self.t_factor = 0.1
 
-    def GetGoalModel(self,objs):
-        robot = RobotFeatures()
+    def GetGoalModel(self,objs,preset=None):
+        if preset is None:
+            robot = RobotFeatures()
+        else:
+            robot = RobotFeatures(preset=preset)
 
         if 'gripper' in objs:
             objs.remove('gripper')
