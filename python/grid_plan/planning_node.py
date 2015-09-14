@@ -303,7 +303,7 @@ class PyPlanner:
                 if skipped >= give_up:
                     print "Stuck after %d skipped; let's just give up."%(skipped)
                     break
-            elif np.abs(cur_avg - last_avg) <= tol and i > 5:
+            elif np.abs(cur_avg - last_avg) <= tol*last_avg and i > 5:
                 print "Done! %g - %g = %g"%(cur_avg, last_avg, np.abs(cur_avg - last_avg))
                 break
             else:
