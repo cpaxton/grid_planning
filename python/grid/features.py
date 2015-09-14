@@ -405,7 +405,9 @@ class RobotFeatures:
             traj.append(pt)
 	    if i < len(self.gripper_cmds):
                 g = [k for k in self.gripper_cmds[i].cmd[:NUM_GRIPPER_VARS]]
-                gripper.append(g)
+	    else:
+                g = None
+            gripper.append(g)
         return traj,gripper
 
     def GetWorldPoseMsg(self,frame):

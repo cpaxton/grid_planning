@@ -109,6 +109,12 @@ class RobotSkill:
                 self.action_std_ng = self.action_std[:-num_gripper_vars]
                 self.goal_mean_ng = self.goal_mean[:-num_gripper_vars]
                 self.goal_std_ng = self.goal_std[:-num_gripper_vars]
+            else:
+                self.action_mean_ng = self.action_mean
+                self.action_std_ng = self.action_std
+                self.goal_mean_ng = self.goal_mean
+                self.goal_std_ng = self.goal_std
+
 
         elif not filename == None:
             stream = file(filename,'r')
@@ -132,8 +138,11 @@ class RobotSkill:
             self.goal_std_ng = data['goal_std_ng']
             self.t_factor = 0.1
 
-    def GetGoalModel(self,objs):
-        robot = RobotFeatures()
+    def GetGoalModel(self,objs,preset=None):
+        if preset is None:
+            robot = RobotFeatures()
+        else:
+            robot = RobotFeatures(preset=preset)
 
         if 'gripper' in objs:
             objs.remove('gripper')
