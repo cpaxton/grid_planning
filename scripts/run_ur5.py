@@ -71,25 +71,20 @@ gp.robot.UpdateManipObj(skill.manip_objs)
 
 print "Starting search:"
 
-rospy.wait_for_service('/gazebo/publish_planning_scene')
-pps = rospy.ServiceProxy('/gazebo/publish_planning_scene',Empty)
-pps()
-rospy.sleep(rospy.Duration(0.1))
-pps()
-
 config = [('tool','filtered/camera_2/ar_marker_1'),('vise','filtered/camera_2/ar_marker_2')]
 
 #reg = GripperRegressor(gp.robot,gp.gripper_topic,gp.skill_topic,"/progress")
 #reg.addSkill(skill)
 #reg.configure(config)
 
-if not skill.name=='grasp':
+if not skill.name=='close':
     tc = TrajectoryCommander(gp.robot,"/trajectory","/progress","/gazebo/traj_rml/action")
 
     rospy.sleep(rospy.Duration(0.1))
 
     skill_guesses = {'take':[-0.1,-0.05,0],'close':[-0.1,-0.05,0],'lift':[-0.3,0.5,0.1]}
 
+    print "Calling planner..."
     cmd,msg,traj,Z = gp.plan(
             skill,
             config,
@@ -133,7 +128,9 @@ else:
     rospy.sleep(rospy.Duration(0.1))
     gp.notify(skill.name)
     rospy.sleep(rospy.Duration(0.1))
-    reg.start()
+    #reg.start()
+
+    print "=== TODO: SEND GRIPPER COMMAND HERE ===="
 
     tc = TrajectoryCommander(gp.robot,None,"/progress",None,step=0.01)
     tc.play(0.05)

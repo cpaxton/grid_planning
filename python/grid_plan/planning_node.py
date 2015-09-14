@@ -276,7 +276,7 @@ class PyPlanner:
                 #    bad_traj = self.gp.TryTrajectory(traj)
                 #else:
                 #    bad_traj = True
-                traj_valid = not any([pt is None for pt in traj]) and self.gp.TryTrajectory(traj)
+                traj_valid = not any([pt is None for pt in traj]) #and self.gp.TryTrajectory(traj)
                 #traj_valid = not bad_ik and bad_traj
                 #print (bad_ik, not bad_traj)
 
@@ -285,7 +285,7 @@ class PyPlanner:
                 if traj_valid:
                     valid.append(traj_params)
 
-                    p_z = Z.score(traj_params)[0]
+                    p_z = Z.score([traj_params])[0]
 
                     wt,p = self.robot.GetTrajectoryWeight(traj,world,obj_keys,p_z)
                     lls[count] = p
