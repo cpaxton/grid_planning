@@ -1,3 +1,4 @@
 <launch>
-  <node pkg="tf" name="align_target_publisher" type="static_transform_publisher"/>
+  <node pkg="tf" name="align_target_publisher" type="static_transform_publisher" args="0 0 0.329 0.648 0.224 0.281 0.671 /gbeam_node_1/gbeam_node align_target 100"/>
+  <node pkg="tf" name="place_target_publisher" type="static_transform_publisher" args="0 0 0.148 0.696 0.285 0.244 0.613 /gbeam_node_1/gbeam_node place_target 100"/>
 </launch>
