@@ -88,11 +88,11 @@ if not skill.name=='close':
     cmd,msg,traj,Z = gp.plan(
             skill,
             config,
-            num_iter=20,
+            num_iter=30,
             tol=1e-20,
             num_valid=50,
             num_samples=500,
-            step_size=0.70,
+            step_size=0.55,
             npts=4,
             skip_bad=False,
             guess_goal_x=skill_guesses[skill.name])
