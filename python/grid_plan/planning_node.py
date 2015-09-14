@@ -163,7 +163,7 @@ class PyPlanner:
             goal = copy.deepcopy(skill.goal_model)
             nvars = goal.covars_.shape[1]
             for i in range(goal.n_components):
-                goal.covars_[i,:,:] += ((0.1)**i)*np.eye(nvars)
+                goal.covars_[i,:,:] += 0.01*((0.1)**i)*np.eye(nvars)
             self.robot.ConfigureSkill(action,goal)
         else:
             self.robot.ConfigureSkill(action,None)

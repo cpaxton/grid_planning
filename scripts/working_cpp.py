@@ -97,11 +97,11 @@ if not skill.name=='grasp':
     cmd,msg,traj,Z = gp.plan(
             skill,
             config,
-            num_iter=10,
+            num_iter=20,
             tol=1e-20,
             num_valid=20,
             num_samples=250,
-            step_size=0.95,
+            step_size=0.90,
             npts=4,
             guess_goal_x=skill_guesses[skill.name])
 

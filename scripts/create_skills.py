@@ -24,6 +24,7 @@ transport_filenames = ['data/transport1.yml','data/transport2.yml','data/transpo
 align_filenames = ['data/align1.yml','data/align2.yml','data/align3.yml']
 place_filenames = ['data/place1.yml','data/place2.yml','data/place3.yml']
 disengage_filenames = ['data/disengage1.yml','data/disengage2.yml','data/disengage3.yml']
+release_filenames = ['data/release2.yml','data/release3.yml']
 #init_filenames = ['data/init11.yml','data/init12.yml','data/init13.yml','data/init14.yml']
 
 skill_filenames = {}
@@ -31,13 +32,14 @@ skill_filenames['approach'] = approach_filenames
 skill_filenames['grasp'] = grasp_filenames
 skill_filenames['transport'] = transport_filenames
 skill_filenames['disengage'] = disengage_filenames
+skill_filenames['release'] = release_filenames
 skill_filenames['align'] = align_filenames
 skill_filenames['place'] = place_filenames
 #skill_filenames['init'] = init_filenames
 
 #skill_objs = {'approach':['time','link'], 'grasp':['time','link'], 'transport':['time','link','node'], 'disengage':['time','link']}
-skill_objs = {'approach':['time','link'], 'grasp':['time','link'], 'transport':['time','node'], 'align':['time','node'], 'place':['time','node'],'disengage':['time','link']}#, 'init':[]}
-skill_fixed = {'approach':[], 'grasp':[], 'transport':['link'], 'align':['link'],'place':['link'],'disengage':[]} #,'init':[]}
+skill_objs = {'approach':['time','link'], 'grasp':['time','link'], 'transport':['time','node'], 'align':['time','node'], 'release':['time','node'],'place':['time','node'],'disengage':['time','link']}#, 'init':[]}
+skill_fixed = {'approach':[], 'grasp':[], 'transport':['link'], 'align':['link'],'place':['link'],'disengage':[],'release':['link']} #,'init':[]}
 
 all_params = []
 
