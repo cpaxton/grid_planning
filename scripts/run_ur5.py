@@ -90,10 +90,11 @@ if not skill.name=='close':
             config,
             num_iter=20,
             tol=1e-20,
-            num_valid=20,
-            num_samples=250,
-            step_size=0.90,
+            num_valid=50,
+            num_samples=500,
+            step_size=0.70,
             npts=4,
+            skip_bad=False,
             guess_goal_x=skill_guesses[skill.name])
 
     print "Saving trajectory result."

@@ -55,7 +55,7 @@ class RobotSkill:
     they also contain a description for our own purposes
     oh, and which objects are involved
     '''
-    def __init__(self,data=[],params=[],goals=[],action_k=4,goal_k=4,objs=[],manip_objs=[],name="",filename=None,num_gripper_vars=3):
+    def __init__(self,data=[],params=[],goals=[],action_k=4,goal_k=4,objs=[],manip_objs=[],name="",filename=None,num_gripper_vars=3,normalize=True):
         self.name = name
 
         self.num_gripper_vars = num_gripper_vars
@@ -69,10 +69,17 @@ class RobotSkill:
         if filename == None and len(data) > 0:
 
             ''' compute means and normalize incoming data '''
-            self.action_mean = np.mean(data,axis=0)
-            self.action_std = np.std(data,axis=0)
-            self.goal_mean = np.mean(goals,axis=0)
-            self.goal_std = np.std(goals,axis=0)
+	    if normalize:
+            	self.action_mean = np.mean(data,axis=0)
+            	self.action_std = np.std(data,axis=0)
+            	self.goal_mean = np.mean(goals,axis=0)
+            	self.goal_std = np.std(goals,axis=0)
+	    else:
+                self.action_mean = np.ones(data.shape[1])
+                self.action_std = np.ones(data.shape[1])
+                self.goal_mean = np.ones(data.shape[1])
+                self.goal_std = np.ones(data.shape[1])
+
             goals = (goals - self.goal_mean) / self.goal_std
             data = (data - self.action_mean) / self.action_std
 

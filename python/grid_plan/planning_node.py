@@ -175,7 +175,7 @@ class PyPlanner:
     - objs is a mapping between tf frames and names
     - skill is a RobotSkill
     '''
-    def plan(self,skill,objs,num_iter=20,tol=0.0001,num_valid=30,num_samples=2500,give_up=10,step_size=0.5, guess_goal_x=[0,0,0],npts=5):
+    def plan(self,skill,objs,num_iter=20,tol=0.0001,num_valid=30,num_samples=2500,give_up=10,step_size=0.5, guess_goal_x=[0,0,0],npts=5,skip_bad=True):
 
         # send planning message to other nodes
         self.notify(skill.name)
@@ -298,7 +298,7 @@ class PyPlanner:
 
             cur_avg = np.mean(lls)
 
-            if cur_avg < last_avg:
+            if skip_bad and cur_avg < last_avg:
                 print "skipping: %g < %g"%(cur_avg, last_avg)
                 skipped += 1
                 if skipped >= give_up:
