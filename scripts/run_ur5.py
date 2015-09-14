@@ -42,14 +42,12 @@ from pykdl_utils.kdl_parser import kdl_tree_from_urdf_model
 from visualization_msgs.msg import MarkerArray
 from visualization_msgs.msg import Marker
 
-filenames = ["app1.yml","app2.yml","app3.yml"]
-
-rospy.init_node('ipython2')
+rospy.init_node('grid_run_ur5')
 
 """ ========================================================================= """
-gp = PyPlanner()
+gp = PyPlanner(preset='ur5')
 
-skill_filename = 'skills/%s_skill.yml'%(sys.argv[1])
+skill_filename = 'ur5_skills/%s_skill.yml'%(sys.argv[1])
 skill = grid.RobotSkill(filename=skill_filename)
 print "Loaded skill '%s'"%(skill.name)
 

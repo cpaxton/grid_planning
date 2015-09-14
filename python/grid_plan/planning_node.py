@@ -130,7 +130,8 @@ class PyPlanner:
                 end_link=self.end_link,
                 js_topic=joint_states_topic,
                 gripper_topic=gripper_topic,
-		dof=dof)
+		dof=dof,
+		preset=preset)
         self.gp = grid_plan.GridPlanner(
                 robot_description,
                 joint_states_topic,
