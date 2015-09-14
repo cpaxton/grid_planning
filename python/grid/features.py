@@ -88,6 +88,7 @@ class RobotFeatures:
             filename=None
             ):
 
+	self.sync_gripper = True
 	if preset == 'wam7_sim':
 		base_link='wam/base_link'
 		end_link='wam/wrist_palm_link'
@@ -95,9 +96,10 @@ class RobotFeatures:
 		gripper_topic='/gazebo/barrett_manager/hand/cmd'
 	elif preset == 'ur5':
 		base_link='base_link'
-		end_link='end_link'
+		end_link='ee_link'
 		js_topic='/joint_states'
 		gripper_topic='/robotiq_c_model_gripper/gripper_command'
+		self.sync_gripper = False
 
         self.dof = dof;
         self.world_frame = world_frame
@@ -254,12 +256,20 @@ class RobotFeatures:
 
     def js_cb(self,msg):
 
-        if self.TfUpdateWorld() and (rospy.Time.now() - self.last_gripper_msg).to_sec() < self.gripper_t_threshold:
+	updated = self.TfUpdateWorld()
+	if updated and not self.sync_gripper:
+            # record joints
+            self.times.append(rospy.Time.now())
+            self.joint_states.append(msg)
+            self.world_states.append(copy.deepcopy(self.world))
+        elif updated and (rospy.Time.now() - self.last_gripper_msg).to_sec() < self.gripper_t_threshold:
             # record joints
             self.times.append(rospy.Time.now())
             self.joint_states.append(msg)
             self.gripper_cmds.append(self.gripper_cmd)
             self.world_states.append(copy.deepcopy(self.world))
+	else:
+            print "[JOINTS] Waiting for TF (updated=%d) and gripper..."%(updated)
 
     def gripper_cb(self,msg):
 

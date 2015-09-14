@@ -51,23 +51,27 @@ if __name__ == '__main__':
     # set up parameters
     world='/world'
     frame='/ee_link'
+    #print demo.base_link
+    #print demo.end_link
 
     # fix world parameters
-    obj1='/gbeam_link_1/gbeam_link'
-    obj2='/gbeam_node_1/gbeam_node'
+    #obj1='/gbeam_link_1/gbeam_link'
+    #obj2='/gbeam_node_1/gbeam_node'
+    obj1='filtered/camera_2/ar_marker_1'
+    obj2='filtered/camera_2/ar_marker_2'
 
     # set up ros things
-    rate = rospy.Rate(10)
+    rate = rospy.Rate(1)
 
-    demo.AddObject("link",obj1);
-    demo.AddObject("node",obj2);
+    demo.AddObject("tool",obj1);
+    demo.AddObject("vise",obj2);
 
     rospy.sleep(rospy.Duration(0.5))
 
     demo.StartRecording()
 
     try:
-        tl = tf.TransformListener()
+        #tl = tf.TransformListener()
         while not rospy.is_shutdown():
             #try:
             #    (trans,rot) = tl.lookupTransform('world',obj1,rospy.Time(0))
