@@ -82,7 +82,7 @@ LoadDataDMP
 Go through a list of filenames and load all of them into memory
 Also learn a whole set of DMPs
 '''
-def LoadDataDMP(filenames,objs,manip_objs=[]):
+def LoadDataDMP(filenames,objs,manip_objs=[],preset='wam_sim'):
     params = []
     data = []
     goals = []

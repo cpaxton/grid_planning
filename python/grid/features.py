@@ -88,6 +88,7 @@ class RobotFeatures:
             filename=None
             ):
 
+	self.sync_gripper = True
 	if preset == 'wam7_sim':
 		base_link='wam/base_link'
 		end_link='wam/wrist_palm_link'
@@ -95,9 +96,10 @@ class RobotFeatures:
 		gripper_topic='/gazebo/barrett_manager/hand/cmd'
 	elif preset == 'ur5':
 		base_link='base_link'
-		end_link='end_link'
+		end_link='ee_link'
 		js_topic='/joint_states'
 		gripper_topic='/robotiq_c_model_gripper/gripper_command'
+		self.sync_gripper = False
 
         self.dof = dof;
         self.world_frame = world_frame
@@ -254,12 +256,21 @@ class RobotFeatures:
 
     def js_cb(self,msg):
 
-        if self.TfUpdateWorld() and (rospy.Time.now() - self.last_gripper_msg).to_sec() < self.gripper_t_threshold:
+	updated = self.TfUpdateWorld()
+	if updated and not self.sync_gripper:
+            # record joints
+            self.times.append(rospy.Time.now())
+            self.joint_states.append(msg)
+	    print msg.position
+            self.world_states.append(copy.deepcopy(self.world))
+        elif updated and (rospy.Time.now() - self.last_gripper_msg).to_sec() < self.gripper_t_threshold:
             # record joints
             self.times.append(rospy.Time.now())
             self.joint_states.append(msg)
             self.gripper_cmds.append(self.gripper_cmd)
             self.world_states.append(copy.deepcopy(self.world))
+	else:
+            print "[JOINTS] Waiting for TF (updated=%d) and gripper..."%(updated)
 
     def gripper_cb(self,msg):
 
@@ -391,9 +402,10 @@ class RobotFeatures:
         gripper = []
         for i in range(len(self.times)):
             pt = [j for j in self.joint_states[i].position[:self.dof]]
-            g = [k for k in self.gripper_cmds[i].cmd[:NUM_GRIPPER_VARS]]
             traj.append(pt)
-            gripper.append(g)
+	    if i < len(self.gripper_cmds):
+                g = [k for k in self.gripper_cmds[i].cmd[:NUM_GRIPPER_VARS]]
+                gripper.append(g)
         return traj,gripper
 
     def GetWorldPoseMsg(self,frame):
@@ -703,7 +715,7 @@ def LoadRobotFeatures(filename):
     r = RobotFeatures(base_link=data['base_link'],
             end_link=data['end_link']
             ,world_frame=data['world_frame'],
-            robot_description_param=data['robot_description_param'])
+            robot_description_param=data['robot_description_param'],preset=None)
 
     r.gripper_cmds = data['gripper_cmds']
     r.joint_states = data['joint_states']
