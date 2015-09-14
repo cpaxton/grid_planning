@@ -402,9 +402,10 @@ class RobotFeatures:
         gripper = []
         for i in range(len(self.times)):
             pt = [j for j in self.joint_states[i].position[:self.dof]]
-            g = [k for k in self.gripper_cmds[i].cmd[:NUM_GRIPPER_VARS]]
             traj.append(pt)
-            gripper.append(g)
+	    if i < len(self.gripper_cmds):
+                g = [k for k in self.gripper_cmds[i].cmd[:NUM_GRIPPER_VARS]]
+                gripper.append(g)
         return traj,gripper
 
     def GetWorldPoseMsg(self,frame):
@@ -714,7 +715,7 @@ def LoadRobotFeatures(filename):
     r = RobotFeatures(base_link=data['base_link'],
             end_link=data['end_link']
             ,world_frame=data['world_frame'],
-            robot_description_param=data['robot_description_param'])
+            robot_description_param=data['robot_description_param'],preset=None)
 
     r.gripper_cmds = data['gripper_cmds']
     r.joint_states = data['joint_states']

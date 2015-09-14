@@ -19,8 +19,8 @@ gk = 1
 
 # first set up filenames
 take_filenames = ['ur5_data/take1.yml','ur5_data/take1b.yml','ur5_data/take2.yml','ur5_data/take3.yml']
-close_filenames = ['data/close1.yml']
-lift_filenames = ['data/lift1.yml','data/lift2.yml']
+close_filenames = ['ur5_data/close1.yml','ur5_data/close2.yml']
+lift_filenames = ['ur5_data/lift1.yml','ur5_data/lift2.yml']
 
 skill_filenames = {}
 skill_filenames['take'] = take_filenames
@@ -37,7 +37,7 @@ for name,filenames in skill_filenames.items():
 
     # create some GMMs for gripper stuff too!
     # this is just a convenience thing; they really SHOULD be the same as the ones we're using above
-    data,params,num_weights,goals = grid.LoadDataDMP(filenames,skill_objs[name],manip_objs=skill_fixed[name])
+    data,params,num_weights,goals = grid.LoadDataDMP(filenames,skill_objs[name],manip_objs=skill_fixed[name],preset='ur5')
 
     training_data = np.array(data[0][1])
     for i in range(1,len(data)):
@@ -47,7 +47,7 @@ for name,filenames in skill_filenames.items():
         all_params += params
 
     # create the skill object
-    skill = grid.RobotSkill(name=name,action_k=ak,goal_k=gk,data=training_data,objs=(skill_objs[name]),manip_objs=skill_fixed[name],params=params,goals=goals))
+    skill = grid.RobotSkill(name=name,action_k=ak,goal_k=gk,data=training_data,objs=(skill_objs[name]),manip_objs=skill_fixed[name],params=params,goals=goals)
 
     skill.save(name+"_skill.yml")
 
