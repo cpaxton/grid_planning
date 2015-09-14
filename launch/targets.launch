@@ -1,0 +1,3 @@
+<launch>
+  <node pkg="tf" name="align_target_publisher" type="static_transform_publisher"/>
+</launch>
