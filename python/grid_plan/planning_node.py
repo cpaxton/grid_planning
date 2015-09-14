@@ -202,7 +202,10 @@ class PyPlanner:
         
         print " - setting up initial search distribution..."
         q = self.gp.GetJointPositions()
-        ee = self.robot.GetForward(q)
+        if self.robot.manip_obj is None:
+            ee = self.robot.GetForward(q)
+        else:
+            ee = self.robot.GetForward(q) * self.robot.manip_frame.Inverse()
 
         ########################################
         # THESE ARE CORRECT AS FAR AS I CAN TELL
@@ -236,13 +239,13 @@ class PyPlanner:
             guess_goal_x = [0,0,0]
             print "ERR: did not find any important objects!"
 
-        #if not self.robot.manip_frame is None:
-        #    #guess_frame = PyKDL.Frame(PyKDL.Rotation(),PyKDL.Vector(guess_goal_x[0],guess_goal_x[1],guess_goal_x[2]))
-        #    #print self.robot.manip_frame.p
-        #    print guess_goal_x
-        #    guess_goal_x = [x + y for x,y in zip(guess_goal_x,self.robot.manip_frame.p)]
-        #    print "Updating [x,y,z] taking manipulated object into account..."
-        #    print guess_goal_x
+        if not self.robot.manip_frame is None:
+            #guess_frame = PyKDL.Frame(PyKDL.Rotation(),PyKDL.Vector(guess_goal_x[0],guess_goal_x[1],guess_goal_x[2]))
+            #print self.robot.manip_frame.p
+            print guess_goal_x
+            guess_goal_x = [x - y for x,y in zip(guess_goal_x,self.robot.manip_frame.p)]
+            print "Updating [x,y,z] taking manipulated object into account..."
+            print guess_goal_x
 
         Z = grid_plan.InitSearch(npts,np.array(guess_goal_x))
 
@@ -267,14 +270,14 @@ class PyPlanner:
             while len(valid) < num_valid and j < num_samples:
                 traj_params,traj = grid_plan.SamplePrimitives(ee,Z,self.robot.kdl_kin,q)
 
-                bad_ik = any([pt is None for pt in traj])
-                if not bad_ik:
-                    bad_traj = self.gp.TryTrajectory(traj)
-                else:
-                    bad_traj = True
-                #traj_valid = not any([pt is None for pt in traj]) and self.gp.TryTrajectory(traj)
-                traj_valid = not bad_ik and bad_traj
-                print (bad_ik, not bad_traj)
+                #bad_ik = any([pt is None for pt in traj])
+                #if not bad_ik:
+                #    bad_traj = self.gp.TryTrajectory(traj)
+                #else:
+                #    bad_traj = True
+                traj_valid = not any([pt is None for pt in traj]) and self.gp.TryTrajectory(traj)
+                #traj_valid = not bad_ik and bad_traj
+                #print (bad_ik, not bad_traj)
 
                 search_pts += traj
                 
@@ -323,7 +326,6 @@ class PyPlanner:
             '''
             self.sample_pub.publish(smsg)
             '''
-            print self.robot.manip_frame
             for pt in search_pts:
                 if not pt == None:
                     f = self.robot.GetForward(pt[:7])

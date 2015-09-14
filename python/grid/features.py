@@ -441,10 +441,6 @@ class RobotFeatures:
         if not self.goal_model is None:
             goal_features = self.NormalizeGoalNG(goal_features)
 
-        #print features[0]
-        #print self.traj_model.means_
-        #raw_input()
-
         N = features.shape[0]
         pa = self.P_Action(features)
 
