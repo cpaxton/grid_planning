@@ -314,11 +314,12 @@ class RobotFeatures:
     '''
     def GetForward(self,q):
 
+        #q = [0,0,0,0,0,0,0]
         mat = self.kdl_kin.forward(q)
         f = pm.fromMatrix(mat)
 
-        #if not self.manip_frame is None:
-        #    f = f * self.manip_frame
+        if not self.manip_frame is None:
+            f = f * self.manip_frame #* self.manip_frame.Inverse()
 
         return f
 
@@ -439,6 +440,10 @@ class RobotFeatures:
         features = self.NormalizeActionNG(features)
         if not self.goal_model is None:
             goal_features = self.NormalizeGoalNG(goal_features)
+
+        #print features[0]
+        #print self.traj_model.means_
+        #raw_input()
 
         N = features.shape[0]
         pa = self.P_Action(features)

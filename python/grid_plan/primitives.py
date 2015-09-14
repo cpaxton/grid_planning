@@ -34,6 +34,13 @@ def SamplePrimitives(ee,Z,kdl_kin,q,num_interp=4):
             res = kdl_kin.inverse(pm.toMatrix(frame),q)
             if not res is None:
                 traj.append(res.tolist())
+                '''
+                ====================
+                '''
+                q = res
+                '''
+                ====================
+                '''
             else:
                 traj.append(None)
         last_param = param

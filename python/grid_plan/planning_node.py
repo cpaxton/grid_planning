@@ -153,8 +153,8 @@ class PyPlanner:
 
     def UpdateModels(self,skill,i):
         print "Updating model for iteration %d..."%(i)
-        if i > 5:
-            i = 5
+        if i > 10:
+            i = 10
         action = copy.deepcopy(skill.action_model)
         for i in range(action.n_components):
             nvars = action.covars_.shape[1]
@@ -204,9 +204,19 @@ class PyPlanner:
         q = self.gp.GetJointPositions()
         ee = self.robot.GetForward(q)
 
+        ########################################
+        # THESE ARE CORRECT AS FAR AS I CAN TELL
+        #print ee.p
+        #print ee.M.GetRPY()
+        ########################################
+        #print self.robot.base_tform
+        # THIS WAS ALSO CORRECT
+        ########################################
+
         print "Current 'end effector' location:"
         print "(x,y,z) = "
-        print (self.robot.base_tform * ee).p
+        tmp = (self.robot.base_tform * ee)
+        print (tmp.p.x(), tmp.p.y(), tmp.p.z())
         print "(roll, pitch, yaw) ="
         print (self.robot.base_tform * ee).M.GetRPY()
 
@@ -217,17 +227,22 @@ class PyPlanner:
             fobj = (self.robot.base_tform * ee).Inverse() * world[important_objs[0]]
             guess_goal_x = [fobj.p.x(),fobj.p.y(),fobj.p.z()]
             #Z.means_[0,:self.robot.dof] = [fobj.p.x(),fobj.p.y(),fobj.p.z()] + [0,0,0,0];
+        elif (not guess_goal_x == None) and len(important_objs) > 0:
+            print "   ... found world object named %s"%(important_objs[0])
+            fobj = (self.robot.base_tform * ee).Inverse() * world[important_objs[0]]
+            guess_goal_x = [fobj.p.x() + guess_goal_x[0],fobj.p.y() + guess_goal_x[1],fobj.p.z() + guess_goal_x[2]]
         elif guess_goal_x == None:
             #Z.means_[0,:self.robot.dof] = [0,0,0,0,0,0,0];
             guess_goal_x = [0,0,0]
+            print "ERR: did not find any important objects!"
 
-        if not self.robot.manip_frame is None:
-            #guess_frame = PyKDL.Frame(PyKDL.Rotation(),PyKDL.Vector(guess_goal_x[0],guess_goal_x[1],guess_goal_x[2]))
-            #print self.robot.manip_frame.p
-            print guess_goal_x
-            guess_goal_x = [x - y for x,y in zip(guess_goal_x,self.robot.manip_frame.p)]
-            print "Updating [x,y,z] taking manipulated object into account..."
-            print guess_goal_x
+        #if not self.robot.manip_frame is None:
+        #    #guess_frame = PyKDL.Frame(PyKDL.Rotation(),PyKDL.Vector(guess_goal_x[0],guess_goal_x[1],guess_goal_x[2]))
+        #    #print self.robot.manip_frame.p
+        #    print guess_goal_x
+        #    guess_goal_x = [x + y for x,y in zip(guess_goal_x,self.robot.manip_frame.p)]
+        #    print "Updating [x,y,z] taking manipulated object into account..."
+        #    print guess_goal_x
 
         Z = grid_plan.InitSearch(npts,np.array(guess_goal_x))
 
@@ -252,17 +267,22 @@ class PyPlanner:
             while len(valid) < num_valid and j < num_samples:
                 traj_params,traj = grid_plan.SamplePrimitives(ee,Z,self.robot.kdl_kin,q)
 
-                traj_valid = not any([pt is None for pt in traj]) and self.gp.TryTrajectory(traj)
+                bad_ik = any([pt is None for pt in traj])
+                if not bad_ik:
+                    bad_traj = self.gp.TryTrajectory(traj)
+                else:
+                    bad_traj = True
+                #traj_valid = not any([pt is None for pt in traj]) and self.gp.TryTrajectory(traj)
+                traj_valid = not bad_ik and bad_traj
+                print (bad_ik, not bad_traj)
 
                 search_pts += traj
                 
-                #if not len(traj_) == 0:
                 if traj_valid:
                     valid.append(traj_params)
 
                     p_z = Z.score(traj_params)[0]
 
-                    #wt,p,_ = self.robot.GetTrajectoryWeight([p for p,v in traj],world,obj_keys,p_z)
                     wt,p = self.robot.GetTrajectoryWeight(traj,world,obj_keys,p_z)
                     lls[count] = p
                     wts[count] = wt
@@ -287,20 +307,11 @@ class PyPlanner:
 
                 skipped = 0
                 last_avg = cur_avg
-                #elite = []
-                #elite_wts = []
 
                 ll_threshold = np.percentile(wts,90) # was 92
-                #for (ll,z) in zip(lls,valid):
-                #    if ll >= ll_threshold:
-                #        elite.append(z)
-                #        elite_wts.append(ll)
-                #mu,sig = Update(Z,elite_wts,elite,step_size)
                 mu,sig = Update(Z,wts,valid,step_size)
                 Z.means_ = mu
                 Z.covars_ = sig
-
-                print mu
 
                 print "... avg ll = %g, percentile = %g"%(cur_avg,ll_threshold)
                 self.UpdateModels(skill,i)
@@ -312,6 +323,7 @@ class PyPlanner:
             '''
             self.sample_pub.publish(smsg)
             '''
+            print self.robot.manip_frame
             for pt in search_pts:
                 if not pt == None:
                     f = self.robot.GetForward(pt[:7])
