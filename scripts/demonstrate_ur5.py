@@ -57,6 +57,8 @@ if __name__ == '__main__':
     # fix world parameters
     #obj1='/gbeam_link_1/gbeam_link'
     #obj2='/gbeam_node_1/gbeam_node'
+    #obj1='camera_2/ar_marker_1'
+    #obj2='camera_2/ar_marker_2'
     obj1='filtered/camera_2/ar_marker_1'
     obj2='filtered/camera_2/ar_marker_2'
 
@@ -68,8 +70,10 @@ if __name__ == '__main__':
 
     rospy.sleep(rospy.Duration(0.5))
 
+    demo.quiet = False
     demo.StartRecording()
 
+    print "Started recording..."
     try:
         #tl = tf.TransformListener()
         while not rospy.is_shutdown():
@@ -82,4 +86,7 @@ if __name__ == '__main__':
             rate.sleep()
 
     except rospy.ROSInterruptException:
-        demo.save(filename)
+        pass
+
+    print "Saving into %s..."%(filename)
+    demo.save(filename)

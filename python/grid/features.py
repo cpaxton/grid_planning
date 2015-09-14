@@ -261,6 +261,7 @@ class RobotFeatures:
             # record joints
             self.times.append(rospy.Time.now())
             self.joint_states.append(msg)
+	    print msg.position
             self.world_states.append(copy.deepcopy(self.world))
         elif updated and (rospy.Time.now() - self.last_gripper_msg).to_sec() < self.gripper_t_threshold:
             # record joints
