@@ -94,7 +94,7 @@ if not skill.name=='close':
             num_valid=100,
             num_samples=500,
             step_size=0.75,
-            npts=4,
+            npts=3,
             skip_bad=False,
 	    init_action=0.01,
 	    init_goal=0.5,
