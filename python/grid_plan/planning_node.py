@@ -276,7 +276,7 @@ class PyPlanner:
                 #    bad_traj = self.gp.TryTrajectory(traj)
                 #else:
                 #    bad_traj = True
-                traj_valid = not any([pt is None for pt in traj]) #and self.gp.TryTrajectory(traj)
+                traj_valid = not any([pt is None for pt in traj]) and self.gp.TryTrajectory(traj)
                 #traj_valid = not bad_ik and bad_traj
                 #print (bad_ik, not bad_traj)
 
@@ -317,7 +317,14 @@ class PyPlanner:
                 Z.means_ = mu
                 Z.covars_ = sig
 
+
+
                 print "... avg ll = %g, percentile = %g"%(cur_avg,ll_threshold)
+
+                #if np.linalg.det(Z.covars_[0]) < 1e-200:
+                #    print "...done."
+                #    break
+
                 self.UpdateModels(skill,i,init_action,init_goal)
 
             # send message
