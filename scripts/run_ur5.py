@@ -2,7 +2,7 @@
 
 import grid_plan
 from grid_plan import PyPlanner
-from grid_plan import TrajectoryCommander
+from grid_plan import TfCommander
 
 from moveit_ros_planning_interface._moveit_roscpp_initializer import roscpp_init
 
@@ -71,18 +71,19 @@ gp.robot.UpdateManipObj(skill.manip_objs)
 
 print "Starting search:"
 
-config = [('tool','filtered/camera_2/ar_marker_1'),('vise','filtered/camera_2/ar_marker_2')]
+#config = [('tool','filtered/camera_2/ar_marker_1'),('vise','filtered/camera_2/ar_marker_2')]
+config = [('tool','camera_2/ar_marker_1'),('vise','camera_2/ar_marker_2')]
 
 #reg = GripperRegressor(gp.robot,gp.gripper_topic,gp.skill_topic,"/progress")
 #reg.addSkill(skill)
 #reg.configure(config)
 
 if not skill.name=='close':
-    tc = TrajectoryCommander(gp.robot,"/trajectory","/progress","/gazebo/traj_rml/action")
+    tc = TfCommander(gp.robot,"/progress","ur_robot/follow_goal")
 
     rospy.sleep(rospy.Duration(0.1))
 
-    skill_guesses = {'take':[-0.1,-0.05,0],'close':[-0.1,-0.05,0],'lift':[-0.3,0.5,0.1]}
+    skill_guesses = {'take':[-0.1,-0.05,0],'close':[-0.1,-0.05,0],'lift':[-0.3,0.5,0.1],'grab': [-0.265, 0.178, 0.067],'gc':[-0.15,0.3,0.5]}
 
     print "Calling planner..."
     cmd,msg,traj,Z = gp.plan(
@@ -90,11 +91,13 @@ if not skill.name=='close':
             config,
             num_iter=30,
             tol=1e-20,
-            num_valid=50,
+            num_valid=100,
             num_samples=500,
-            step_size=0.55,
+            step_size=0.75,
             npts=4,
             skip_bad=False,
+	    init_action=0.01,
+	    init_goal=0.5,
             guess_goal_x=skill_guesses[skill.name])
 
     print "Saving trajectory result."
@@ -111,9 +114,11 @@ if not skill.name=='close':
     pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray)
 
     rospy.sleep(rospy.Duration(0.5))
-    pub.publish(cmd)
     pa_ee_pub.publish(msg)
 
+    tc.play(cmd,0.5)
+
+    print "Done."
     try:
         rate = rospy.Rate(10)
         while not rospy.is_shutdown():

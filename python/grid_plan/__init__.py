@@ -12,4 +12,5 @@ try:
 except ImportError, e:
     print "[GRID_PLAN] Could not import GripperRegressor: %s"%(e.message)
 from trajectory_commander import *
+from tf_commander import *
 from primitives import *

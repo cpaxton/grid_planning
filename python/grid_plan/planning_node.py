@@ -152,19 +152,19 @@ class PyPlanner:
         print "Planning skill '%s'..."%(skill_name)
         self.skill_pub.publish(skill_name)
 
-    def UpdateModels(self,skill,i):
+    def UpdateModels(self,skill,i,init_action=0.01,init_goal=0.01):
         print "Updating model for iteration %d..."%(i)
         if i > 10:
             i = 10
         action = copy.deepcopy(skill.action_model)
         for i in range(action.n_components):
             nvars = action.covars_.shape[1]
-            action.covars_[i,:,:] += 0.1*((0.1)**i)*np.eye(nvars)
+            action.covars_[i,:,:] += init_action*((0.1)**i)*np.eye(nvars)
         if not skill.goal_model is None:
             goal = copy.deepcopy(skill.goal_model)
             nvars = goal.covars_.shape[1]
             for i in range(goal.n_components):
-                goal.covars_[i,:,:] += 0.01*((0.1)**i)*np.eye(nvars)
+                goal.covars_[i,:,:] += init_goal*((0.1)**i)*np.eye(nvars)
             self.robot.ConfigureSkill(action,goal)
         else:
             self.robot.ConfigureSkill(action,None)
@@ -175,7 +175,7 @@ class PyPlanner:
     - objs is a mapping between tf frames and names
     - skill is a RobotSkill
     '''
-    def plan(self,skill,objs,num_iter=20,tol=0.0001,num_valid=30,num_samples=2500,give_up=10,step_size=0.5, guess_goal_x=[0,0,0],npts=5,skip_bad=True):
+    def plan(self,skill,objs,num_iter=20,tol=0.0001,num_valid=30,num_samples=2500,give_up=10,step_size=0.5, guess_goal_x=[0,0,0],npts=5,skip_bad=True,init_action=0.01,init_goal=0.01):
 
         # send planning message to other nodes
         self.notify(skill.name)
@@ -194,7 +194,7 @@ class PyPlanner:
         print ' - configuring skill...'
         nvars = skill.action_model.covars_.shape[1]
 
-        self.UpdateModels(skill,0)
+        self.UpdateModels(skill,0,init_action,init_goal)
 
         print " - getting TF information for generating trajectories..."
         world = None
@@ -318,7 +318,7 @@ class PyPlanner:
                 Z.covars_ = sig
 
                 print "... avg ll = %g, percentile = %g"%(cur_avg,ll_threshold)
-                self.UpdateModels(skill,i)
+                self.UpdateModels(skill,i,init_action,init_goal)
 
             # send message
             msg = PoseArray()

@@ -19,16 +19,20 @@ gk = 1
 
 # first set up filenames
 take_filenames = ['ur5_data/take1.yml','ur5_data/take2.yml','ur5_data/take3.yml']
+grab_filenames = ['ur5_data/grab1.yml','ur5_data/grab2.yml','ur5_data/grab3.yml']
+gc_filenames = ['ur5_data/gc1.yml','ur5_data/gc2.yml','ur5_data/gc3.yml']
 close_filenames = ['ur5_data/close1.yml','ur5_data/close2.yml']
 lift_filenames = ['ur5_data/lift1.yml','ur5_data/lift2.yml']
 
 skill_filenames = {}
 skill_filenames['take'] = take_filenames
+skill_filenames['grab'] = grab_filenames
+skill_filenames['gc'] = gc_filenames
 skill_filenames['close'] = close_filenames
 skill_filenames['lift'] = lift_filenames
 
-skill_objs = {'take':['time','tool'], 'close':['time','tool'], 'lift':['time','vise']}
-skill_fixed = {'take':[], 'close':[], 'lift':[]}
+skill_objs = {'take':['time','tool'], 'close':['time','tool'], 'lift':['time','vise'],'grab':['time','vise'],'gc':['time','vise']}
+skill_fixed = {'take':[], 'close':[], 'lift':[],'grab':[],'gc':[]}
 
 all_params = []
 
@@ -48,7 +52,7 @@ for name,filenames in skill_filenames.items():
 
     # create the skill object
     if name=='close':
-        skill = grid.RobotSkill(name=name,action_k=ak,goal_k=gk,data=training_data,objs=(skill_objs[name]),manip_objs=skill_fixed[name],params=params,goals=goals,normalize=False)
+        skill = grid.RobotSkill(name=name,action_k=ak,goal_k=gk,data=training_data,objs=(skill_objs[name]),manip_objs=skill_fixed[name],params=params,goals=goals,normalize=True)
     else:
         skill = grid.RobotSkill(name=name,action_k=ak,goal_k=gk,data=training_data,objs=(skill_objs[name]),manip_objs=skill_fixed[name],params=params,goals=goals,normalize=True)
 

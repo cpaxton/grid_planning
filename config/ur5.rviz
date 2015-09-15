@@ -6,11 +6,10 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /TF1/Frames1
         - /PointCloud21
         - /END EFFECTOR1
-        - /InteractiveMarkers1
-      Splitter Ratio: 0.706693
+        - /InteractiveMarkers1/Status1
+      Splitter Ratio: 0.531496
     Tree Height: 853
   - Class: rviz/Selection
     Name: Selection
@@ -52,20 +51,6 @@ Visualization Manager:
       Plane Cell Count: 10
       Reference Frame: <Fixed Frame>
       Value: true
-    - Class: rviz/TF
-      Enabled: false
-      Frame Timeout: 1
-      Frames:
-        All Enabled: false
-      Marker Scale: 0.5
-      Name: TF
-      Show Arrows: false
-      Show Axes: true
-      Show Names: true
-      Tree:
-        {}
-      Update Interval: 0
-      Value: false
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -96,26 +81,40 @@ Visualization Manager:
       Use rainbow: true
       Value: true
     - Class: rviz/Axes
-      Enabled: false
+      Enabled: true
       Length: 0.05
       Name: END EFFECTOR
       Radius: 0.01
       Reference Frame: ee_link
+      Value: true
+    - Class: rviz/TF
+      Enabled: false
+      Frame Timeout: 1
+      Frames:
+        All Enabled: false
+      Marker Scale: 0.5
+      Name: TF
+      Show Arrows: false
+      Show Axes: true
+      Show Names: true
+      Tree:
+        {}
+      Update Interval: 0
       Value: false
     - Class: rviz/Axes
-      Enabled: true
-      Length: 0.05
-      Name: TOOL FRAME
-      Radius: 0.01
-      Reference Frame: filtered/camera_2/ar_marker_1
-      Value: true
-    - Class: rviz/Axes
-      Enabled: true
+      Enabled: false
       Length: 0.05
       Name: VISE FRAME
       Radius: 0.01
       Reference Frame: filtered/camera_2/ar_marker_2
-      Value: true
+      Value: false
+    - Class: rviz/Axes
+      Enabled: false
+      Length: 0.05
+      Name: TOOL FRAME
+      Radius: 0.01
+      Reference Frame: filtered/camera_2/ar_marker_1
+      Value: false
     - Alpha: 1
       Class: rviz/RobotModel
       Collision Enabled: false
@@ -186,25 +185,25 @@ Visualization Manager:
       Reference Frame: camera_2/ar_marker_2
       Value: true
     - Class: rviz/Axes
-      Enabled: true
+      Enabled: false
       Length: 0.05
       Name: endpoint marker
       Radius: 0.01
       Reference Frame: endpoint_marker
-      Value: true
+      Value: false
     - Class: rviz/Axes
-      Enabled: true
+      Enabled: false
       Length: 0.05
       Name: endpoint
       Radius: 0.01
       Reference Frame: endpoint
-      Value: true
+      Value: false
     - Class: rviz/InteractiveMarkers
       Enable Transparency: true
       Enabled: true
       Name: InteractiveMarkers
-      Show Axes: false
-      Show Descriptions: true
+      Show Axes: true
+      Show Descriptions: false
       Show Visual Aids: false
       Update Topic: /interactive_transform_publisher/endpoint_interact/update
       Value: true
@@ -239,7 +238,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 2.69813
+      Distance: 3.04426
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
@@ -251,10 +250,10 @@ Visualization Manager:
         Z: 0.206581
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.0897973
+      Pitch: 0.519797
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 2.54048
+      Yaw: 2.30549
     Saved: ~
 Window Geometry:
   Displays:
