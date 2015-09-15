@@ -83,7 +83,7 @@ if not skill.name=='close':
 
     rospy.sleep(rospy.Duration(0.1))
 
-    skill_guesses = {'take':[-0.1,-0.05,0],'close':[-0.1,-0.05,0],'lift':[-0.3,0.5,0.1],'grab': [-0.265, 0.178, 0.067],'gc':[-0.15,0.3,0.5]}
+    skill_guesses = {'take':[-0.1,-0.05,0],'close':[-0.1,-0.05,0],'lift':[-0.5,0.0,-0.3],'grab': [-0.265, 0.178, 0.067],'gc':[-0.15,0.3,0.5]}
 
     print "Calling planner..."
     cmd,msg,traj,Z = gp.plan(
