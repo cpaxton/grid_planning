@@ -33,6 +33,7 @@ class TrajectoryCommander:
         while t <= 1:
             t = t + self.step
             print "t = %f"%(t)
+            self.pub.publish(t)
             rospy.sleep(rate)
             
 

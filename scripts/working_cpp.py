@@ -92,17 +92,17 @@ if not skill.name=='grasp':
 
     rospy.sleep(rospy.Duration(0.1))
 
-    skill_guesses = {'approach':None,'grasp':[0,0,0],'release':[0,0,0],'transport':None,'align':[0,0,0.35],'place':None,'disengage':[0,0,-0.5]}
+    skill_guesses = {'approach':None,'grasp':[0,0,0],'release':[0,0,0],'transport':None,'align':[0.4,0,0],'place':None,'disengage':[0,0,-0.5]}
 
     cmd,msg,traj,Z = gp.plan(
             skill,
             config,
-            num_iter=20,
+            num_iter=30,
             tol=1e-20,
             num_valid=20,
             num_samples=250,
-            step_size=0.90,
-            npts=4,
+            step_size=0.75,
+            npts=4, skip_bad=True,
             guess_goal_x=skill_guesses[skill.name])
 
     print "Saving trajectory result."
