@@ -1,0 +1,5 @@
+<launch>
+	<include file="$(find instructor_core)/launch/core.launch"/>
+	<include file="$(find robotiq_c_model_control)/launch/CModelTeleop.launch"/>
+	<include file="$(find grid_plan)/launch/ur5_planning_context.launch"/>
+</launch>

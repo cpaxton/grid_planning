@@ -89,9 +89,9 @@ if not skill.name=='close':
     cmd,msg,traj,Z = gp.plan(
             skill,
             config,
-            num_iter=20,
+            num_iter=30,
             tol=1e-20,
-            num_valid=100,
+            num_valid=50,
             num_samples=500,
             step_size=0.75,
             npts=3,
