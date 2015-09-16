@@ -22,7 +22,7 @@ take_filenames = ['ur5_data/take1.yml','ur5_data/take2.yml','ur5_data/take3.yml'
 grab_filenames = ['ur5_data/grab1.yml','ur5_data/grab2.yml','ur5_data/grab3.yml']
 gc_filenames = ['ur5_data/gc1.yml','ur5_data/gc2.yml','ur5_data/gc3.yml']
 close_filenames = ['ur5_data/close1.yml','ur5_data/close2.yml']
-lift_filenames = ['ur5_data/lift1.yml','ur5_data/lift2.yml']
+lift_filenames = ['ur5_data/lift1.yml','ur5_data/lift2.yml','ur5_data/lift3.yml']
 
 skill_filenames = {}
 skill_filenames['take'] = take_filenames
