@@ -87,13 +87,16 @@ reg = GripperRegressor(gp.robot,gp.gripper_topic,gp.skill_topic,"/progress")
 reg.addSkill(skill)
 reg.configure(config)
 
-if not skill.name=='grasp':
+if not (skill.name=='grasp' or skill.name == 'release'):
     tc = TrajectoryCommander(gp.robot,"/trajectory","/progress","/gazebo/traj_rml/action")
 
     rospy.sleep(rospy.Duration(0.1))
 
     skill_guesses = {'approach':None,'grasp':[0,0,0],'release':[0,0,0],'transport':None,'align':[0.4,0,0],'place':None,'disengage':[0,0,-0.5]}
 
+    npts = 4
+    if skill.name == 'place':
+        npts = 2
     cmd,msg,traj,Z = gp.plan(
             skill,
             config,
@@ -102,7 +105,7 @@ if not skill.name=='grasp':
             num_valid=20,
             num_samples=250,
             step_size=0.75,
-            npts=4, skip_bad=True,
+            npts=npts, skip_bad=False,
             guess_goal_x=skill_guesses[skill.name])
 
     print "Saving trajectory result."
