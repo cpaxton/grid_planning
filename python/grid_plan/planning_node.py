@@ -256,6 +256,8 @@ class PyPlanner:
         count = 0
         last_avg = 0
 
+        kl = []
+
         skipped = 0
         for i in range(0,num_iter):
             print "Iteration %d... (based on %d valid samples)"%(i,count)
@@ -266,6 +268,8 @@ class PyPlanner:
 
             count = 0
             j = 0
+
+            kls = []
 
             start = time.clock()
             while len(valid) < num_valid and j < num_samples:
@@ -293,8 +297,15 @@ class PyPlanner:
                     trajs.append(traj)
                     count += 1
 
+                    #exp_wt = np.exp(wt)
+                    #if exp_wt > 0:
+                    #    kls.append(exp_wt * p_z)
+
                 j += 1
+
             print "[SAMPLE] elapsed: %f"%(time.clock() - start)
+            #print "AVG KL = %f"%(np.mean(kls))
+            #kl.append(np.mean(kls))
 
             cur_avg = np.mean(lls)
 
@@ -324,6 +335,11 @@ class PyPlanner:
                 #if np.linalg.det(Z.covars_[0]) < 1e-200:
                 #    print "...done."
                 #    break
+                kls = np.zeros(count)
+                for i in range(count):
+                    kls[i] = wts[i] * Z.score(valid[i])
+                print "Avg KL divergence = %f"%(np.mean(kls))
+                kl.append(np.mean(kls))
 
                 self.UpdateModels(skill,i,init_action,init_goal)
 
@@ -352,6 +368,9 @@ class PyPlanner:
         msg = PoseArray()
         msg.header.frame_id = self.base_link
         #for (pt,vel) in traj:
+        obj = world[important_objs[0]]
+        dists = []
+        print obj.p
         for pt in traj:
             cmd_pt = JointTrajectoryPoint()
             cmd_pt.positions = pt
@@ -359,10 +378,18 @@ class PyPlanner:
             #cmd_pt.time_from_start = rospy.Duration.from_sec(t)
             cmd.points.append(cmd_pt)
             f = self.robot.GetForward(pt[:7])
+
+            f2 = self.robot.base_tform * f
+            dists.append((obj.p - f2.p).Norm())
             msg.poses.append(pm.toMsg(f * PyKDL.Frame(PyKDL.Rotation.RotY(-1*np.pi/2))))
 
         if len(cmd.points) > 0:
             cmd.points[-1].velocities = [0]*7
+
+        print "KL DIVERGENCES OVER TIME:"
+        print kl
+        print "DISTANCES TO OBJECT OVER TIME:"
+        print dists
 
         return cmd,msg,traj,Z
 

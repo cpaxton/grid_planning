@@ -104,7 +104,7 @@ if not (skill.name=='grasp' or skill.name == 'release'):
             tol=1e-20,
             num_valid=20,
             num_samples=250,
-            step_size=0.75,
+            step_size=0.55,
             npts=npts, skip_bad=False,
             guess_goal_x=skill_guesses[skill.name])
 
