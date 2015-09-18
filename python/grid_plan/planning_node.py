@@ -361,6 +361,7 @@ class PyPlanner:
             #raw_input();
 
         traj = trajs[lls.tolist().index(np.max(lls))]
+        ll = np.max(lls)
 
         print "Found %d total valid trajectories."%(count)
 
@@ -391,7 +392,7 @@ class PyPlanner:
         print "DISTANCES TO OBJECT OVER TIME:"
         print dists
 
-        return cmd,msg,traj,Z
+        return cmd,msg,traj,Z,ll
 
     def SetTrajectory(self, traj_model):
         self.traj_model = traj_model
