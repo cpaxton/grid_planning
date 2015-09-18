@@ -19,22 +19,22 @@ gk = 1
 
 # first set up filenames
 take_filenames = ['ur5_data/take1.yml','ur5_data/take2.yml','ur5_data/take3.yml']
+align_filenames = ['ur5_data/align1.yml','ur5_data/align2.yml','ur5_data/align3.yml']
 grab_filenames = ['ur5_data/grab1.yml','ur5_data/grab2.yml','ur5_data/grab3.yml']
 gc_filenames = ['ur5_data/gc1.yml','ur5_data/gc2.yml','ur5_data/gc3.yml']
 close_filenames = ['ur5_data/close1.yml','ur5_data/close2.yml']
 lift_filenames = ['ur5_data/lift1.yml','ur5_data/lift2.yml','ur5_data/lift3.yml']
 
 skill_filenames = {}
+skill_filenames['align2'] = align_filenames
 skill_filenames['take'] = take_filenames
 skill_filenames['grab'] = grab_filenames
 skill_filenames['gc'] = gc_filenames
 skill_filenames['close'] = close_filenames
 skill_filenames['lift'] = lift_filenames
 
-skill_objs = {'take':['time','tool'], 'close':['time','tool'], 'lift':['time','vise'],'grab':['time','vise'],'gc':['time','vise']}
-skill_fixed = {'take':[], 'close':[], 'lift':[],'grab':[],'gc':[]}
-
-all_params = []
+skill_objs = {'take':['time','tool'], 'close':['time','tool'], 'lift':['time','vise'],'grab':['time','vise'],'gc':['time','vise'],'align2':['time','tool']}
+skill_fixed = {'take':[], 'close':[], 'lift':[],'grab':[],'gc':[],'align2':[]}
 
 # load data for each skill
 for name,filenames in skill_filenames.items():
@@ -46,9 +46,6 @@ for name,filenames in skill_filenames.items():
     training_data = np.array(data[0][1])
     for i in range(1,len(data)):
         training_data = np.concatenate((training_data,data[i][1]))
-
-    if not name=='grasp':
-        all_params += params
 
     # create the skill object
     if name=='close':
