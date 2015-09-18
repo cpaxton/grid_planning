@@ -14,9 +14,11 @@ Trajectory Commander
 sends points to the robot, one at a time.
 This relies on us having a particular positon/velocity goal.
 The reason we do this is to let us sync up with time commands.
+
+This time of Commander just publishes on topics, rather than using fancy ActionLib calls.
 '''
 
-class TfCommander:
+class PubCommander:
 
     def __init__(self,robot,output_topic,action,step=0.01):
 

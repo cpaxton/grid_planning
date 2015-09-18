@@ -337,7 +337,7 @@ class PyPlanner:
                 #    break
                 kls = np.zeros(count)
                 for i in range(count):
-                    kls[i] = wts[i] * Z.score(valid[i])
+                    kls[i] = wts[i] * Z.score([valid[i]])
                 print "Avg KL divergence = %f"%(np.mean(kls))
                 kl.append(np.mean(kls))
 

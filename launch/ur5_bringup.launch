@@ -2,4 +2,7 @@
 	<include file="$(find instructor_core)/launch/core.launch"/>
 	<include file="$(find robotiq_c_model_control)/launch/CModelTeleop.launch"/>
 	<include file="$(find grid_plan)/launch/ur5_planning_context.launch"/>
+	<include file="$(find dmp)/launch/dmp.launch"/>
+	<include file="$(find instructor_core)/launch/dual_camera/shoulder_camera.launch"/>
+	<include file="$(find instructor_core)/launch/dual_camera/shoulder_alvar.launch"/>
 </launch>
