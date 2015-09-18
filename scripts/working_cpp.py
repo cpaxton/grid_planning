@@ -94,44 +94,47 @@ if not (skill.name=='grasp' or skill.name == 'release'):
 
     skill_guesses = {'approach':None,'grasp':[0,0,0],'release':[0,0,0],'transport':None,'align':[0.4,0,0],'place':None,'disengage':[0,0,-0.5]}
 
-    npts = 4
+    npts = 3
     if skill.name == 'place':
         npts = 2
-    cmd,msg,traj,Z = gp.plan(
+    cmd,msg,traj,Z,p = gp.plan(
             skill,
             config,
             num_iter=30,
             tol=1e-20,
             num_valid=20,
             num_samples=250,
-            step_size=0.75,
+            step_size=0.55,
             npts=npts, skip_bad=False,
             guess_goal_x=skill_guesses[skill.name])
 
-    print "Saving trajectory result."
+    if p == 0:
+        print "Trajectory search failed."
+    else:
+        print "Saving trajectory result."
 
-    stream = file('traj.yml','w')
-    stream.write(yaml.dump(traj,Dumper=Dumper))
-    stream.close()
+        stream = file('traj.yml','w')
+        stream.write(yaml.dump(traj,Dumper=Dumper))
+        stream.close()
 
-    print "Publishing."
+        print "Publishing."
 
-    reg.start()
+        reg.start()
 
-    pub = rospy.Publisher("/trajectory",JointTrajectory)
-    pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray)
+        pub = rospy.Publisher("/trajectory",JointTrajectory)
+        pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray)
 
-    rospy.sleep(rospy.Duration(0.5))
-    pub.publish(cmd)
-    pa_ee_pub.publish(msg)
+        rospy.sleep(rospy.Duration(0.5))
+        pub.publish(cmd)
+        pa_ee_pub.publish(msg)
 
-    try:
-        rate = rospy.Rate(10)
-        while not rospy.is_shutdown():
-            pa_ee_pub.publish(msg)
-            rate.sleep()
-    except rospy.ROSInterruptException, ex:
-        pass
+        try:
+            rate = rospy.Rate(10)
+            while not rospy.is_shutdown():
+                pa_ee_pub.publish(msg)
+                rate.sleep()
+        except rospy.ROSInterruptException, ex:
+            pass
 
 else:
 

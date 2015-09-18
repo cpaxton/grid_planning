@@ -25,13 +25,13 @@ align_filenames = ['data/align1.yml','data/align2.yml','data/align3.yml']
 place_filenames = ['data/place1.yml','data/place3.yml']
 #place_filenames = ['data/place1.yml','data/place2.yml','data/place3.yml']
 disengage_filenames = ['data/disengage1.yml','data/disengage2.yml','data/disengage3.yml']
-release_filenames = ['data/release2.yml','data/release3.yml']
+release_filenames = ['data/release1.yml','data/release2.yml','data/release3.yml']
 #init_filenames = ['data/init11.yml','data/init12.yml','data/init13.yml','data/init14.yml']
 
 skill_filenames = {}
 skill_filenames['approach'] = approach_filenames
 skill_filenames['grasp'] = grasp_filenames
-skill_filenames['transport'] = transport_filenames
+#skill_filenames['transport'] = transport_filenames
 skill_filenames['disengage'] = disengage_filenames
 skill_filenames['release'] = release_filenames
 skill_filenames['align'] = align_filenames
