@@ -2,7 +2,7 @@
 
 import grid_plan
 from grid_plan import PyPlanner
-from grid_plan import TfCommander
+from grid_plan import PubCommander
 
 from moveit_ros_planning_interface._moveit_roscpp_initializer import roscpp_init
 
@@ -79,19 +79,19 @@ config = [('tool','camera_2/ar_marker_1'),('vise','camera_2/ar_marker_2')]
 #reg.configure(config)
 
 if not skill.name=='close':
-    tc = TfCommander(gp.robot,"/progress","ur_robot/follow_goal")
+    tc = PubCommander(gp.robot,"/progress","ur_robot/follow_joint_goal")
 
     rospy.sleep(rospy.Duration(0.1))
 
-    skill_guesses = {'take':[-0.1,-0.05,0],'close':[-0.1,-0.05,0],'lift':[-0.5,0.0,-0.3],'grab': [-0.265, 0.178, 0.067],'gc':[-0.15,0.3,0.5]}
+    skill_guesses = {'take':[-0.1,-0.05,0],'close':[-0.1,-0.05,0],'lift':[-0.5,0.0,-0.3],'grab': [-0.265, 0.178, 0.067],'gc':[-0.15,0.3,0.5],'align2':[0.0,0.0,0.6]}
 
     print "Calling planner..."
-    cmd,msg,traj,Z = gp.plan(
+    cmd,msg,traj,Z,p = gp.plan(
             skill,
             config,
             num_iter=20,
             tol=1e-20,
-            num_valid=100,
+            num_valid=50,
             num_samples=500,
             step_size=0.75,
             npts=3,
@@ -100,32 +100,33 @@ if not skill.name=='close':
 	    init_goal=0.5,
             guess_goal_x=skill_guesses[skill.name])
 
-    print "Saving trajectory result."
+    if not p == 0:
+        print "Saving trajectory result."
 
-    stream = file('traj.yml','w')
-    stream.write(yaml.dump(traj,Dumper=Dumper))
-    stream.close()
+        stream = file('traj.yml','w')
+        stream.write(yaml.dump(traj,Dumper=Dumper))
+        stream.close()
 
-    print "Publishing."
+        print "Publishing."
 
-    #reg.start()
+        pub = rospy.Publisher("/trajectory",JointTrajectory)
+        pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray)
 
-    pub = rospy.Publisher("/trajectory",JointTrajectory)
-    pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray)
+        rospy.sleep(rospy.Duration(0.5))
+        pa_ee_pub.publish(msg)
 
-    rospy.sleep(rospy.Duration(0.5))
-    pa_ee_pub.publish(msg)
+        tc.play(cmd,1.5)
 
-    tc.play(cmd,0.5)
-
-    print "Done."
-    try:
-        rate = rospy.Rate(10)
-        while not rospy.is_shutdown():
-            pa_ee_pub.publish(msg)
-            rate.sleep()
-    except rospy.ROSInterruptException, ex:
-        pass
+        print "Done."
+        try:
+            rate = rospy.Rate(10)
+            while not rospy.is_shutdown():
+                pa_ee_pub.publish(msg)
+                rate.sleep()
+        except rospy.ROSInterruptException, ex:
+            pass
+    else:
+        print "No valid solutions found!"
 
 else:
 
