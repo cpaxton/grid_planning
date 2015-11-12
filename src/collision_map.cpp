@@ -2,12 +2,16 @@
 
 namespace grid {
 
-  std::size_t CollisionMapHash::operator()(Position_t const& Position_t)  {
+  std::size_t CollisionMapHash::operator()(Position_t const& pos) const {
     std::size_t hash = 0;
-    for (double &q: Position_t) {
+    for (const double &q: pos) {
       hash ^= (int)q;
     }
 
     return hash;
+  }
+
+  void CollisionMap::reset() {
+    
   }
 }

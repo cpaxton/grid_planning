@@ -37,6 +37,9 @@
 // primitives for motion planning
 #include <dmp/dmp.h>
 
+// grid dependencies
+#include <grid/collision_map.h>
+
 namespace grid {
 
   //typedef std::vector< std::vector <double> > Traj_t;

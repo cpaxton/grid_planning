@@ -4,9 +4,19 @@
 #include <vector>
 #include <unordered_map>
 
-using namespace grid {
+namespace grid {
 
-  typedef Position_t std::vector<double>; // store a set of joint positions
+  typedef std::vector<double> Position_t; // store a set of joint positions
+
+  /**
+   * CollisionMapHash
+   * Hashes a collision map according to some parameters we set.
+   */
+  class CollisionMapHash {
+  public:
+      std::size_t operator()(Position_t const& pos) const;
+  };
+
 
   /**
    * CollisionMap
@@ -14,22 +24,18 @@ using namespace grid {
    *
    */
   class CollisionMap {
-    private:
-      std::unordered_map<Position_t,bool,CollisionMapHash> map;
+    protected:
+      std::unordered_map<Position_t,bool,CollisionMapHash> map; // store hashed collisions
+
+    public:
+      /**
+       * reset()
+       * This function clears the current map.
+       */
+      void reset();
 
   };
-
-  template<>
-  class CollisionMapHash<Position_t>
-  {
-  public:
-      std::size_t operator()(Position_t const& Position_t) const;
-  };
-
 }
 
-using namespace std {
-
-}
 
 #endif

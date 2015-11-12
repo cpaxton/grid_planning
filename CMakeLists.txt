@@ -52,7 +52,6 @@ catkin_python_setup()
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES grid_planner
-  #CATKIN_DEPENDS ascent_mk2 dmp grid_experiments grid_tasks tf tf_conversions moveit_core
   CATKIN_DEPENDS dmp tf tf_conversions moveit_core
   DEPENDS GCOP
 )
@@ -68,12 +67,16 @@ include_directories( include ${catkin_INCLUDE_DIRS} ${GCOP_INCLUDE_DIRS} ${Boost
 ## Declare a cpp library
 add_library(grid_planner
   src/grid_planner.cpp
+  src/collision_map.cpp
   include/grid/grid_planner.h
+  include/grid/collision_map.h
 )
 
 add_library(pygrid_planner
   src/grid_planner.cpp
+  src/collision_map.cpp
   include/grid/grid_planner.h
+  include/grid/collision_map.h
 )
 
 SET(PY_PROJECT_NAME grid)
@@ -97,15 +100,14 @@ add_dependencies(grid_plan_node grid_planner)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(grid_planner
-  #${catkin_LIBRARIES} ${GCOP_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
-  ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
+  ${catkin_LIBRARIES} ${GCOP_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
 )
 target_link_libraries(pygrid_planner
-  #${catkin_LIBRARIES} ${GCOP_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
-  ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
+  ${catkin_LIBRARIES} ${GCOP_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
+  #${catkin_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
 )
 target_link_libraries(grid_plan_node
-  #grid_planner ${catkin_LIBRARIES} ${GCOP_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
-  grid_planner ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
+  grid_planner ${catkin_LIBRARIES} ${GCOP_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
+  #grid_planner ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
 )
 
