@@ -35,4 +35,6 @@ for file in files:
             plt.subplot(2,ncols,env)
             demo.Draw()
 
+            envs[env-1].InGate(demo)
+
 plt.show()
