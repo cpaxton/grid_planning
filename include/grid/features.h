@@ -1,6 +1,10 @@
 #ifndef _GRID_FEATURES
 #define _GRID_FEATURES
 
+#include <vector>
+#include <gcop/pose.h>
+//#include <tf_conversions/tf_kdl.h>
+
 /**
  * Features
  * Parent abstract class for a set of robot features.
@@ -9,6 +13,9 @@
 
 namespace grid {
 
+  // use GCOP's pose class for now
+  typedef gcop_urdf::Pose Pose;
+
   class Features {
 
     /* getPose
@@ -16,7 +23,7 @@ namespace grid {
      * Time field helps determine when the query should occur.
      * A feature query gets the set of all featutes for different points in time, normalizes them, and returns.
      */
-    virtual std::vector<pose_t> getPose(const std::string &name,
+    virtual std::vector<Pose> getPose(const std::string &name,
                                         unsigned long int mintime = 0,
                                         unsigned long int maxtime = 0) = 0;
 

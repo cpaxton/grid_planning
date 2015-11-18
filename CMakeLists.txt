@@ -32,6 +32,12 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Boost REQUIRED COMPONENTS python thread)
 find_package(PythonLibs 2.7 REQUIRED)
 
+find_package(PkgConfig REQUIRED)
+
+
+find_package( PkgConfig )
+pkg_check_modules( EIGEN3 REQUIRED eigen3 )
+
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
 #find_package(GCOP REQUIRED)
 
@@ -53,7 +59,7 @@ catkin_package(
   INCLUDE_DIRS include
   LIBRARIES grid_planner
   CATKIN_DEPENDS dmp tf tf_conversions moveit_core
-  DEPENDS GCOP
+  DEPENDS GCOP EIGEN3
 )
 
 ###########
@@ -62,21 +68,38 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-include_directories( include ${catkin_INCLUDE_DIRS} ${GCOP_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_PATH} )
+include_directories( include ${catkin_INCLUDE_DIRS} ${GCOP_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_PATH} ${EIGEN3_INCLUDE_DIRS} )
+message(STATUS ${GCOP_INCLUDE_DIRS})
 
 ## Declare a cpp library
 add_library(grid_planner
   src/grid_planner.cpp
   src/collision_map.cpp
+  src/features.cpp
+  src/test_features.cpp
+  src/training_features.cpp
+  src/action.cpp
   include/grid/grid_planner.h
   include/grid/collision_map.h
+  include/grid/test_features.h
+  include/grid/action.h
+  include/grid/training_features.h
+  include/grid/features.h
 )
 
 add_library(pygrid_planner
   src/grid_planner.cpp
   src/collision_map.cpp
+  src/features.cpp
+  src/test_features.cpp
+  src/training_features.cpp
+  src/action.cpp
   include/grid/grid_planner.h
   include/grid/collision_map.h
+  include/grid/test_features.h
+  include/grid/action.h
+  include/grid/training_features.h
+  include/grid/features.h
 )
 
 SET(PY_PROJECT_NAME grid)
@@ -100,14 +123,14 @@ add_dependencies(grid_plan_node grid_planner)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(grid_planner
-  ${catkin_LIBRARIES} ${GCOP_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
+  ${catkin_LIBRARIES} ${GCOP_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} ${PYTHON_LIBRARIES}
 )
 target_link_libraries(pygrid_planner
-  ${catkin_LIBRARIES} ${GCOP_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
+  ${catkin_LIBRARIES} ${GCOP_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} ${PYTHON_LIBRARIES}
   #${catkin_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
 )
 target_link_libraries(grid_plan_node
-  grid_planner ${catkin_LIBRARIES} ${GCOP_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
+  grid_planner ${catkin_LIBRARIES} ${GCOP_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} ${PYTHON_LIBRARIES}
   #grid_planner ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
 )
 

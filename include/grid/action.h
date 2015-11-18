@@ -33,3 +33,5 @@ namespace grid {
     Action concatenate(const Action &a);
   };
 }
+
+#endif

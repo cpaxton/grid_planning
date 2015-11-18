@@ -1,1 +1,6 @@
-#include <grid/action.g>
+#include <grid/action.h>
+
+namespace grid {
+
+
+}
