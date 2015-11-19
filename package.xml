@@ -42,6 +42,7 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>ascent_mk2</build_depend>
+  <build_depend>rosbag</build_depend>
   <build_depend>dmp</build_depend>
   <build_depend>grid_experiments</build_depend>
   <build_depend>grid_tasks</build_depend>
@@ -58,6 +59,7 @@
 
   <run_depend>ascent_mk2</run_depend>
   <run_depend>dmp</run_depend>
+  <run_depend>rosbag</run_depend>
   <run_depend>grid_experiments</run_depend>
   <run_depend>grid_tasks</run_depend>
   <run_depend>tf</run_depend>

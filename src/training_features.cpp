@@ -1,5 +1,8 @@
 #include <grid/training_features.h>
 
+// read in poses from topics
+#include <geometry_msgs/Pose.h>
+
 namespace grid {
 
     std::vector<Pose> TrainingFeatures::getPose(const std::string &name,
@@ -9,6 +12,10 @@ namespace grid {
 
 
       return poses;
+    }
+
+    void TrainingFeatures::open(const std::string &bagfile) {
+      bag.open(bagfile, rosbag::bagmode::Read);
     }
 
 

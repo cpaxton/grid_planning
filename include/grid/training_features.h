@@ -2,6 +2,8 @@
 #define _GRID_TRAINING_FEATURES
 
 #include <grid/features.h>
+#include <rosbag/bag.h>
+#include <rosbag/view.h>
 
 // training features reads the feature data from ROS topics
 #include <ros/ros.h>
@@ -20,6 +22,16 @@ namespace grid {
     std::vector<Pose> getPose(const std::string &name,
                                 unsigned long int mintime = 0,
                                 unsigned long int maxtime = 0);
+
+    /**
+     * open
+     * Open a rosbag containing the demonstrations.
+     * We make some assumptions as to how these are stored.
+     */
+    void open(const std::string &bagfile);
+
+    protected:
+    rosbag::Bag bag; // current bag holding all demonstration examples
   };
 
 }

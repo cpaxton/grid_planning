@@ -26,6 +26,9 @@ find_package(catkin REQUIRED COMPONENTS
   # messages
   sensor_msgs
   trajectory_msgs
+
+  # ros stuff
+  rosbag
 )
 
 ## System dependencies are found with CMake's conventions
