@@ -121,8 +121,8 @@ if not (skill.name=='grasp' or skill.name == 'release'):
 
         reg.start()
 
-        pub = rospy.Publisher("/trajectory",JointTrajectory)
-        pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray)
+        pub = rospy.Publisher("/trajectory",JointTrajectory,queue_size=10)
+        pa_ee_pub = rospy.Publisher('/dbg_ee',PoseArray,queue_size=10)
 
         rospy.sleep(rospy.Duration(0.5))
         pub.publish(cmd)
