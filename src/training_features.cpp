@@ -5,18 +5,28 @@
 
 namespace grid {
 
-    std::vector<Pose> TrainingFeatures::getPose(const std::string &name,
-                                unsigned long int mintime,
-                                unsigned long int maxtime) {
-      std::vector<Pose> poses;
+  std::vector<Pose> TrainingFeatures::getPose(const std::string &name,
+                                              unsigned long int mintime,
+                                              unsigned long int maxtime) {
+    std::vector<Pose> poses;
 
 
-      return poses;
-    }
+    return poses;
+  }
 
-    void TrainingFeatures::open(const std::string &bagfile) {
-      bag.open(bagfile, rosbag::bagmode::Read);
-    }
+  std::vector<std::vector<double> > TrainingFeatures::getFeatureValues(const std::string &name,
+                                                                       unsigned long int mintime,
+                                                                       unsigned long int maxtime) {
+    std::vector<std::vector<double> > values;
+
+
+
+    return values;
+  }
+
+  void TrainingFeatures::open(const std::string &bagfile) {
+    bag.open(bagfile, rosbag::bagmode::Read);
+  }
 
 
 }
