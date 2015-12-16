@@ -275,14 +275,7 @@ class PyPlanner:
             while len(valid) < num_valid and j < num_samples:
                 traj_params,traj = grid_plan.SamplePrimitives(ee,Z,self.robot.kdl_kin,q)
 
-                #bad_ik = any([pt is None for pt in traj])
-                #if not bad_ik:
-                #    bad_traj = self.gp.TryTrajectory(traj)
-                #else:
-                #    bad_traj = True
                 traj_valid = not any([pt is None for pt in traj]) and self.gp.TryTrajectory(traj)
-                #traj_valid = not bad_ik and bad_traj
-                #print (bad_ik, not bad_traj)
 
                 search_pts += traj
                 

@@ -10,4 +10,8 @@ namespace grid {
       }
     }
 
+    void Features::addFeature(const std::string &name, const FeatureType type) {
+      feature_types[name] = type;
+    }
+
 }

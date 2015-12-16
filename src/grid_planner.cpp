@@ -86,7 +86,7 @@ using robot_model::RobotModelPtr;
 using robot_model::JointModel;
 using robot_state::RobotState;
 using collision_detection::CollisionRobot;
-using  planning_scene_monitor::PlanningSceneMonitor;
+using planning_scene_monitor::PlanningSceneMonitor;
 using planning_scene_monitor::PlanningSceneMonitorPtr;
 
 namespace grid {
@@ -159,9 +159,6 @@ namespace grid {
       //search_state = RobotStatePtr(new RobotState(model));
 
       boost::shared_ptr<tf::TransformListener> tf(new tf::TransformListener(ros::Duration(2.0)));
-      //monitor = PlanningSceneMonitorPtr(new planning_scene_monitor::PlanningSceneMonitor(robot_description_, tf));
-      //monitor->startStateMonitor(js_topic);
-      //monitor->startSceneMonitor(scene_topic);
 
       //monitor->startPublishingPlanningScene(PlanningSceneMonitor::SceneUpdateType::UPDATE_SCENE,PS_TOPIC);
       ps_sub = nh.subscribe(scene_topic.c_str(),1000,&GridPlanner::PlanningSceneCallback,this);

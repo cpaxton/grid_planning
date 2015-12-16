@@ -19,7 +19,12 @@ namespace grid {
      */
     std::vector<std::vector<double> > getFeatureValues(const std::string &name,
                                                        unsigned long int mintime = 0,
-                                                       unsigned long int maxtime = 0);
+                                                       unsigned long int maxtime = 1);
+
+    /* addFrame
+     * Adds a frame of reference as a feature
+     */
+    void addFrame(const std::string &frame);
   };
 
 }

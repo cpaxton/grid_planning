@@ -50,9 +50,14 @@ namespace grid {
     void initialize();
 
     /**
-     *
+     * Get a structure containing all the appropriate features
      */
     std::vector< std::vector <double> > getFeatures(std::vector<std::string> &names);
+
+    /**
+     * add a feature
+     */
+    void addFeature(const std::string &name, const FeatureType type);
 
   protected:
     std::unordered_map<std::string,FeatureType> feature_types;
