@@ -23,9 +23,10 @@ namespace grid {
   /* FeatureType
    * Save each feature as its own thing.
    */
-  typedef enum FeatureType { POSE, FLOAT } FeatureType;
+  typedef enum FeatureType { POSE_FEATURE, FLOAT_FEATURE } FeatureType;
 
   class Features {
+  public:
 
     /* getPose
      * This function needs to be implemented by inheriting classes.

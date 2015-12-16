@@ -1,10 +1,13 @@
 #include <grid/features.h>
+#include <tf/transform_listener.h>
 
 namespace grid {
 
   class TestFeatures : public Features {
 
   public:
+
+    static const std::string AGENT;
 
     /* getPose
      * This function needs to be implemented by inheriting classes.
@@ -24,7 +27,32 @@ namespace grid {
     /* addFrame
      * Adds a frame of reference as a feature
      */
-    void addFrame(const std::string &frame);
+    void setFrame(const std::string &frame, const std::string &objectClass);
+
+    /* addAgent:
+     * configure agent's manipulation frame
+     */
+    void setAgentFrame(const std::string &agentFrame);
+
+    /* configure world frame for this TestFeatures object
+     */
+    void setWorldFrame(const std::string &worldFrame);
+
+    /* lookup tf frame for key
+     */
+    Pose lookup(const std::string &key);
+
+  private:
+    std::unordered_map<std::string, std::string> objectClassToID;
+
+    // name of the frame representing the end effector, i.e. what are we planning from?
+    std::string agentFrame;
+
+    // name of the root/world frame
+    std::string worldFrame;
+
+    // tf
+    tf::TransformListener listener;
   };
 
 }
