@@ -4,8 +4,10 @@
 #include <vector>
 #include <unordered_map>
 
-#include <gcop/pose.h>
-//#include <tf_conversions/tf_kdl.h>
+//#include <gcop/pose.h>
+
+#include <Eigen/Geometry>
+#include <tf_conversions/tf_eigen.h>
 
 /**
  * Features
@@ -16,7 +18,14 @@
 namespace grid {
 
   // use GCOP's pose class for now
-  typedef gcop_urdf::Pose Pose;
+  //typedef gcop_urdf::Pose Pose;
+  // actually no -- using Eigen transforms
+  typedef Eigen::Affine3d Pose;
+
+  // use array of poses for now (not using velocity/commands)
+  typedef std::vector<Pose> Trajectory;
+
+  typedef std::vector<double> FeatureVector;
 
   std::vector<double> poseToArray(const Pose &pose);
 
@@ -28,19 +37,22 @@ namespace grid {
   class Features {
   public:
 
+    static const std::string AGENT;
+    static const unsigned int POSE_FEATURES_SIZE;
+
     /* getPose
      * This function needs to be implemented by inheriting classes.
      * Time field helps determine when the query should occur.
      * A feature query gets the set of all featutes for different points in time, normalizes them, and returns.
      */
-    virtual std::vector<Pose> getPose(const std::string &name,
+    virtual Trajectory getPose(const std::string &name,
                                       unsigned long int mintime = 0,
                                       unsigned long int maxtime = 0) = 0;
 
     /* getFeatureValues
      * Returns a list of features converted into a format we can use.
      */
-    virtual std::vector<std::vector<double> > getFeatureValues(const std::string &name,
+    virtual std::vector< FeatureVector > getFeatureValues(const std::string &name,
                                                                unsigned long int mintime = 0,
                                                                unsigned long int maxtime = 0) = 0;
 
@@ -53,7 +65,7 @@ namespace grid {
     /**
      * Get a structure containing all the appropriate features
      */
-    std::vector< std::vector <double> > getFeatures(std::vector<std::string> &names);
+    std::vector< FeatureVector > getFeatures(std::vector<std::string> &names);
 
     /**
      * add a feature

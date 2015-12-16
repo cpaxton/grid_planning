@@ -1,18 +1,18 @@
 #include <grid/test_features.h>
 
-namespace grid {
+#define DEBUG_PRINT_TF_POSE 0
 
-  const std::string TestFeatures::AGENT("agent");
+namespace grid {
 
   /* getPose
    * This function needs to be implemented by inheriting classes.
    * Time field helps determine when the query should occur.
    * A feature query gets the set of all featutes for different points in time, normalizes them, and returns.
    */
-  std::vector<Pose> TestFeatures::getPose(const std::string &name,
+  Trajectory TestFeatures::getPose(const std::string &name,
                                           unsigned long int mintime,
                                           unsigned long int maxtime) {
-    std::vector<Pose> poses;
+    Trajectory poses;
 
 
     return poses;
@@ -21,10 +21,10 @@ namespace grid {
   /* getFeatureValues
    * Returns a list of features converted into a format we can use.
    */
-  std::vector<std::vector<double> > TestFeatures::getFeatureValues(const std::string &name,
+  std::vector< FeatureVector > TestFeatures::getFeatureValues(const std::string &name,
                                                                    unsigned long int mintime,
                                                                    unsigned long int maxtime) {
-    std::vector<std::vector<double> > values;
+    std::vector< FeatureVector > values;
 
 
 
@@ -58,15 +58,51 @@ namespace grid {
   */
   Pose TestFeatures::lookup(const std::string &key) {
     tf::StampedTransform transform;
+    Pose p;
+
     try{
+      std::cout << "looking up " << objectClassToID[key] << " for " << key << std::endl;
       listener.lookupTransform(objectClassToID[key], worldFrame,  
                                ros::Time(0), transform);
+      tf::transformTFToEigen(transform, p);
+#if DEBUG_PRINT_TF_POSE
       std::cout << "[" << key << "] x = " << transform.getOrigin().getX() << std::endl;
       std::cout << "[" << key << "] y = " << transform.getOrigin().getY() << std::endl;
       std::cout << "[" << key << "] z = " << transform.getOrigin().getZ() << std::endl;
+#endif
     }
     catch (tf::TransformException ex){
       ROS_ERROR("%s",ex.what());
     }
+
+    return p;
+  }
+
+  /*
+   * run lookup for all objects
+   * store results for poses from tf
+   */
+  void TestFeatures::updateWorldfromTF() {
+    for (const std::pair<std::string,FeatureType> &feature: feature_types) {
+      std::cout << feature.first << ", " << feature.second << std::endl;
+      if(feature.second == POSE_FEATURE) {
+        currentPose[feature.first] = lookup(feature.first);
+      }
+    }
+  }
+
+  /* getFeaturesForTrajectory
+   * Get information for a single feature over the whole trajectory given in traj.
+   * Traj is ???
+   */
+  std::vector<FeatureVector> TestFeatures::getFeaturesForTrajectory(const std::string &name, Trajectory traj) {
+    std::vector<FeatureVector> features(traj.size());
+    for (const Pose &p: traj) {
+      Pose offset = currentPose[name].inverse() * currentPose[AGENT] * p;
+
+      FeatureVector f(POSE_FEATURES_SIZE);
+      
+    }
+    return features;
   }
 }

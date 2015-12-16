@@ -7,8 +7,6 @@ namespace grid {
 
   public:
 
-    static const std::string AGENT;
-
     /* getPose
      * This function needs to be implemented by inheriting classes.
      * Time field helps determine when the query should occur.
@@ -20,9 +18,15 @@ namespace grid {
     /* getFeatureValues
      * Returns a list of features converted into a format we can use.
      */
-    std::vector<std::vector<double> > getFeatureValues(const std::string &name,
-                                                       unsigned long int mintime = 0,
-                                                       unsigned long int maxtime = 1);
+    std::vector<FeatureVector> getFeatureValues(const std::string &name,
+                                                unsigned long int mintime = 0,
+                                                unsigned long int maxtime = 1);
+
+    /* getFeaturesForTrajectory
+     * Get information for a single feature over the whole trajectory given in traj.
+     * Traj is ???
+     */
+    std::vector<FeatureVector> getFeaturesForTrajectory(const std::string &name, Trajectory traj);
 
     /* addFrame
      * Adds a frame of reference as a feature
@@ -35,15 +39,22 @@ namespace grid {
     void setAgentFrame(const std::string &agentFrame);
 
     /* configure world frame for this TestFeatures object
-     */
+    */
     void setWorldFrame(const std::string &worldFrame);
 
     /* lookup tf frame for key
-     */
+    */
     Pose lookup(const std::string &key);
+
+  /*
+   * run lookup for all objects
+   * store results for poses from tf
+   */
+  void updateWorldfromTF();
 
   private:
     std::unordered_map<std::string, std::string> objectClassToID;
+    std::unordered_map<std::string, Pose> currentPose; // used for fast lookup
 
     // name of the frame representing the end effector, i.e. what are we planning from?
     std::string agentFrame;
