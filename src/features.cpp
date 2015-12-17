@@ -11,7 +11,7 @@ namespace grid {
   const unsigned int Features::POSE_FEATURE_PITCH(4);
   const unsigned int Features::POSE_FEATURE_YAW(5);
 
-  std::vector< std::vector <double> > Features::getFeatures(std::vector<std::string> &names) {
+  std::vector< FeatureVector > Features::getFeatures(std::vector<std::string> &names) {
 
     std::vector< std::vector <double> > f;
 

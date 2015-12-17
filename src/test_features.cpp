@@ -9,10 +9,10 @@ namespace grid {
    * Time field helps determine when the query should occur.
    * A feature query gets the set of all featutes for different points in time, normalizes them, and returns.
    */
-  Trajectory TestFeatures::getPose(const std::string &name,
+  TrajectoryFrames TestFeatures::getPose(const std::string &name,
                                           unsigned long int mintime,
                                           unsigned long int maxtime) {
-    Trajectory poses;
+    TrajectoryFrames poses;
 
 
     return poses;
@@ -82,7 +82,7 @@ namespace grid {
    */
   void TestFeatures::updateWorldfromTF() {
     for (const std::pair<std::string,FeatureType> &feature: feature_types) {
-      std::cout << feature.first << ", " << feature.second << std::endl;
+      //std::cout << feature.first << ", " << feature.second << std::endl;
       if(feature.second == POSE_FEATURE) {
         currentPose[feature.first] = lookup(feature.first);
       }
@@ -93,7 +93,7 @@ namespace grid {
    * Get information for a single feature over the whole trajectory given in traj.
    * Traj is ???
    */
-  std::vector<FeatureVector> TestFeatures::getFeaturesForTrajectory(const std::string &name, Trajectory traj) {
+  std::vector<FeatureVector> TestFeatures::getFeaturesForTrajectory(const std::string &name, TrajectoryFrames traj) {
     std::vector<FeatureVector> features(traj.size());
     unsigned int next_idx = 0;
     for (const Pose &p: traj) {

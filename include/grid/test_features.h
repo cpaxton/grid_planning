@@ -26,7 +26,7 @@ namespace grid {
      * Get information for a single feature over the whole trajectory given in traj.
      * Traj is ???
      */
-    std::vector<FeatureVector> getFeaturesForTrajectory(const std::string &name, Trajectory traj);
+    std::vector<FeatureVector> getFeaturesForTrajectory(const std::string &name, TrajectoryFrames traj);
 
     /* addFrame
      * Adds a frame of reference as a feature

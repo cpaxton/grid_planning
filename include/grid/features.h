@@ -8,6 +8,7 @@
 
 //#include <Eigen/Geometry>
 #include <kdl/frames.hpp>
+#include <kdl/trajectory.hpp>
 #include <tf_conversions/tf_kdl.h>
 
 /**
@@ -25,7 +26,8 @@ namespace grid {
   typedef KDL::Frame Pose;
 
   // use array of poses for now (not using velocity/commands)
-  typedef std::vector<Pose> Trajectory;
+  typedef std::vector<Pose> TrajectoryFrames;
+  typedef KDL::Trajectory Trajectory;
 
   typedef std::vector<double> FeatureVector;
 
@@ -53,7 +55,7 @@ namespace grid {
      * Time field helps determine when the query should occur.
      * A feature query gets the set of all featutes for different points in time, normalizes them, and returns.
      */
-    virtual Trajectory getPose(const std::string &name,
+    virtual TrajectoryFrames getPose(const std::string &name,
                                       unsigned long int mintime = 0,
                                       unsigned long int maxtime = 0) = 0;
 

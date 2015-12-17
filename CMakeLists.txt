@@ -81,6 +81,8 @@ set(SOURCES
   src/test_features.cpp
   src/training_features.cpp
   src/action.cpp
+  src/visualize.cpp
+
   src/dist/utils.cc
 )
 
@@ -91,6 +93,8 @@ set(HEADERS
   include/grid/action.h
   include/grid/training_features.h
   include/grid/features.h
+  include/grid/visualize.h
+
   include/grid/dist/gmm.h
   include/grid/dist/normal.h
   include/grid/dist/utils.h

@@ -1,13 +1,28 @@
+
 #include <grid/test_features.h>
+#include <grid/visualize.h>
+
 #include <ros/ros.h>
 #include <ctime>
+#include <memory>
+
+#include <cmath>
+
+/* KDL includes */
+#include <kdl/trajectory_composite.hpp>
+#include <kdl/trajectory_segment.hpp>
+#include <kdl/velocityprofile_spline.hpp>
+#include <kdl/velocityprofile_trap.hpp>
+#include <kdl/rotational_interpolation_sa.hpp>
+#include <kdl/path_roundedcomposite.hpp>
 
 using namespace grid;
 using namespace KDL;
 
 int main (int argc, char **argv) {
   ros::init(argc,argv,"grid_features_test_node");
-
+  ros::NodeHandle nh;
+  ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("trajectory",1000);
 
   TestFeatures test;
   test.addFeature("node",grid::POSE_FEATURE);
@@ -30,24 +45,62 @@ int main (int argc, char **argv) {
 
       test.updateWorldfromTF();
 
-      Trajectory traj;
+      //Trajectory *traj = std::shared_ptr<TrajectoryComposite>(new TrajectoryComposite());
+      TrajectoryFrames frames;
 
       std::vector<FeatureVector> features;
 
-      // construct a trajectory
-      for (double z = 0.2; z < 2.0; z += 0.2) {
-        Rotation r1 = Rotation::RPY(0,0,0);
-        Vector v1 = Vector(0,0,z);
-        Frame t1 = Frame(r1,v1);
-        traj.push_back(t1);
-      }      
+      // create KDL trajectory and compute frames along it
+      {
+        clock_t begin = clock();
+        RotationalInterpolation_SingleAxis *ri = new RotationalInterpolation_SingleAxis();
+        Trajectory_Composite *traj = new Trajectory_Composite();
+        Path_RoundedComposite *path = new Path_RoundedComposite(0.01,0.02,ri);
+        // construct a path
+        for (double z = 0; z < 2.0; z += 0.4) {
+          Rotation r1 = Rotation::RPY(0,0,0);
+          Vector v1 = Vector(0,(z)*cos(z),z);
+          Frame t1 = Frame(r1,v1);
+          path->Add(t1);
+        }
+        path->Finish();
+
+        double t = 0;
+        double dt = 0.05;
+
+		    VelocityProfile_Spline *velprof = new VelocityProfile_Spline();
+        //VelocityProfile *velprof = new VelocityProfile_Trap(0.5,0.1);
+		    velprof->SetProfile(0,path->PathLength());
+        velprof->SetProfileDuration(0.0, 0.5, 3.0);
+        velprof->Write(std::cout); std::cout << std::endl;
+
+        Trajectory_Segment *seg = new Trajectory_Segment(path, velprof);
+
+        traj->Add(seg);
+
+        std::cout<<traj->Duration()<<std::endl;
+
+        for (; t < traj->Duration(); t += dt) {
+          Frame f = traj->Pos(t);
+          frames.push_back(f);
+        }
+
+        clock_t end = clock();
+        double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+        std::cout << "Computing trajectory of length " << frames.size() << " took " << elapsed_secs << "seconds." << std::endl;
+
+        // convert to PoseArray for outputting debug trajectory
+        pub.publish(toPoseArray(traj,0.05,"wam/wrist_palm_link"));
+
+        delete traj;
+      }
 
       // look at the time it takes to compute features
       {
         using namespace std;
 
         clock_t begin = clock();
-        features = test.getFeaturesForTrajectory("link",traj);
+        features = test.getFeaturesForTrajectory("link",frames);
         clock_t end = clock();
         double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
         std::cout << "Computing features for " << features.size() << " positions took " << elapsed_secs << "seconds." << std::endl;
