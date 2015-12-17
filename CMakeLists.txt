@@ -80,8 +80,9 @@ set(SOURCES
   src/features.cpp
   src/test_features.cpp
   src/training_features.cpp
-  src/action.cpp
+  src/skill.cpp
   src/visualize.cpp
+  src/trajectory_distribution.cpp
 
   src/dist/utils.cc
 )
@@ -90,10 +91,11 @@ set(HEADERS
   include/grid/grid_planner.h
   include/grid/collision_map.h
   include/grid/test_features.h
-  include/grid/action.h
+  include/grid/skill.h
   include/grid/training_features.h
   include/grid/features.h
   include/grid/visualize.h
+  include/grid/trajectory_distribution.h
 
   include/grid/dist/gmm.h
   include/grid/dist/normal.h
