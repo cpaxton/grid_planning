@@ -83,6 +83,8 @@ set(SOURCES
   src/skill.cpp
   src/visualize.cpp
   src/trajectory_distribution.cpp
+  src/predicate.cpp
+  src/grammar.cpp
 
   src/dist/utils.cc
 )
@@ -96,6 +98,8 @@ set(HEADERS
   include/grid/features.h
   include/grid/visualize.h
   include/grid/trajectory_distribution.h
+  include/grid/predicate.h
+  include/grid/grammar.h
 
   include/grid/dist/gmm.h
   include/grid/dist/normal.h
