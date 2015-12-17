@@ -74,36 +74,31 @@ catkin_package(
 include_directories( include ${catkin_INCLUDE_DIRS} ${GCOP_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_PATH} ${EIGEN3_INCLUDE_DIRS} )
 message(STATUS ${GCOP_INCLUDE_DIRS})
 
-## Declare a cpp library
-add_library(grid_planner
+set(SOURCES 
   src/grid_planner.cpp
   src/collision_map.cpp
   src/features.cpp
   src/test_features.cpp
   src/training_features.cpp
   src/action.cpp
-  include/grid/grid_planner.h
-  include/grid/collision_map.h
-  include/grid/test_features.h
-  include/grid/action.h
-  include/grid/training_features.h
-  include/grid/features.h
+  src/dist/utils.cc
 )
 
-add_library(pygrid_planner
-  src/grid_planner.cpp
-  src/collision_map.cpp
-  src/features.cpp
-  src/test_features.cpp
-  src/training_features.cpp
-  src/action.cpp
+set(HEADERS
   include/grid/grid_planner.h
   include/grid/collision_map.h
   include/grid/test_features.h
   include/grid/action.h
   include/grid/training_features.h
   include/grid/features.h
+  include/grid/dist/gmm.h
+  include/grid/dist/normal.h
+  include/grid/dist/utils.h
 )
+
+## Declare a cpp library
+add_library(grid_planner ${SOURCES} ${HEADERS})
+add_library(pygrid_planner ${SOURCES} ${HEADERS})
 
 SET(PY_PROJECT_NAME grid)
 SET(PY_PACKAGE_DIR python/grid)
