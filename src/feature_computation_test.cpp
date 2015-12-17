@@ -1,8 +1,9 @@
 #include <grid/test_features.h>
 #include <ros/ros.h>
+#include <ctime>
 
 using namespace grid;
-using namespace Eigen;
+using namespace KDL;
 
 int main (int argc, char **argv) {
   ros::init(argc,argv,"grid_features_test_node");
@@ -23,7 +24,6 @@ int main (int argc, char **argv) {
   test.lookup("link");
   test.lookup("agent");
 
-
   ros::Rate rate(30);
   try {
     while (ros::ok()) {
@@ -35,13 +35,31 @@ int main (int argc, char **argv) {
       std::vector<FeatureVector> features;
 
       // construct a trajectory
-      for (double z = 0.2; z < 1.4; z += 0.3) {
-        Quaterniond r1 = Quaterniond(0,0,0,1);
-        Affine3d t1 = Translation3d(0,0,z) * r1;
+      for (double z = 0.2; z < 2.0; z += 0.2) {
+        Rotation r1 = Rotation::RPY(0,0,0);
+        Vector v1 = Vector(0,0,z);
+        Frame t1 = Frame(r1,v1);
         traj.push_back(t1);
       }      
 
-      features = test.getFeaturesForTrajectory("link",traj);
+      // look at the time it takes to compute features
+      {
+        using namespace std;
+
+        clock_t begin = clock();
+        features = test.getFeaturesForTrajectory("link",traj);
+        clock_t end = clock();
+        double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+        std::cout << "Computing features for " << features.size() << " positions took " << elapsed_secs << "seconds." << std::endl;
+      }
+
+      for (int idx = 0; idx < features.size(); ++idx) {
+        std::cout << "[" << idx << " ] Feature values: ";
+        for (int i = 0; i < features[idx].size(); ++i) {
+          std::cout << features[idx][i] << " ";
+        }
+        std::cout << std::endl;
+      }
 
       rate.sleep();
     }

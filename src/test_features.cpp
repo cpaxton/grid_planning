@@ -26,8 +26,6 @@ namespace grid {
                                                                    unsigned long int maxtime) {
     std::vector< FeatureVector > values;
 
-
-
     return values;
   }
 
@@ -64,7 +62,7 @@ namespace grid {
       std::cout << "looking up " << objectClassToID[key] << " for " << key << std::endl;
       listener.lookupTransform(objectClassToID[key], worldFrame,  
                                ros::Time(0), transform);
-      tf::transformTFToEigen(transform, p);
+      tf::transformTFToKDL(transform, p);
 #if DEBUG_PRINT_TF_POSE
       std::cout << "[" << key << "] x = " << transform.getOrigin().getX() << std::endl;
       std::cout << "[" << key << "] y = " << transform.getOrigin().getY() << std::endl;
@@ -97,11 +95,17 @@ namespace grid {
    */
   std::vector<FeatureVector> TestFeatures::getFeaturesForTrajectory(const std::string &name, Trajectory traj) {
     std::vector<FeatureVector> features(traj.size());
+    unsigned int next_idx = 0;
     for (const Pose &p: traj) {
-      Pose offset = currentPose[name].inverse() * currentPose[AGENT] * p;
+      Pose offset = currentPose[name].Inverse() * currentPose[AGENT] * p;
 
       FeatureVector f(POSE_FEATURES_SIZE);
+      f[POSE_FEATURE_X] = offset.p.x();
+      f[POSE_FEATURE_Y] = offset.p.y();
+      f[POSE_FEATURE_Z] = offset.p.z();
+      offset.M.GetRPY(f[POSE_FEATURE_ROLL], f[POSE_FEATURE_PITCH], f[POSE_FEATURE_YAW]);
       
+      features[next_idx++] = f;
     }
     return features;
   }

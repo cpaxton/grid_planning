@@ -6,8 +6,9 @@
 
 //#include <gcop/pose.h>
 
-#include <Eigen/Geometry>
-#include <tf_conversions/tf_eigen.h>
+//#include <Eigen/Geometry>
+#include <kdl/frames.hpp>
+#include <tf_conversions/tf_kdl.h>
 
 /**
  * Features
@@ -20,7 +21,8 @@ namespace grid {
   // use GCOP's pose class for now
   //typedef gcop_urdf::Pose Pose;
   // actually no -- using Eigen transforms
-  typedef Eigen::Affine3d Pose;
+  //typedef Eigen::Affine3d Pose;
+  typedef KDL::Frame Pose;
 
   // use array of poses for now (not using velocity/commands)
   typedef std::vector<Pose> Trajectory;
@@ -39,6 +41,12 @@ namespace grid {
 
     static const std::string AGENT;
     static const unsigned int POSE_FEATURES_SIZE;
+    static const unsigned int POSE_FEATURE_X;
+    static const unsigned int POSE_FEATURE_Y;
+    static const unsigned int POSE_FEATURE_Z;
+    static const unsigned int POSE_FEATURE_ROLL;
+    static const unsigned int POSE_FEATURE_PITCH;
+    static const unsigned int POSE_FEATURE_YAW;
 
     /* getPose
      * This function needs to be implemented by inheriting classes.
