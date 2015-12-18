@@ -1,6 +1,6 @@
 #include <grid/test_features.h>
 
-#define DEBUG_PRINT_TF_POSE 0
+#define DEBUG_PRINT_TF_POSE 1
 
 namespace grid {
 
@@ -44,6 +44,7 @@ namespace grid {
   void TestFeatures::setAgentFrame(const std::string &agentFrame_) {
     agentFrame = agentFrame_;
     objectClassToID[AGENT] = agentFrame_;
+    addFeature(AGENT,POSE_FEATURE);
   }
 
   /* configure world frame for this TestFeatures object
@@ -60,7 +61,7 @@ namespace grid {
 
     try{
       std::cout << "looking up " << objectClassToID[key] << " for " << key << std::endl;
-      listener.lookupTransform(objectClassToID[key], worldFrame,  
+      listener.lookupTransform(worldFrame, objectClassToID[key],
                                ros::Time(0), transform);
       tf::transformTFToKDL(transform, p);
 #if DEBUG_PRINT_TF_POSE

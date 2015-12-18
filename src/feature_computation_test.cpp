@@ -23,6 +23,7 @@ int main (int argc, char **argv) {
   ros::init(argc,argv,"grid_features_test_node");
   ros::NodeHandle nh;
   ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("trajectory",1000);
+  ros::Publisher fpub = nh.advertise<geometry_msgs::PoseArray>("features",1000);
 
   TestFeatures test;
   test.addFeature("node",grid::POSE_FEATURE);
@@ -106,13 +107,31 @@ int main (int argc, char **argv) {
         std::cout << "Computing features for " << features.size() << " positions took " << elapsed_secs << "seconds." << std::endl;
       }
 
+      geometry_msgs::PoseArray msg;
+      msg.header.frame_id = "world";//wam/wrist_palm_link";
+
       for (int idx = 0; idx < features.size(); ++idx) {
+
         std::cout << "[" << idx << " ] Feature values: ";
+
         for (int i = 0; i < features[idx].size(); ++i) {
           std::cout << features[idx][i] << " ";
         }
+
         std::cout << std::endl;
+
+        Rotation rot = Rotation::RPY(features[idx][Features::POSE_FEATURE_ROLL], features[idx][Features::POSE_FEATURE_PITCH], features[idx][Features::POSE_FEATURE_YAW]);
+        Vector vec = Vector(features[idx][Features::POSE_FEATURE_X],features[idx][Features::POSE_FEATURE_Y],features[idx][Features::POSE_FEATURE_Z]);
+        Frame featureFrame(rot,vec);
+
+        geometry_msgs::Pose p;
+        tf::Pose tfp;
+        tf::poseKDLToTF(featureFrame,tfp);
+        tf::poseTFToMsg(tfp,p);
+        msg.poses.push_back(p);
       }
+
+      fpub.publish(msg);
 
       rate.sleep();
     }
