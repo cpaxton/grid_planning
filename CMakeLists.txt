@@ -125,6 +125,7 @@ set_target_properties(pygrid_planner
 ## Declare a cpp executable
 add_executable(grid_plan_node src/grid_plan_node.cpp)
 add_executable(features_test src/feature_computation_test.cpp)
+add_executable(trajectory_test src/trajectory_generation_test.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -148,3 +149,6 @@ target_link_libraries(features_test
   grid_planner ${catkin_LIBRARIES} ${GCOP_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} ${PYTHON_LIBRARIES}
 )
 
+target_link_libraries(trajectory_test
+  grid_planner ${catkin_LIBRARIES} ${GCOP_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} ${PYTHON_LIBRARIES}
+)

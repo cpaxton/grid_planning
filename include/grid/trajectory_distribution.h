@@ -32,7 +32,7 @@ namespace grid {
        * Pull a random trajectory from the gmm
        * Convert it into a KDL trajectory
        */
-      Trajectory *sample() const;
+      Trajectory *sample(unsigned int nsamples) const;
   };
 
 }

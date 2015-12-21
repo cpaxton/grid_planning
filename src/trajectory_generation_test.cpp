@@ -1,12 +1,13 @@
 
 #include <grid/trajectory_distribution.h>
 #include <grid/test_features.h>
+#include <grid/visualize.h>
 
 using namespace grid;
 using namespace KDL;
 
 int main(int argc, char **argv) {
-  ros::init_node(argc,argv,"grid_trajectory_test_node");
+  ros::init(argc,argv,"grid_trajectory_test_node");
   ros::NodeHandle nh;
   ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("trajectory",1000);
 
@@ -19,7 +20,8 @@ int main(int argc, char **argv) {
   test.setFrame("gbeam_link_1/gbeam_link","link");
 
 
-  TrajectoryDistribution dist(test,Skill::DefaultSkill("node"));
+  TrajectoryDistribution dist(3,1);
+  dist.initialize(test,Skill::DefaultSkill("node"));
 
   ros::Rate rate(30);
   unsigned int ntrajs = 10;
@@ -27,9 +29,11 @@ int main(int argc, char **argv) {
     while (ros::ok()) {
 
       Trajectory *trajs = dist.sample(ntrajs);
-      pub.publish(toPoseArray(traj,0.05,"wam/wrist_palm_link",ntrajs));
+      pub.publish(toPoseArray(trajs,0.05,"wam/wrist_palm_link",ntrajs));
       delete trajs;
     }
+  } catch (ros::Exception ex) {
+    ROS_ERROR("%s",ex.what());
   }
 
 }
