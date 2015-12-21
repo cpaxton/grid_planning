@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include <memory>
 
 //#include <gcop/pose.h>
 
@@ -26,7 +27,8 @@ namespace grid {
   typedef KDL::Frame Pose;
 
   // feature distribution defined here as a GCOP gmm for now
-  typedef gcop::Gmm<> GMM;
+  typedef gcop::Gmm<> Gmm;
+  typedef std::shared_ptr<gcop::Gmm<> > GmmPtr;
 
   // use array of poses for now (not using velocity/commands)
   typedef std::vector<Pose> TrajectoryFrames;
@@ -43,17 +45,18 @@ namespace grid {
    */
   typedef enum FeatureType { POSE_FEATURE, FLOAT_FEATURE } FeatureType;
 
+  static const std::string AGENT("agent");
+  static const unsigned int POSE_FEATURES_SIZE(6);
+  static const unsigned int POSE_FEATURE_X(0);
+  static const unsigned int POSE_FEATURE_Y(1);
+  static const unsigned int POSE_FEATURE_Z(2);
+  static const unsigned int POSE_FEATURE_ROLL(3);
+  static const unsigned int POSE_FEATURE_PITCH(4);
+  static const unsigned int POSE_FEATURE_YAW(5);
+  static const unsigned int FLOAT_FEATURES_SIZE(1);
+
   class Features {
   public:
-
-    static const std::string AGENT;
-    static const unsigned int POSE_FEATURES_SIZE;
-    static const unsigned int POSE_FEATURE_X;
-    static const unsigned int POSE_FEATURE_Y;
-    static const unsigned int POSE_FEATURE_Z;
-    static const unsigned int POSE_FEATURE_ROLL;
-    static const unsigned int POSE_FEATURE_PITCH;
-    static const unsigned int POSE_FEATURE_YAW;
 
     /* getPose
      * This function needs to be implemented by inheriting classes.
@@ -61,15 +64,15 @@ namespace grid {
      * A feature query gets the set of all featutes for different points in time, normalizes them, and returns.
      */
     virtual TrajectoryFrames getPose(const std::string &name,
-                                      unsigned long int mintime = 0,
-                                      unsigned long int maxtime = 0) = 0;
+                                     unsigned long int mintime = 0,
+                                     unsigned long int maxtime = 0) = 0;
 
     /* getFeatureValues
      * Returns a list of features converted into a format we can use.
      */
     virtual std::vector< FeatureVector > getFeatureValues(const std::string &name,
-                                                               unsigned long int mintime = 0,
-                                                               unsigned long int maxtime = 0) = 0;
+                                                          unsigned long int mintime = 0,
+                                                          unsigned long int maxtime = 0) = 0;
 
     /*
      * Processing code.
@@ -86,6 +89,11 @@ namespace grid {
      * add a feature
      */
     void addFeature(const std::string &name, const FeatureType type);
+
+    /**
+     * get the type of a feature
+     */
+    FeatureType getFeatureType(const std::string &name) const;
 
   protected:
     std::unordered_map<std::string,FeatureType> feature_types;

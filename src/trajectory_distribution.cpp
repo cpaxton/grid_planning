@@ -13,8 +13,8 @@ namespace grid {
    * initialize
    * set up the distribution based on a skill and an environment
    */
-  void TrajectoryDistribution::initialize(const Features &features, const Skill &skill) {
-
+  void TrajectoryDistribution::initialize(TestFeatures &features, const Skill &skill) {
+      Pose p = features.lookup(skill.getBestFeature());
   }
 
   /**

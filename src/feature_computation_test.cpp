@@ -120,8 +120,8 @@ int main (int argc, char **argv) {
 
         std::cout << std::endl;
 
-        Rotation rot = Rotation::RPY(features[idx][Features::POSE_FEATURE_ROLL], features[idx][Features::POSE_FEATURE_PITCH], features[idx][Features::POSE_FEATURE_YAW]);
-        Vector vec = Vector(features[idx][Features::POSE_FEATURE_X],features[idx][Features::POSE_FEATURE_Y],features[idx][Features::POSE_FEATURE_Z]);
+        Rotation rot = Rotation::RPY(features[idx][POSE_FEATURE_ROLL], features[idx][POSE_FEATURE_PITCH], features[idx][POSE_FEATURE_YAW]);
+        Vector vec = Vector(features[idx][POSE_FEATURE_X],features[idx][POSE_FEATURE_Y],features[idx][POSE_FEATURE_Z]);
         Frame featureFrame(rot,vec);
 
         geometry_msgs::Pose p;

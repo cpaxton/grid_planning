@@ -25,7 +25,7 @@ namespace grid {
        * initialize
        * set up the distribution based on a skill and an environment
        */
-      void initialize(const Features &features, const Skill &skill);
+      void initialize(TestFeatures &features, const Skill &skill);
 
       /**
        * sample
