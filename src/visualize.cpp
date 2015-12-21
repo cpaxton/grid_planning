@@ -11,7 +11,9 @@ namespace grid {
     msg.header.frame_id = frame;
 
     for (unsigned int i = 0; i < ntrajs; ++i) {
+      std::cout << "---- " << i << " ----- " << traj[i].Duration() << std::endl;
       for (double t = 0; t < traj[i].Duration(); t += dt) {
+        std::cout << t << std::endl;
         geometry_msgs::Pose p;
         tf::Pose tfp;
         tf::poseKDLToTF(traj[i].Pos(t),tfp);

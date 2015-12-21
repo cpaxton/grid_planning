@@ -19,17 +19,40 @@ int main(int argc, char **argv) {
   test.setFrame("gbeam_node_1/gbeam_node","node");
   test.setFrame("gbeam_link_1/gbeam_link","link");
 
-
-  TrajectoryDistribution dist(3,1);
-  dist.initialize(test,Skill::DefaultSkill("node"));
+  ROS_INFO("Done setting up. Sleeping...");
+  ros::Duration(1.0).sleep();
 
   ros::Rate rate(30);
-  unsigned int ntrajs = 10;
+  unsigned int ntrajs = 1;
   try {
     while (ros::ok()) {
 
-      Trajectory *trajs = dist.sample(ntrajs);
-      pub.publish(toPoseArray(trajs,0.05,"wam/wrist_palm_link",ntrajs));
+      ROS_INFO("Updating world...");
+      test.updateWorldfromTF();
+
+      ROS_INFO("Initializing trajectory distribution...");
+      TrajectoryDistribution dist(3,1);
+      dist.initialize(test,Skill::DefaultSkill("node"));
+
+      ROS_INFO("Generating trajectories...");
+      Trajectory *trajs;
+
+      // look at the time it takes to compute features
+      {
+        using namespace std;
+
+        clock_t begin = clock();
+        trajs = dist.sample(ntrajs);
+        clock_t end = clock();
+        double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+        std::cout << "Sampling " << ntrajs << " trajectories took " << elapsed_secs << "seconds." << std::endl;
+      }
+
+      std::cout << "Publishing trajectories..." << std::endl;
+      //pub.publish(toPoseArray(trajs,0.05,"wam/wrist_palm_link",ntrajs));
+      pub.publish(toPoseArray(trajs,0.05,"world",ntrajs));
+      std::cout << "Done." << std::endl;
+
       delete trajs;
     }
   } catch (ros::Exception ex) {

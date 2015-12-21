@@ -29,6 +29,7 @@ namespace grid {
   // feature distribution defined here as a GCOP gmm for now
   typedef gcop::Gmm<> Gmm;
   typedef std::shared_ptr<gcop::Gmm<> > GmmPtr;
+  typedef Eigen::Matrix<double, Eigen::Dynamic, 1> EigenVectornd;
 
   // use array of poses for now (not using velocity/commands)
   typedef std::vector<Pose> TrajectoryFrames;

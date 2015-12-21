@@ -13,6 +13,7 @@ namespace grid {
       gcop::Gmm<> dist; // stores distributions
       unsigned int nseg; // number of segments
       unsigned int dim; // dimensionality of the trajectory space
+      Pose initial;
 
     public:
 
@@ -31,8 +32,9 @@ namespace grid {
        * sample
        * Pull a random trajectory from the gmm
        * Convert it into a KDL trajectory
+       * NON-CONST becuse Gmm::sample is likewise non-const
        */
-      Trajectory *sample(unsigned int nsamples) const;
+      Trajectory *sample(unsigned int nsamples);
   };
 
 }
