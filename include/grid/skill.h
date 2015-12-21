@@ -3,7 +3,8 @@
 
 #include <vector>
 #include <string>
-#include "features.h"
+
+#include <grid/features.h>
 
 /**
  * Skill
@@ -19,6 +20,12 @@ namespace grid {
    *
    */
   class Skill {
+  protected:
+
+    /** stores feature expectations for the skill */
+    GMM exec_model;
+
+  public:
 
     /**
      * Stores the list of feature names we will be querying.
@@ -30,7 +37,13 @@ namespace grid {
      * Stick two actions together to generate a combined set of constraints.
      * This is an "OR" operation, not an "AND".
      */
-    Skill concatenate(const Skill &a);
+    Skill concatenate(const Skill &a) const;
+
+    /**
+     * default skill;
+     * one object feature; identity covariance; k=1 gmm
+     */
+    static Skill DefaultSkill(const std::string &object);
   };
 }
 

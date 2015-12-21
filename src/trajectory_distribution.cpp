@@ -25,6 +25,15 @@ namespace grid {
   Trajectory *TrajectoryDistribution::sample() const {
     Trajectory *traj;
 
+    for (int i = 0; i < nseg; ++i) {
+
+      // generate a random set point
+      
+      // generate random parameters
+      
+      // add to the trajectory
+    }
+
     return traj;
   }
 

@@ -11,6 +11,9 @@
 #include <kdl/trajectory.hpp>
 #include <tf_conversions/tf_kdl.h>
 
+// used for other type definitions
+#include <grid/dist/gmm.h>
+
 /**
  * Features
  * Parent abstract class for a set of robot features.
@@ -19,14 +22,16 @@
 
 namespace grid {
 
-  // use GCOP's pose class for now
-  //typedef gcop_urdf::Pose Pose;
-  // actually no -- using Eigen transforms
-  //typedef Eigen::Affine3d Pose;
+  // grid (for robots) is going to be based on KDL
   typedef KDL::Frame Pose;
+
+  // feature distribution defined here as a GCOP gmm for now
+  typedef gcop::Gmm<> GMM;
 
   // use array of poses for now (not using velocity/commands)
   typedef std::vector<Pose> TrajectoryFrames;
+
+  // trajectories are represented as KDL trajectories
   typedef KDL::Trajectory Trajectory;
 
   typedef std::vector<double> FeatureVector;
