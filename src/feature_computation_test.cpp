@@ -108,7 +108,7 @@ int main (int argc, char **argv) {
       }
 
       geometry_msgs::PoseArray msg;
-      msg.header.frame_id = "world";//wam/wrist_palm_link";
+      msg.header.frame_id = "gbeam_link_1/gbeam_link"; //"wam/wrist_palm_link";
 
       for (int idx = 0; idx < features.size(); ++idx) {
 
