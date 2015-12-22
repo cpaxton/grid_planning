@@ -48,6 +48,11 @@ int main(int argc, char **argv) {
         std::cout << "Sampling " << ntrajs << " trajectories took " << elapsed_secs << " seconds." << std::endl;
       }
 
+      std::cout << "sizeof = " << sizeof(trajs) << std::endl;
+      for (unsigned int i =0; i < trajs.size(); ++i) {
+        std::cout << i << ": " << trajs[i]->Duration() << std::endl;
+      }
+
       std::cout << "Publishing trajectories..." << std::endl;
       //pub.publish(toPoseArray(trajs,0.05,"wam/wrist_palm_link",ntrajs));
       pub.publish(toPoseArray(trajs,0.05,"world"));
@@ -56,6 +61,8 @@ int main(int argc, char **argv) {
       for(unsigned int i = 0; i < trajs.size(); ++i) {
         delete trajs[i];
       }
+
+      rate.sleep();
     }
   } catch (ros::Exception ex) {
     ROS_ERROR("%s",ex.what());

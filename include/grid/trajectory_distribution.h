@@ -26,7 +26,7 @@ namespace grid {
        * initialize
        * set up the distribution based on a skill and an environment
        */
-      void initialize(TestFeatures &features, const Skill &skill);
+      void initialize(TestFeatures &features, const Skill &skill, std::vector<double> sigma = std::vector<double>());
 
       /**
        * sample

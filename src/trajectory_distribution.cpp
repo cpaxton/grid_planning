@@ -9,6 +9,9 @@
 #include <kdl/path_line.hpp>
 #include <kdl/path_roundedcomposite.hpp>
 
+#define SHOW_SAMPLED_VALUES 0
+#define DEFAULT_SIGMA 0.05
+
 using namespace KDL;
 
 namespace grid {
@@ -24,7 +27,7 @@ namespace grid {
    * initialize
    * set up the distribution based on a skill and an environment
    */
-  void TrajectoryDistribution::initialize(TestFeatures &features, const Skill &skill) {
+  void TrajectoryDistribution::initialize(TestFeatures &features, const Skill &skill, std::vector<double> sigma) {
     Pose p0 = features.lookup(AGENT);
     Pose p1 = features.lookup(skill.getBestFeature());
     double eqradius = 1;
@@ -55,8 +58,18 @@ namespace grid {
       }
     }
 
-    for (int j = 0; j < dim; ++j) {
-      dist.ns[0].P(j,j) = 1;
+    if (sigma.size() < dim) {
+      std::cerr << "[GRID/TRAJECTORY DISTRIBUTION] Noise argument for trajectory search initialization was the wrong size!" << std::endl;
+      std::cerr << "[GRID/TRAJECTORY DISTRIBUTION] Should be: " << dim << std::endl;
+      std::cerr << "[GRID/TRAJECTORY DISTRIBUTION] Was: " << sigma.size() << std::endl;
+      for (int j = 0; j < dim; ++j) {
+        dist.ns[0].P(j,j) = DEFAULT_SIGMA;
+      }
+
+    } else {
+      for (int j = 0; j < dim; ++j) {
+        dist.ns[0].P(j,j) = sigma[j];
+      }
     }
     dist.Update();
 
@@ -74,7 +87,7 @@ namespace grid {
     std::vector<Trajectory *> traj = std::vector<Trajectory *>(nsamples);
 
     for (int sample = 0; sample < nsamples; ++sample) {
-      const Frame *prev = &initial;
+      Frame prev = Frame(initial);
 
       Trajectory_Composite *ctraj = new Trajectory_Composite();
 
@@ -82,11 +95,13 @@ namespace grid {
       vec.resize(dim);
       dist.Sample(vec);
 
+#if SHOW_SAMPLED_VALUES
       std::cout << "Sampled: ";
       for (int j = 0; j < dim; ++j) {
         std::cout << vec[j] << " ";
       }
       std::cout << std::endl;
+#endif
 
       for (int i = 0; i < nseg; ++i) {
 
@@ -103,9 +118,10 @@ namespace grid {
           Vector v1 = Vector(vec[idx+POSE_FEATURE_X],vec[idx+POSE_FEATURE_Y],vec[idx+POSE_FEATURE_Z]);
 
           Frame t1 = Frame(r1,v1);
-          path->Add(Frame(*prev));
+          path->Add(prev);
           path->Add(t1);
           path->Finish();
+          prev = t1;
         }
 
         // generate random parameters for velocity profile
@@ -121,11 +137,6 @@ namespace grid {
       }
 
       traj[sample] = ctraj;
-    }
-
-    std::cout << "sizeof = " << sizeof(traj) << std::endl;
-    for (int i =0; i < nsamples; ++i) {
-      std::cout << i << ": " << traj[i]->Duration() << std::endl;
     }
 
     return traj;
