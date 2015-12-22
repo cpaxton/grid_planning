@@ -34,7 +34,7 @@ namespace grid {
        * Convert it into a KDL trajectory
        * NON-CONST becuse Gmm::sample is likewise non-const
        */
-      Trajectory *sample(unsigned int nsamples);
+      std::vector<Trajectory *> sample(unsigned int nsamples);
   };
 
 }

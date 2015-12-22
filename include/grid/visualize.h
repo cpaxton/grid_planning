@@ -5,13 +5,19 @@
 #include <geometry_msgs/PoseArray.h>
 #include <geometry_msgs/Pose.h>
 
+#include <vector>
+
 namespace grid {
 
   /*  create a pose array message from a KDL trajectory */
   geometry_msgs::PoseArray toPoseArray(Trajectory *traj,
                                        double dt,
-                                       const std::string &frame,
-                                       unsigned int ntrajs = 1);
+                                       const std::string &frame);
+
+  /*  create a pose array message from a KDL trajectory */
+  geometry_msgs::PoseArray toPoseArray(std::vector<Trajectory *> traj,
+                                       double dt,
+                                       const std::string &frame);
 
 }
 

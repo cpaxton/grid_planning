@@ -55,6 +55,11 @@ namespace grid {
       }
     }
 
+    for (int j = 0; j < dim; ++j) {
+      dist.ns[0].P(j,j) = 1;
+    }
+    dist.Update();
+
     initial = p0;
     delete path;
   }
@@ -64,14 +69,14 @@ namespace grid {
    * Pull a random trajectory from the gmm
    * Convert it into a KDL trajectory
    */
-  Trajectory *TrajectoryDistribution::sample(unsigned int nsamples) {
-    Trajectory_Composite *traj = new Trajectory_Composite[nsamples];
-
-    double prc1 = 0.1;
-    double prc2 = 0.2;
+  std::vector<Trajectory *> TrajectoryDistribution::sample(unsigned int nsamples) {
+    //Trajectory_Composite *traj = new Trajectory_Composite[nsamples];
+    std::vector<Trajectory *> traj = std::vector<Trajectory *>(nsamples);
 
     for (int sample = 0; sample < nsamples; ++sample) {
       const Frame *prev = &initial;
+
+      Trajectory_Composite *ctraj = new Trajectory_Composite();
 
       EigenVectornd vec;
       vec.resize(dim);
@@ -85,6 +90,8 @@ namespace grid {
 
       for (int i = 0; i < nseg; ++i) {
 
+        double prc1 = 0.1;
+        double prc2 = 0.2;
         RotationalInterpolation_SingleAxis *ri = new RotationalInterpolation_SingleAxis();
         Path_RoundedComposite *path = new Path_RoundedComposite(prc1,prc2,ri);
 
@@ -96,7 +103,7 @@ namespace grid {
           Vector v1 = Vector(vec[idx+POSE_FEATURE_X],vec[idx+POSE_FEATURE_Y],vec[idx+POSE_FEATURE_Z]);
 
           Frame t1 = Frame(r1,v1);
-          path->Add(*prev);
+          path->Add(Frame(*prev));
           path->Add(t1);
           path->Finish();
         }
@@ -104,15 +111,21 @@ namespace grid {
         // generate random parameters for velocity profile
         //VelocityProfile_Spline *velprof = new VelocityProfile_Spline();
         VelocityProfile *velprof = new VelocityProfile_Trap(0.5,0.1);
-        std::cout << "Path length: " << path->PathLength() << std::endl;
+        //std::cout << "Path length: " << path->PathLength() << std::endl;
         velprof->SetProfile(0,path->PathLength());
         //velprof->SetProfileDuration(0.0, 0.5, 3.0);
 
         // add to the trajectory
         Trajectory_Segment *seg = new Trajectory_Segment(path, velprof);
-        traj[sample].Add(seg);
-
+        ctraj->Add(seg);
       }
+
+      traj[sample] = ctraj;
+    }
+
+    std::cout << "sizeof = " << sizeof(traj) << std::endl;
+    for (int i =0; i < nsamples; ++i) {
+      std::cout << i << ": " << traj[i]->Duration() << std::endl;
     }
 
     return traj;

@@ -22,8 +22,8 @@ int main(int argc, char **argv) {
   ROS_INFO("Done setting up. Sleeping...");
   ros::Duration(1.0).sleep();
 
-  ros::Rate rate(30);
-  unsigned int ntrajs = 1;
+  ros::Rate rate(1);
+  unsigned int ntrajs = 10;
   try {
     while (ros::ok()) {
 
@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
       dist.initialize(test,Skill::DefaultSkill("node"));
 
       ROS_INFO("Generating trajectories...");
-      Trajectory *trajs;
+      std::vector<Trajectory *> trajs;
 
       // look at the time it takes to compute features
       {
@@ -45,15 +45,17 @@ int main(int argc, char **argv) {
         trajs = dist.sample(ntrajs);
         clock_t end = clock();
         double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-        std::cout << "Sampling " << ntrajs << " trajectories took " << elapsed_secs << "seconds." << std::endl;
+        std::cout << "Sampling " << ntrajs << " trajectories took " << elapsed_secs << " seconds." << std::endl;
       }
 
       std::cout << "Publishing trajectories..." << std::endl;
       //pub.publish(toPoseArray(trajs,0.05,"wam/wrist_palm_link",ntrajs));
-      pub.publish(toPoseArray(trajs,0.05,"world",ntrajs));
+      pub.publish(toPoseArray(trajs,0.05,"world"));
       std::cout << "Done." << std::endl;
 
-      delete trajs;
+      for(unsigned int i = 0; i < trajs.size(); ++i) {
+        delete trajs[i];
+      }
     }
   } catch (ros::Exception ex) {
     ROS_ERROR("%s",ex.what());

@@ -44,8 +44,6 @@
   <build_depend>ascent_mk2</build_depend>
   <build_depend>rosbag</build_depend>
   <build_depend>dmp</build_depend>
-  <build_depend>grid_experiments</build_depend>
-  <build_depend>grid_tasks</build_depend>
   <build_depend>tf</build_depend>
   <build_depend>tf_conversions</build_depend>
   <build_depend>moveit_core</build_depend>
@@ -56,6 +54,7 @@
   <build_depend>trajectory_msgs</build_depend>
   <build_depend>sensor_msgs</build_depend>
   <build_depend>python_module</build_depend>
+  <build_depend>orocos_kdl</build_depend>
 
   <run_depend>ascent_mk2</run_depend>
   <run_depend>dmp</run_depend>
@@ -71,6 +70,7 @@
   <run_depend>moveit_ros_planning_interface</run_depend>
   <run_depend>trajectory_msgs</run_depend>
   <run_depend>sensor_msgs</run_depend>
+  <run_depend>orocos_kdl</run_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
