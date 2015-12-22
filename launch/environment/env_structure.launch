@@ -1,0 +1,15 @@
+<launch>
+
+  <group ns="env">
+
+    <group ns="gbeam_link_1">
+      <rosparam param="mated">None</rosparam>
+    </group>
+
+    <group ns="gbeam_node_1">
+      <rosparam param="mated">None</rosparam>
+    </group>
+
+  </group>
+
+</launch>

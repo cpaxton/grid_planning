@@ -1,0 +1,18 @@
+<launch>
+
+  <group ns="env">
+    <rosparam>
+    </rosparam>
+
+    <group ns="tool">
+      <rosparam param="in_hand">False</rosparam>
+      <rosparam param="above">None</rosparam>
+    </group>
+
+    <group ns="vise">
+      <rosparam param="in_use">False</rosparam>
+    </group>
+
+  </group>
+
+</launch>

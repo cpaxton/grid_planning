@@ -1,0 +1,29 @@
+<launch>
+
+  <group ns="env">
+
+    <rosparam param="gates_done">False</rosparam>
+    <rosparam param="in_gate">False</rosparam>
+
+    <group ns="gate1">
+      <rosparam param="in_gate">False</rosparam>
+      <rosparam param="cleared">False</rosparam>
+      <rosparam param="broken">False</rosparam>
+    </group>
+
+    <group ns="gate2">
+      <rosparam param="in_gate">False</rosparam>
+      <rosparam param="cleared">False</rosparam>
+      <rosparam param="broken">False</rosparam>
+    </group>
+
+    <group ns="gate3">
+      <rosparam param="in_gate">False</rosparam>
+      <rosparam param="cleared">False</rosparam>
+      <rosparam param="broken">False</rosparam>
+    </group>
+    
+
+  </group>
+
+</launch>
