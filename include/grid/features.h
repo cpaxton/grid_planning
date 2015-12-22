@@ -56,6 +56,15 @@ namespace grid {
   static const unsigned int POSE_FEATURE_YAW(5);
   static const unsigned int FLOAT_FEATURES_SIZE(1);
 
+  static const unsigned int SPLINE_POS1(6);
+  static const unsigned int SPLINE_VEL1(7);
+  static const unsigned int SPLINE_ACC1(8);
+  static const unsigned int SPLINE_POS2(9);
+  static const unsigned int SPLINE_VEL2(10);
+  static const unsigned int SPLINE_ACC2(11);
+  static const unsigned int SEGMENT_DURATION(12);
+  static const unsigned int SPLINE_DIM(13);
+
   class Features {
   public:
 

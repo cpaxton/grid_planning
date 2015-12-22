@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
   ros::Duration(1.0).sleep();
 
   ros::Rate rate(1);
-  unsigned int ntrajs = 10;
+  unsigned int ntrajs = 1;
   try {
     while (ros::ok()) {
 

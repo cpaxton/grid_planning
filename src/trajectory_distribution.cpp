@@ -10,7 +10,7 @@
 #include <kdl/path_roundedcomposite.hpp>
 
 #define SHOW_SAMPLED_VALUES 0
-#define DEFAULT_SIGMA 0.05
+#define DEFAULT_SIGMA 0.01
 
 using namespace KDL;
 
@@ -19,8 +19,12 @@ namespace grid {
   /**
    * Initialize a trajectory distribution with velocity profile, etc.
    */
-  TrajectoryDistribution::TrajectoryDistribution(int nseg_, int k_) : nseg(nseg_), dist(nseg_*6,k_) {
-    dim = 6 * nseg; // velocity, acceleration, position setpoints for each segment
+  TrajectoryDistribution::TrajectoryDistribution(int nseg_, int k_)
+    : nseg(nseg_),
+    dist(nseg_*SPLINE_DIM,k_),
+    verbose(false)
+  {
+    dim = SPLINE_DIM * nseg; // velocity, acceleration, position setpoints for each segment
   }
 
   /**
@@ -41,12 +45,20 @@ namespace grid {
       std::cout << "(" << i+1 << "/" << nseg << ") position = " << s << std::endl;
       Pose p = path->Pos(s);
 
-      int idx = 6 * i;
+      int idx = SPLINE_DIM * i;
 
       // set up x, y, z
       dist.ns[0].mu[idx+POSE_FEATURE_X] = p.p.x();
       dist.ns[0].mu[idx+POSE_FEATURE_Y] = p.p.y();
       dist.ns[0].mu[idx+POSE_FEATURE_Z] = p.p.z();
+
+      dist.ns[0].mu[idx+SPLINE_POS1] = 0.0;
+      dist.ns[0].mu[idx+SPLINE_VEL1] = 0.01;
+      dist.ns[0].mu[idx+SPLINE_ACC1] = 0.01;
+      dist.ns[0].mu[idx+SPLINE_POS2] = 1;
+      dist.ns[0].mu[idx+SPLINE_VEL2] = 0.01;
+      dist.ns[0].mu[idx+SPLINE_ACC2] = -0.01;
+      dist.ns[0].mu[idx+SEGMENT_DURATION] = 1.0;
 
       // set up roll, pitch, yaw
       {
@@ -59,9 +71,11 @@ namespace grid {
     }
 
     if (sigma.size() < dim) {
-      std::cerr << "[GRID/TRAJECTORY DISTRIBUTION] Noise argument for trajectory search initialization was the wrong size!" << std::endl;
-      std::cerr << "[GRID/TRAJECTORY DISTRIBUTION] Should be: " << dim << std::endl;
-      std::cerr << "[GRID/TRAJECTORY DISTRIBUTION] Was: " << sigma.size() << std::endl;
+      if (verbose) {
+        std::cerr << "[GRID/TRAJECTORY DISTRIBUTION] Noise argument for trajectory search initialization was the wrong size!" << std::endl;
+        std::cerr << "[GRID/TRAJECTORY DISTRIBUTION] Should be: " << dim << std::endl;
+        std::cerr << "[GRID/TRAJECTORY DISTRIBUTION] Was: " << sigma.size() << std::endl;
+      }
       for (int j = 0; j < dim; ++j) {
         dist.ns[0].P(j,j) = DEFAULT_SIGMA;
       }
@@ -105,6 +119,8 @@ namespace grid {
 
       for (int i = 0; i < nseg; ++i) {
 
+        int idx = SPLINE_DIM*i;
+
         double prc1 = 0.1;
         double prc2 = 0.2;
         RotationalInterpolation_SingleAxis *ri = new RotationalInterpolation_SingleAxis();
@@ -113,7 +129,6 @@ namespace grid {
         // generate a random set point and add it to the path
         {
 
-          int idx = 6*i;
           Rotation r1 = Rotation::RPY(vec[idx+POSE_FEATURE_ROLL],vec[idx+POSE_FEATURE_PITCH],vec[idx+POSE_FEATURE_YAW]);
           Vector v1 = Vector(vec[idx+POSE_FEATURE_X],vec[idx+POSE_FEATURE_Y],vec[idx+POSE_FEATURE_Z]);
 
@@ -125,11 +140,26 @@ namespace grid {
         }
 
         // generate random parameters for velocity profile
-        //VelocityProfile_Spline *velprof = new VelocityProfile_Spline();
-        VelocityProfile *velprof = new VelocityProfile_Trap(0.5,0.1);
-        //std::cout << "Path length: " << path->PathLength() << std::endl;
-        velprof->SetProfile(0,path->PathLength());
-        //velprof->SetProfileDuration(0.0, 0.5, 3.0);
+        //VelocityProfile *velprof = new VelocityProfile_Trap(0.5,0.1);
+        VelocityProfile_Spline *velprof = new VelocityProfile_Spline();
+        {
+
+          double pos1,vel1,acc1,pos2,acc2,vel2,duration;
+          pos1 = 0; //vec[idx+SPLINE_POS1];
+          pos2 = path->PathLength(); //vec[idx+SPLINE_POS2]*path->PathLength();
+          vel1 = vec[idx+SPLINE_VEL1];
+          vel2 = vec[idx+SPLINE_VEL2];
+          acc1 = vec[idx+SPLINE_ACC1];
+          acc2 = vec[idx+SPLINE_ACC2];
+          duration = fabs(vec[idx+SEGMENT_DURATION]);
+
+          //std::cout << "Path length: " << path->PathLength() << std::endl;
+          velprof->SetProfile(0,path->PathLength());
+          velprof->SetProfileDuration(pos1,vel1,acc1,pos2,vel2,acc2,duration);
+          //velprof->SetProfileDuration(pos1,vel1,pos2,vel2,duration);
+          //velprof->SetProfileDuration(pos1,pos2,duration);
+          velprof->Write(std::cout);
+        }
 
         // add to the trajectory
         Trajectory_Segment *seg = new Trajectory_Segment(path, velprof);
