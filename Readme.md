@@ -17,6 +17,10 @@ This code requires:
 
 To run the experiments, you'll need my ```grid_experiments``` ROS packages, as well as a working version of the ```lcsr_barrett``` simulation.
 
+## Executables
+
+The ***trajectory_test*** exectable generates a set of random trajectories into the pose of the "node" object. So of course this will only work if you are running the assembly simulation.
+
 ## Directory Structure
 
 ### PYTHON
