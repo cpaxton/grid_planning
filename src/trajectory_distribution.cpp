@@ -158,7 +158,7 @@ namespace grid {
           velprof->SetProfileDuration(pos1,vel1,acc1,pos2,vel2,acc2,duration);
           //velprof->SetProfileDuration(pos1,vel1,pos2,vel2,duration);
           //velprof->SetProfileDuration(pos1,pos2,duration);
-          velprof->Write(std::cout);
+          //velprof->Write(std::cout);
         }
 
         // add to the trajectory

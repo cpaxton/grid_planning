@@ -110,4 +110,26 @@ namespace grid {
     }
     return features;
   }
+
+  /* getFeaturesForTrajectory
+   * Get information for a single feature over the whole trajectory given in traj.
+   * Traj is KDL::Trajectory
+   */
+  std::vector<FeatureVector> TestFeatures::getFeaturesForTrajectory(const std::string &name, Trajectory *traj, double dt) {
+    std::vector<FeatureVector> features((unsigned int)ceil(traj->Duration() / dt));
+    unsigned int next_idx = 0;
+    for (double t = 0; t < traj->Duration(); t += dt) {
+      Pose offset = currentPose[name].Inverse() * currentPose[AGENT] * traj->Pos(t);
+
+      FeatureVector f(POSE_FEATURES_SIZE);
+      f[POSE_FEATURE_X] = offset.p.x();
+      f[POSE_FEATURE_Y] = offset.p.y();
+      f[POSE_FEATURE_Z] = offset.p.z();
+      offset.M.GetRPY(f[POSE_FEATURE_ROLL], f[POSE_FEATURE_PITCH], f[POSE_FEATURE_YAW]);
+      
+      features[next_idx++] = f;
+      //features.push_back(f);
+    }
+    return features;
+  }
 }

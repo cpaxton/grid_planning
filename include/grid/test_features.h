@@ -31,6 +31,12 @@ namespace grid {
      */
     std::vector<FeatureVector> getFeaturesForTrajectory(const std::string &name, TrajectoryFrames traj);
 
+    /* getFeaturesForTrajectory
+     * Get information for a single feature over the whole trajectory given in traj.
+     * Traj is KDL::Trajectory
+     */
+    std::vector<FeatureVector> getFeaturesForTrajectory(const std::string &name, Trajectory *traj, double dt = 0.05);
+
     /* addFrame
      * Adds a frame of reference as a feature
      */
@@ -49,11 +55,11 @@ namespace grid {
     */
     Pose lookup(const std::string &key);
 
-  /*
-   * run lookup for all objects
-   * store results for poses from tf
-   */
-  void updateWorldfromTF();
+    /*
+     * run lookup for all objects
+     * store results for poses from tf
+     */
+    void updateWorldfromTF();
 
   private:
     std::unordered_map<std::string, std::string> objectClassToID;
