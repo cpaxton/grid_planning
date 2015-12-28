@@ -1,3 +1,0 @@
-Dimensions: 1920,1080
-Gates: 0
-Surfaces: 0

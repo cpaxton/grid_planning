@@ -23,18 +23,26 @@ The ***trajectory_test*** exectable generates a set of random trajectories into 
 
 ## Directory Structure
 
-### PYTHON
+### Data
+
+Stores files containing demonstrated trajectories in YAML and Rosbag formats. Subfolders contain demonstrations recorded on different platforms.
+
+### Python
 
 This directory contains grid-planning python code, for collecting demonstrations and for prototyping LfD.
 Python dependencies are changing, but may include:
   * ``scikit-learn`` for different mixture models
   * ``pyhsmm`` for HDP-HMM learning
 
-### SCRIPTS
+### Scripts
 
 This directory contains Python scripts.
 
 Scripts will collect data based on examples, segment, and do other things. These let you more or less directly run the GP demos.
+
+### Skills
+
+This directory contains skill files in different formats, in particular as YAML and skill (custom) files.
 
 ### SRC
 
