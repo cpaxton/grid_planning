@@ -18,12 +18,12 @@ ak = 1
 gk = 1
 
 # first set up filenames
-take_filenames = ['ur5_data/take1.yml','ur5_data/take2.yml','ur5_data/take3.yml']
-align_filenames = ['ur5_data/align1.yml','ur5_data/align2.yml','ur5_data/align3.yml']
-grab_filenames = ['ur5_data/grab1.yml','ur5_data/grab2.yml','ur5_data/grab3.yml']
-gc_filenames = ['ur5_data/gc1.yml','ur5_data/gc2.yml','ur5_data/gc3.yml']
-close_filenames = ['ur5_data/close1.yml','ur5_data/close2.yml']
-lift_filenames = ['ur5_data/lift1.yml','ur5_data/lift2.yml','ur5_data/lift3.yml']
+take_filenames = ['data/ur5/take1.yml','data/ur5/take2.yml','data/ur5/take3.yml']
+align_filenames = ['data/ur5/align1.yml','data/ur5/align2.yml','data/ur5/align3.yml']
+grab_filenames = ['data/ur5/grab1.yml','data/ur5/grab2.yml','data/ur5/grab3.yml']
+gc_filenames = ['data/ur5/gc1.yml','data/ur5/gc2.yml','data/ur5/gc3.yml']
+close_filenames = ['data/ur5/close1.yml','data/ur5/close2.yml']
+lift_filenames = ['data/ur5/lift1.yml','data/ur5/lift2.yml','data/ur5/lift3.yml']
 
 skill_filenames = {}
 skill_filenames['align2'] = align_filenames
