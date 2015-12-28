@@ -1,5 +1,8 @@
 import numpy as np
 
+" grid "
+from features import LoadRobotFeatures
+
 " loading data "
 import yaml
 try:
@@ -50,3 +53,26 @@ def LoadDmpData(filenames):
 
         data.append((demo, fx, dmp))
     return (params, data)
+
+'''
+LoadData
+Go through a list of filenames and load all of them into memory
+Also learn a whole set of DMPs
+'''
+def LoadData(filenames,objs,manip_objs=[],preset='wam_sim'):
+    params = []
+    data = []
+    goals = []
+    for filename in filenames:
+        print 'Loading demonstration from "%s"'%(filename)
+        demo = LoadRobotFeatures(filename)
+        
+        print "Loaded data, computing features..."
+        #fx,x,u,t = demo.get_features([('ee','link'),('ee','node'),('link','node')])
+        demo.UpdateManipObj(manip_objs)
+        fx,g = demo.GetTrainingFeatures(objs=objs)
+        x = demo.GetJointPositions()
+
+        data.append((demo, fx))
+        goals.append(g.squeeze())
+    return (data, goals)

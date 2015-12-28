@@ -18,8 +18,8 @@ ak = 1
 gk = 1
 
 # first set up filenames
-approach_filenames = ['data/sim/app1.yml','data/sim/app1b.yml','data/sim/app2.yml','data/sim/app3.yml']
-grasp_filenames = ['data/sim/grasp1.yml','data/sim/grasp1b.yml','data/sim/grasp2.yml','data/sim/grasp3.yml']
+approach_filenames = ['data/sim/app1.yml','data/sim/app2.yml','data/sim/app3.yml']
+grasp_filenames = ['data/sim/grasp1.yml','data/sim/grasp2.yml','data/sim/grasp3.yml']
 transport_filenames = ['data/sim/transport1.yml','data/sim/transport2.yml','data/sim/transport3.yml']
 align_filenames = ['data/sim/align1.yml','data/sim/align2.yml','data/sim/align3.yml']
 place_filenames = ['data/sim/place1.yml','data/sim/place3.yml']
@@ -47,26 +47,18 @@ for name,filenames in skill_filenames.items():
 
     # create some GMMs for gripper stuff too!
     # this is just a convenience thing; they really SHOULD be the same as the ones we're using above
-    data,params,num_weights,goals = grid.LoadDataDMP(filenames,skill_objs[name] + ['gripper'],manip_objs=skill_fixed[name])
+    data,goals = grid.LoadData(filenames,skill_objs[name] + ['gripper'],manip_objs=skill_fixed[name])
 
     training_data = np.array(data[0][1])
     for i in range(1,len(data)):
         training_data = np.concatenate((training_data,data[i][1]))
 
-    if not name=='grasp':
-        all_params += params
-
     # create the skill object
-    skill = grid.RobotSkill(name=name,action_k=ak,goal_k=gk,data=training_data,objs=(skill_objs[name]+['gripper']),manip_objs=skill_fixed[name],params=params,goals=goals)#,num_weights=num_weights)
+    skill = grid.RobotSkill(name=name,action_k=ak,goal_k=gk,data=training_data,objs=(skill_objs[name]+['gripper']),manip_objs=skill_fixed[name],goals=goals)
 
     skill.save(name+"_skill.yml")
 
 print "... Done creating skills."
-
-#skill = grid.RobotSkill(name='default',action_k=ak,goal_k=gk,data=training_data,params=params,goals=goals)
-#skill.save('default.yml')
-
-#print '... Done creating default.'
 
 try:
     while not rospy.is_shutdown():

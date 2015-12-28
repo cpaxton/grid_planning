@@ -14,6 +14,9 @@ from dmp_utils import ParamFromDMP
 from dmp_utils import ParamToDMP
 from dmp_utils import SearchDMP
 
+" File loading utilities "
+from file_utils import LoadData
+
 " segmentation functions; getting segments "
 from segmentation import GetSegment
 

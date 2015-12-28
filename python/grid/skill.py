@@ -55,7 +55,7 @@ class RobotSkill:
     they also contain a description for our own purposes
     oh, and which objects are involved
     '''
-    def __init__(self,data=[],params=[],goals=[],action_k=4,goal_k=4,objs=[],manip_objs=[],name="",filename=None,num_gripper_vars=3,normalize=True):
+    def __init__(self,data=[],goals=[],action_k=4,goal_k=4,objs=[],manip_objs=[],name="",filename=None,num_gripper_vars=3,normalize=True):
         self.name = name
 
         self.num_gripper_vars = num_gripper_vars
@@ -98,7 +98,6 @@ class RobotSkill:
                 self.action_model.covars_ = np.array([np.cov(data,rowvar=False)])
                 self.action_model.covars_[0] += 1e-10 * np.eye(self.action_model.covars_.shape[1])
 
-            self.trajectory_model.fit(params)
             self.t_factor = 0.1
 
             if 'gripper' in objs:
