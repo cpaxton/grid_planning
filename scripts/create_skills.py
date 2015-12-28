@@ -18,15 +18,13 @@ ak = 1
 gk = 1
 
 # first set up filenames
-approach_filenames = ['data/app1.yml','data/app1b.yml','data/app2.yml','data/app3.yml']
-grasp_filenames = ['data/grasp1.yml','data/grasp1b.yml','data/grasp2.yml','data/grasp3.yml']
-transport_filenames = ['data/transport1.yml','data/transport2.yml','data/transport3.yml']
-align_filenames = ['data/align1.yml','data/align2.yml','data/align3.yml']
-place_filenames = ['data/place1.yml','data/place3.yml']
-#place_filenames = ['data/place1.yml','data/place2.yml','data/place3.yml']
-disengage_filenames = ['data/disengage1.yml','data/disengage2.yml','data/disengage3.yml']
-release_filenames = ['data/release1.yml','data/release2.yml','data/release3.yml']
-#init_filenames = ['data/init11.yml','data/init12.yml','data/init13.yml','data/init14.yml']
+approach_filenames = ['data/sim/app1.yml','data/sim/app1b.yml','data/sim/app2.yml','data/sim/app3.yml']
+grasp_filenames = ['data/sim/grasp1.yml','data/sim/grasp1b.yml','data/sim/grasp2.yml','data/sim/grasp3.yml']
+transport_filenames = ['data/sim/transport1.yml','data/sim/transport2.yml','data/sim/transport3.yml']
+align_filenames = ['data/sim/align1.yml','data/sim/align2.yml','data/sim/align3.yml']
+place_filenames = ['data/sim/place1.yml','data/sim/place3.yml']
+disengage_filenames = ['data/sim/disengage1.yml','data/sim/disengage2.yml','data/sim/disengage3.yml']
+release_filenames = ['data/sim/release1.yml','data/sim/release2.yml','data/sim/release3.yml']
 
 skill_filenames = {}
 skill_filenames['approach'] = approach_filenames
