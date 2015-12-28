@@ -23,9 +23,17 @@ The ***trajectory_test*** exectable generates a set of random trajectories into 
 
 ## Directory Structure
 
+### Config
+
+RVIZ configuration files for debugging.
+
 ### Data
 
 Stores files containing demonstrated trajectories in YAML and Rosbag formats. Subfolders contain demonstrations recorded on different platforms.
+
+### Include
+
+Contains the C++ headers for the produced library.
 
 ### Python
 
@@ -38,7 +46,7 @@ Python dependencies are changing, but may include:
 
 This directory contains Python scripts.
 
-Scripts will collect data based on examples, segment, and do other things. These let you more or less directly run the GP demos.
+Scripts will collect data based on examples, segment, and do other things. These let you more or less directly run the different demos.
 
 ### Skills
 
