@@ -65,6 +65,10 @@ namespace grid {
   static const unsigned int SEGMENT_DURATION(12);
   static const unsigned int SPLINE_DIM(13);
 
+  static const std::string JOINT_STATES_TOPIC("joint_states");
+  static const std::string GRIPPER_MSG_TOPIC("gripper_msg");
+  static const std::string BASE_TFORM_TOPIC("base_tform");
+
   class Features {
   public:
 

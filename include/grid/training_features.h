@@ -2,13 +2,25 @@
 #define _GRID_TRAINING_FEATURES
 
 #include <grid/features.h>
-#include <rosbag/bag.h>
-#include <rosbag/view.h>
+
+#include <unordered_map>
 
 // training features reads the feature data from ROS topics
 #include <ros/ros.h>
+#include <rosbag/bag.h>
+#include <rosbag/view.h>
+#include <sensor_msgs/JointState.h>
 
 namespace grid {
+
+  struct WorldConfiguration {
+    ros::Time t; 
+    std::unordered_map<std::string,Pose> object_poses;
+    Pose base_tform;
+    sensor_msgs::JointState joint_states;
+    Pose ee_tform;
+    std::vector<double> gripper_cmd;
+  };
 
   class TrainingFeatures: public Features {
 
@@ -30,11 +42,13 @@ namespace grid {
                                                        unsigned long int mintime = 0,
                                                        unsigned long int maxtime = 0);
     /**
-     * open
+     * read
      * Open a rosbag containing the demonstrations.
      * We make some assumptions as to how these are stored.
+     * This function will read in the poses and other information associated with the robot.
+     * This information all gets stored and can be used to compute features or retrieve world configurations.
      */
-    void open(const std::string &bagfile);
+    void read(const std::string &bagfile);
 
     /**
      * initialize training features with the necessary world objects to find
@@ -58,6 +72,20 @@ namespace grid {
     std::vector<std::string> objects; // objects we need
     std::vector<std::string> topics; // topics to pull from rosbag
     rosbag::Bag bag; // current bag holding all demonstration examples
+    std::vector<WorldConfiguration> data; //all loaded data
+    std::unordered_map<std::string,std::string> topic_to_object; //maps topics back to objects
+
+
+    /**
+     * return the joint states data we care about
+     */
+    Pose getJointStatesData(rosbag::MessageInstance const &m);
+
+    /**
+     * get the object poses we care about
+     */
+    Pose getObjectData(rosbag::MessageInstance const &m);
+
   };
 
 }

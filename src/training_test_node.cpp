@@ -13,6 +13,7 @@ int main(int argc, char **argv) {
 
   WamTrainingFeatures wtf(objects);
 
-  wtf.printTrainingFeaturesInfo();
+  wtf.read("test.bag");
 
+  wtf.printTrainingFeaturesInfo();
 }
