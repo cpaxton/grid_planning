@@ -92,6 +92,7 @@ set(SOURCES
   src/predicate.cpp
   src/grammar.cpp
   src/wam_training_features.cpp
+  src/robot_kinematics.cpp
 
   src/dist/utils.cc
 )
@@ -108,6 +109,7 @@ set(HEADERS
   include/grid/predicate.h
   include/grid/grammar.h
   include/grid/wam_training_features.h
+  include/grid/robot_kinematics.h
 
   include/grid/dist/gmm.h
   include/grid/dist/normal.h

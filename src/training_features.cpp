@@ -6,16 +6,13 @@
 #include <iostream>
 #include <sstream>
 
-#include <urdf/model.h>
-#include <kdl_parser/kdl_parser.hpp>
-
 namespace grid {
 
   /**
    * initialize training features with the necessary world objects to find
    */
-  TrainingFeatures::TrainingFeatures(const std::vector<std::string> &objects_, const std::string &robot_description_param_) :
-    objects(objects_), robot_description_param(robot_description_param_)
+  TrainingFeatures::TrainingFeatures(const std::vector<std::string> &objects_) :
+    objects(objects_)
   {
     topics.push_back(JOINT_STATES_TOPIC);
     topics.push_back(BASE_TFORM_TOPIC);
@@ -26,16 +23,6 @@ namespace grid {
       ss << "world/" << obj;
       topics.push_back(ss.str().c_str());
       topic_to_object[ss.str().c_str()]=obj;
-    }
-
-    ros::NodeHandle nh;
-    nh.getParam(robot_description_param, robot_description);
-
-    urdf::Model urdf_model;
-    urdf_model.initString(robot_description);
-    std::cout << robot_description << std::endl;
-    if (!(kdl_parser::treeFromUrdfModel(urdf_model, kdl_tree))) {
-      ROS_ERROR("Could not load tree!");
     }
   }
 

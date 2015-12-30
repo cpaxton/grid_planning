@@ -11,8 +11,9 @@
 #include <rosbag/view.h>
 #include <sensor_msgs/JointState.h>
 
-#include <kdl/chain.hpp>
-#include <kdl/tree.hpp>
+#include <grid/robot_kinematics.h>
+
+#include <memory>
 
 namespace grid {
 
@@ -56,7 +57,7 @@ namespace grid {
     /**
      * initialize training features with the necessary world objects to find
      */
-    TrainingFeatures(const std::vector<std::string> &objects, const std::string &robot_description_param = "robot_description");
+    TrainingFeatures(const std::vector<std::string> &objects);
 
     /**
      * print basic info for debugging
@@ -77,13 +78,7 @@ namespace grid {
     rosbag::Bag bag; // current bag holding all demonstration examples
     std::vector<WorldConfiguration> data; //all loaded data
     std::unordered_map<std::string,std::string> topic_to_object; //maps topics back to objects
-    std::string robot_description_param;
-    std::string robot_description;
-    std::string tip_link;
-    std::string root_link;
-    unsigned int n_dof;
-    KDL::Chain kdl_chain;
-    KDL::Tree kdl_tree;
+    std::shared_ptr<RobotKinematics> robot; // stores the robot itself
 
     /**
      * return the joint states data we care about
