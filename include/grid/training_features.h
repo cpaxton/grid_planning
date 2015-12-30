@@ -36,7 +36,27 @@ namespace grid {
      */
     void open(const std::string &bagfile);
 
+    /**
+     * initialize training features with the necessary world objects to find
+     */
+    TrainingFeatures(const std::vector<std::string> &objects);
+
+    /**
+     * print basic info for debugging
+     */
+    void printTrainingFeaturesInfo();
+
   protected:
+
+    /*
+     * return the gripper features from a rosbag
+     * must be implemented for the specific gripper being used
+     */
+    virtual std::vector<double> getGripperFeatures(rosbag::MessageInstance const &m) = 0;
+
+
+    std::vector<std::string> objects; // objects we need
+    std::vector<std::string> topics; // topics to pull from rosbag
     rosbag::Bag bag; // current bag holding all demonstration examples
   };
 

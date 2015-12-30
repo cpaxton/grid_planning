@@ -264,6 +264,7 @@ class RobotFeatures:
                         outbag.write('world/%s'%frame,pm.toMsg(self.world_states[i][frame]),self.times[i])
                     outbag.write('base_tform',pm.toMsg(self.base_tform),self.times[i])
                     outbag.write('gripper_msg',self.gripper_cmds[i],self.times[i])
+
             finally:
                 outbag.close()
 

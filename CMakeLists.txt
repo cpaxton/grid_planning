@@ -26,6 +26,7 @@ find_package(catkin REQUIRED COMPONENTS
   # messages
   sensor_msgs
   trajectory_msgs
+  oro_barrett_msgs
 
   # ros stuff
   rosbag
@@ -62,7 +63,7 @@ catkin_python_setup()
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES grid_planner
-  CATKIN_DEPENDS dmp tf tf_conversions moveit_core
+  CATKIN_DEPENDS dmp tf tf_conversions moveit_core oro_barrett_msgs
   #DEPENDS GCOP EIGEN3
   DEPENDS EIGEN3 orocos_kdl
 )
@@ -87,6 +88,7 @@ set(SOURCES
   src/trajectory_distribution.cpp
   src/predicate.cpp
   src/grammar.cpp
+  src/wam_training_features.cpp
 
   src/dist/utils.cc
 )
@@ -102,6 +104,7 @@ set(HEADERS
   include/grid/trajectory_distribution.h
   include/grid/predicate.h
   include/grid/grammar.h
+  include/grid/wam_training_features.h
 
   include/grid/dist/gmm.h
   include/grid/dist/normal.h
@@ -128,6 +131,7 @@ set_target_properties(pygrid_planner
 add_executable(grid_plan_node src/grid_plan_node.cpp)
 add_executable(features_test src/feature_computation_test.cpp)
 add_executable(trajectory_test src/trajectory_generation_test.cpp)
+add_executable(training_test src/training_test_node.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -143,18 +147,13 @@ target_link_libraries(pygrid_planner
   #${catkin_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
 )
 
-target_link_libraries(grid_plan_node
+SET(ALL_LIBRARIES 
   grid_planner ${orocos_kdl_LIBRARIES} ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} ${PYTHON_LIBRARIES}
   #grid_planner ${catkin_LIBRARIES} ${GCOP_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} ${PYTHON_LIBRARIES}
   #grid_planner ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
 )
 
-target_link_libraries(features_test
-  grid_planner ${orocos_kdl_LIBRARIES} ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} ${PYTHON_LIBRARIES}
-  #grid_planner ${catkin_LIBRARIES} ${GCOP_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} ${PYTHON_LIBRARIES}
-)
-
-target_link_libraries(trajectory_test
-  grid_planner ${orocos_kdl_LIBRARIES} ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} ${PYTHON_LIBRARIES}
-  #grid_planner ${catkin_LIBRARIES} ${GCOP_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} ${PYTHON_LIBRARIES}
-)
+target_link_libraries(grid_plan_node ${ALL_LIBRARIES})
+target_link_libraries(features_test ${ALL_LIBRARIES})
+target_link_libraries(trajectory_test ${ALL_LIBRARIES})
+target_link_libraries(training_test ${ALL_LIBRARIES})
