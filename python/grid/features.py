@@ -1,6 +1,7 @@
 
 # ROS stuff
 import rospy
+import rosbag
 from grid.urdf_parser_py.urdf import URDF
 import yaml
 try:
@@ -254,6 +255,19 @@ class RobotFeatures:
         else:
             rospy.logerr("Could not save; no recording done!")
 
+    def ToRosBag(self,filename) :
+        with rosbag.Bag(filename,'w') as outbag:
+            try:
+                for i in range(len(self.times)):
+                    outbag.write('joint_states',self.joint_states[i],self.times[i])
+                    for frame in self.world_states[0].keys():
+                        outbag.write('world/%s'%frame,pm.toMsg(self.world_states[i][frame]),self.times[i])
+                    outbag.write('base_tform',pm.toMsg(self.base_tform),self.times[i])
+                    outbag.write('gripper_msg',self.gripper_cmds[i],self.times[i])
+            finally:
+                outbag.close()
+
+
     def js_cb(self,msg):
 
 	updated = self.TfUpdateWorld()
@@ -403,10 +417,11 @@ class RobotFeatures:
         for i in range(len(self.times)):
             pt = [j for j in self.joint_states[i].position[:self.dof]]
             traj.append(pt)
-	    if i < len(self.gripper_cmds):
-                g = [k for k in self.gripper_cmds[i].cmd[:NUM_GRIPPER_VARS]]
-	    else:
-                g = None
+
+            if i < len(self.gripper_cmds):
+                    g = [k for k in self.gripper_cmds[i].cmd[:NUM_GRIPPER_VARS]]
+            else:
+                    g = None
             gripper.append(g)
         return traj,gripper
 

@@ -39,26 +39,8 @@ skill_fixed = {'approach':[], 'grasp':[], 'transport':['link'], 'align':['link']
 
 all_params = []
 
-# load data for each skill
-for name,filenames in skill_filenames.items():
+name=skill_filenames.keys()[0]
+filenames=skill_filenames.values()[0]
+data,goals = grid.LoadData(filenames,skill_objs[name] + ['gripper'],manip_objs=skill_fixed[name])
 
-    # create some GMMs for gripper stuff too!
-    # this is just a convenience thing; they really SHOULD be the same as the ones we're using above
-    data,goals = grid.LoadData(filenames,skill_objs[name] + ['gripper'],manip_objs=skill_fixed[name])
-
-    training_data = np.array(data[0][1])
-    for i in range(1,len(data)):
-        training_data = np.concatenate((training_data,data[i][1]))
-
-    # create the skill object
-    skill = grid.RobotSkill(name=name,action_k=ak,goal_k=gk,data=training_data,objs=(skill_objs[name]+['gripper']),manip_objs=skill_fixed[name],goals=goals)
-
-    skill.save(name+"_skill.yml")
-
-print "... Done creating skills."
-
-try:
-    while not rospy.is_shutdown():
-        pass
-except rospy.ROSInterruptException,e:
-    pass
+data[0][0].ToRosBag('test.bag')
