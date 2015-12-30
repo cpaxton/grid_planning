@@ -8,7 +8,12 @@ namespace grid {
   /**
    * initialize training features with the necessary world objects to find
    */
-  WamTrainingFeatures::WamTrainingFeatures(const std::vector<std::string> &objects) : TrainingFeatures(objects) {}
+  WamTrainingFeatures::WamTrainingFeatures(
+      const std::vector<std::string> &objects,
+      const std::string &robot_description_param)
+    : TrainingFeatures(objects, robot_description_param) 
+  {
+  }
 
   /*
    * return the gripper features from a rosbag

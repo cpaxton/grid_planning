@@ -17,7 +17,7 @@ namespace grid {
     /**
      * initialize training features with the necessary world objects to find
      */
-    WamTrainingFeatures(const std::vector<std::string> &objects);
+    WamTrainingFeatures(const std::vector<std::string> &objects, const std::string &robot_description_param = "robot_description");
 
   protected:
 

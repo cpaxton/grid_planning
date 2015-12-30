@@ -12,6 +12,9 @@ find_package(catkin REQUIRED COMPONENTS
   #grid_experiments
   #grid_tasks
 
+  kdl_parser
+  urdf
+
   # TF
   tf
   tf_conversions
@@ -63,7 +66,7 @@ catkin_python_setup()
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES grid_planner
-  CATKIN_DEPENDS dmp tf tf_conversions moveit_core oro_barrett_msgs
+  CATKIN_DEPENDS dmp tf tf_conversions moveit_core oro_barrett_msgs kdl_urdf_tools
   #DEPENDS GCOP EIGEN3
   DEPENDS EIGEN3 orocos_kdl
 )

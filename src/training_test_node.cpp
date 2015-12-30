@@ -15,5 +15,5 @@ int main(int argc, char **argv) {
 
   wtf.read("test.bag");
 
-  wtf.printTrainingFeaturesInfo();
+  //wtf.printTrainingFeaturesInfo();
 }
