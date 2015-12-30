@@ -41,7 +41,7 @@ for name,filenames in skill_filenames.items():
 
     # create some GMMs for gripper stuff too!
     # this is just a convenience thing; they really SHOULD be the same as the ones we're using above
-    data,params,num_weights,goals = grid.LoadDataDMP(filenames,skill_objs[name],manip_objs=skill_fixed[name],preset='ur5')
+    data,goals = grid.LoadData(filenames,skill_objs[name],manip_objs=skill_fixed[name],preset='ur5')
 
     training_data = np.array(data[0][1])
     for i in range(1,len(data)):
@@ -49,9 +49,23 @@ for name,filenames in skill_filenames.items():
 
     # create the skill object
     if name=='close':
-        skill = grid.RobotSkill(name=name,action_k=ak,goal_k=gk,data=training_data,objs=(skill_objs[name]),manip_objs=skill_fixed[name],params=params,goals=goals,normalize=True)
+        skill = grid.RobotSkill(name=name,
+            action_k=ak,
+            goal_k=gk,
+            data=training_data,
+            objs=(skill_objs[name]),
+            manip_objs=skill_fixed[name],
+            goals=goals,
+            normalize=True)
     else:
-        skill = grid.RobotSkill(name=name,action_k=ak,goal_k=gk,data=training_data,objs=(skill_objs[name]),manip_objs=skill_fixed[name],params=params,goals=goals,normalize=True)
+        skill = grid.RobotSkill(name=name,
+            action_k=ak,
+            goal_k=gk,
+            data=training_data,
+            objs=(skill_objs[name]),
+            manip_objs=skill_fixed[name],
+            goals=goals,
+            normalize=True)
 
     skill.save(name+"_skill.yml")
 
