@@ -36,15 +36,29 @@ namespace grid {
      * A feature query gets the set of all featutes for different points in time, normalizes them, and returns.
      */
     std::vector<Pose> getPose(const std::string &name,
-                              unsigned long int mintime = 0,
-                              unsigned long int maxtime = 0);
+                              double mintime = 0,
+                              double maxtime = 0);
 
     /* getFeatureValues
      * Returns a list of features converted into a format we can use.
      */
     std::vector<std::vector<double> > getFeatureValues(const std::string &name,
-                                                       unsigned long int mintime = 0,
-                                                       unsigned long int maxtime = 0);
+                                                       double mintime = 0,
+                                                       double maxtime = 0);
+
+
+    /**
+     * get all available features
+     * for testing, at least for now
+     */
+    std::vector<std::vector<double> > getAllFeatureValues();
+
+    /**
+     * helper
+     * convert a world into a set of features
+     */
+    std::vector<double> worldToFeatures(const WorldConfiguration &w) const;
+
     /**
      * read
      * Open a rosbag containing the demonstrations.
@@ -53,6 +67,12 @@ namespace grid {
      * This information all gets stored and can be used to compute features or retrieve world configurations.
      */
     void read(const std::string &bagfile);
+
+    /** 
+     * setRobotKinematics
+     * sets the thing that will actually compute forward and inverse kinematics for our robot
+     */
+    void setRobotKinematics(std::shared_ptr<RobotKinematics> rk);
 
     /**
      * initialize training features with the necessary world objects to find
@@ -63,6 +83,11 @@ namespace grid {
      * print basic info for debugging
      */
     void printTrainingFeaturesInfo();
+
+    /**
+     * print all extractable features for the different objects
+     */
+    void printExtractedFeatures();
 
   protected:
 
@@ -78,7 +103,8 @@ namespace grid {
     rosbag::Bag bag; // current bag holding all demonstration examples
     std::vector<WorldConfiguration> data; //all loaded data
     std::unordered_map<std::string,std::string> topic_to_object; //maps topics back to objects
-    std::shared_ptr<RobotKinematics> robot; // stores the robot itself
+    RobotKinematicsPointer robot; // stores the robot itself
+    unsigned int n_dof;
 
     /**
      * return the joint states data we care about

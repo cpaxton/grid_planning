@@ -41,13 +41,17 @@ namespace grid {
       std::cout << "Data point at t=" << conf.t << std::endl;
       std::cout << "\tBase at x=" << conf.base_tform.p.x()
         <<", y=" << conf.base_tform.p.y()
-        <<", z=" << conf.base_tform.p.y()
+        <<", z=" << conf.base_tform.p.z()
         <<std::endl;
       std::cout <<"\tJoints = ";
       for (double &q: conf.joint_states.position) {
         std::cout << q << ", ";
       }
       std::cout << std::endl;
+      std::cout <<"\tEnd at x=" << conf.ee_tform.p.x()
+        <<", y=" << conf.ee_tform.p.y()
+        <<", z=" << conf.ee_tform.p.z()
+        <<std::endl;
 
       for(std::pair<const std::string,Pose> &obj: conf.object_poses) {
         std::cout <<"\tObject \"" << obj.first << "\" at x=" << obj.second.p.x()
@@ -65,8 +69,8 @@ namespace grid {
    * A feature query gets the set of all featutes for different points in time, normalizes them, and returns.
    */
   std::vector<Pose> TrainingFeatures::getPose(const std::string &name,
-                                              unsigned long int mintime,
-                                              unsigned long int maxtime) {
+                                              double mintime,
+                                              double maxtime) {
     std::vector<Pose> poses;
 
 
@@ -78,13 +82,60 @@ namespace grid {
    * Returns a list of features converted into a format we can use.
    */
   std::vector<std::vector<double> > TrainingFeatures::getFeatureValues(const std::string &name,
-                                                                       unsigned long int mintime,
-                                                                       unsigned long int maxtime) {
+                                                                       double mintime,
+                                                                       double maxtime) {
     std::vector<std::vector<double> > values;
 
+    for (WorldConfiguration &w: data) {
+      if ((mintime == maxtime && maxtime == 0)
+          or (w.t.toSec() > mintime && w.t.toSec() < maxtime))
+      {
+        // add this timestep to the data
+        std::vector<double> f = worldToFeatures(w); // not quite right since this gets everything
+        values.push_back(f);
+      }
+    }
 
 
     return values;
+  }
+
+  /**
+   * get all available features
+   * for testing, at least for now
+   */
+  std::vector<std::vector<double> > TrainingFeatures::getAllFeatureValues() {
+    std::vector<std::vector<double> > values;
+
+    for (WorldConfiguration &w: data) {
+      std::vector<double> f = worldToFeatures(w);
+    }
+
+    return values;
+  }
+
+  /**
+   * helper
+   * convert a world into a set of features
+   */
+  std::vector<double> TrainingFeatures::worldToFeatures(const WorldConfiguration &w) const {
+
+    std::vector<double> f(getFeaturesSize());
+    unsigned int next_idx = 0;
+
+    for (std::pair<const std::string, FeatureType> pair: feature_types) {
+      if (pair.second == POSE_FEATURE) {
+
+        Pose pose = w.object_poses.at(pair.first).Inverse() * w.base_tform * w.ee_tform;
+        getPoseFeatures(pose,f,next_idx);
+        next_idx += POSE_FEATURES_SIZE;
+
+      } else {
+        next_idx += feature_sizes.at(pair.first);
+      }
+    }
+
+    return f;
   }
 
   /**
@@ -120,6 +171,7 @@ namespace grid {
       }
 
       if (m.getTopic() == GRIPPER_MSG_TOPIC) {
+        addFeature(GRIPPER_CMD,FLOAT_FEATURE);
         conf.gripper_cmd = getGripperFeatures(m);
       } else if (m.getTopic() == JOINT_STATES_TOPIC) {
 
@@ -128,6 +180,7 @@ namespace grid {
         conf.joint_states = *m.instantiate<JointState>();
 
         // compute forward kinematics
+        conf.ee_tform = robot->FkPos(conf.joint_states.position);
 
       } else if (m.getTopic() == BASE_TFORM_TOPIC) {
 
@@ -139,12 +192,14 @@ namespace grid {
 
       } else if (topic_to_object.find(m.getTopic()) != topic_to_object.end()) {
 
+        conf.gripper_cmd = getGripperFeatures(m);
         // convert from message to KDL pose
         PoseMsg msg = *m.instantiate<PoseMsg>();
         Pose p;
         tf::poseMsgToKDL(msg,p);
 
         // assign data
+        addFeature(topic_to_object[m.getTopic()],POSE_FEATURE);
         conf.object_poses[topic_to_object[m.getTopic()]] = p;
       }
     }
@@ -169,6 +224,22 @@ namespace grid {
     Pose p;
 
     return p;
+  }
+
+  /** 
+   * setRobotKinematics
+   * sets the thing that will actually compute forward and inverse kinematics for our robot
+   */
+  void TrainingFeatures::setRobotKinematics(std::shared_ptr<RobotKinematics> rk) {
+    robot = rk;
+    n_dof = robot->getDegreesOfFreedom();
+  }
+
+  /**
+   * print all extractable features for the different objects
+   */
+  void TrainingFeatures::printExtractedFeatures() {
+
   }
 
 #if 0

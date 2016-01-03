@@ -10,8 +10,8 @@ namespace grid {
    * A feature query gets the set of all featutes for different points in time, normalizes them, and returns.
    */
   TrajectoryFrames TestFeatures::getPose(const std::string &name,
-                                          unsigned long int mintime,
-                                          unsigned long int maxtime) {
+                                          double mintime,
+                                          double maxtime) {
     TrajectoryFrames poses;
 
 
@@ -22,8 +22,8 @@ namespace grid {
    * Returns a list of features converted into a format we can use.
    */
   std::vector< FeatureVector > TestFeatures::getFeatureValues(const std::string &name,
-                                                                   unsigned long int mintime,
-                                                                   unsigned long int maxtime) {
+                                                                   double mintime,
+                                                                   double maxtime) {
     std::vector< FeatureVector > values;
 
     return values;
@@ -101,10 +101,7 @@ namespace grid {
       Pose offset = currentPose[name].Inverse() * currentPose[AGENT] * p;
 
       FeatureVector f(POSE_FEATURES_SIZE);
-      f[POSE_FEATURE_X] = offset.p.x();
-      f[POSE_FEATURE_Y] = offset.p.y();
-      f[POSE_FEATURE_Z] = offset.p.z();
-      offset.M.GetRPY(f[POSE_FEATURE_ROLL], f[POSE_FEATURE_PITCH], f[POSE_FEATURE_YAW]);
+      getPoseFeatures(offset,f,0);
       
       features[next_idx++] = f;
     }

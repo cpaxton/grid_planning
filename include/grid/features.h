@@ -68,6 +68,7 @@ namespace grid {
   static const std::string JOINT_STATES_TOPIC("joint_states");
   static const std::string GRIPPER_MSG_TOPIC("gripper_msg");
   static const std::string BASE_TFORM_TOPIC("base_tform");
+  static const std::string GRIPPER_CMD("gripper_cmd");
 
   class Features {
   public:
@@ -78,15 +79,15 @@ namespace grid {
      * A feature query gets the set of all featutes for different points in time, normalizes them, and returns.
      */
     virtual TrajectoryFrames getPose(const std::string &name,
-                                     unsigned long int mintime = 0,
-                                     unsigned long int maxtime = 0) = 0;
+                                     double mintime = 0,
+                                     double maxtime = 0) = 0;
 
     /* getFeatureValues
      * Returns a list of features converted into a format we can use.
      */
     virtual std::vector< FeatureVector > getFeatureValues(const std::string &name,
-                                                          unsigned long int mintime = 0,
-                                                          unsigned long int maxtime = 0) = 0;
+                                                          double mintime = 0,
+                                                          double maxtime = 0) = 0;
 
     /*
      * Processing code.
@@ -101,16 +102,37 @@ namespace grid {
 
     /**
      * add a feature
+     * also updates expected array size
      */
-    void addFeature(const std::string &name, const FeatureType type);
+    void addFeature(const std::string &name, const FeatureType type, unsigned int size = 0);
 
     /**
      * get the type of a feature
      */
     FeatureType getFeatureType(const std::string &name) const;
 
+    /**
+     * getFeaturesSize
+     * Compute number of features we expect to see
+     */
+    unsigned int getFeaturesSize() const;
+
+    /**
+     * getPoseFeatures
+     * Load pose data at index
+     */
+    static void getPoseFeatures(const Pose &pose, FeatureVector &f, unsigned int idx);
+
+    /**
+     * updateFeaturesSize
+     * Compute number of features we expect to see
+     */
+    unsigned int updateFeaturesSize();
+
   protected:
+    unsigned int features_size;
     std::unordered_map<std::string,FeatureType> feature_types;
+    std::unordered_map<std::string,unsigned int> feature_sizes;
   };
 }
 
