@@ -36,13 +36,11 @@ namespace grid {
    * updateFeaturesSize
    * Compute number of features we expect to see
    */
-  unsigned int Features::updateFeaturesSize() {
-    unsigned int size = 0;
+  void Features::updateFeaturesSize() {
+    features_size = 0;
     for (std::pair<const std::string,unsigned int> &pair: feature_sizes) {
-      size += pair.second;
+      features_size += pair.second;
     }
-
-    return size;
   }
   /**
    * getFeaturesSize

@@ -73,6 +73,24 @@ namespace grid {
                                               double maxtime) {
     std::vector<Pose> poses;
 
+    if(feature_types.find(name) == feature_types.end()
+       or feature_types.at(name) != POSE_FEATURE)
+    {
+      ROS_ERROR("Feature with id \"%s\" is missing or not a pose!",name.c_str());
+      ROS_ERROR("Exiting!");
+      exit(-1);
+    }
+
+    for (WorldConfiguration &w: data) {
+      if ((mintime == maxtime && maxtime == 0)
+          or (w.t.toSec() > mintime && w.t.toSec() < maxtime))
+      {
+        // add this timestep to the data
+        Pose pose = w.object_poses.at(name).Inverse() * w.base_tform * w.ee_tform;
+        poses.push_back(pose);
+      }
+    }
+
 
     return poses;
   }
@@ -109,6 +127,7 @@ namespace grid {
 
     for (WorldConfiguration &w: data) {
       std::vector<double> f = worldToFeatures(w);
+      values.push_back(f);
     }
 
     return values;

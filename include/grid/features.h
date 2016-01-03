@@ -127,7 +127,7 @@ namespace grid {
      * updateFeaturesSize
      * Compute number of features we expect to see
      */
-    unsigned int updateFeaturesSize();
+    void updateFeaturesSize();
 
   protected:
     unsigned int features_size;
