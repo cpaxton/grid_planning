@@ -1,6 +1,7 @@
 #include <ros/ros.h>
 #include <grid/training_features.h>
 #include <grid/wam_training_features.h>
+#include <grid/visualize.h>
 
 using namespace grid;
 
@@ -29,5 +30,30 @@ int main(int argc, char **argv) {
       std::cout << val << " ";
     }
     std::cout << std::endl;
+  }
+
+  std::vector<Pose> poses = wtf.getPose("link");
+
+
+  ros::NodeHandle nh;
+  ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("trajectory",1000);
+
+  ros::Rate rate = ros::Rate(10);
+  while (ros::ok()) {
+
+    geometry_msgs::PoseArray msg;
+    msg.header.frame_id = "gbeam_link_1/gbeam_link"; //"wam/wrist_palm_link";
+
+    for (Pose &pose: poses) {
+      tf::Pose tfp;
+      geometry_msgs::Pose p;
+      tf::poseKDLToTF(pose,tfp);
+      tf::poseTFToMsg(tfp,p);
+      msg.poses.push_back(p);
+    }
+
+    pub.publish(msg);
+    ros::spinOnce();
+    rate.sleep();
   }
 }
