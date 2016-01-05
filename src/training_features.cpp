@@ -99,17 +99,18 @@ namespace grid {
   /* getFeatureValues
    * Returns a list of features converted into a format we can use.
    */
-  std::vector<std::vector<double> > TrainingFeatures::getFeatureValues(const std::string &name,
+  std::vector<FeatureVector> TrainingFeatures::getFeatureValues(const std::string &name,
                                                                        double mintime,
                                                                        double maxtime) {
-    std::vector<std::vector<double> > values;
+    //std::vector<std::vector<double> > values;
+    std::vector<FeatureVector> values;
 
     for (WorldConfiguration &w: data) {
       if ((mintime == maxtime && maxtime == 0)
           or (w.t.toSec() > mintime && w.t.toSec() < maxtime))
       {
         // add this timestep to the data
-        std::vector<double> f = worldToFeatures(w); // not quite right since this gets everything
+        FeatureVector f = worldToFeatures(w); // not quite right since this gets everything
         values.push_back(f);
       }
     }
@@ -122,11 +123,11 @@ namespace grid {
    * get all available features
    * for testing, at least for now
    */
-  std::vector<std::vector<double> > TrainingFeatures::getAllFeatureValues() {
-    std::vector<std::vector<double> > values;
+  std::vector<FeatureVector> TrainingFeatures::getAllFeatureValues() {
+    std::vector<FeatureVector> values;
 
     for (WorldConfiguration &w: data) {
-      std::vector<double> f = worldToFeatures(w);
+      FeatureVector f = worldToFeatures(w);
       values.push_back(f);
     }
 
@@ -137,9 +138,10 @@ namespace grid {
    * helper
    * convert a world into a set of features
    */
-  std::vector<double> TrainingFeatures::worldToFeatures(const WorldConfiguration &w) const {
+  FeatureVector TrainingFeatures::worldToFeatures(const WorldConfiguration &w) const {
 
-    std::vector<double> f(getFeaturesSize());
+    //std::vector<double> f(getFeaturesSize());
+    FeatureVector f(getFeaturesSize());
     unsigned int next_idx = 0;
 
     for (std::pair<const std::string, FeatureType> pair: feature_types) {

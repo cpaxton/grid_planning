@@ -40,22 +40,22 @@ namespace grid {
     /* getFeatureValues
      * Returns a list of features converted into a format we can use.
      */
-    std::vector<std::vector<double> > getFeatureValues(const std::string &name,
-                                                       double mintime = 0,
-                                                       double maxtime = 0);
+    std::vector<FeatureVector> getFeatureValues(const std::string &name,
+                                                double mintime = 0,
+                                                double maxtime = 0);
 
 
     /**
      * get all available features
      * for testing, at least for now
      */
-    std::vector<std::vector<double> > getAllFeatureValues();
+    std::vector<FeatureVector> getAllFeatureValues();
 
     /**
      * helper
      * convert a world into a set of features
      */
-    std::vector<double> worldToFeatures(const WorldConfiguration &w) const;
+    FeatureVector worldToFeatures(const WorldConfiguration &w) const;
 
     /**
      * read

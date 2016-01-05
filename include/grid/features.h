@@ -36,8 +36,8 @@ namespace grid {
   // trajectories are represented as KDL trajectories
   typedef KDL::Trajectory Trajectory;
 
-  typedef std::vector<double> FeatureVector;
-  //typedef EigenVectornd FeatureVector;
+  //typedef std::vector<double> FeatureVector;
+  typedef EigenVectornd FeatureVector;
 
   std::vector<double> poseToArray(const Pose &pose);
 
