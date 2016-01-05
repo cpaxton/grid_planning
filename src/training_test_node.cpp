@@ -29,15 +29,14 @@ int main(int argc, char **argv) {
   wtf[0]->printTrainingFeaturesInfo();
   wtf[0]->printExtractedFeatures();
 
-  std::vector<FeatureVector> data = wtf[0]->getAllFeatureValues();
-
-  for (FeatureVector &vec: data) {
-    std::cout << vec << std::endl;
-    //for (double &val: vec) {
-    //  std::cout << val << " ";
-    //}
-    //std::cout << std::endl;
+  std::vector<FeatureVector> data;
+  for (unsigned int i = 0; i < 3; ++i) {
+    std::vector<FeatureVector> ex_data = wtf[i]->getAllFeatureValues();
+    std::cout << "... preparing example " << (i+1) << " with " << ex_data.size() << " observations." << std::endl;
+    data.append(ex_data.begin(),ex_data.end());
   }
+
+  std::cout << "Total observations: " << data.size() << std::endl;
 
   // try learning a GMM model
 
