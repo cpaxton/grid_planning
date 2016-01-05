@@ -15,6 +15,8 @@
 // used for other type definitions
 #include <grid/dist/gmm.h>
 
+#include <grid/robot_kinematics.h>
+
 /**
  * Features
  * Parent abstract class for a set of robot features.
@@ -22,9 +24,6 @@
  */
 
 namespace grid {
-
-  // grid (for robots) is going to be based on KDL
-  typedef KDL::Frame Pose;
 
   // feature distribution defined here as a GCOP gmm for now
   typedef gcop::Gmm<> Gmm;
@@ -124,6 +123,12 @@ namespace grid {
      */
     static void getPoseFeatures(const Pose &pose, FeatureVector &f, unsigned int idx);
 
+    /** 
+     * setRobotKinematics
+     * sets the thing that will actually compute forward and inverse kinematics for our robot
+     */
+    void setRobotKinematics(std::shared_ptr<RobotKinematics> rk);
+
     /**
      * updateFeaturesSize
      * Compute number of features we expect to see
@@ -134,6 +139,9 @@ namespace grid {
     unsigned int features_size;
     std::unordered_map<std::string,FeatureType> feature_types;
     std::unordered_map<std::string,unsigned int> feature_sizes;
+
+    RobotKinematicsPointer robot; // stores the robot itself
+    unsigned int n_dof;
   };
 }
 

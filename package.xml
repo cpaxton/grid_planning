@@ -56,7 +56,6 @@
   <build_depend>python_module</build_depend>
   <build_depend>orocos_kdl</build_depend>
   <build_depend>oro_barrett_msgs</build_depend>
-  <build_depend>kdl_urdf_tools</build_depend>
   <build_depend>kdl_parser</build_depend>
 
   <run_depend>ascent_mk2</run_depend>
@@ -75,7 +74,6 @@
   <run_depend>sensor_msgs</run_depend>
   <run_depend>orocos_kdl</run_depend>
   <run_depend>oro_barrett_msgs</run_depend>
-  <run_depend>kdl_urdf_tools</run_depend>
   <run_depend>kdl_parser</run_depend>
 
   <!-- The export tag contains other, unspecified, tags -->

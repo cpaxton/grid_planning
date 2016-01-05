@@ -11,7 +11,8 @@ namespace grid {
                                    const std::string &ee_link_)
     : robot_description_param(robot_description_param_),
     root_link(root_link_),
-    ee_link(ee_link_)
+    ee_link(ee_link_),
+    verbose(0)
 
   {
     ros::NodeHandle nh;
@@ -19,7 +20,9 @@ namespace grid {
 
     urdf::Model urdf_model;
     urdf_model.initString(robot_description);
-    std::cout << robot_description << std::endl;
+    if (verbose) {
+      std::cout << robot_description << std::endl;
+    }
     if (!(kdl_parser::treeFromUrdfModel(urdf_model, kdl_tree))) {
       ROS_ERROR("Could not load tree!");
     }

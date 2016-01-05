@@ -50,6 +50,15 @@ namespace grid {
     return features_size;
   }
 
+  /** 
+   * setRobotKinematics
+   * sets the thing that will actually compute forward and inverse kinematics for our robot
+   */
+  void Features::setRobotKinematics(std::shared_ptr<RobotKinematics> rk) {
+    robot = rk;
+    n_dof = robot->getDegreesOfFreedom();
+  }
+
   /**
    * getPoseFeatures
    * Load pose data at index

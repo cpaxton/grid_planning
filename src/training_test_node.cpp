@@ -17,7 +17,8 @@ int main(int argc, char **argv) {
   WamTrainingFeatures wtf(objects);
 
   wtf.setRobotKinematics(rk_ptr);
-  wtf.read("test.bag");
+
+  wtf.read("data/sim/app1.bag");
 
   wtf.printTrainingFeaturesInfo();
 
@@ -57,5 +58,4 @@ int main(int argc, char **argv) {
     rate.sleep();
   }
 
-  Gmm gmm;
 }

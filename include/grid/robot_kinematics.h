@@ -1,7 +1,7 @@
 #ifndef _GRID_ROBOT_KINEMATICS
 #define _GRID_ROBOT_KINEMATICS
 
-#include <grid/features.h>
+//#include <grid/features.h>
 #include <kdl/chain.hpp>
 #include <kdl/tree.hpp>
 #include <kdl/chainfksolverpos_recursive.hpp>
@@ -9,6 +9,9 @@
 #include <memory>
 
 namespace grid {
+
+  // grid (for robots) is going to be based on KDL
+  typedef KDL::Frame Pose;
 
   /** 
    * Robot kinematics object.
@@ -47,6 +50,7 @@ namespace grid {
     KDL::Tree kdl_tree;
     std::shared_ptr<KDL::ChainFkSolverPos> kdl_fk_solver_pos;
     unsigned int n_dof;
+    int verbose;
 
   };
 

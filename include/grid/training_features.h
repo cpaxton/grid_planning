@@ -11,8 +11,6 @@
 #include <rosbag/view.h>
 #include <sensor_msgs/JointState.h>
 
-#include <grid/robot_kinematics.h>
-
 #include <memory>
 
 namespace grid {
@@ -68,12 +66,6 @@ namespace grid {
      */
     void read(const std::string &bagfile);
 
-    /** 
-     * setRobotKinematics
-     * sets the thing that will actually compute forward and inverse kinematics for our robot
-     */
-    void setRobotKinematics(std::shared_ptr<RobotKinematics> rk);
-
     /**
      * initialize training features with the necessary world objects to find
      */
@@ -103,8 +95,6 @@ namespace grid {
     rosbag::Bag bag; // current bag holding all demonstration examples
     std::vector<WorldConfiguration> data; //all loaded data
     std::unordered_map<std::string,std::string> topic_to_object; //maps topics back to objects
-    RobotKinematicsPointer robot; // stores the robot itself
-    unsigned int n_dof;
 
     /**
      * return the joint states data we care about

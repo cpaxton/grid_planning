@@ -245,15 +245,6 @@ namespace grid {
     return p;
   }
 
-  /** 
-   * setRobotKinematics
-   * sets the thing that will actually compute forward and inverse kinematics for our robot
-   */
-  void TrainingFeatures::setRobotKinematics(std::shared_ptr<RobotKinematics> rk) {
-    robot = rk;
-    n_dof = robot->getDegreesOfFreedom();
-  }
-
   /**
    * print all extractable features for the different objects
    */

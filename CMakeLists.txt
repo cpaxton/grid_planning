@@ -66,7 +66,7 @@ catkin_python_setup()
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES grid_planner
-  CATKIN_DEPENDS dmp tf tf_conversions moveit_core oro_barrett_msgs kdl_urdf_tools
+  CATKIN_DEPENDS dmp tf tf_conversions moveit_core oro_barrett_msgs 
   #DEPENDS GCOP EIGEN3
   DEPENDS EIGEN3 orocos_kdl
 )
