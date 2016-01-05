@@ -32,10 +32,17 @@ int main(int argc, char **argv) {
   wtf[0]->printExtractedFeatures();
 
   std::vector<FeatureVector> data;
-  for (unsigned int i = 0; i < 3; ++i) {
-    std::vector<FeatureVector> ex_data = wtf[i]->getAllFeatureValues();
-    std::cout << "... preparing example " << (i+1) << " with " << ex_data.size() << " observations." << std::endl;
-    data.insert(data.end(),ex_data.begin(),ex_data.end());
+  std::cout << "Getting features..." << std::endl;
+  {
+    clock_t begin = clock();
+    for (unsigned int i = 0; i < 3; ++i) {
+      std::vector<FeatureVector> ex_data = wtf[i]->getAllFeatureValues();
+      //std::cout << "... preparing example " << (i+1) << " with " << ex_data.size() << " observations." << std::endl;
+      data.insert(data.end(),ex_data.begin(),ex_data.end());
+    }
+    clock_t end = clock();
+    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+    std::cout << "Converting into features took " << elapsed_secs << "seconds." << std::endl;
   }
 
   std::cout << "Total observations: " << data.size() << std::endl;
@@ -52,7 +59,7 @@ int main(int argc, char **argv) {
   std::cout << "... converted into training data with " << data.size() << " weighted observations." << std::endl;
   Gmm gmm(size,1);
   gmm.Init(*data.begin(),*data.rbegin());
-  gmm.Print(std::cout);
+  //gmm.Print(std::cout);
 
   {
     clock_t begin = clock();

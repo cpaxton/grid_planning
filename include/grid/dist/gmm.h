@@ -12,7 +12,7 @@
 #include "normal.h"
 #include <iostream>
 
-#define DEBUG
+//#define DEBUG
 
 namespace gcop {
   using namespace Eigen;
@@ -45,6 +45,8 @@ namespace gcop {
       double Sample(Vectornd &x);
 
       void Print(std::ostream &os) const;
+
+      friend std::ostream& operator<<(std::ostream &os, const Gmm g);
 
       void Init(const Vectornd &xlb, const Vectornd &xub);
 
@@ -287,6 +289,12 @@ namespace gcop {
         ns[i].Print(os);
       }
     }
+
+  template<int _n>
+  std::ostream& operator<<(std::ostream &os, const Gmm<_n> n) {
+    n.Print(os);
+    return os;
+  }
 
 }
 

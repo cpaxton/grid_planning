@@ -69,6 +69,8 @@ namespace gcop {
   void Fit(const vector<pair<Vectornd, double> > xps, double a = 1);
 
   void Print(std::ostream &os) const;
+
+  friend std::ostream& operator<<(std::ostream &os, const Normal n);
   
   Vectornd mu;     ///< mean
   Matrixnd P;      ///< covariance
@@ -243,6 +245,7 @@ namespace gcop {
         this->P = a*P + (1-a)*this->P;
       }
     }  
+
   template<int _n>
   void Normal<_n>::Print(std::ostream &os) const {
     os <<"mu=";
@@ -250,6 +253,12 @@ namespace gcop {
       os << mu(i) << ",";
     }
     os << std::endl;
+  }
+
+  template<int _n>
+  std::ostream& operator<<(std::ostream &os, const Normal<_n> n) {
+    n.Print(os);
+    return os;
   }
 
 }
