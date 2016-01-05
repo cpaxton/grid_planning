@@ -3,6 +3,8 @@
 #include <grid/wam_training_features.h>
 #include <grid/visualize.h>
 
+#include <fstream>
+
 using namespace grid;
 
 int main(int argc, char **argv) {
@@ -38,14 +40,31 @@ int main(int argc, char **argv) {
 
   std::cout << "Total observations: " << data.size() << std::endl;
   std::vector<std::pair<FeatureVector,double> > training_data;
+  unsigned int size = data[0].size();
   for (FeatureVector &vec: data) {
     std::pair<FeatureVector,double> obs(vec,1.0);
+    if (size != vec.size()) {
+      std::cout << "ERROR: " << size << " != " << vec.size() << "!" << std::endl;
+    }
     training_data.push_back(obs);
   }
+
   std::cout << "... converted into training data with " << data.size() << " weighted observations." << std::endl;
-  Gmm<> gmm;
-  gmm.Fit(training_data);
-  std::cout << "Successfully fit GMM!" << std::end;
+  Gmm gmm(size,1);
+  gmm.Init(*data.begin(),*data.rbegin());
+  gmm.Print(std::cout);
+
+  {
+    clock_t begin = clock();
+    gmm.Fit(training_data);
+    clock_t end = clock();
+    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+    std::cout << "Fitting GMM took " << elapsed_secs << "seconds." << std::endl;
+  }
+
+
+  std::cout << "Successfully fit GMM!" << std::endl;
+  gmm.Print(std::cout);
 
 
   // try learning a GMM model

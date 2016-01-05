@@ -10,6 +10,9 @@
 #define GCOP_GMM_H
 
 #include "normal.h"
+#include <iostream>
+
+#define DEBUG
 
 namespace gcop {
   using namespace Eigen;
@@ -40,6 +43,8 @@ namespace gcop {
       double L(const Vectornd &x) const;
 
       double Sample(Vectornd &x);
+
+      void Print(std::ostream &os) const;
 
       void Init(const Vectornd &xlb, const Vectornd &xub);
 
@@ -216,13 +221,19 @@ namespace gcop {
             norm += psj[i];
           }
 
-          //    assert(norm > 1e-10);
-          //      cout << "    normalized: ps[" << j << "]=";
+#ifdef DEBUG
+          //assert(norm > 1e-10);
+          cout << "    normalized: ps[" << j << "]=";
+#endif
           for (int i = 0; i < k; ++i) {
             psj[i] /= norm;
-            //        cout << psj[i] << " ";
+#ifdef DEBUG
+            cout << psj[i] << " ";
+#endif
           }    
-          //      cout << endl;
+#ifdef DEBUF
+          cout << endl;
+#endif
         }  
 
 
@@ -268,6 +279,14 @@ namespace gcop {
       }
     }
 
+  template<int _n>
+    void Gmm<_n>::Print(std::ostream &os) const {
+      os << "k=" << k << std::endl;
+      for(int i = 0; i < k; ++i) {
+        os << "weight=" << ws[i] << std::endl;
+        ns[i].Print(os);
+      }
+    }
 
 }
 

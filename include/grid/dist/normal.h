@@ -12,6 +12,7 @@
 #include <Eigen/Dense>
 #include <vector>
 #include "utils.h"
+#include <iostream>
 
 namespace gcop {
   
@@ -66,6 +67,8 @@ namespace gcop {
    * @param a smoothing parameter [ mu_new = a*mu + (1-a)*mu_old ], equation to 1 by default
    */
   void Fit(const vector<pair<Vectornd, double> > xps, double a = 1);
+
+  void Print(std::ostream &os) const;
   
   Vectornd mu;     ///< mean
   Matrixnd P;      ///< covariance
@@ -151,9 +154,9 @@ namespace gcop {
   template<int _n>
     double Normal<_n>::L(const Vectornd &x) const
     {
-      if (!pd) {
-        cout << "[W] Normal::L: not positive definite!" << endl;
-      }
+      //if (!pd) {
+      //  cout << "[W] Normal::L: not positive definite!" << endl;
+      //}
       
       Vectornd d = x - mu;
       return exp(-d.dot(Pinv*d))/2/norm;
@@ -240,6 +243,15 @@ namespace gcop {
         this->P = a*P + (1-a)*this->P;
       }
     }  
+  template<int _n>
+  void Normal<_n>::Print(std::ostream &os) const {
+    os <<"mu=";
+    for (int i = 0; i < mu.size(); ++i) {
+      os << mu(i) << ",";
+    }
+    os << std::endl;
+  }
+
 }
 
 
