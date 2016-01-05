@@ -37,6 +37,16 @@ int main(int argc, char **argv) {
   }
 
   std::cout << "Total observations: " << data.size() << std::endl;
+  std::vector<std::pair<FeatureVector,double> > training_data;
+  for (FeatureVector &vec: data) {
+    std::pair<FeatureVector,double> obs(vec,1.0);
+    training_data.push_back(obs);
+  }
+  std::cout << "... converted into training data with " << data.size() << " weighted observations." << std::endl;
+  Gmm<> gmm;
+  gmm.Fit(training_data);
+  std::cout << "Successfully fit GMM!" << std::end;
+
 
   // try learning a GMM model
 
