@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
   for (unsigned int i = 0; i < 3; ++i) {
     std::vector<FeatureVector> ex_data = wtf[i]->getAllFeatureValues();
     std::cout << "... preparing example " << (i+1) << " with " << ex_data.size() << " observations." << std::endl;
-    data.append(ex_data.begin(),ex_data.end());
+    data.insert(data.end(),ex_data.begin(),ex_data.end());
   }
 
   std::cout << "Total observations: " << data.size() << std::endl;
