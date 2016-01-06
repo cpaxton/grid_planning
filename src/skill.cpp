@@ -26,6 +26,12 @@ namespace grid {
     return skill;
   }
 
+  /**
+   * return the exact list of features used for training this
+   */
+  const std::vector<std::string> &Skill::getFeatures() const {
+    return feature_names;
+  }
 
   /**
    * return the name of the best feature and only that feature
@@ -83,7 +89,7 @@ namespace grid {
    * train the model for expected features while learning this action
    */
   void Skill::trainSkillModel() {
-    if (training_data.size() > 0) {
+    if (training_data.size() > 0 && training_data[0].first.size() > 0) {
 
       unsigned int dim = training_data[0].first.size();
       model = GmmPtr(new Gmm(dim,k));

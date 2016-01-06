@@ -167,7 +167,7 @@ namespace grid {
           next_idx += POSE_FEATURES_SIZE;
 
         } else if(feature_types.at(feature) == TIME_FEATURE) {
-          f(next_idx) = (w.t.toSec() - min_t.toSec()) / (max_t.toSec() - min_t.toSec());
+          f(next_idx) = (w.t - min_t).toSec() / (max_t - min_t).toSec();
 
         } else {
           next_idx += feature_sizes.at(feature);
@@ -199,6 +199,7 @@ namespace grid {
 
       } else if(feature_types.at(pair.first) == TIME_FEATURE) {
         f(next_idx) = (w.t.toSec() - min_t.toSec()) / (max_t.toSec() - min_t.toSec());
+        //std::cout << __LINE__ << ": t=" << f(next_idx) << "; " << max_t.toSec() << "; " << min_t.toSec() << std::endl;
 
       } else {
         next_idx += feature_sizes.at(pair.first);
@@ -234,18 +235,18 @@ namespace grid {
 
       if (conf.t == ros::Time(0)) {
         conf.t = m.getTime();
-
-        if (conf.t < min_t || min_t == ros::Time(0)) {
-          min_t = conf.t;
-        }
-        if (conf.t > max_t) {
-          max_t = conf.t;
-        }
-
       } else if (conf.t != m.getTime()) {
         data.push_back(conf);
         conf = WorldConfiguration();
         conf.t = m.getTime();
+      }
+
+      // track min and max times
+      if (conf.t < min_t || min_t == ros::Time(0)) {
+        min_t = conf.t;
+      }
+      if (conf.t > max_t || max_t == ros::Time(0)) {
+        max_t = conf.t;
       }
 
       if (m.getTopic() == GRIPPER_MSG_TOPIC) {

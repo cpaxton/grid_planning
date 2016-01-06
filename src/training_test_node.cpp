@@ -24,6 +24,7 @@ int main(int argc, char **argv) {
 
   for (unsigned int i = 0; i < 3; ++i) {
     std::shared_ptr<WamTrainingFeatures> wtf_ex(new WamTrainingFeatures(objects));
+    wtf_ex->addFeature("time",TIME_FEATURE);
     wtf_ex->setRobotKinematics(rk_ptr);
     wtf_ex->read(filenames[i]);
     wtf[i] = wtf_ex;
@@ -51,6 +52,10 @@ int main(int argc, char **argv) {
   unsigned int size = data[0].size();
   for (FeatureVector &vec: data) {
     std::pair<FeatureVector,double> obs(vec,1.0);
+    for (unsigned int i = 0; i < vec.size(); ++i) {
+      std::cout << vec(i) << " ";
+    }
+    std::cout << std::endl;
     if (size != vec.size()) {
       std::cout << "ERROR: " << size << " != " << vec.size() << "!" << std::endl;
     }
@@ -78,6 +83,7 @@ int main(int argc, char **argv) {
   std::cout << "Running skill test:" << std::endl;
 
   Skill test("approach",1);
+  test.appendFeature("link").appendFeature("time");
   for (unsigned int i = 0; i < 3; ++i) {
     test.addTrainingData(*wtf[i]);
   }

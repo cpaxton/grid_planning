@@ -17,6 +17,7 @@ int main(int argc, char **argv) {
   TestFeatures test;
   test.addFeature("node",grid::POSE_FEATURE);
   test.addFeature("link",grid::POSE_FEATURE);
+  test.addFeature("time",grid::TIME_FEATURE);
   test.setAgentFrame("wam/wrist_palm_link");
   test.setWorldFrame("world");
   test.setFrame("gbeam_node_1/gbeam_node","node");
@@ -91,7 +92,7 @@ int main(int argc, char **argv) {
 
         clock_t begin = clock();
         for (unsigned int i = 0; i < trajs.size(); ++i) {
-          std::vector<FeatureVector> features = test.getFeaturesForTrajectory("link",trajs[i]);
+          std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),trajs[i]);
         }
         clock_t end = clock();
         double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;

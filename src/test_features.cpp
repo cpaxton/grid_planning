@@ -10,8 +10,8 @@ namespace grid {
    * A feature query gets the set of all featutes for different points in time, normalizes them, and returns.
    */
   TrajectoryFrames TestFeatures::getPose(const std::string &name,
-                                          double mintime,
-                                          double maxtime) {
+                                         double mintime,
+                                         double maxtime) {
     TrajectoryFrames poses;
 
 
@@ -22,8 +22,8 @@ namespace grid {
    * Returns a list of features converted into a format we can use.
    */
   std::vector< FeatureVector > TestFeatures::getFeatureValues(const std::string &name,
-                                                                   double mintime,
-                                                                   double maxtime) {
+                                                              double mintime,
+                                                              double maxtime) {
     std::vector< FeatureVector > values;
 
     return values;
@@ -71,7 +71,7 @@ namespace grid {
 #endif
     }
     catch (tf::TransformException ex){
-      ROS_ERROR("%s",ex.what());
+      ROS_ERROR("%s with key \"%s\"",ex.what(),key.c_str());
     }
 
     return p;
@@ -92,41 +92,68 @@ namespace grid {
 
   /* getFeaturesForTrajectory
    * Get information for a single feature over the whole trajectory given in traj.
-   * Traj is ???
+   * Traj is KDL::Trajectory
    */
-  std::vector<FeatureVector> TestFeatures::getFeaturesForTrajectory(const std::string &name, TrajectoryFrames traj) {
-    std::vector<FeatureVector> features(traj.size());
+  std::vector<FeatureVector> TestFeatures::getFeaturesForTrajectory(const std::vector<std::string> &names, Trajectory *traj, double dt) {
+    std::vector<FeatureVector> features((unsigned int)ceil(traj->Duration() / dt));
     unsigned int next_idx = 0;
-    for (const Pose &p: traj) {
-      Pose offset = currentPose[name].Inverse() * currentPose[AGENT] * p;
+    unsigned int dim = getFeaturesSize(names);
+    for (double t = 0; t < traj->Duration(); t += dt) {
+      unsigned int idx = 0;
+      FeatureVector f(dim);
+      for (const std::string &name: names) {
+        if (feature_types[name] == POSE_FEATURE) {
+          Pose offset = currentPose[name].Inverse() * currentPose[AGENT] * traj->Pos(t);
 
-      FeatureVector f(POSE_FEATURES_SIZE);
-      getPoseFeatures(offset,f,0);
-      
+          //std::cout << __LINE__ << ": " << dim << ", " << idx << std::endl;
+          getPoseFeatures(offset,f,idx);
+          idx+= POSE_FEATURES_SIZE;
+
+        } else if (feature_types[name] == TIME_FEATURE) {
+          f(idx) = t;
+          idx += TIME_FEATURES_SIZE;
+        }
+      }
+      //std::cout << next_idx << "/" << features.size() << std::endl;
+      //std::cout << t << "/" << traj->Duration() << std::endl;
       features[next_idx++] = f;
+      //features.push_back(f);
     }
     return features;
   }
 
   /* getFeaturesForTrajectory
    * Get information for a single feature over the whole trajectory given in traj.
-   * Traj is KDL::Trajectory
+   * Traj is a set of frames
    */
-  std::vector<FeatureVector> TestFeatures::getFeaturesForTrajectory(const std::string &name, Trajectory *traj, double dt) {
-    std::vector<FeatureVector> features((unsigned int)ceil(traj->Duration() / dt));
-    unsigned int next_idx = 0;
-    for (double t = 0; t < traj->Duration(); t += dt) {
-      Pose offset = currentPose[name].Inverse() * currentPose[AGENT] * traj->Pos(t);
+  std::vector<FeatureVector> TestFeatures::getFeaturesForTrajectory(const std::vector<std::string> &names, TrajectoryFrames traj) {
 
-      FeatureVector f(POSE_FEATURES_SIZE);
-      f[POSE_FEATURE_X] = offset.p.x();
-      f[POSE_FEATURE_Y] = offset.p.y();
-      f[POSE_FEATURE_Z] = offset.p.z();
-      offset.M.GetRPY(f[POSE_FEATURE_ROLL], f[POSE_FEATURE_PITCH], f[POSE_FEATURE_YAW]);
-      
+    std::vector<FeatureVector> features(traj.size());
+
+    unsigned int next_idx = 0;
+    unsigned int dim = getFeaturesSize(names);
+
+    for (const Pose &p: traj) {
+      unsigned int idx = 0;
+      FeatureVector f(dim);
+
+      for (const std::string &name: names) {
+
+        if (feature_types[name] == POSE_FEATURE) {
+          Pose offset = currentPose[name].Inverse() * currentPose[AGENT] * p;
+
+          getPoseFeatures(offset,f,idx);
+          idx+= POSE_FEATURES_SIZE;
+
+        } else if (feature_types[name] == TIME_FEATURE) {
+          f(idx) = (double)next_idx / (double)traj.size();
+          idx += TIME_FEATURES_SIZE;
+        }
+
+      }
       features[next_idx++] = f;
-      //features.push_back(f);
+
+      return features;
     }
-    return features;
   }
 }

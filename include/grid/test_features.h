@@ -27,15 +27,15 @@ namespace grid {
 
     /* getFeaturesForTrajectory
      * Get information for a single feature over the whole trajectory given in traj.
-     * Traj is ???
+     * Traj is KDL::Trajectory
      */
-    std::vector<FeatureVector> getFeaturesForTrajectory(const std::string &name, TrajectoryFrames traj);
+    std::vector<FeatureVector> getFeaturesForTrajectory(const std::vector<std::string> &names, Trajectory *traj, double dt = 0.05);
 
     /* getFeaturesForTrajectory
      * Get information for a single feature over the whole trajectory given in traj.
-     * Traj is KDL::Trajectory
+     * Traj is a set of frames
      */
-    std::vector<FeatureVector> getFeaturesForTrajectory(const std::string &name, Trajectory *traj, double dt = 0.05);
+  std::vector<FeatureVector> getFeaturesForTrajectory(const std::vector<std::string> &name, TrajectoryFrames traj);
 
     /* addFrame
      * Adds a frame of reference as a feature

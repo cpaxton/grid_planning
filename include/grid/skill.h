@@ -53,6 +53,11 @@ namespace grid {
   public:
 
     /**
+     * return the exact list of features used for training this
+     */
+    const std::vector<std::string> &getFeatures() const;
+
+    /**
      * add a feature to this skill
      */
     Skill &appendFeature(const std::string &feature);

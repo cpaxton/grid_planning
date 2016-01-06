@@ -63,6 +63,7 @@ namespace grid {
       if (feature_sizes.find(name) != feature_sizes.end()) {
         return feature_sizes.at(name);
       } else {
+        std::cerr << __FILE__ << ":" << __LINE__ << ": Unrecognized feature: " << name << std::endl;
         return 0;
       }
     }
@@ -76,6 +77,8 @@ namespace grid {
       for (const std::string &name: names) {
         if (feature_sizes.find(name) != feature_sizes.end()) {
           size += feature_sizes.at(name);
+        } else {
+          std::cerr << __FILE__ << ":" << __LINE__ << ": Unrecognized feature: " << name << std::endl;
         }
       }
       return size;
