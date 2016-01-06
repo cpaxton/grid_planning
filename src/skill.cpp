@@ -8,7 +8,7 @@ namespace grid {
      * This is an "OR" operation, not an "AND".
      */
     Skill Skill::concatenate(const Skill &a) const {
-      std::cerr << "Concatenate not implemented!" << std::endl;
+      std::cerr << __FILE__ << ":" << __LINE__ << ": Concatenate not implemented!" << std::endl;
     }
 
 
@@ -58,6 +58,13 @@ namespace grid {
      */
     void Skill::addTrainingData(TrainingFeatures &data, std::vector<std::string> &features) {
       
+      std::vector<FeatureVector> ex_data = data->getAllFeatureValues();
+
+      for (FeatureVector &ex: ex_data) {
+          std::pair<FeatureVector,double> obs(vec,1.0);
+          training_data.push_back(vec);
+      }
+
     }
 
     /**
