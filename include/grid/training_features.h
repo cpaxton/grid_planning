@@ -94,6 +94,9 @@ namespace grid {
 
   protected:
 
+    ros::Time min_t;
+    ros::Time max_t;
+
     /*
      * return the gripper features from a rosbag
      * must be implemented for the specific gripper being used

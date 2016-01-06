@@ -12,7 +12,7 @@ namespace grid {
    * initialize training features with the necessary world objects to find
    */
   TrainingFeatures::TrainingFeatures(const std::vector<std::string> &objects_) :
-    objects(objects_)
+    objects(objects_), min_t(0), max_t(0)
   {
     topics.push_back(JOINT_STATES_TOPIC);
     topics.push_back(BASE_TFORM_TOPIC);
@@ -166,6 +166,9 @@ namespace grid {
           getPoseFeatures(pose,f,next_idx);
           next_idx += POSE_FEATURES_SIZE;
 
+        } else if(feature_types.at(feature) == TIME_FEATURE) {
+          f(next_idx) = (w.t.toSec() - min_t.toSec()) / (max_t.toSec() - min_t.toSec());
+
         } else {
           next_idx += feature_sizes.at(feature);
         }
@@ -193,6 +196,9 @@ namespace grid {
         Pose pose = w.object_poses.at(pair.first).Inverse() * w.base_tform * w.ee_tform;
         getPoseFeatures(pose,f,next_idx);
         next_idx += POSE_FEATURES_SIZE;
+
+      } else if(feature_types.at(pair.first) == TIME_FEATURE) {
+        f(next_idx) = (w.t.toSec() - min_t.toSec()) / (max_t.toSec() - min_t.toSec());
 
       } else {
         next_idx += feature_sizes.at(pair.first);
@@ -228,6 +234,14 @@ namespace grid {
 
       if (conf.t == ros::Time(0)) {
         conf.t = m.getTime();
+
+        if (conf.t < min_t || min_t == ros::Time(0)) {
+          min_t = conf.t;
+        }
+        if (conf.t > max_t) {
+          max_t = conf.t;
+        }
+
       } else if (conf.t != m.getTime()) {
         data.push_back(conf);
         conf = WorldConfiguration();

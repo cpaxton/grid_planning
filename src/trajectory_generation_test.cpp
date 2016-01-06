@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
   test.setFrame("gbeam_link_1/gbeam_link","link");
 
   Skill approach("approach",1);
-  approach.appendFeature("link");
+  approach.appendFeature("time").appendFeature("link");
 
   /* LOAD TRAINING DATA */
   {
@@ -37,6 +37,7 @@ int main(int argc, char **argv) {
     std::vector<std::shared_ptr<WamTrainingFeatures> > wtf(3);
     for (unsigned int i = 0; i < 3; ++i) {
       std::shared_ptr<WamTrainingFeatures> wtf_ex(new WamTrainingFeatures(objects));
+      wtf_ex->addFeature("time",TIME_FEATURE);
       wtf_ex->setRobotKinematics(rk_ptr);
       wtf_ex->read(filenames[i]);
       wtf[i] = wtf_ex;

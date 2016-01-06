@@ -44,7 +44,7 @@ namespace grid {
   /* FeatureType
    * Save each feature as its own thing.
    */
-  typedef enum FeatureType { POSE_FEATURE, FLOAT_FEATURE } FeatureType;
+  typedef enum FeatureType { POSE_FEATURE, FLOAT_FEATURE, TIME_FEATURE } FeatureType;
 
   static const std::string AGENT("agent");
   static const unsigned int POSE_FEATURES_SIZE(6);
@@ -55,6 +55,7 @@ namespace grid {
   static const unsigned int POSE_FEATURE_PITCH(4);
   static const unsigned int POSE_FEATURE_YAW(5);
   static const unsigned int FLOAT_FEATURES_SIZE(1);
+  static const unsigned int TIME_FEATURES_SIZE(1);
 
   static const unsigned int SPLINE_POS1(6);
   static const unsigned int SPLINE_VEL1(7);
@@ -104,7 +105,7 @@ namespace grid {
      * add a feature
      * also updates expected array size
      */
-    void addFeature(const std::string &name, const FeatureType type, unsigned int size = 0);
+    Features &addFeature(const std::string &name, const FeatureType type, unsigned int size = 0);
 
     /**
      * get the type of a feature

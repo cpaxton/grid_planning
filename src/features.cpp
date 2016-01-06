@@ -15,14 +15,18 @@ namespace grid {
    * add a feature
    * also updates expected array size
    */
-  void Features::addFeature(const std::string &name, const FeatureType type, unsigned int size) {
+  Features &Features::addFeature(const std::string &name, const FeatureType type, unsigned int size) {
     feature_types[name] = type;
     if (type == POSE_FEATURE) {
       feature_sizes[name] = POSE_FEATURES_SIZE;
+    } else if (type == TIME_FEATURE) {
+      feature_sizes[name] = TIME_FEATURES_SIZE;
     } else {
       feature_sizes[name] = size;
     }
     updateFeaturesSize();
+
+    return *this;
   }
 
   /**
