@@ -12,8 +12,8 @@ This code requires:
   * Boost
   * ROS (tested on Indigo)
   * Orocos KDL (download a new version)
-  * ``scikit-learn`` for different mixture models
-  * ``pyhsmm`` for HDP-HMM learning
+  * ``scikit-learn`` for different mixture models (python only!)
+  * ``pyhsmm`` for HDP-HMM learning (used in some experiments; may not be necessray for most things!)
 
 To run the experiments, you'll need my ```grid_experiments``` ROS packages, as well as a working version of the ```lcsr_barrett``` simulation.
 
@@ -43,6 +43,14 @@ This directory contains grid-planning python code, for collecting demonstrations
 Python dependencies are changing, but may include:
   * ``scikit-learn`` for different mixture models
   * ``pyhsmm`` for HDP-HMM learning
+
+#### Launch
+
+Launch files are used to either (1) bring up tests for different things, or (2) set up the configuration for skills at run-time.
+
+##### Setup
+
+These launch files set up the different skills that we want to look at during runtime.
 
 #### Scripts
 
