@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
     test.addTrainingData(*wtf[i]);
   }
   test.trainSkillModel();
-  std::cout << "Skill trained!" << std::end;
+  std::cout << "Skill trained!" << std::endl;
 
   // publish trajectories
   ros::NodeHandle nh;

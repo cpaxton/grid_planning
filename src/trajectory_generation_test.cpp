@@ -1,6 +1,7 @@
 
 #include <grid/trajectory_distribution.h>
 #include <grid/test_features.h>
+#include <grid/wam_training_features.h>
 #include <grid/visualize.h>
 
 using namespace grid;
@@ -10,6 +11,9 @@ int main(int argc, char **argv) {
   ros::init(argc,argv,"grid_trajectory_test_node");
   ros::NodeHandle nh;
   ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("trajectory",1000);
+
+  RobotKinematics *rk = new RobotKinematics("robot_description","wam/base_link","wam/wrist_palm_link");
+  RobotKinematicsPointer rk_ptr = RobotKinematicsPointer(rk);
 
   TestFeatures test;
   test.addFeature("node",grid::POSE_FEATURE);
@@ -22,6 +26,37 @@ int main(int argc, char **argv) {
   ROS_INFO("Done setting up. Sleeping...");
   ros::Duration(1.0).sleep();
 
+  Skill approach("approach",1);
+
+  /* LOAD TRAINING DATA */
+  {
+
+    std::vector<std::string> objects;
+    objects.push_back("link");
+    objects.push_back("node");
+
+    std::string filenames[] = {"data/sim/app1.bag", "data/sim/app2.bag", "data/sim/app3.bag"};
+
+    std::vector<std::shared_ptr<WamTrainingFeatures> > wtf;
+    for (unsigned int i = 0; i < 3; ++i) {
+      std::shared_ptr<WamTrainingFeatures> wtf_ex(new WamTrainingFeatures(objects));
+      wtf_ex->setRobotKinematics(rk_ptr);
+      wtf_ex->read(filenames[i]);
+      wtf[i] = wtf_ex;
+    }
+
+    // add each skill
+    for (unsigned int i = 0; i < 3; ++i) {
+      approach.addTrainingData(*wtf[i]);
+    }
+    approach.trainSkillModel();
+  }
+
+
+  /* CREATE SKILL */
+
+  /* LOOP */
+
   ros::Rate rate(1);
   unsigned int ntrajs = 100;
   try {
@@ -32,7 +67,7 @@ int main(int argc, char **argv) {
 
       ROS_INFO("Initializing trajectory distribution...");
       TrajectoryDistribution dist(3,1);
-      dist.initialize(test,Skill::DefaultSkill("test","node"));
+      dist.initialize(test,approach);
 
       ROS_INFO("Generating trajectories...");
       std::vector<Trajectory *> trajs;
