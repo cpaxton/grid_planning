@@ -119,7 +119,7 @@ namespace grid {
    * probabilities
    * what is the probability associated with each feature vector in the data?
    */
-  FeatureVector Skill::p(std::vector<FeatureVector> data) {
+  FeatureVector Skill::logL(std::vector<FeatureVector> data) {
     FeatureVector vec(data.size());
 
     for (unsigned int i = 0; i < data.size(); ++i) {

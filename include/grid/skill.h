@@ -110,8 +110,9 @@ namespace grid {
     /**
      * probabilities
      * what is the probability associated with each feature vector in the data?
+     * returns as the log likelihood
      */
-    FeatureVector p(std::vector<FeatureVector> data);
+    FeatureVector logL(std::vector<FeatureVector> data);
 
     /**
      * return the name of the best feature and only that feature
