@@ -1,6 +1,6 @@
 #include <grid/test_features.h>
 
-#define DEBUG_PRINT_TF_POSE 1
+//#define DEBUG_PRINT_TF_POSE
 
 namespace grid {
 
@@ -60,13 +60,13 @@ namespace grid {
     Pose p;
 
     try{
-#if DEBUG_PRINT_TF_POSE
+#ifdef DEBUG_PRINT_TF_POSE
       std::cout << "looking up " << objectClassToID[key] << " for " << key << std::endl;
 #endif
       listener.lookupTransform(worldFrame, objectClassToID[key],
                                ros::Time(0), transform);
       tf::transformTFToKDL(transform, p);
-#if DEBUG_PRINT_TF_POSE
+#ifdef DEBUG_PRINT_TF_POSE
       std::cout << "[" << key << "] x = " << transform.getOrigin().getX() << std::endl;
       std::cout << "[" << key << "] y = " << transform.getOrigin().getY() << std::endl;
       std::cout << "[" << key << "] z = " << transform.getOrigin().getZ() << std::endl;

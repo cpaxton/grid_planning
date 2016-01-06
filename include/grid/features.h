@@ -12,8 +12,8 @@
 #include <kdl/trajectory.hpp>
 #include <tf_conversions/tf_kdl.h>
 
-// used for other type definitions
-#include <grid/dist/gmm.h>
+#include <Eigen/Dense>
+#include <grid/dist/utils.h>
 
 #include <grid/robot_kinematics.h>
 
@@ -26,8 +26,7 @@
 namespace grid {
 
   // feature distribution defined here as a GCOP gmm for now
-  typedef gcop::Gmm<> Gmm;
-  typedef std::shared_ptr<gcop::Gmm<> > GmmPtr;
+
   typedef Eigen::Matrix<double, Eigen::Dynamic, 1> EigenVectornd;
 
   // use array of poses for now (not using velocity/commands)

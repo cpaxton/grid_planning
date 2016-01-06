@@ -42,6 +42,8 @@ namespace gcop {
 
       double L(const Vectornd &x) const;
 
+      double logL(const Vectornd &x) const;
+
       double Sample(Vectornd &x);
 
       void Print(std::ostream &os) const;
@@ -153,7 +155,19 @@ namespace gcop {
         return l;
       }
     }
+  template<int _n>
+    double Gmm<_n>::logL(const Vectornd &x) const
+    {
+      if (k == 1) {
+        return ns[0].logL(x);
+      } else {
 
+        double l = 0;
+        for (int i = 0; i < k; ++i)
+          l += ws[i]*ns[i].L(x);    
+        return log(l);
+      }
+    }
 
   template<int _n>
     double Gmm<_n>::Sample(Vectornd &x)

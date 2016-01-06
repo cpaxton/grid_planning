@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
   test.setFrame("gbeam_link_1/gbeam_link","link");
 
   Skill approach("approach",1);
-  approach.appendFeature("time").appendFeature("link");
+  approach.appendFeature("link").appendFeature("time");
   approach.setInitializationFeature("link"); // must be a pose so we can find out where to start looking
 
   /* LOAD TRAINING DATA */
@@ -50,10 +50,8 @@ int main(int argc, char **argv) {
       approach.addTrainingData(*wtf[i]);
     }
     approach.trainSkillModel();
+    approach.printGmm();
   }
-
-
-  /* CREATE SKILL */
 
   /* LOOP */
 
@@ -94,6 +92,7 @@ int main(int argc, char **argv) {
         clock_t begin = clock();
         for (unsigned int i = 0; i < trajs.size(); ++i) {
           std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),trajs[i]);
+          approach.p(features);
         }
         clock_t end = clock();
         double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;

@@ -46,6 +46,13 @@ namespace gcop {
    * @return likelihood of sample
    */
   double L(const Vectornd &x) const;
+
+  /**
+   * Compute log likelihood of element x
+   * @param x n-dimensional vector
+   * @return likelihood of sample
+   */
+  double logL(const Vectornd &x) const;
   
   
   /**
@@ -153,6 +160,16 @@ namespace gcop {
     {
     }
 
+  template<int _n>
+    double Normal<_n>::logL(const Vectornd &x) const
+    {
+      //if (!pd) {
+      //  cout << "[W] Normal::L: not positive definite!" << endl;
+      //}
+      
+      Vectornd d = x - mu;
+      return -d.dot(Pinv*d)/2/norm;
+    }
 
   template<int _n>
     double Normal<_n>::L(const Vectornd &x) const

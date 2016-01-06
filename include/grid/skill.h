@@ -7,12 +7,19 @@
 #include <grid/features.h>
 #include <grid/training_features.h>
 
+// used for other type definitions
+#include <grid/dist/gmm.h>
+
+
 /**
  * Skill
  * Probabilistic representation of the soft set of constraints on a single skill.
  * */
 
 namespace grid {
+
+  typedef gcop::Gmm<> Gmm;
+  typedef std::shared_ptr<gcop::Gmm<> > GmmPtr;
 
   /**
    * Skill
@@ -123,6 +130,11 @@ namespace grid {
      * one object feature; identity covariance; k=1 gmm
      */
     static Skill DefaultSkill(const std::string &name, const std::string &object);
+
+    /**
+     * print gmm
+     */
+    void printGmm();
   };
 }
 

@@ -117,6 +117,12 @@ namespace grid {
   FeatureVector Skill::p(std::vector<FeatureVector> data) {
     FeatureVector vec(data.size());
 
+    for (unsigned int i = 0; i < data.size(); ++i) {
+      vec(i) = model->logL(data[i]);
+      //std::cout << "--\n" << data[i] - model->ns[0].mu << std::endl;
+    }
+
+    //std::cout << __LINE__ << ": " << vec << std::endl;
 
     return vec;
   }
@@ -134,5 +140,12 @@ namespace grid {
    */
   const std::string &Skill::getName() const {
     return name;
+  }
+
+  /**
+   * print gmm
+   */
+  void Skill::printGmm() {
+    std::cout << *model << std::endl;
   }
 }
