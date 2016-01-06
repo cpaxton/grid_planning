@@ -56,6 +56,9 @@ namespace grid {
    */
   Skill &Skill::appendFeature(const std::string &feature) {
     feature_names.push_back(feature);
+    if (best_feature_name.size() < 1) {
+      best_feature_name = feature;
+    }
     return *this;
   }
 
