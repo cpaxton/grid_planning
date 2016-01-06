@@ -25,6 +25,7 @@ int main(int argc, char **argv) {
 
   Skill approach("approach",1);
   approach.appendFeature("time").appendFeature("link");
+  approach.setInitializationFeature("link"); // must be a pose so we can find out where to start looking
 
   /* LOAD TRAINING DATA */
   {

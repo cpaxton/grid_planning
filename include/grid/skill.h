@@ -58,6 +58,11 @@ namespace grid {
     const std::vector<std::string> &getFeatures() const;
 
     /**
+     * which feature should we use to initialize things?
+     */
+    Skill &setInitializationFeature(const std::string &feature);
+
+    /**
      * add a feature to this skill
      */
     Skill &appendFeature(const std::string &feature);
@@ -104,7 +109,7 @@ namespace grid {
     /**
      * return the name of the best feature and only that feature
      */
-    const std::string &getBestFeature() const;
+    const std::string &getInitializationFeature() const;
 
     /**
      * concatenate

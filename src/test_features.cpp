@@ -60,7 +60,9 @@ namespace grid {
     Pose p;
 
     try{
+#if DEBUG_PRINT_TF_POSE
       std::cout << "looking up " << objectClassToID[key] << " for " << key << std::endl;
+#endif
       listener.lookupTransform(worldFrame, objectClassToID[key],
                                ros::Time(0), transform);
       tf::transformTFToKDL(transform, p);
@@ -85,6 +87,7 @@ namespace grid {
     for (const std::pair<std::string,FeatureType> &feature: feature_types) {
       //std::cout << feature.first << ", " << feature.second << std::endl;
       if(feature.second == POSE_FEATURE) {
+        //std::cout << feature.first << std::endl;
         currentPose[feature.first] = lookup(feature.first);
       }
     }

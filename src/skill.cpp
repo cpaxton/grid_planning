@@ -36,7 +36,7 @@ namespace grid {
   /**
    * return the name of the best feature and only that feature
    */
-  const std::string &Skill::getBestFeature() const {
+  const std::string &Skill::getInitializationFeature() const {
     return best_feature_name;
   }
 
@@ -55,6 +55,14 @@ namespace grid {
    */
   Skill::Skill(const std::string &name_, int k_) : name(name_), k(k_) {
     // do nothing for now
+  }
+
+  /**
+   * which feature should we use to initialize things?
+   */
+  Skill &Skill::setInitializationFeature(const std::string &feature) {
+    best_feature_name = feature;
+    return *this;
   }
 
   /**
