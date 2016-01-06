@@ -36,9 +36,14 @@ int main(int argc, char **argv) {
   std::vector<FeatureVector> data;
   std::cout << "Getting features..." << std::endl;
   {
+
+    std::vector<std::string> features;
+    features.push_back("link");
+    features.push_back("time");
+
     clock_t begin = clock();
     for (unsigned int i = 0; i < 3; ++i) {
-      std::vector<FeatureVector> ex_data = wtf[i]->getAllFeatureValues();
+      std::vector<FeatureVector> ex_data = wtf[i]->getFeatureValues(features);
       //std::cout << "... preparing example " << (i+1) << " with " << ex_data.size() << " observations." << std::endl;
       data.insert(data.end(),ex_data.begin(),ex_data.end());
     }
@@ -51,7 +56,7 @@ int main(int argc, char **argv) {
   std::vector<std::pair<FeatureVector,double> > training_data;
   unsigned int size = data[0].size();
   for (FeatureVector &vec: data) {
-    std::pair<FeatureVector,double> obs(vec,1.0);
+    std::pair<FeatureVector,double> obs(vec,1.0/data.size());
     for (unsigned int i = 0; i < vec.size(); ++i) {
       std::cout << vec(i) << " ";
     }

@@ -99,6 +99,11 @@ namespace grid {
   void Skill::trainSkillModel() {
     if (training_data.size() > 0 && training_data[0].first.size() > 0) {
 
+      double num_examples = (double)training_data.size();
+      for (auto &pair: training_data) {
+        pair.second = 1.0/num_examples;
+      }
+
       unsigned int dim = training_data[0].first.size();
       model = GmmPtr(new Gmm(dim,k));
 
@@ -119,7 +124,7 @@ namespace grid {
 
     for (unsigned int i = 0; i < data.size(); ++i) {
       vec(i) = model->logL(data[i]);
-      //std::cout << "--\n" << data[i] - model->ns[0].mu << std::endl;
+      std::cout << "--\n" << data[i] << "==" << model->ns[0].mu << std::endl;
     }
 
     //std::cout << __LINE__ << ": " << vec << std::endl;

@@ -210,6 +210,16 @@ namespace gcop {
     {
       int N = xps.size();
 
+      // sanity check
+      {
+        double weight_sum;
+        for (auto &pair: xps) {
+          weight_sum += pair.second;
+        }
+        std::cout << "weights added up to " << weight_sum << std::endl;
+        assert(fabs(weight_sum - 1) < tol);
+      }
+
       if (k == 1) {
         ns[0].Fit(xps, a);
         if (S)

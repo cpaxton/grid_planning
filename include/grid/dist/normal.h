@@ -224,6 +224,16 @@ namespace gcop {
     void Normal<_n>::Fit(const vector<pair<Vectornd, double> > xws, double a)
     {
       int N = xws.size();
+
+      // sanity check
+      {
+        double weight_sum;
+        for (auto &pair: xws) {
+          weight_sum += pair.second;
+        }
+        //std::cout << "weights added up to " << weight_sum << std::endl;
+        assert(fabs(weight_sum - 1) < 1e-5);
+      }
       
       Vectornd mu;
       if (_n == Dynamic)

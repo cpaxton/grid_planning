@@ -51,7 +51,26 @@ int main(int argc, char **argv) {
     }
     approach.trainSkillModel();
     approach.printGmm();
+  
+
+    for (unsigned int i = 0; i < 3; ++i) {
+      std::shared_ptr<WamTrainingFeatures> wtf_ex(new WamTrainingFeatures(objects));
+      wtf_ex->addFeature("time",TIME_FEATURE);
+      wtf_ex->setRobotKinematics(rk_ptr);
+      wtf_ex->read(filenames[i]);
+      std::vector<FeatureVector> data = wtf_ex->getFeatureValues(approach.getFeatures());
+      std::cout << data.size() << " features." << std::endl;
+      //for (FeatureVector &vec: data) {
+      //  std::pair<FeatureVector,double> obs(vec,1.0);
+      //  for (unsigned int i = 0; i < vec.size(); ++i) {
+      //    std::cout << vec(i) << " ";
+      //  }
+      //  std::cout << std::endl;
+      //}
+      approach.p(data);
+    }
   }
+
 
   /* LOOP */
 
@@ -92,7 +111,7 @@ int main(int argc, char **argv) {
         clock_t begin = clock();
         for (unsigned int i = 0; i < trajs.size(); ++i) {
           std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),trajs[i]);
-          approach.p(features);
+          //approach.p(features);
         }
         clock_t end = clock();
         double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
