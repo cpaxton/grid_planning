@@ -77,7 +77,7 @@ namespace grid {
      * What data do we want to use? add as a Features object
      * Store this as a vector
      */
-    void addTrainingData(TrainingFeatures &data, std::vector<std::string> &features);
+    void addTrainingData(TrainingFeatures &data);
 
     /**
      * trainSkillModel

@@ -2,6 +2,7 @@
 #include <grid/training_features.h>
 #include <grid/wam_training_features.h>
 #include <grid/visualize.h>
+#include <grid/skill.h>
 
 #include <fstream>
 
@@ -56,6 +57,7 @@ int main(int argc, char **argv) {
     training_data.push_back(obs);
   }
 
+  // try learning a GMM model
   std::cout << "... converted into training data with " << data.size() << " weighted observations." << std::endl;
   Gmm gmm(size,1);
   gmm.Init(*data.begin(),*data.rbegin());
@@ -73,8 +75,14 @@ int main(int argc, char **argv) {
   std::cout << "Successfully fit GMM!" << std::endl;
   gmm.Print(std::cout);
 
+  std::cout << "Running skill test:" << std::endl;
 
-  // try learning a GMM model
+  Skill test("approach",1);
+  for (unsigned int i = 0; i < 3; ++i) {
+    test.addTrainingData(*wtf[i]);
+  }
+  test.trainSkillModel();
+  std::cout << "Skill trained!" << std::end;
 
   // publish trajectories
   ros::NodeHandle nh;

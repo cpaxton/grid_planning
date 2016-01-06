@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
 
       ROS_INFO("Initializing trajectory distribution...");
       TrajectoryDistribution dist(3,1);
-      dist.initialize(test,Skill::DefaultSkill("node"));
+      dist.initialize(test,Skill::DefaultSkill("test","node"));
 
       ROS_INFO("Generating trajectories...");
       std::vector<Trajectory *> trajs;
