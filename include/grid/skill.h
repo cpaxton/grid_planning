@@ -1,10 +1,11 @@
-#ifndef _GRID_ACTION
-#define _GRID_ACTION
+#ifndef _GRID_SKILL
+#define _GRID_SKILL
 
 #include <vector>
 #include <string>
 
 #include <grid/features.h>
+#include <grid/training_features.h>
 
 /**
  * Skill
@@ -22,8 +23,11 @@ namespace grid {
   class Skill {
   protected:
 
+    /** number of clusters in gmm */
+    int k;
+
     /** stores feature expectations for the skill */
-    GmmPtr exec_model;
+    GmmPtr model;
 
     /**
      * Stores the list of feature names we will be querying.
@@ -36,7 +40,27 @@ namespace grid {
      */
     std::string best_feature_name;
 
+    /**
+     * set up the training data
+     */
+    std::vector<std::pair<FeatureVector, double> > training_data;
+
+    /**
+     * skill name
+     */
+    std::string name;
+
   public:
+
+    /**
+     * set up the name
+     */
+    void setName(const std::string &name);
+
+    /**
+     * return name of this skill
+     */
+    const std::string &getName() const;
 
     /**
      * create a skill based on a set of features and a number of clusters
@@ -46,8 +70,26 @@ namespace grid {
     /**
      * create a skill based on k and d
      */
-    Skill(int k  = 1, int d = POSE_FEATURES_SIZE);
+    Skill(const std::string &name = "", int k  = 1);
 
+    /**
+     * Adding training data
+     * What data do we want to use? add as a Features object
+     * Store this as a vector
+     */
+    void addTrainingData(TrainingFeatures &data, std::vector<std::string> &features);
+
+    /**
+     * trainSkillModel
+     * train the model for expected features while learning this action
+     */
+    void trainSkillModel();
+
+    /**
+     * probabilities
+     * what is the probability associated with each feature vector in the data?
+     */
+    FeatureVector p(std::vector<FeatureVector> data);
 
     /**
      * return the name of the best feature and only that feature
@@ -65,7 +107,7 @@ namespace grid {
      * default skill;
      * one object feature; identity covariance; k=1 gmm
      */
-    static Skill DefaultSkill(const std::string &object);
+    static Skill DefaultSkill(const std::string &name, const std::string &object);
   };
 }
 

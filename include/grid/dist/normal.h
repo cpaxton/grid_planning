@@ -70,7 +70,8 @@ namespace gcop {
 
   void Print(std::ostream &os) const;
 
-  friend std::ostream& operator<<(std::ostream &os, const Normal n);
+  template<int _m>
+  friend std::ostream& operator<<(std::ostream &os, const Normal<_m> n);
   
   Vectornd mu;     ///< mean
   Matrixnd P;      ///< covariance

@@ -8,7 +8,7 @@ namespace grid {
      * This is an "OR" operation, not an "AND".
      */
     Skill Skill::concatenate(const Skill &a) const {
-
+      std::cerr << "Concatenate not implemented!" << std::endl;
     }
 
 
@@ -16,9 +16,10 @@ namespace grid {
      * default skill;
      * one object feature; identity covariance; k=1 gmm
      */
-    Skill Skill::DefaultSkill(const std::string &object) {
+    Skill Skill::DefaultSkill(const std::string &name, const std::string &object) {
 
-      Skill skill(1,POSE_FEATURES_SIZE);
+      //Skill skill(1,POSE_FEATURES_SIZE);
+      Skill skill(name,1);
       skill.feature_names.push_back(object);
       skill.best_feature_name = object;
 
@@ -39,24 +40,59 @@ namespace grid {
     Skill::Skill(int k, std::vector<std::string> &feature_names_, Features &features) :
       feature_names(feature_names_)
     {
-      int dim = 0;
-      for (std::string &key: feature_names) {
-        switch(features.getFeatureType(key)) {
-          case POSE_FEATURE:
-            dim += POSE_FEATURES_SIZE; break;
-          case FLOAT_FEATURE:
-            dim += FLOAT_FEATURES_SIZE; break;
-          default:
-            break;
-        }
-        exec_model = GmmPtr(new Gmm(dim,k));
-      }
+        unsigned int dim = features.getFeaturesSize();
+        model = GmmPtr(new Gmm(dim,k));
     }
 
     /**
      * create a skill based on k and d
      */
-    Skill::Skill(int k, int d) : exec_model(new Gmm(d,k)) {
+    Skill::Skill(const std::string &name_, int k_) : name(name_), k(k_) {
+      // do nothing for now
+    }
 
+    /**
+     * Adding training data
+     * What data do we want to use? add as a Features object
+     * Store this as a vector
+     */
+    void Skill::addTrainingData(TrainingFeatures &data, std::vector<std::string> &features) {
+      
+    }
+
+    /**
+     * trainSkillModel
+     * train the model for expected features while learning this action
+     */
+    void Skill::trainSkillModel() {
+      if (training_data.size() > 0) {
+
+
+      }
+    }
+
+    /**
+     * probabilities
+     * what is the probability associated with each feature vector in the data?
+     */
+    FeatureVector Skill::p(std::vector<FeatureVector> data) {
+      FeatureVector vec(data.size());
+
+
+      return vec;
+    }
+
+    /**
+     * set up the name
+     */
+    void Skill::setName(const std::string &name_) {
+      name = name_;
+    }
+
+    /**
+     * return name of this skill
+     */
+    const std::string &Skill::getName() const {
+      return name;
     }
 }

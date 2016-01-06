@@ -138,7 +138,7 @@ add_executable(features_test src/feature_computation_test.cpp)
 add_executable(trajectory_test src/trajectory_generation_test.cpp)
 add_executable(training_test src/training_test_node.cpp)
 
-## Add cmake target dependencies of the executable/library
+## Add cmake target dependencies of the executable/libname,rary
 ## as an example, message headers may need to be generated before nodes
 add_dependencies(grid_plan_node grid_planner)
 add_dependencies(features_test grid_planner)

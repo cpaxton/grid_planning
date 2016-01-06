@@ -1,0 +1,19 @@
+<launch>
+  <arg name="root" default="$(find grid_plan)"/>
+
+  <group ns="grid">
+    <rosparam>
+      skills:
+        - approach
+      </rosparam>
+    <group ns="approach">
+      <rosparam subst_value="True">
+        files:
+          - $(arg root)/data/sim/app1.bag
+          - $(arg root)/data/sim/app2.bag
+          - $(arg root)/data/sim/app3.bag
+      </rosparam>
+    </group>
+  </group>
+
+</launch>

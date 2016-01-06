@@ -46,7 +46,8 @@ namespace gcop {
 
       void Print(std::ostream &os) const;
 
-      friend std::ostream& operator<<(std::ostream &os, const Gmm g);
+  template<int _m>
+      friend std::ostream& operator<<(std::ostream &os, const Gmm<_m> g);
 
       void Init(const Vectornd &xlb, const Vectornd &xub);
 
