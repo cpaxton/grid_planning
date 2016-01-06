@@ -124,7 +124,7 @@ namespace grid {
 
     for (unsigned int i = 0; i < data.size(); ++i) {
       vec(i) = model->logL(data[i]);
-      std::cout << "--\n" << data[i] << "==" << model->ns[0].mu << std::endl;
+      //std::cout << "--\n" << data[i] << "==" << model->ns[0].mu << std::endl;
     }
 
     //std::cout << __LINE__ << ": " << vec << std::endl;
