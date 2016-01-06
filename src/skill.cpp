@@ -69,7 +69,7 @@ namespace grid {
    */
   void Skill::addTrainingData(TrainingFeatures &data) {
 
-    std::vector<FeatureVector> ex_data = data.getAllFeatureValues();
+    std::vector<FeatureVector> ex_data = data.getFeatureValues(feature_names);
 
     for (FeatureVector &ex: ex_data) {
       std::pair<FeatureVector,double> obs(ex,1.0);
