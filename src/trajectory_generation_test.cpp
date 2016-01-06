@@ -52,7 +52,6 @@ int main(int argc, char **argv) {
     approach.trainSkillModel();
     approach.printGmm();
   
-#if 0
     for (unsigned int i = 0; i < 3; ++i) {
       std::shared_ptr<WamTrainingFeatures> wtf_ex(new WamTrainingFeatures(objects));
       wtf_ex->addFeature("time",TIME_FEATURE);
@@ -67,9 +66,10 @@ int main(int argc, char **argv) {
       //  }
       //  std::cout << std::endl;
       //}
-      approach.p(data);
+      FeatureVector v = approach.logL(data);
+      double p = v.sum() / v.size();
+      std::cout << "training example " << i << ": p = " << p << std::endl;
     }
-#endif
   }
 
 
@@ -112,7 +112,7 @@ int main(int argc, char **argv) {
         clock_t begin = clock();
         for (unsigned int i = 0; i < trajs.size(); ++i) {
           std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),trajs[i]);
-          FeatureVector v = approach.p(features);
+          FeatureVector v = approach.logL(features);
           double p = v.sum() / v.size();
           std::cout << " - traj " << i << ": avg p = " << p << std::endl;
         }
