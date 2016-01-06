@@ -119,6 +119,22 @@ namespace grid {
     return values;
   }
 
+
+  /**
+   * getFeatureValues
+   * get all available features from provided set
+   */
+  std::vector<FeatureVector> TrainingFeatures::getFeatureValues(const std::vector<std::string> &features) {
+    std::vector<FeatureVector> values;
+
+    for (WorldConfiguration &w: data) {
+      FeatureVector f = worldToFeatures(w,features);
+      values.push_back(f);
+    }
+
+    return values;
+  }
+
   /**
    * get all available features
    * for testing, at least for now
@@ -132,6 +148,33 @@ namespace grid {
     }
 
     return values;
+  }
+
+  /**
+   * helper
+   * convert a world into a set of features
+   */
+  FeatureVector TrainingFeatures::worldToFeatures(const WorldConfiguration &w, const std::vector<std::string> &features) const {
+    FeatureVector f(getFeaturesSize(features));
+    unsigned int next_idx = 0;
+
+    for (const std::string &feature: features) {
+      if (feature_types.find(feature) != feature_types.end()) {
+        if (feature_types.at(feature) == POSE_FEATURE) {
+
+          Pose pose = w.object_poses.at(feature).Inverse() * w.base_tform * w.ee_tform;
+          getPoseFeatures(pose,f,next_idx);
+          next_idx += POSE_FEATURES_SIZE;
+
+        } else {
+          next_idx += feature_sizes.at(feature);
+        }
+      } else {
+        std::cerr << __FILE__ << ":" << __LINE__ << ": missing feature: " << feature << std::endl;
+      }
+    }
+
+    return f;
   }
 
   /**
@@ -234,6 +277,7 @@ namespace grid {
    */
   Pose TrainingFeatures::getJointStatesData(rosbag::MessageInstance const &m) {
     Pose p;
+    std::cerr << __FILE__ << ":" << __LINE__ << ": function not implemented!" << std::endl;
 
     return p;
   }
@@ -243,6 +287,7 @@ namespace grid {
    */
   Pose TrainingFeatures::getObjectData(rosbag::MessageInstance const &m) {
     Pose p;
+    std::cerr << __FILE__ << ":" << __LINE__ << ": function not implemented!" << std::endl;
 
     return p;
   }
@@ -251,7 +296,7 @@ namespace grid {
    * print all extractable features for the different objects
    */
   void TrainingFeatures::printExtractedFeatures() {
-
+    std::cerr << __FILE__ << ":" << __LINE__ << ": function not implemented!" << std::endl;
   }
 
 #if 0

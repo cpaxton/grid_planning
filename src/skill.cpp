@@ -52,6 +52,14 @@ namespace grid {
   }
 
   /**
+   * add a feature to this skill
+   */
+  Skill &Skill::appendFeature(const std::string &feature) {
+    feature_names.push_back(feature);
+    return *this;
+  }
+
+  /**
    * Adding training data
    * What data do we want to use? add as a Features object
    * Store this as a vector
@@ -99,8 +107,9 @@ namespace grid {
   /**
    * set up the name
    */
-  void Skill::setName(const std::string &name_) {
+  Skill &Skill::setName(const std::string &name_) {
     name = name_;
+    return *this;
   }
 
   /**

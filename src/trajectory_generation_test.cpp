@@ -12,8 +12,7 @@ int main(int argc, char **argv) {
   ros::NodeHandle nh;
   ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("trajectory",1000);
 
-  RobotKinematics *rk = new RobotKinematics("robot_description","wam/base_link","wam/wrist_palm_link");
-  RobotKinematicsPointer rk_ptr = RobotKinematicsPointer(rk);
+  RobotKinematicsPointer rk_ptr = RobotKinematicsPointer(new RobotKinematics("robot_description","wam/base_link","wam/wrist_palm_link"));
 
   TestFeatures test;
   test.addFeature("node",grid::POSE_FEATURE);
@@ -23,10 +22,8 @@ int main(int argc, char **argv) {
   test.setFrame("gbeam_node_1/gbeam_node","node");
   test.setFrame("gbeam_link_1/gbeam_link","link");
 
-  ROS_INFO("Done setting up. Sleeping...");
-  ros::Duration(1.0).sleep();
-
   Skill approach("approach",1);
+  approach.appendFeature("link");
 
   /* LOAD TRAINING DATA */
   {
@@ -37,7 +34,7 @@ int main(int argc, char **argv) {
 
     std::string filenames[] = {"data/sim/app1.bag", "data/sim/app2.bag", "data/sim/app3.bag"};
 
-    std::vector<std::shared_ptr<WamTrainingFeatures> > wtf;
+    std::vector<std::shared_ptr<WamTrainingFeatures> > wtf(3);
     for (unsigned int i = 0; i < 3; ++i) {
       std::shared_ptr<WamTrainingFeatures> wtf_ex(new WamTrainingFeatures(objects));
       wtf_ex->setRobotKinematics(rk_ptr);
@@ -56,6 +53,9 @@ int main(int argc, char **argv) {
   /* CREATE SKILL */
 
   /* LOOP */
+
+  ROS_INFO("Done setting up. Sleeping...");
+  ros::Duration(1.0).sleep();
 
   ros::Rate rate(1);
   unsigned int ntrajs = 100;

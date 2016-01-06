@@ -42,6 +42,7 @@ namespace grid {
       features_size += pair.second;
     }
   }
+
   /**
    * getFeaturesSize
    * Compute number of features we expect to see
@@ -49,6 +50,32 @@ namespace grid {
   unsigned int Features::getFeaturesSize() const {
     return features_size;
   }
+
+    /**
+     * getFeaturesSize
+     * Compute number of features we expect to see
+     */
+    unsigned int Features::getFeaturesSize(const std::string &name) const {
+      if (feature_sizes.find(name) != feature_sizes.end()) {
+        return feature_sizes.at(name);
+      } else {
+        return 0;
+      }
+    }
+
+    /**
+     * getFeaturesSize
+     * Compute number of features we expect to see
+     */
+    unsigned int Features::getFeaturesSize(const std::vector<std::string> &names) const {
+      unsigned int size = 0;
+      for (const std::string &name: names) {
+        if (feature_sizes.find(name) != feature_sizes.end()) {
+          size += feature_sizes.at(name);
+        }
+      }
+      return size;
+    }
 
   /** 
    * setRobotKinematics

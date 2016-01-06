@@ -44,6 +44,11 @@ namespace grid {
                                                 double mintime = 0,
                                                 double maxtime = 0);
 
+    /**
+     * getFeatureValues
+     * get all available features from provided set
+     */
+    std::vector<FeatureVector> getFeatureValues(const std::vector<std::string> &features);
 
     /**
      * get all available features
@@ -56,6 +61,12 @@ namespace grid {
      * convert a world into a set of features
      */
     FeatureVector worldToFeatures(const WorldConfiguration &w) const;
+
+    /**
+     * helper
+     * convert a world into a set of features
+     */
+    FeatureVector worldToFeatures(const WorldConfiguration &w, const std::vector<std::string> &features) const;
 
     /**
      * read

@@ -118,6 +118,18 @@ namespace grid {
     unsigned int getFeaturesSize() const;
 
     /**
+     * getFeaturesSize
+     * Compute number of features we expect to see
+     */
+    unsigned int getFeaturesSize(const std::string &name) const;
+
+    /**
+     * getFeaturesSize
+     * Compute number of features we expect to see
+     */
+    unsigned int getFeaturesSize(const std::vector<std::string> &names) const;
+
+    /**
      * getPoseFeatures
      * Load pose data at index
      */

@@ -53,9 +53,14 @@ namespace grid {
   public:
 
     /**
+     * add a feature to this skill
+     */
+    Skill &appendFeature(const std::string &feature);
+
+    /**
      * set up the name
      */
-    void setName(const std::string &name);
+    Skill &setName(const std::string &name);
 
     /**
      * return name of this skill
