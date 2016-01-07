@@ -88,7 +88,7 @@ int main (int argc, char **argv) {
 
         clock_t end = clock();
         double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-        std::cout << "Computing trajectory of length " << frames.size() << " took " << elapsed_secs << "seconds." << std::endl;
+        std::cout << "Computing trajectory of length " << frames.size() << " took " << elapsed_secs << " seconds." << std::endl;
 
         // convert to PoseArray for outputting debug trajectory
         pub.publish(toPoseArray(traj,0.05,"wam/wrist_palm_link"));
@@ -106,11 +106,13 @@ int main (int argc, char **argv) {
         features = test.getFeaturesForTrajectory(test_set,frames);
         clock_t end = clock();
         double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-        std::cout << "Computing features for " << features.size() << " positions took " << elapsed_secs << "seconds." << std::endl;
+        std::cout << "Computing features for " << features.size() << " positions took " << elapsed_secs << " seconds." << std::endl;
       }
 
       geometry_msgs::PoseArray msg;
       msg.header.frame_id = "gbeam_link_1/gbeam_link"; //"wam/wrist_palm_link";
+
+      std::cout << "Feature size: " << features[0].size() << std::endl;
 
       for (int idx = 0; idx < features.size(); ++idx) {
 
@@ -122,13 +124,10 @@ int main (int argc, char **argv) {
 
         std::cout << std::endl;
 
-#ifdef USE_ROTATION_RPY
-        Rotation rot = Rotation::RPY(features[idx][POSE_FEATURE_ROLL], features[idx][POSE_FEATURE_PITCH], features[idx][POSE_FEATURE_YAW]);
-#else
-        Rotation rot = Rotation::Quaternion(features[idx][POSE_FEATURE_WX],features[idx][POSE_FEATURE_WY],features[idx][POSE_FEATURE_WZ],features[idx][POSE_FEATURE_WW]);
-#endif
-        Vector vec = Vector(features[idx][POSE_FEATURE_X],features[idx][POSE_FEATURE_Y],features[idx][POSE_FEATURE_Z]);
-        Frame featureFrame(rot,vec);
+        if (features[idx].size() < POSE_FEATURES_SIZE) continue;
+
+        grid::Pose featureFrame;
+        Features::featuresToPose(features[idx],featureFrame,0);
 
         geometry_msgs::Pose p;
         tf::Pose tfp;

@@ -9,6 +9,23 @@
 namespace grid {
 
   /**
+   * get last pose
+   */
+  Pose TrainingFeatures::getPoseFrom(const std::string &name, FeatureVector f) {
+    Pose fpose;
+    int idx = 0;
+    for (auto &pair: feature_types) {
+      if (name == pair.first and pair.second == POSE_FEATURE) {
+        featuresToPose(f,fpose,idx);
+        break;
+      } else {
+        idx += feature_sizes[pair.first];
+      }
+    }
+    return fpose;
+  }
+
+  /**
    * initialize training features with the necessary world objects to find
    */
   TrainingFeatures::TrainingFeatures(const std::vector<std::string> &objects_) :

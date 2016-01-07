@@ -28,6 +28,12 @@ namespace grid {
 
   public:
 
+    /**
+     * get last pose
+     * use this TrainingFeatures to lookup the object you need
+     */
+    Pose getPoseFrom(const std::string &name, FeatureVector f);
+
     /* getPose
      * This function needs to be implemented by inheriting classes.
      * Time field helps determine when the query should occur.

@@ -138,6 +138,11 @@ namespace grid {
      */
     static void getPoseFeatures(const Pose &pose, FeatureVector &f, unsigned int idx);
 
+    /**
+     * featuresToPose
+     */
+    static void featuresToPose(FeatureVector &f, Pose &p, unsigned int idx);
+
     /** 
      * setRobotKinematics
      * sets the thing that will actually compute forward and inverse kinematics for our robot

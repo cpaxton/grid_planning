@@ -33,7 +33,7 @@ namespace grid {
    */
   void TrajectoryDistribution::initialize(TestFeatures &features, const Skill &skill, std::vector<double> sigma) {
     Pose p0 = features.lookup(AGENT);
-    Pose p1 = features.lookup(skill.getInitializationFeature());
+    Pose p1 = features.lookup(skill.getInitializationFeature()) * skill.getInitializationFinalPose();
     double eqradius = 1;
 
     RotationalInterpolation_SingleAxis *ri = new RotationalInterpolation_SingleAxis();

@@ -57,7 +57,19 @@ namespace grid {
      */
     std::string name;
 
+    Pose init_final; // final pose relative to best_feature_name
+
   public:
+
+    /**
+     * return a pose associated with object frame for a given feature
+     */
+    Pose getInitializationFinalPose() const;
+
+    /**
+     * return a pose associated with object frame for a given feature
+     */
+    Pose &getInitializationFinalPose();
 
     /**
      * return the exact list of features used for training this

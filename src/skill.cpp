@@ -11,6 +11,19 @@ namespace grid {
     std::cerr << __FILE__ << ":" << __LINE__ << ": Concatenate not implemented!" << std::endl;
   }
 
+  /**
+   * return a pose associated with object frame for a given feature
+   */
+  Pose &Skill::getInitializationFinalPose() {
+    return init_final;
+  }
+
+  /**
+   * return a pose associated with object frame for a given feature
+   */
+  Pose Skill::getInitializationFinalPose() const {
+    return init_final;
+  }
 
   /**
    * default skill;
@@ -90,6 +103,8 @@ namespace grid {
       training_data.push_back(obs);
     }
 
+    init_final = data.getPoseFrom(best_feature_name,*ex_data.rbegin());
+
   }
 
   /**
@@ -126,6 +141,8 @@ namespace grid {
       vec(i) = model->logL(data[i]);
       //std::cout << "--\n" << data[i] << "==" << model->ns[0].mu << std::endl;
     }
+
+    std::cout << model->ns[0].P << std::endl;
 
     //std::cout << __LINE__ << ": " << vec << std::endl;
 
