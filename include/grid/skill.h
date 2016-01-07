@@ -21,6 +21,7 @@ namespace grid {
   typedef gcop::Gmm<> Gmm;
   typedef std::shared_ptr<gcop::Gmm<> > GmmPtr;
 
+
   /**
    * Skill
    * Represents an action as a set of one or more multivariate Gaussians over a set of features.
@@ -28,38 +29,10 @@ namespace grid {
    *
    */
   class Skill {
-  protected:
-
-    /** number of clusters in gmm */
-    int k;
-
-    /** stores feature expectations for the skill */
-    GmmPtr model;
-
-    /**
-     * Stores the list of feature names we will be querying.
-     */
-    std::vector<std::string> feature_names;
-
-    /**
-     * Stored as a reference to compute initial starting trajectory guess
-     * This is the "most important" feature
-     */
-    std::string best_feature_name;
-
-    /**
-     * set up the training data
-     */
-    std::vector<std::pair<FeatureVector, double> > training_data;
-
-    /**
-     * skill name
-     */
-    std::string name;
-
-    Pose init_final; // final pose relative to best_feature_name
 
   public:
+      typedef Eigen::Matrix<double, Eigen::Dynamic, 1> Vectornd;
+      typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> Matrixnd;
 
     /**
      * return a pose associated with object frame for a given feature
@@ -148,6 +121,39 @@ namespace grid {
      * print gmm
      */
     void printGmm();
+
+  protected:
+
+    /** number of clusters in gmm */
+    int k;
+
+    /** stores feature expectations for the skill */
+    GmmPtr model;
+
+    /**
+     * Stores the list of feature names we will be querying.
+     */
+    std::vector<std::string> feature_names;
+
+    /**
+     * Stored as a reference to compute initial starting trajectory guess
+     * This is the "most important" feature
+     */
+    std::string best_feature_name;
+
+    /**
+     * set up the training data
+     */
+    std::vector<std::pair<FeatureVector, double> > training_data;
+
+    /**
+     * skill name
+     */
+    std::string name;
+
+    Pose init_final; // final pose relative to best_feature_name
+
+    Matrixnd P; // true P as per initialization
   };
 }
 

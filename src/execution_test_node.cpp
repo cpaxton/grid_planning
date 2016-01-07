@@ -4,13 +4,16 @@
 #include <grid/wam_training_features.h>
 #include <grid/visualize.h>
 
+#include <trajectory_msgs/JointTrajectory.h>
+
 using namespace grid;
 using namespace KDL;
 
 int main(int argc, char **argv) {
   ros::init(argc,argv,"grid_trajectory_test_node");
   ros::NodeHandle nh;
-  ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("trajectory",1000);
+  ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples",1000);
+  ros::Publisher jpub = nh.advertise<trajectory_msgs::JointTrajectory>("trajectory",1000);
 
   RobotKinematicsPointer rk_ptr = RobotKinematicsPointer(new RobotKinematics("robot_description","wam/base_link","wam/wrist_palm_link"));
 
@@ -94,13 +97,16 @@ int main(int argc, char **argv) {
 
     // sample trajectories
     trajs = dist.sample(ntrajs);
+      std::cout << "[" << i << "] Publishing trajectories..." << std::endl;
+      pub.publish(toPoseArray(trajs,0.05,"world"));
+      std::cout << "   ... done." << std::endl;
 
     // compute probabilities
-    for (unsigned int i = 0; i < trajs.size(); ++i) {
-          std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),trajs[i]);
+    for (unsigned int j = 0; j < trajs.size(); ++j) {
+          std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),trajs[j]);
           FeatureVector v = approach.logL(features);
           double d = v.array().exp().sum(); // would add other terms first
-          std::cout << i << ": " << d << std::endl;
+          std::cout << "   - " << j << ": " << d << std::endl;
     }
 
     // update distribution

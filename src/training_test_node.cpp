@@ -97,7 +97,7 @@ int main(int argc, char **argv) {
 
   // publish trajectories
   ros::NodeHandle nh;
-  ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("trajectory",1000);
+  ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples",1000);
 
   ros::Rate rate = ros::Rate(10);
   while (ros::ok()) {
@@ -107,6 +107,7 @@ int main(int argc, char **argv) {
     for (unsigned int i = 0; i < 3; ++i) {
 
       std::vector<Pose> poses = wtf[i]->getPose("link");
+
       for (Pose &pose: poses) {
         tf::Pose tfp;
         geometry_msgs::Pose p;
@@ -114,6 +115,12 @@ int main(int argc, char **argv) {
         tf::poseTFToMsg(tfp,p);
         msg.poses.push_back(p);
       }
+
+      std::vector<FeatureVector> v = wtf[i]->getFeatureValues(test.getFeatures());
+      FeatureVector p = test.logL(v);
+      std::cout << "[" << i << "]\n" << p << std::endl;
+
+
     }
 
     pub.publish(msg);
