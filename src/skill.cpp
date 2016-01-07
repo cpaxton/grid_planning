@@ -124,13 +124,17 @@ namespace grid {
 
       model->Init(training_data.begin()->first,training_data.rbegin()->first);
       model->Fit(training_data);
+
+      //P = model->ns[0].P;
+      //model->ns[0].P = Matrixnd::Identity(dim,dim);
+
       model->Update();
 
-      //std::cout << "MODEL INFO >>>>>>>>" << std::endl;
-      //std::cout << *model << std::endl;
-      //std::cout << model->ns[0].Pinv << std::endl;
-      //std::cout << model->ns[0].norm << std::endl;
-      //std::cout << "MODEL INFO >>>>>>>>" << std::endl;
+      std::cout << "MODEL INFO >>>>>>>>" << std::endl;
+      std::cout << *model << std::endl;
+      std::cout << model->ns[0].Pinv << std::endl;
+      std::cout << model->ns[0].norm << std::endl;
+      std::cout << "MODEL INFO >>>>>>>>" << std::endl;
 
     } else {
       std::cerr << __FILE__ << ":" << __LINE__ << ": Tried to train empty Skill!" << std::endl;

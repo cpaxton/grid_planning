@@ -168,7 +168,7 @@ namespace gcop {
       //}
       
       Vectornd d = x - mu;
-      return -d.dot(Pinv*d) - (2*norm);
+      return -(d.dot(Pinv*d)/2) - (norm);
     }
 
   template<int _n>
@@ -179,7 +179,7 @@ namespace gcop {
       //}
       
       Vectornd d = x - mu;
-      return exp(-d.dot(Pinv*d))/2/norm;
+      return exp(-d.dot(Pinv*d)/2)/norm;
     }
   
   template<int _n>
@@ -191,7 +191,7 @@ namespace gcop {
         A = llt.matrixL();
         Pinv = P.inverse();
         det = P.determinant();
-        norm = sqrt(pow(2*M_PI, mu.size())*det);    
+        norm = sqrt(pow(2*M_PI, mu.size())*det);
         pd = true;
       } else {
         cout << "[W] Normal::Update: cholesky failed: P=" << P << endl;

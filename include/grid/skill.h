@@ -154,6 +154,8 @@ namespace grid {
     Pose init_final; // final pose relative to best_feature_name
 
     Matrixnd P; // true P as per initialization
+    FeatureVector mean; // normalizer mean
+    FeatureVector std; // normalizer std dev
   };
 }
 
