@@ -21,10 +21,10 @@ namespace grid {
    */
   TrajectoryDistribution::TrajectoryDistribution(int nseg_, int k_)
     : nseg(nseg_),
-    dist(nseg_*SPLINE_DIM,k_),
+    dist(nseg_*(POSE_FEATURES_SIZE + SPLINE_DIM),k_),
     verbose(false)
   {
-    dim = SPLINE_DIM * nseg; // velocity, acceleration, position setpoints for each segment
+    dim = (POSE_FEATURES_SIZE + SPLINE_DIM) * nseg; // velocity, acceleration, position setpoints for each segment
   }
 
   /**
@@ -52,14 +52,6 @@ namespace grid {
       dist.ns[0].mu[idx+POSE_FEATURE_Y] = p.p.y();
       dist.ns[0].mu[idx+POSE_FEATURE_Z] = p.p.z();
 
-      dist.ns[0].mu[idx+SPLINE_POS1] = 0.0;
-      dist.ns[0].mu[idx+SPLINE_VEL1] = 0.01;
-      dist.ns[0].mu[idx+SPLINE_ACC1] = 0.01;
-      dist.ns[0].mu[idx+SPLINE_POS2] = 1;
-      dist.ns[0].mu[idx+SPLINE_VEL2] = 0.01;
-      dist.ns[0].mu[idx+SPLINE_ACC2] = -0.01;
-      dist.ns[0].mu[idx+SEGMENT_DURATION] = 1.0;
-
       // set up roll, pitch, yaw
       {
 #ifdef USE_ROTATION_RPY
@@ -76,7 +68,17 @@ namespace grid {
         dist.ns[0].mu[idx+POSE_FEATURE_WZ] = z;
         dist.ns[0].mu[idx+POSE_FEATURE_WW] = w;
 #endif
+
       }
+
+      idx += POSE_FEATURES_SIZE;
+      dist.ns[0].mu[idx+SPLINE_POS1] = 0.0;
+      dist.ns[0].mu[idx+SPLINE_VEL1] = 0.01;
+      dist.ns[0].mu[idx+SPLINE_ACC1] = 0.01;
+      dist.ns[0].mu[idx+SPLINE_POS2] = 1;
+      dist.ns[0].mu[idx+SPLINE_VEL2] = 0.01;
+      dist.ns[0].mu[idx+SPLINE_ACC2] = -0.01;
+      dist.ns[0].mu[idx+SEGMENT_DURATION] = 1.0;
     }
 
     if (sigma.size() < dim) {
@@ -126,14 +128,16 @@ namespace grid {
       std::cout << std::endl;
 #endif
 
+      int idx = 0;
       for (int i = 0; i < nseg; ++i) {
 
-        int idx = SPLINE_DIM*i;
+        idx = (POSE_FEATURES_SIZE+SPLINE_DIM)*i;
 
         double prc1 = 0.1;
         double prc2 = 0.2;
         RotationalInterpolation_SingleAxis *ri = new RotationalInterpolation_SingleAxis();
         Path_RoundedComposite *path = new Path_RoundedComposite(prc1,prc2,ri);
+
 
         // generate a random set point and add it to the path
         {
@@ -162,6 +166,7 @@ namespace grid {
         //VelocityProfile *velprof = new VelocityProfile_Trap(0.5,0.1);
         VelocityProfile_Spline *velprof = new VelocityProfile_Spline();
         {
+          idx += POSE_FEATURES_SIZE;
 
           double pos1,vel1,acc1,pos2,acc2,vel2,duration;
           pos1 = 0; //vec[idx+SPLINE_POS1];

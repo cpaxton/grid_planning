@@ -7,6 +7,14 @@
 #include <grid/dist/gmm.h>
 
 namespace grid {
+    static const unsigned int SPLINE_POS1(0);
+    static const unsigned int SPLINE_VEL1(1);
+    static const unsigned int SPLINE_ACC1(2);
+    static const unsigned int SPLINE_POS2(3);
+    static const unsigned int SPLINE_VEL2(4);
+    static const unsigned int SPLINE_ACC2(5);
+    static const unsigned int SEGMENT_DURATION(6);
+    static const unsigned int SPLINE_DIM(7);
 
   class TrajectoryDistribution {
   protected:
