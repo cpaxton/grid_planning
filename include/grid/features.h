@@ -13,6 +13,8 @@
 #include <tf_conversions/tf_kdl.h>
 
 #include <Eigen/Dense>
+#include <Eigen/LU>
+#include <Eigen/Core>
 #include <grid/dist/utils.h>
 
 #include <grid/robot_kinematics.h>
@@ -46,13 +48,23 @@ namespace grid {
   typedef enum FeatureType { POSE_FEATURE, FLOAT_FEATURE, TIME_FEATURE } FeatureType;
 
   static const std::string AGENT("agent");
-  static const unsigned int POSE_FEATURES_SIZE(6);
   static const unsigned int POSE_FEATURE_X(0);
   static const unsigned int POSE_FEATURE_Y(1);
   static const unsigned int POSE_FEATURE_Z(2);
+
+#ifdef USE_ROTATION_RPY
+  static const unsigned int POSE_FEATURES_SIZE(6);
   static const unsigned int POSE_FEATURE_ROLL(3);
   static const unsigned int POSE_FEATURE_PITCH(4);
   static const unsigned int POSE_FEATURE_YAW(5);
+#else
+  static const unsigned int POSE_FEATURES_SIZE(7);
+  static const unsigned int POSE_FEATURE_WX(3);
+  static const unsigned int POSE_FEATURE_WY(4);
+  static const unsigned int POSE_FEATURE_WZ(5);
+  static const unsigned int POSE_FEATURE_WW(6);
+#endif
+
   static const unsigned int FLOAT_FEATURES_SIZE(1);
   static const unsigned int TIME_FEATURES_SIZE(1);
 

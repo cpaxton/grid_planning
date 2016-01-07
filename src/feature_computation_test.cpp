@@ -122,7 +122,11 @@ int main (int argc, char **argv) {
 
         std::cout << std::endl;
 
+#ifdef USE_ROTATION_RPY
         Rotation rot = Rotation::RPY(features[idx][POSE_FEATURE_ROLL], features[idx][POSE_FEATURE_PITCH], features[idx][POSE_FEATURE_YAW]);
+#else
+        Rotation rot = Rotation::Quaternion(features[idx][POSE_FEATURE_WX],features[idx][POSE_FEATURE_WY],features[idx][POSE_FEATURE_WZ],features[idx][POSE_FEATURE_WW]);
+#endif
         Vector vec = Vector(features[idx][POSE_FEATURE_X],features[idx][POSE_FEATURE_Y],features[idx][POSE_FEATURE_Z]);
         Frame featureFrame(rot,vec);
 

@@ -50,13 +50,13 @@ rospy.init_node('ipython2')
 """ ========================================================================= """
 gp = PyPlanner()
 
-skill_filename = 'skills/%s_skill.yml'%(sys.argv[1])
+skill_filename = 'skills/sim/%s_skill.yml'%(sys.argv[1])
 skill = grid.RobotSkill(filename=skill_filename)
 print "Loaded skill '%s'"%(skill.name)
 
 gp.robot.SetActionNormalizer(skill)
 if len(sys.argv) > 2:
-    goal_filename = 'skills/%s_skill.yml'%(sys.argv[2])
+    goal_filename = 'skills/sim/%s_skill.yml'%(sys.argv[2])
     goal = grid.RobotSkill(filename=goal_filename)
     print "Loaded next skill '%s'"%(goal.name)
     skill.goal_model = goal.GetGoalModel(skill.objs)

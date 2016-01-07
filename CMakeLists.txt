@@ -137,6 +137,7 @@ add_executable(grid_plan_node src/grid_plan_node.cpp)
 add_executable(features_test src/feature_computation_test.cpp)
 add_executable(trajectory_test src/trajectory_generation_test.cpp)
 add_executable(training_test src/training_test_node.cpp)
+add_executable(execution_test src/skill_execution_test_node.cpp)
 
 ## Add cmake target dependencies of the executable/libname,rary
 ## as an example, message headers may need to be generated before nodes
@@ -162,3 +163,4 @@ target_link_libraries(grid_plan_node ${ALL_LIBRARIES})
 target_link_libraries(features_test ${ALL_LIBRARIES})
 target_link_libraries(trajectory_test ${ALL_LIBRARIES})
 target_link_libraries(training_test ${ALL_LIBRARIES})
+target_link_libraries(execution_test ${ALL_LIBRARIES})

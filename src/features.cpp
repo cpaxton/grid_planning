@@ -109,6 +109,10 @@ namespace grid {
     f(idx+POSE_FEATURE_X) = pose.p.x();
     f(idx+POSE_FEATURE_Y) = pose.p.y();
     f(idx+POSE_FEATURE_Z) = pose.p.z();
+#ifdef USE_ROTATION_RPY
     pose.M.GetRPY(f(idx+POSE_FEATURE_ROLL), f(idx+POSE_FEATURE_PITCH), f(idx+POSE_FEATURE_YAW));
+#else
+    pose.M.GetQuaternion(f(idx+POSE_FEATURE_WX),f(idx+POSE_FEATURE_WY),f(idx+POSE_FEATURE_WZ),f(idx+POSE_FEATURE_WW));
+#endif
   }
 }

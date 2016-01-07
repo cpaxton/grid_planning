@@ -62,11 +62,20 @@ namespace grid {
 
       // set up roll, pitch, yaw
       {
+#ifdef USE_ROTATION_RPY
         double roll, pitch, yaw;
         p.M.GetRPY(roll,pitch,yaw);
         dist.ns[0].mu[idx+POSE_FEATURE_YAW] = yaw;
         dist.ns[0].mu[idx+POSE_FEATURE_PITCH] = pitch;
         dist.ns[0].mu[idx+POSE_FEATURE_ROLL] = roll;
+#else
+        double x,y,z,w;
+        p.M.GetQuaternion(x,y,z,w);
+        dist.ns[0].mu[idx+POSE_FEATURE_WX] = x;
+        dist.ns[0].mu[idx+POSE_FEATURE_WY] = y;
+        dist.ns[0].mu[idx+POSE_FEATURE_WZ] = z;
+        dist.ns[0].mu[idx+POSE_FEATURE_WW] = w;
+#endif
       }
     }
 
@@ -129,7 +138,17 @@ namespace grid {
         // generate a random set point and add it to the path
         {
 
+#ifdef USE_ROTATION_RPY
           Rotation r1 = Rotation::RPY(vec[idx+POSE_FEATURE_ROLL],vec[idx+POSE_FEATURE_PITCH],vec[idx+POSE_FEATURE_YAW]);
+#else
+          double x,y,z,w;
+          x = vec[idx+POSE_FEATURE_WX];
+          y = vec[idx+POSE_FEATURE_WY];
+          z = vec[idx+POSE_FEATURE_WZ];
+          w = vec[idx+POSE_FEATURE_WW];
+          double norm = 1/sqrt((x*x) + (y*y) + (z*z) + (w*w));
+          Rotation r1 = Rotation::Quaternion(norm*vec[idx+POSE_FEATURE_WX],norm*vec[idx+POSE_FEATURE_WY],norm*vec[idx+POSE_FEATURE_WZ],norm*vec[idx+POSE_FEATURE_WW]);
+#endif
           Vector v1 = Vector(vec[idx+POSE_FEATURE_X],vec[idx+POSE_FEATURE_Y],vec[idx+POSE_FEATURE_Z]);
 
           Frame t1 = Frame(r1,v1);
