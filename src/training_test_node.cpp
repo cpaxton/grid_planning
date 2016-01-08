@@ -57,10 +57,10 @@ int main(int argc, char **argv) {
   unsigned int size = data[0].size();
   for (FeatureVector &vec: data) {
     std::pair<FeatureVector,double> obs(vec,1.0/data.size());
-    for (unsigned int i = 0; i < vec.size(); ++i) {
-      std::cout << vec(i) << " ";
-    }
-    std::cout << std::endl;
+    //for (unsigned int i = 0; i < vec.size(); ++i) {
+    //  std::cout << vec(i) << " ";
+    //}
+    //std::cout << std::endl;
     if (size != vec.size()) {
       std::cout << "ERROR: " << size << " != " << vec.size() << "!" << std::endl;
     }

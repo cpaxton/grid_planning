@@ -75,6 +75,13 @@ namespace grid {
           <<", y=" << obj.second.p.y()
           <<", z=" << obj.second.p.z()
           <<std::endl;
+
+                Pose pose = obj.second.Inverse() * conf.base_tform * conf.ee_tform;
+        std::cout << "\tComputed at x=" << pose.p.x()
+          <<", y=" << pose.p.y()
+          <<", z=" << pose.p.z()
+          <<std::endl;
+
       }
 
     }
@@ -212,7 +219,7 @@ namespace grid {
     for (std::pair<const std::string, FeatureType> pair: feature_types) {
       if (pair.second == POSE_FEATURE) {
 
-        Pose pose = w.object_poses.at(pair.first).Inverse() * rotationHack * w.base_tform * w.ee_tform;
+        Pose pose = w.object_poses.at(pair.first).Inverse() * w.base_tform * w.ee_tform;
         getPoseFeatures(pose,f,next_idx);
         next_idx += POSE_FEATURES_SIZE;
 

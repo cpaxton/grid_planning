@@ -109,7 +109,13 @@ namespace grid {
       FeatureVector f(dim);
       for (const std::string &name: names) {
         if (feature_types[name] == POSE_FEATURE) {
-          Pose offset = currentPose[name].Inverse() * rotationHack * currentPose[AGENT] * traj->Pos(t);
+          //Pose offset = currentPose[name].Inverse() * currentPose[AGENT];// * traj->Pos(t);
+          Pose offset = currentPose[name].Inverse() * traj->Pos(t);
+
+          //std::cout << "\tComputed at x=" << offset.p.x()
+          //  <<", y=" << offset.p.y()
+          //  <<", z=" << offset.p.z()
+          //  <<std::endl;
 
           //std::cout << __LINE__ << ": " << dim << ", " << idt << std::endl;
           getPoseFeatures(offset,f,idx);
