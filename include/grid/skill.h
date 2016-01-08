@@ -168,6 +168,8 @@ namespace grid {
     FeatureVector mean; // normalizer mean
     FeatureVector std; // normalizer std dev
   };
+
+  typedef std::shared_ptr<Skill> SkillPointer;
 }
 
 #endif

@@ -94,6 +94,8 @@ set(SOURCES
   src/wam_training_features.cpp
   src/robot_kinematics.cpp
 
+  src/utils/commander.cpp
+
   src/dist/utils.cc
 )
 
@@ -110,6 +112,8 @@ set(HEADERS
   include/grid/grammar.h
   include/grid/wam_training_features.h
   include/grid/robot_kinematics.h
+
+  include/grid/utils/commander.h
 
   include/grid/dist/gmm.h
   include/grid/dist/normal.h
