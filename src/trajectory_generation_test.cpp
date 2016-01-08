@@ -25,6 +25,7 @@ int main(int argc, char **argv) {
 
   Skill approach("approach",1);
   approach.appendFeature("link").appendFeature("time");
+  //approach.appendFeature("time");
   approach.setInitializationFeature("link"); // must be a pose so we can find out where to start looking
 
   /* LOAD TRAINING DATA */
@@ -109,10 +110,15 @@ int main(int argc, char **argv) {
       {
         using namespace std;
 
+        //std::vector<std::string> feature_names;
+        //feature_names.push_back("time");
+
         clock_t begin = clock();
         for (unsigned int i = 0; i < trajs.size(); ++i) {
           std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),trajs[i]);
+          //std::vector<FeatureVector> features = test.getFeaturesForTrajectory(feature_names,trajs[i]);
           FeatureVector v = approach.logL(features);
+          std::cout << v << std::endl;
           double p = v.sum() / v.size();
           std::cout << " - traj " << i << ": avg p = " << p << std::endl;
         }

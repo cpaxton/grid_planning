@@ -128,6 +128,7 @@ namespace grid {
         Rotation rot = Rotation::RPY(f[POSE_FEATURE_ROLL], f[POSE_FEATURE_PITCH], f[POSE_FEATURE_YAW]);
 #else
         Rotation rot = Rotation::Quaternion(f[POSE_FEATURE_WX],f[POSE_FEATURE_WY],f[POSE_FEATURE_WZ],f[POSE_FEATURE_WW]);
+        //Rotation rot = Rotation::Quaternion(0,0,0,1);
 #endif
         Vector vec = Vector(f[POSE_FEATURE_X],f[POSE_FEATURE_Y],f[POSE_FEATURE_Z]);
         p = Pose(rot,vec);

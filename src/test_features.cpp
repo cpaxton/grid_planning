@@ -113,7 +113,7 @@ namespace grid {
           idx+= POSE_FEATURES_SIZE;
 
         } else if (feature_types[name] == TIME_FEATURE) {
-          f(idx) = t;
+          f(idx) = t / traj->Duration();
           idx += TIME_FEATURES_SIZE;
         }
       }

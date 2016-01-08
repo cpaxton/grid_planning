@@ -127,14 +127,17 @@ namespace grid {
 
       //P = model->ns[0].P;
       //model->ns[0].P = Matrixnd::Identity(dim,dim);
+      //if (model->k == 0) {
+      //  model->ns[0].norm = 0;
+      //}
 
-      model->Update();
+      //model->Update();
 
-      std::cout << "MODEL INFO >>>>>>>>" << std::endl;
-      std::cout << *model << std::endl;
-      std::cout << model->ns[0].Pinv << std::endl;
-      std::cout << model->ns[0].norm << std::endl;
-      std::cout << "MODEL INFO >>>>>>>>" << std::endl;
+      //std::cout << "MODEL INFO >>>>>>>>" << std::endl;
+      //std::cout << *model << std::endl;
+      //std::cout << model->ns[0].Pinv << std::endl;
+      //std::cout << model->ns[0].norm << std::endl;
+      //std::cout << "MODEL INFO >>>>>>>>" << std::endl;
 
     } else {
       std::cerr << __FILE__ << ":" << __LINE__ << ": Tried to train empty Skill!" << std::endl;
@@ -150,7 +153,7 @@ namespace grid {
 
     for (unsigned int i = 0; i < data.size(); ++i) {
       vec(i) = model->logL(data[i]);
-      //std::cout << "--\n" << data[i] << "==" << model->ns[0].mu << std::endl;
+      //std::cout << "-- x --\n" << data[i] << "\n== MU ==\n" << model->ns[0].mu << "\n--" << std::endl;
     }
 
     //std::cout << model->ns[0].P << std::endl;
