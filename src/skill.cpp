@@ -114,6 +114,12 @@ namespace grid {
   void Skill::trainSkillModel() {
     if (training_data.size() > 0 && training_data[0].first.size() > 0) {
 
+      normalized_training_data.clear();
+
+      unsigned int dim = training_data[0].first.size();
+      mean = FeatureVector(dim);
+      std = FeatureVector(dim);
+
       mean.setZero();
       std.setZero();
 
@@ -125,28 +131,48 @@ namespace grid {
       mean /= training_data.size();
       for (auto &pair: training_data) {
         FeatureVector v = pair.first - mean;
+        //std::cout << "Original:\n" << v << std::endl;
+        //v.array() = v.array();
+        std = std.array() + (v.array() * v.array());
+        //std::cout << "Squared:\n" << v << std::endl;
+      }
+      //std::cout << "size=" << training_data.size() << std::endl;
+      //std::cout << "base std:\n" << std << std::endl;
+      std /= training_data.size();
+      std = std.cwiseSqrt();
+      //std::cout << "norm std=\n" << std << std::endl;
+      std = std.cwiseInverse();
+      //std::cout << "norm std inv=\n" << std << std::endl;
 
-        std::pair<FeatureVector,double> norm_pair(v,pair.second);
+      // 0 mean 1 variance
+      for (auto &pair: training_data) {
+        FeatureVector v = pair.first - mean;
+        std::pair<FeatureVector,double> norm_pair(v.array()*std.array(),pair.second);
+        normalized_training_data.push_back(norm_pair); // this could be more efficient
       }
 
-      unsigned int dim = training_data[0].first.size();
       model = GmmPtr(new Gmm(dim,k));
 
-      model->Init(training_data.begin()->first,training_data.rbegin()->first);
-      model->Fit(training_data);
+      model->Init(normalized_training_data.begin()->first,normalized_training_data.rbegin()->first);
+      model->Fit(normalized_training_data);
+      model->Update();
 
-      //P = model->ns[0].P;
-      //model->ns[0].P = Matrixnd::Identity(dim,dim);
-      //if (model->k == 0) {
-      //  model->ns[0].norm = 0;
-      //}
 
+      //std::cout << ">>> MEAN =\n" << mean << std::endl;
+      //std::cout << ">>> 1/VAR =\n" << std << std::endl;
+
+      // save the original matrices
+      P.resize(k);
+      for (unsigned int i = 0; i < k; ++i) {
+        P[i] = model->ns[i].P;
+        //model->ns[i].P += 1*Matrixnd::Identity(dim,dim);
+      }
       //model->Update();
 
       //std::cout << "MODEL INFO >>>>>>>>" << std::endl;
       //std::cout << *model << std::endl;
-      //std::cout << model->ns[0].Pinv << std::endl;
-      //std::cout << model->ns[0].norm << std::endl;
+      //std::cout << "Sigma^-1 = \n" << model->ns[0].Pinv << std::endl;
+      //std::cout << "norm = " <<model->ns[0].norm << std::endl;
       //std::cout << "MODEL INFO >>>>>>>>" << std::endl;
 
     } else {
@@ -155,13 +181,29 @@ namespace grid {
   }
 
   /**
+   * normalize a bunch of data before sending it through the GMM
+   */
+  void Skill::normalizeData(std::vector<FeatureVector> &data) {
+      //std::cout << "NORMALIZER >>> MEAN =\n" << mean << std::endl;
+      //std::cout << "NORMALIZER >>> 1/STD =\n" << std << std::endl;
+      for (FeatureVector &vec: data) {
+        //std::cout << "in:\n" << vec << std::endl;
+        vec = (vec - mean).array() * std.array();
+        //std::cout << "out:\n" << vec << std::endl;
+      }
+  }
+
+  /**
    * probabilities
    * what is the probability associated with each feature vector in the data?
    */
-  FeatureVector Skill::logL(std::vector<FeatureVector> data) {
+  FeatureVector Skill::logL(std::vector<FeatureVector> &data) {
     FeatureVector vec(data.size());
 
+    //FeatureVector temp;
     for (unsigned int i = 0; i < data.size(); ++i) {
+      //temp = data[i] - mean;
+      //temp = temp.array() / std.array();
       vec(i) = model->logL(data[i]);
       //std::cout << "-- x --\n" << data[i] << "\n== MU ==\n" << model->ns[0].mu << "\n--" << std::endl;
     }

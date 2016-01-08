@@ -97,7 +97,7 @@ namespace grid {
      * what is the probability associated with each feature vector in the data?
      * returns as the log likelihood
      */
-    FeatureVector logL(std::vector<FeatureVector> data);
+    FeatureVector logL(std::vector<FeatureVector> &data);
 
     /**
      * return the name of the best feature and only that feature
@@ -121,6 +121,11 @@ namespace grid {
      * print gmm
      */
     void printGmm();
+
+    /**
+     * normalize a bunch of data before sending it through the GMM
+     */
+    void normalizeData(std::vector<FeatureVector> &data);
 
   protected:
 
@@ -159,7 +164,7 @@ namespace grid {
 
     Pose init_final; // final pose relative to best_feature_name
 
-    Matrixnd P; // true P as per initialization
+    std::vector<Matrixnd> P; // true P as per initialization
     FeatureVector mean; // normalizer mean
     FeatureVector std; // normalizer std dev
   };

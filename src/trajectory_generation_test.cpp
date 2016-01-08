@@ -67,6 +67,7 @@ int main(int argc, char **argv) {
       //  //}
       //  //std::cout << std::endl;
       //}
+      approach.normalizeData(data);
       FeatureVector v = approach.logL(data);
       double p = v.sum() / v.size();
       std::cout << "training example " << i << ": p = " << p << std::endl;
@@ -117,8 +118,9 @@ int main(int argc, char **argv) {
         for (unsigned int i = 0; i < trajs.size(); ++i) {
           std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),trajs[i]);
           //std::vector<FeatureVector> features = test.getFeaturesForTrajectory(feature_names,trajs[i]);
+          approach.normalizeData(features);
           FeatureVector v = approach.logL(features);
-          std::cout << v << std::endl;
+          //std::cout << v << std::endl;
           double p = v.sum() / v.size();
           std::cout << " - traj " << i << ": avg p = " << p << std::endl;
         }
