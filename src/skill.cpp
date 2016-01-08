@@ -114,9 +114,19 @@ namespace grid {
   void Skill::trainSkillModel() {
     if (training_data.size() > 0 && training_data[0].first.size() > 0) {
 
+      mean.setZero();
+      std.setZero();
+
       double num_examples = (double)training_data.size();
       for (auto &pair: training_data) {
+        mean += pair.first;
         pair.second = 1.0/num_examples;
+      }
+      mean /= training_data.size();
+      for (auto &pair: training_data) {
+        FeatureVector v = pair.first - mean;
+
+        std::pair<FeatureVector,double> norm_pair(v,pair.second);
       }
 
       unsigned int dim = training_data[0].first.size();

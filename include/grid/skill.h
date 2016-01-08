@@ -147,6 +147,12 @@ namespace grid {
     std::vector<std::pair<FeatureVector, double> > training_data;
 
     /**
+     * set up the training data
+     * these are the normalized versions of all that data
+     */
+    std::vector<std::pair<FeatureVector, double> > normalized_training_data;
+
+    /**
      * skill name
      */
     std::string name;
