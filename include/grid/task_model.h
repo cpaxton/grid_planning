@@ -9,6 +9,17 @@
 namespace grid {
 
   /**
+   * creating predicates
+   * What is going to change after we do this
+   */
+  struct PredicateEffect {
+    std::string predicate;
+    bool value;
+  };
+
+
+
+  /**
    * Defines a particular instance of a skill
    */
   struct InstantiatedSkill {
@@ -20,9 +31,13 @@ namespace grid {
     TrajectoryDistribution dist; // the path we end up taking for this skill
 
     std::vector<double> transitions; // probability of going to each of the possible next actions
-    
+
+    std::vector<PredicateEffect> effects;
   };
 
+  /**
+   * Defines the whole task model.
+   */
   class TaskModel {
 
   public:
