@@ -96,24 +96,12 @@ int main(int argc, char **argv) {
   std::cout << "Skill trained!" << std::endl;
   test.printGmm();
 
-  // more analysis
-  test.normalizeData(data);
-  for (FeatureVector &vec: data) {
-    std::pair<FeatureVector,double> obs(vec,1.0/data.size());
-    for (unsigned int i = 0; i < vec.size(); ++i) {
-      std::cout << vec(i) << " ";
-    }
-    std::cout << std::endl;
-  }
-
   // publish trajectories
   ros::NodeHandle nh;
   ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples",1000);
 
   ros::Rate rate = ros::Rate(10);
   while (ros::ok()) {
-
-break;
 
     geometry_msgs::PoseArray msg;
     msg.header.frame_id = "gbeam_link_1/gbeam_link"; //"wam/wrist_palm_link";
