@@ -2,7 +2,9 @@
 #define _GRID_TASK_MODEL
 
 #include <unordered_map>
+
 #include <grid/skill.h>
+#include <grid/trajectory_distribution.h>
 
 namespace grid {
 
