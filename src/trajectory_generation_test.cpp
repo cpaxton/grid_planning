@@ -26,7 +26,10 @@ int main(int argc, char **argv) {
   Skill approach("approach",1);
   approach.appendFeature("link").appendFeature("time");
   //approach.appendFeature("time");
-  approach.setInitializationFeature("link"); // must be a pose so we can find out where to start looking
+  
+  // set feature to use to initialize this action
+  // must be a pose so we can find out where to start looking
+  approach.setInitializationFeature("link"); 
 
   /* LOAD TRAINING DATA */
   {
@@ -55,20 +58,12 @@ int main(int argc, char **argv) {
   
     for (unsigned int i = 0; i < 3; ++i) {
       std::shared_ptr<WamTrainingFeatures> wtf_ex(new WamTrainingFeatures(objects));
-      wtf_ex->addFeature("time",TIME_FEATURE);
-      wtf_ex->setRobotKinematics(rk_ptr);
-      wtf_ex->read(filenames[i]);
-      std::vector<FeatureVector> data = wtf_ex->getFeatureValues(approach.getFeatures());
-      std::cout << data.size() << " features." << std::endl;
-      //for (FeatureVector &vec: data) {
-      //  std::pair<FeatureVector,double> obs(vec,1.0);
-      //  //for (unsigned int i = 0; i < vec.size(); ++i) {
-      //  //  std::cout << vec(i) << " ";
-      //  //}
-      //  //std::cout << std::endl;
-      //}
+      wtf_ex->addFeature("time",TIME_FEATURE); // add time as a feature
+      wtf_ex->setRobotKinematics(rk_ptr); // set kinematics provider
+      wtf_ex->read(filenames[i]); // load data
+      std::vector<FeatureVector> data = wtf_ex->getFeatureValues(approach.getFeatures()); // get data
       approach.normalizeData(data);
-      FeatureVector v = approach.logL(data);
+      FeatureVector v = approach.logL(data); // get log likelihoods in an Eigen vector
       double p = v.sum() / v.size();
       std::cout << "training example " << i << ": p = " << p << std::endl;
     }
@@ -81,7 +76,7 @@ int main(int argc, char **argv) {
   ros::Duration(1.0).sleep();
 
   ros::Rate rate(1);
-  unsigned int ntrajs = 1;
+  unsigned int ntrajs = 5;
   try {
     while (ros::ok()) {
 
@@ -111,16 +106,13 @@ int main(int argc, char **argv) {
       {
         using namespace std;
 
-        //std::vector<std::string> feature_names;
-        //feature_names.push_back("time");
-
         clock_t begin = clock();
         for (unsigned int i = 0; i < trajs.size(); ++i) {
+
           std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),trajs[i]);
-          //std::vector<FeatureVector> features = test.getFeaturesForTrajectory(feature_names,trajs[i]);
           approach.normalizeData(features);
           FeatureVector v = approach.logL(features);
-          //std::cout << v << std::endl;
+
           double p = v.sum() / v.size();
           std::cout << " - traj " << i << ": avg p = " << p << std::endl;
         }
@@ -129,9 +121,10 @@ int main(int argc, char **argv) {
         std::cout << "Generating features for " << ntrajs << " trajectories took " << elapsed_secs << " seconds." << std::endl;
       }
 
-      std::cout << "Publishing trajectories..." << std::endl;
+      // print out all the sampled trajectories
+      std::cout << "Publishing trajectories... ";
       pub.publish(toPoseArray(trajs,0.05,"world"));
-      std::cout << "Done." << std::endl;
+      std::cout << "done." << std::endl;
 
       for(unsigned int i = 0; i < trajs.size(); ++i) {
         delete trajs[i];

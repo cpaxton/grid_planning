@@ -100,29 +100,30 @@ int main(int argc, char **argv) {
   ros::NodeHandle nh;
   ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples",1000);
 
+  // get ready
+  geometry_msgs::PoseArray msg;
+  msg.header.frame_id = "gbeam_link_1/gbeam_link"; //"wam/wrist_palm_link";
+  for (unsigned int i = 0; i < 3; ++i) {
+
+    std::vector<Pose> poses = wtf[i]->getPose("link");
+
+    for (Pose &pose: poses) {
+      tf::Pose tfp;
+      geometry_msgs::Pose p;
+      tf::poseKDLToTF(pose,tfp);
+      tf::poseTFToMsg(tfp,p);
+      msg.poses.push_back(p);
+    }
+
+    std::vector<FeatureVector> v = wtf[i]->getFeatureValues(test.getFeatures());
+    test.normalizeData(v);
+    FeatureVector p = test.logL(v);
+    std::cout << "[" << i << "] avg = " << p.sum() / p.size() << std::endl;
+
+  }
+
   ros::Rate rate = ros::Rate(10);
   while (ros::ok()) {
-
-    geometry_msgs::PoseArray msg;
-    msg.header.frame_id = "gbeam_link_1/gbeam_link"; //"wam/wrist_palm_link";
-    for (unsigned int i = 0; i < 3; ++i) {
-
-      std::vector<Pose> poses = wtf[i]->getPose("link");
-
-      for (Pose &pose: poses) {
-        tf::Pose tfp;
-        geometry_msgs::Pose p;
-        tf::poseKDLToTF(pose,tfp);
-        tf::poseTFToMsg(tfp,p);
-        msg.poses.push_back(p);
-      }
-
-      std::vector<FeatureVector> v = wtf[i]->getFeatureValues(test.getFeatures());
-      test.normalizeData(v);
-      FeatureVector p = test.logL(v);
-      std::cout << "[" << i << "] avg = " << p.sum() / p.size() << std::endl;
-
-    }
 
     pub.publish(msg);
     ros::spinOnce();

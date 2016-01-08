@@ -123,26 +123,24 @@ namespace grid {
       mean.setZero();
       std.setZero();
 
+      // loop to compute mean
       double num_examples = (double)training_data.size();
       for (auto &pair: training_data) {
         mean += pair.first;
         pair.second = 1.0/num_examples;
       }
-      mean /= training_data.size();
+
+      // loop to compute std dev
+      mean /= num_examples;
       for (auto &pair: training_data) {
         FeatureVector v = pair.first - mean;
-        //std::cout << "Original:\n" << v << std::endl;
-        //v.array() = v.array();
         std = std.array() + (v.array() * v.array());
-        //std::cout << "Squared:\n" << v << std::endl;
       }
-      //std::cout << "size=" << training_data.size() << std::endl;
-      //std::cout << "base std:\n" << std << std::endl;
+
+      // finish computing std dev
       std /= training_data.size();
       std = std.cwiseSqrt();
-      //std::cout << "norm std=\n" << std << std::endl;
       std = std.cwiseInverse();
-      //std::cout << "norm std inv=\n" << std << std::endl;
 
       // 0 mean 1 variance
       for (auto &pair: training_data) {
@@ -184,13 +182,11 @@ namespace grid {
    * normalize a bunch of data before sending it through the GMM
    */
   void Skill::normalizeData(std::vector<FeatureVector> &data) {
-      //std::cout << "NORMALIZER >>> MEAN =\n" << mean << std::endl;
-      //std::cout << "NORMALIZER >>> 1/STD =\n" << std << std::endl;
-      for (FeatureVector &vec: data) {
-        //std::cout << "in:\n" << vec << std::endl;
-        vec = (vec - mean).array() * std.array();
-        //std::cout << "out:\n" << vec << std::endl;
-      }
+
+    // apply normalization to each entry
+    for (FeatureVector &vec: data) {
+      vec = (vec - mean).array() * std.array();
+    }
   }
 
   /**
@@ -200,16 +196,10 @@ namespace grid {
   FeatureVector Skill::logL(std::vector<FeatureVector> &data) {
     FeatureVector vec(data.size());
 
-    //FeatureVector temp;
     for (unsigned int i = 0; i < data.size(); ++i) {
-      //temp = data[i] - mean;
-      //temp = temp.array() / std.array();
       vec(i) = model->logL(data[i]);
       //std::cout << "-- x --\n" << data[i] << "\n== MU ==\n" << model->ns[0].mu << "\n--" << std::endl;
     }
-
-    //std::cout << model->ns[0].P << std::endl;
-    //std::cout << __LINE__ << ": " << vec << std::endl;
 
     return vec;
   }
