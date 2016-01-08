@@ -94,6 +94,7 @@ int main(int argc, char **argv) {
   }
   test.trainSkillModel();
   std::cout << "Skill trained!" << std::endl;
+  test.printGmm();
 
   // publish trajectories
   ros::NodeHandle nh;

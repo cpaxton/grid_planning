@@ -60,13 +60,13 @@ int main(int argc, char **argv) {
       wtf_ex->read(filenames[i]);
       std::vector<FeatureVector> data = wtf_ex->getFeatureValues(approach.getFeatures());
       std::cout << data.size() << " features." << std::endl;
-      for (FeatureVector &vec: data) {
-        std::pair<FeatureVector,double> obs(vec,1.0);
-        for (unsigned int i = 0; i < vec.size(); ++i) {
-          std::cout << vec(i) << " ";
-        }
-        std::cout << std::endl;
-      }
+      //for (FeatureVector &vec: data) {
+      //  std::pair<FeatureVector,double> obs(vec,1.0);
+      //  //for (unsigned int i = 0; i < vec.size(); ++i) {
+      //  //  std::cout << vec(i) << " ";
+      //  //}
+      //  //std::cout << std::endl;
+      //}
       FeatureVector v = approach.logL(data);
       double p = v.sum() / v.size();
       std::cout << "training example " << i << ": p = " << p << std::endl;

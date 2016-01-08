@@ -65,6 +65,9 @@ namespace grid {
   static const unsigned int POSE_FEATURE_WW(6);
 #endif
 
+  //static const Pose rotationHack(KDL::Rotation::RotY(M_PI/2));
+  static const Pose rotationHack(KDL::Rotation::RotY(0));
+
   static const unsigned int FLOAT_FEATURES_SIZE(1);
   static const unsigned int TIME_FEATURES_SIZE(1);
 

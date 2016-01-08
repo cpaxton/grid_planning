@@ -203,6 +203,8 @@ namespace grid {
    */
   FeatureVector TrainingFeatures::worldToFeatures(const WorldConfiguration &w) const {
 
+    using KDL::Rotation;
+
     //std::vector<double> f(getFeaturesSize());
     FeatureVector f(getFeaturesSize());
     unsigned int next_idx = 0;
@@ -210,7 +212,7 @@ namespace grid {
     for (std::pair<const std::string, FeatureType> pair: feature_types) {
       if (pair.second == POSE_FEATURE) {
 
-        Pose pose = w.object_poses.at(pair.first).Inverse() * w.base_tform * w.ee_tform;
+        Pose pose = w.object_poses.at(pair.first).Inverse() * rotationHack * w.base_tform * w.ee_tform;
         getPoseFeatures(pose,f,next_idx);
         next_idx += POSE_FEATURES_SIZE;
 
