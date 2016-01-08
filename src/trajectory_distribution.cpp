@@ -10,7 +10,7 @@
 #include <kdl/path_roundedcomposite.hpp>
 
 #define SHOW_SAMPLED_VALUES 0
-#define DEFAULT_SIGMA 0.0000001
+#define DEFAULT_SIGMA 0.01
 
 using namespace KDL;
 
