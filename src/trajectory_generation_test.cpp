@@ -88,14 +88,15 @@ int main(int argc, char **argv) {
       dist.initialize(test,approach);
 
       ROS_INFO("Generating trajectories...");
-      std::vector<Trajectory *> trajs;
+      std::vector<Trajectory *> trajs(ntrajs);
+      std::vector<EigenVectornd> params(ntrajs);
 
       // look at the time it takes to compute features
       {
         using namespace std;
 
         clock_t begin = clock();
-        trajs = dist.sample(ntrajs);
+        dist.sample(params,trajs);
         clock_t end = clock();
         double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
         std::cout << "Sampling " << ntrajs << " trajectories took " << elapsed_secs << " seconds." << std::endl;

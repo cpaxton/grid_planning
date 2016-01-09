@@ -7,14 +7,14 @@
 #include <grid/dist/gmm.h>
 
 namespace grid {
-    static const unsigned int SPLINE_POS1(0);
-    static const unsigned int SPLINE_VEL1(1);
-    static const unsigned int SPLINE_ACC1(2);
-    static const unsigned int SPLINE_POS2(3);
-    static const unsigned int SPLINE_VEL2(4);
-    static const unsigned int SPLINE_ACC2(5);
-    static const unsigned int SEGMENT_DURATION(6);
-    static const unsigned int SPLINE_DIM(7);
+  static const unsigned int SPLINE_POS1(0);
+  static const unsigned int SPLINE_VEL1(1);
+  static const unsigned int SPLINE_ACC1(2);
+  static const unsigned int SPLINE_POS2(3);
+  static const unsigned int SPLINE_VEL2(4);
+  static const unsigned int SPLINE_ACC2(5);
+  static const unsigned int SEGMENT_DURATION(6);
+  static const unsigned int SPLINE_DIM(7);
 
   class TrajectoryDistribution {
   protected:
@@ -43,7 +43,22 @@ namespace grid {
      * Convert it into a KDL trajectory
      * NON-CONST becuse Gmm::sample is likewise non-const
      */
-    std::vector<Trajectory *> sample(unsigned int nsamples);
+    void sample(std::vector<EigenVectornd> &params,std::vector<Trajectory *> &trajs);
+
+    /**
+     * update
+     * take a set of trajectories and samples
+     * use the trajectories to reweight the distribution
+     */
+    void update(std::vector<EigenVectornd> &params, std::vector<double> &ps);
+
+    /**
+     * update
+     * take a set of trajectories and samples
+     * use the trajectories to reweight the distribution
+     */
+    void update(std::vector<EigenVectornd> &params, EigenVectornd &ps);
+
   };
 
 }

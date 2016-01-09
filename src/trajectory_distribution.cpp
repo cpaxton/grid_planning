@@ -103,13 +103,72 @@ namespace grid {
   }
 
   /**
+   * update
+   * take a set of trajectories and samples
+   * use the trajectories to reweight the distribution
+   */
+  void TrajectoryDistribution::update(std::vector<EigenVectornd> &params, std::vector<double> &ps) {
+
+    double psum = 0;
+    for (double &d: ps) {
+      psum += d;
+    }
+
+    if (dist.k == 1) {
+
+      // one cluster only
+      // compute mean
+
+      dist.ns[0].mu.setZero();
+      dist.ns[0].P.setZero();
+
+      for (unsigned int i = 0; i < params.size(); ++i) {
+        //std::cout << "mu rows = " << dist.ns[0].mu.rows() << ", vec rows = " << vec.rows() << std::endl;
+        //std::cout << "mu cols = " << dist.ns[0].mu.cols() << ", vec cols = " << vec.cols() << std::endl;
+        double wt = ps[i] / psum;
+        dist.ns[0].mu += params[i] * wt;
+      }
+
+      for (unsigned int i = 0; i < params.size(); ++i) {
+        double wt = ps[i] / psum;
+        dist.ns[0].P += wt * wt * (params[i] - dist.ns[0].mu) * (params[i] - dist.ns[0].mu).transpose();
+      }
+
+    } else {
+
+      // set up weighted data
+      // and then fit GMM again
+
+      std::vector<std::pair<EigenVectornd,double> > data(ps.size());
+      for (unsigned int i = 0; i < ps.size(); ++i) {
+        data[0].first = params[i];
+        data[0].second = ps[i] / psum;
+      }
+
+      dist.Fit(data);
+      dist.Update();
+
+    }
+  }
+
+  /**
+   * update
+   * take a set of trajectories and samples
+   * use the trajectories to reweight the distribution
+   */
+  void TrajectoryDistribution::update(std::vector<EigenVectornd> &params, EigenVectornd &ps) {
+
+  }
+
+  /**
    * sample
    * Pull a random trajectory from the gmm
    * Convert it into a KDL trajectory
    */
-  std::vector<Trajectory *> TrajectoryDistribution::sample(unsigned int nsamples) {
+  void TrajectoryDistribution::sample(std::vector<EigenVectornd> &params, std::vector<Trajectory *> &trajs) {
     //Trajectory_Composite *traj = new Trajectory_Composite[nsamples];
-    std::vector<Trajectory *> traj = std::vector<Trajectory *>(nsamples);
+    unsigned int nsamples = params.size();
+    trajs.resize(nsamples);
 
     for (int sample = 0; sample < nsamples; ++sample) {
       Frame prev = Frame(initial);
@@ -119,6 +178,8 @@ namespace grid {
       EigenVectornd vec;
       vec.resize(dim);
       dist.Sample(vec);
+
+      params[sample] = vec;
 
 #if SHOW_SAMPLED_VALUES
       std::cout << "Sampled: ";
@@ -190,10 +251,8 @@ namespace grid {
         ctraj->Add(seg);
       }
 
-      traj[sample] = ctraj;
+      trajs[sample] = ctraj;
     }
-
-    return traj;
   }
 
 }

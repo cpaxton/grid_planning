@@ -10,7 +10,7 @@ using namespace grid;
 using namespace KDL;
 
 int main(int argc, char **argv) {
-  ros::init(argc,argv,"grid_trajectory_test_node");
+  ros::init(argc,argv,"grid_execution_test_node");
   ros::NodeHandle nh;
   ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples",1000);
   ros::Publisher jpub = nh.advertise<trajectory_msgs::JointTrajectory>("trajectory",1000);
@@ -90,27 +90,49 @@ int main(int argc, char **argv) {
   dist.initialize(test,approach);
 
   std::vector<Trajectory *> trajs(ntrajs);
+  std::vector<EigenVectornd> params(ntrajs);
   std::vector<double> ps(ntrajs);
 
-  for (unsigned int i = 0; i < 20; ++i) {
+  for (unsigned int i = 0; i < 50; ++i) {
+    ros::Duration(0.25).sleep();
     ros::spinOnce();
 
     // sample trajectories
-    trajs = dist.sample(ntrajs);
-      std::cout << "[" << i << "] Publishing trajectories..." << std::endl;
-      pub.publish(toPoseArray(trajs,0.05,"world"));
-      std::cout << "   ... done." << std::endl;
+    
+    std::cout << "[" << i << "] Sampling trajectories..." << std::endl;
+    dist.sample(params,trajs);
+    std::cout <<"Publishing trajectories..." << std::endl;
+    pub.publish(toPoseArray(trajs,0.05,"world"));
+    std::cout << "   ... done." << std::endl;
 
+    double sum = 0;
+
+    std::cout << "Computing probabilities..." << std::endl;
     // compute probabilities
     for (unsigned int j = 0; j < trajs.size(); ++j) {
-          std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),trajs[j]);
-          FeatureVector v = approach.logL(features);
-          double d = v.array().exp().sum(); // would add other terms first
-          std::cout << "   - " << j << ": " << d << std::endl;
+      std::cout << "   - traj=" << j << std::endl;
+      std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),trajs[j]);
+      std::cout << "   - getting prob..." << j << std::endl;
+      FeatureVector v = approach.logL(features);
+      ps[j] = v.array().exp().sum(); // would add other terms first
+      sum += ps[j];
+      std::cout << "   - raw prob for " << j << ": " << ps[j] << std::endl;
+    }
+
+    std::cout << "New probabilities:" << std::endl;
+    for (unsigned int j = 0; j < trajs.size(); ++j) {
+      std::cout << "   - " << j << ": " << ps[j]/sum << std::endl;
     }
 
     // update distribution
+    std::cout << "Updating..." << std::endl;
+    dist.update(params,ps);
+
+    std::cout << "Cleaning up..." << std::endl;
+    for (unsigned int j = 0; j < trajs.size(); ++j) {
+      delete trajs[j];
+      trajs[j] = 0;
+    }
 
   }
-
 }
