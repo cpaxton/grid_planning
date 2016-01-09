@@ -131,7 +131,7 @@ namespace grid {
 
       for (unsigned int i = 0; i < params.size(); ++i) {
         double wt = ps[i] / psum;
-        dist.ns[0].P += wt * wt * (params[i] - dist.ns[0].mu) * (params[i] - dist.ns[0].mu).transpose();
+        dist.ns[0].P += (params[i] - dist.ns[0].mu) * (params[i] - dist.ns[0].mu).transpose();
       }
 
     } else {

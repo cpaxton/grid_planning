@@ -101,22 +101,22 @@ int main(int argc, char **argv) {
     
     std::cout << "[" << i << "] Sampling trajectories..." << std::endl;
     dist.sample(params,trajs);
-    std::cout <<"Publishing trajectories..." << std::endl;
+    std::cout <<"Publishing trajectories..."; // << std::endl;
     pub.publish(toPoseArray(trajs,0.05,"world"));
     std::cout << "   ... done." << std::endl;
 
     double sum = 0;
 
-    std::cout << "Computing probabilities..." << std::endl;
+    //std::cout << "Computing probabilities..." << std::endl;
     // compute probabilities
     for (unsigned int j = 0; j < trajs.size(); ++j) {
-      std::cout << "   - traj=" << j << std::endl;
+      //std::cout << "   - traj=" << j << std::endl;
       std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),trajs[j]);
-      std::cout << "   - getting prob..." << j << std::endl;
+      //std::cout << "   - getting prob..." << j << std::endl;
       FeatureVector v = approach.logL(features);
       ps[j] = v.array().exp().sum(); // would add other terms first
       sum += ps[j];
-      std::cout << "   - raw prob for " << j << ": " << ps[j] << std::endl;
+      //std::cout << "   - raw prob for " << j << ": " << ps[j] << std::endl;
     }
 
     std::cout << "New probabilities:" << std::endl;
@@ -125,10 +125,11 @@ int main(int argc, char **argv) {
     }
 
     // update distribution
-    std::cout << "Updating..." << std::endl;
+    std::cout << "Updating...";// << std::endl;
     dist.update(params,ps);
+    std::cout << " done." << std::endl;
 
-    std::cout << "Cleaning up..." << std::endl;
+    //std::cout << "Cleaning up..." << std::endl;
     for (unsigned int j = 0; j < trajs.size(); ++j) {
       delete trajs[j];
       trajs[j] = 0;
