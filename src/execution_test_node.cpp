@@ -4,60 +4,12 @@
 #include <grid/wam_training_features.h>
 #include <grid/visualize.h>
 
+#include <grid/wam/input.h>
+
 #include <trajectory_msgs/JointTrajectory.h>
 
 using namespace grid;
 using namespace KDL;
-
-
-
-void load_and_train_skill(Skill &skill, RobotKinematicsPointer &rk_ptr, const std::string filenames[]) {
-  /* LOAD TRAINING DATA FOR GRASP*/
-
-    std::vector<std::string> objects;
-    objects.push_back("link");
-    objects.push_back("node");
-
-    std::vector<std::shared_ptr<WamTrainingFeatures> > wtf(3);
-    for (unsigned int i = 0; i < 3; ++i) {
-      std::shared_ptr<WamTrainingFeatures> wtf_ex(new WamTrainingFeatures(objects));
-      wtf_ex->addFeature("time",TIME_FEATURE);
-      wtf_ex->setRobotKinematics(rk_ptr);
-      wtf_ex->read(filenames[i]);
-      wtf[i] = wtf_ex;
-    }
-
-    // add each skill
-    for (unsigned int i = 0; i < 3; ++i) {
-      skill.addTrainingData(*wtf[i]);
-    }
-    skill.trainSkillModel();
-    skill.printGmm();
-
-    for (unsigned int i = 0; i < 3; ++i) {
-      std::shared_ptr<WamTrainingFeatures> wtf_ex(new WamTrainingFeatures(objects));
-      wtf_ex->addFeature("time",TIME_FEATURE);
-      wtf_ex->setRobotKinematics(rk_ptr);
-      wtf_ex->read(filenames[i]);
-      std::vector<FeatureVector> data = wtf_ex->getFeatureValues(skill.getFeatures());
-
-#if 0
-      for (FeatureVector &vec: data) {
-        std::pair<FeatureVector,double> obs(vec,1.0);
-        for (unsigned int i = 0; i < vec.size(); ++i) {
-          std::cout << vec(i) << " ";
-        }
-        std::cout << std::endl;
-      }
-#endif
-
-      skill.normalizeData(data);
-      FeatureVector v = skill.logL(data);
-      double p = v.array().exp().sum() / v.size();
-      std::cout << "training example " << i << " with " << data.size() << " examples: p = " << p << std::endl;
-    }
-}
-
 
 int main(int argc, char **argv) {
   ros::init(argc,argv,"grid_execution_test_node");
@@ -85,7 +37,7 @@ int main(int argc, char **argv) {
     step_size = 0.80;
   }
   if (not nh_tilde.getParam("noise",noise)) {
-    noise = 1e-5;
+    noise = 1e-10;
   }
   if (not nh_tilde.getParam("ntrajs",ntrajs)) {
     ntrajs = 50;
@@ -148,7 +100,8 @@ int main(int argc, char **argv) {
       std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),trajs[j]);
       approach.normalizeData(features);
       FeatureVector v = approach.logL(features);
-      ps[j] = v.array().exp().sum() / v.size(); // would add other terms first
+      FeatureVector ve = grasp.logL(features); // gets log likelihood only for the final entry in the trajectory
+      ps[j] = (v.array().exp().sum() / v.size()) * (ve.array().exp()(ve.size()-1)); // would add other terms first
       sum += ps[j];
     }
 
