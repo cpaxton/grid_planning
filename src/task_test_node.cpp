@@ -44,6 +44,13 @@ int main(int argc, char **argv) {
   Skill release("release");
   Skill disengage("disengage");
 
+  approach.appendFeature("link").appendFeature("time").setInitializationFeature("link");
+  grasp.appendFeature("link").appendFeature("time").setInitializationFeature("link");
+  align.appendFeature("node").appendFeature("time").setInitializationFeature("node");
+  place.appendFeature("node").appendFeature("time").setInitializationFeature("node");
+  release.appendFeature("link").appendFeature("time").setInitializationFeature("link");
+  disengage.appendFeature("link").appendFeature("time").setInitializationFeature("link");
+
   /* SET UP THE ROBOT KINEMATICS */
   RobotKinematicsPointer rk_ptr = RobotKinematicsPointer(new RobotKinematics("robot_description","wam/base_link","wam/wrist_palm_link"));
 

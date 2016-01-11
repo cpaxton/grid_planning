@@ -216,7 +216,7 @@ namespace gcop {
         for (auto &pair: xps) {
           weight_sum += pair.second;
         }
-        std::cout << "weights added up to " << weight_sum << std::endl;
+        //std::cout << "weights added up to " << weight_sum << std::endl;
         assert(fabs(weight_sum - 1) < tol);
       }
 
