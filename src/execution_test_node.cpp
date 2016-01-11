@@ -26,9 +26,27 @@ int main(int argc, char **argv) {
   test.setFrame("gbeam_node_1/gbeam_node","node");
   test.setFrame("gbeam_link_1/gbeam_link","link");
 
+  double step_size;
+  double noise;
+  int ntrajs = 50;
+  ros::NodeHandle nh_tilde("~");
+  if (not nh_tilde.getParam("step_size",step_size)) {
+    step_size = 0.80;
+  }
+  if (not nh_tilde.getParam("noise",noise)) {
+    noise = 1e-5;
+  }
+  if (not nh_tilde.getParam("ntrajs",ntrajs)) {
+    ntrajs = 50;
+  }
+
   Skill approach("approach",1);
   approach.appendFeature("link").appendFeature("time");
   approach.setInitializationFeature("link"); // must be a pose so we can find out where to start looking
+
+  Skill grasp("grasp",1);
+  grasp.appendFeature("link").appendFeature("time");
+  grasp.setInitializationFeature("link");
 
   /* LOAD TRAINING DATA */
   {
@@ -78,7 +96,6 @@ int main(int argc, char **argv) {
   ros::Duration(1.0).sleep();
 
   ros::Rate rate(1);
-  unsigned int ntrajs = 10;
 
   ros::spinOnce();
 
@@ -93,7 +110,7 @@ int main(int argc, char **argv) {
   std::vector<EigenVectornd> params(ntrajs);
   std::vector<double> ps(ntrajs);
 
-  for (unsigned int i = 0; i < 50; ++i) {
+  for (unsigned int i = 0; i < 10; ++i) {
     ros::Duration(0.25).sleep();
     ros::spinOnce();
 
@@ -110,13 +127,12 @@ int main(int argc, char **argv) {
     //std::cout << "Computing probabilities..." << std::endl;
     // compute probabilities
     for (unsigned int j = 0; j < trajs.size(); ++j) {
-      //std::cout << "   - traj=" << j << std::endl;
+      std::cout << "   - traj=" << j << std::endl;
       std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),trajs[j]);
-      //std::cout << "   - getting prob..." << j << std::endl;
       FeatureVector v = approach.logL(features);
-      ps[j] = v.array().exp().sum(); // would add other terms first
+      std::cout << v.array().exp() << std::endl;
+      ps[j] = v.array().exp().sum() / v.size(); // would add other terms first
       sum += ps[j];
-      //std::cout << "   - raw prob for " << j << ": " << ps[j] << std::endl;
     }
 
     std::cout << "New probabilities:" << std::endl;
@@ -126,7 +142,7 @@ int main(int argc, char **argv) {
 
     // update distribution
     std::cout << "Updating...";// << std::endl;
-    dist.update(params,ps);
+    dist.update(params,ps,noise,step_size);
     std::cout << " done." << std::endl;
 
     //std::cout << "Cleaning up..." << std::endl;

@@ -23,6 +23,8 @@ namespace grid {
     unsigned int dim; // dimensionality of the trajectory space
     Pose initial;
     bool verbose;
+    double diagonal_sigma;
+    double def_step_size;
 
   public:
 
@@ -50,14 +52,29 @@ namespace grid {
      * take a set of trajectories and samples
      * use the trajectories to reweight the distribution
      */
-    void update(std::vector<EigenVectornd> &params, std::vector<double> &ps);
+    void update(std::vector<EigenVectornd> &params,
+                std::vector<double> &ps);
+
 
     /**
      * update
      * take a set of trajectories and samples
      * use the trajectories to reweight the distribution
      */
-    void update(std::vector<EigenVectornd> &params, EigenVectornd &ps);
+    void update(std::vector<EigenVectornd> &params,
+                std::vector<double> &ps,
+                double diagonal_noise);
+
+
+    /**
+     * update
+     * take a set of trajectories and samples
+     * use the trajectories to reweight the distribution
+     */
+    void update(std::vector<EigenVectornd> &params,
+                std::vector<double> &ps,
+                double diagonal_noise,
+                double step_size);
 
   };
 

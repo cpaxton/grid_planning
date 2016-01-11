@@ -101,7 +101,7 @@ namespace grid {
 
     using KDL::Rotation;
 
-    std::vector<FeatureVector> features((unsigned int)ceil(traj->Duration() / dt));
+    std::vector<FeatureVector> features((unsigned int)1+floor(traj->Duration() / dt));
     unsigned int next_idx = 0;
     unsigned int dim = getFeaturesSize(names);
     for (double t = 0; t < traj->Duration(); t += dt) {
@@ -126,11 +126,12 @@ namespace grid {
           idx += TIME_FEATURES_SIZE;
         }
       }
-      //std::cout << next_idx << "/" << features.size() << std::endl;
-      //std::cout << t << "/" << traj->Duration() << std::endl;
+      //std::cout << next_idx << " at " << t << " / " << traj->Duration() << " " << features.size() << std::endl;
       features[next_idx++] = f;
-      //features.push_back(f);
+      assert(idx == dim);
     }
+    assert(next_idx == features.size());
+
     return features;
   }
 

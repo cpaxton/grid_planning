@@ -9,10 +9,13 @@
 #include <kdl/path_line.hpp>
 #include <kdl/path_roundedcomposite.hpp>
 
+#include <Eigen/Dense>
+
 #define SHOW_SAMPLED_VALUES 0
 #define DEFAULT_SIGMA 0.01
 
 using namespace KDL;
+using namespace Eigen;
 
 namespace grid {
 
@@ -22,7 +25,9 @@ namespace grid {
   TrajectoryDistribution::TrajectoryDistribution(int nseg_, int k_)
     : nseg(nseg_),
     dist(nseg_*(POSE_FEATURES_SIZE + SPLINE_DIM),k_),
-    verbose(false)
+    verbose(false),
+    diagonal_sigma(1e-5),
+    def_step_size(0.80)
   {
     dim = (POSE_FEATURES_SIZE + SPLINE_DIM) * nseg; // velocity, acceleration, position setpoints for each segment
   }
@@ -45,7 +50,7 @@ namespace grid {
       std::cout << "(" << i+1 << "/" << nseg << ") position = " << s << std::endl;
       Pose p = path->Pos(s);
 
-      int idx = SPLINE_DIM * i;
+      int idx = (POSE_FEATURES_SIZE + SPLINE_DIM) * i;
 
       // set up x, y, z
       dist.ns[0].mu[idx+POSE_FEATURE_X] = p.p.x();
@@ -68,7 +73,6 @@ namespace grid {
         dist.ns[0].mu[idx+POSE_FEATURE_WZ] = z;
         dist.ns[0].mu[idx+POSE_FEATURE_WW] = w;
 #endif
-
       }
 
       idx += POSE_FEATURES_SIZE;
@@ -98,6 +102,10 @@ namespace grid {
     }
     dist.Update();
 
+    //std::cout << "<<<<<<>>>>>>>" << std::endl;
+    //std::cout << dist.ns[0].mu << std::endl;
+    //std::cout << "<<<<<<>>>>>>>" << std::endl;
+
     initial = p0;
     delete path;
   }
@@ -107,7 +115,38 @@ namespace grid {
    * take a set of trajectories and samples
    * use the trajectories to reweight the distribution
    */
-  void TrajectoryDistribution::update(std::vector<EigenVectornd> &params, std::vector<double> &ps) {
+  void TrajectoryDistribution::update(
+      std::vector<EigenVectornd> &params,
+      std::vector<double> &ps,
+      double diagonal_noise)
+  {
+    update(params,ps,diagonal_noise,def_step_size);
+  }
+
+  /**
+   * update
+   * take a set of trajectories and samples
+   * use the trajectories to reweight the distribution
+   */
+  void TrajectoryDistribution::update(
+      std::vector<EigenVectornd> &params,
+      std::vector<double> &ps)
+  {
+    update(params,ps,diagonal_sigma,def_step_size);
+  }
+
+
+  /**
+   * update
+   * take a set of trajectories and samples
+   * use the trajectories to reweight the distribution
+   */
+  void TrajectoryDistribution::update(
+      std::vector<EigenVectornd> &params,
+      std::vector<double> &ps,
+      double diagonal_noise,
+      double step_size)
+  {
 
     double psum = 0;
     for (double &d: ps) {
@@ -131,8 +170,10 @@ namespace grid {
 
       for (unsigned int i = 0; i < params.size(); ++i) {
         double wt = ps[i] / psum;
-        dist.ns[0].P += (params[i] - dist.ns[0].mu) * (params[i] - dist.ns[0].mu).transpose();
+        std::cout << wt << ", " << ps[i] << ", " << psum << std::endl;
+        dist.ns[0].P += wt * (params[i] - dist.ns[0].mu) * (params[i] - dist.ns[0].mu).transpose();
       }
+
 
     } else {
 
@@ -146,18 +187,14 @@ namespace grid {
       }
 
       dist.Fit(data);
-      dist.Update();
 
     }
-  }
 
-  /**
-   * update
-   * take a set of trajectories and samples
-   * use the trajectories to reweight the distribution
-   */
-  void TrajectoryDistribution::update(std::vector<EigenVectornd> &params, EigenVectornd &ps) {
+    for (unsigned int i = 0; i < dist.k; ++i) {
+      dist.ns[0].P += diagonal_noise * Matrix<double,Dynamic,Dynamic>::Identity(dim,dim);
+    }
 
+    dist.Update();
   }
 
   /**
@@ -224,7 +261,6 @@ namespace grid {
         }
 
         // generate random parameters for velocity profile
-        //VelocityProfile *velprof = new VelocityProfile_Trap(0.5,0.1);
         VelocityProfile_Spline *velprof = new VelocityProfile_Spline();
         {
           idx += POSE_FEATURES_SIZE;
@@ -245,6 +281,8 @@ namespace grid {
           //velprof->SetProfileDuration(pos1,pos2,duration);
           //velprof->Write(std::cout);
         }
+        //VelocityProfile_Trap *velprof = new VelocityProfile_Trap(1,0.5);
+        //velprof->SetProfile(0,path->PathLength());
 
         // add to the trajectory
         Trajectory_Segment *seg = new Trajectory_Segment(path, velprof);
