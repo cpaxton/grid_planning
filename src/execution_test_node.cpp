@@ -9,6 +9,56 @@
 using namespace grid;
 using namespace KDL;
 
+
+
+void load_and_train_skill(Skill &skill, RobotKinematicsPointer &rk_ptr, const std::string filenames[]) {
+  /* LOAD TRAINING DATA FOR GRASP*/
+
+    std::vector<std::string> objects;
+    objects.push_back("link");
+    objects.push_back("node");
+
+    std::vector<std::shared_ptr<WamTrainingFeatures> > wtf(3);
+    for (unsigned int i = 0; i < 3; ++i) {
+      std::shared_ptr<WamTrainingFeatures> wtf_ex(new WamTrainingFeatures(objects));
+      wtf_ex->addFeature("time",TIME_FEATURE);
+      wtf_ex->setRobotKinematics(rk_ptr);
+      wtf_ex->read(filenames[i]);
+      wtf[i] = wtf_ex;
+    }
+
+    // add each skill
+    for (unsigned int i = 0; i < 3; ++i) {
+      skill.addTrainingData(*wtf[i]);
+    }
+    skill.trainSkillModel();
+    skill.printGmm();
+
+    for (unsigned int i = 0; i < 3; ++i) {
+      std::shared_ptr<WamTrainingFeatures> wtf_ex(new WamTrainingFeatures(objects));
+      wtf_ex->addFeature("time",TIME_FEATURE);
+      wtf_ex->setRobotKinematics(rk_ptr);
+      wtf_ex->read(filenames[i]);
+      std::vector<FeatureVector> data = wtf_ex->getFeatureValues(skill.getFeatures());
+
+#if 0
+      for (FeatureVector &vec: data) {
+        std::pair<FeatureVector,double> obs(vec,1.0);
+        for (unsigned int i = 0; i < vec.size(); ++i) {
+          std::cout << vec(i) << " ";
+        }
+        std::cout << std::endl;
+      }
+#endif
+
+      skill.normalizeData(data);
+      FeatureVector v = skill.logL(data);
+      double p = v.array().exp().sum() / v.size();
+      std::cout << "training example " << i << " with " << data.size() << " examples: p = " << p << std::endl;
+    }
+}
+
+
 int main(int argc, char **argv) {
   ros::init(argc,argv,"grid_execution_test_node");
   ros::NodeHandle nh;
@@ -52,52 +102,18 @@ int main(int argc, char **argv) {
   grasp.appendFeature("link").appendFeature("time");
   grasp.setInitializationFeature("link");
 
-  /* LOAD TRAINING DATA */
+  /* LOAD TRAINING DATA FOR APPROACH */
   {
-
-    std::vector<std::string> objects;
-    objects.push_back("link");
-    objects.push_back("node");
-
     std::string filenames[] = {"data/sim/app1.bag", "data/sim/app2.bag", "data/sim/app3.bag"};
-
-    std::vector<std::shared_ptr<WamTrainingFeatures> > wtf(3);
-    for (unsigned int i = 0; i < 3; ++i) {
-      std::shared_ptr<WamTrainingFeatures> wtf_ex(new WamTrainingFeatures(objects));
-      wtf_ex->addFeature("time",TIME_FEATURE);
-      wtf_ex->setRobotKinematics(rk_ptr);
-      wtf_ex->read(filenames[i]);
-      wtf[i] = wtf_ex;
-    }
-
-    // add each skill
-    for (unsigned int i = 0; i < 3; ++i) {
-      approach.addTrainingData(*wtf[i]);
-    }
-    approach.trainSkillModel();
-    approach.printGmm();
-
-    for (unsigned int i = 0; i < 3; ++i) {
-      std::shared_ptr<WamTrainingFeatures> wtf_ex(new WamTrainingFeatures(objects));
-      wtf_ex->addFeature("time",TIME_FEATURE);
-      wtf_ex->setRobotKinematics(rk_ptr);
-      wtf_ex->read(filenames[i]);
-      std::vector<FeatureVector> data = wtf_ex->getFeatureValues(approach.getFeatures());
-#if 0
-      for (FeatureVector &vec: data) {
-        std::pair<FeatureVector,double> obs(vec,1.0);
-        for (unsigned int i = 0; i < vec.size(); ++i) {
-          std::cout << vec(i) << " ";
-        }
-        std::cout << std::endl;
-      }
-#endif
-      approach.normalizeData(data);
-      FeatureVector v = approach.logL(data);
-      double p = v.array().exp().sum() / v.size();
-      std::cout << "training example " << i << " with " << data.size() << " examples: p = " << p << std::endl;
-    }
+    load_and_train_skill(approach, rk_ptr, filenames);
   }
+  /* LOAD TRAINING DATA FOR GRASP */
+  {
+    std::string filenames[] = {"data/sim/grasp1.bag", "data/sim/grasp2.bag", "data/sim/grasp3.bag"};
+    load_and_train_skill(grasp, rk_ptr, filenames);
+  }
+
+
   ROS_INFO("Done setting up. Sleeping...");
   ros::Duration(1.0).sleep();
 
@@ -132,16 +148,9 @@ int main(int argc, char **argv) {
       std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),trajs[j]);
       approach.normalizeData(features);
       FeatureVector v = approach.logL(features);
-      //std::cout << "   - traj=" << j << std::endl;
-      //std::cout << v.array().exp() << std::endl;
       ps[j] = v.array().exp().sum() / v.size(); // would add other terms first
       sum += ps[j];
     }
-
-    //std::cout << "New probabilities:" << std::endl;
-    //for (unsigned int j = 0; j < trajs.size(); ++j) {
-    //  std::cout << "   - " << j << ": " << ps[j]/sum << std::endl;
-    //}
 
     // update distribution
     dist.update(params,ps,noise,step_size);
