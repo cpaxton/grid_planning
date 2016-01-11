@@ -39,6 +39,10 @@ int main(int argc, char **argv) {
 
   Skill approach("approach");
   Skill grasp("grasp");
+  Skill align("align");
+  Skill place("place");
+  Skill release("release");
+  Skill disengage("disengage");
 
   /* SET UP THE ROBOT KINEMATICS */
   RobotKinematicsPointer rk_ptr = RobotKinematicsPointer(new RobotKinematics("robot_description","wam/base_link","wam/wrist_palm_link"));
@@ -53,6 +57,25 @@ int main(int argc, char **argv) {
     std::string filenames[] = {"data/sim/grasp1.bag", "data/sim/grasp2.bag", "data/sim/grasp3.bag"};
     load_and_train_skill(grasp, rk_ptr, filenames);
   }
-
+  /* LOAD TRAINING DATA FOR ALIGN */
+  {
+    std::string filenames[] = {"data/sim/align1.bag", "data/sim/align2.bag", "data/sim/align3.bag"};
+    load_and_train_skill(align, rk_ptr, filenames);
+  }
+  /* LOAD TRAINING DATA FOR PLACE */
+  {
+    std::string filenames[] = {"data/sim/place1.bag", "data/sim/place2.bag", "data/sim/place3.bag"};
+    load_and_train_skill(place, rk_ptr, filenames);
+  }
+  /* LOAD TRAINING DATA FOR RELEASE */
+  {
+    std::string filenames[] = {"data/sim/release1.bag", "data/sim/release2.bag", "data/sim/release3.bag"};
+    load_and_train_skill(release, rk_ptr, filenames);
+  }
+  /* LOAD TRAINING DATA FOR DISENGAGE */
+  {
+    std::string filenames[] = {"data/sim/disengage1.bag", "data/sim/disengage2.bag", "data/sim/disengage3.bag"};
+    load_and_train_skill(disengage, rk_ptr, filenames);
+  }
 
 }
