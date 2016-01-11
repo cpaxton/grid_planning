@@ -29,6 +29,7 @@ int main(int argc, char **argv) {
   double step_size;
   double noise;
   int ntrajs = 50;
+  int iter = 10;
   ros::NodeHandle nh_tilde("~");
   if (not nh_tilde.getParam("step_size",step_size)) {
     step_size = 0.80;
@@ -38,6 +39,9 @@ int main(int argc, char **argv) {
   }
   if (not nh_tilde.getParam("ntrajs",ntrajs)) {
     ntrajs = 50;
+  }
+  if (not nh_tilde.getParam("iter",iter)) {
+    iter = 10;
   }
 
   Skill approach("approach",1);
@@ -79,7 +83,7 @@ int main(int argc, char **argv) {
       wtf_ex->setRobotKinematics(rk_ptr);
       wtf_ex->read(filenames[i]);
       std::vector<FeatureVector> data = wtf_ex->getFeatureValues(approach.getFeatures());
-      std::cout << data.size() << " features." << std::endl;
+      /*
       for (FeatureVector &vec: data) {
         std::pair<FeatureVector,double> obs(vec,1.0);
         for (unsigned int i = 0; i < vec.size(); ++i) {
@@ -87,9 +91,10 @@ int main(int argc, char **argv) {
         }
         std::cout << std::endl;
       }
+      */
       FeatureVector v = approach.logL(data);
       double p = v.sum() / v.size();
-      std::cout << "training example " << i << ": p = " << p << std::endl;
+      std::cout << "training example " << i << " with " << data.size() << "examples: p = " << p << std::endl;
     }
   }
   ROS_INFO("Done setting up. Sleeping...");
@@ -110,46 +115,42 @@ int main(int argc, char **argv) {
   std::vector<EigenVectornd> params(ntrajs);
   std::vector<double> ps(ntrajs);
 
-  for (unsigned int i = 0; i < 10; ++i) {
+  for (int i = 0; i < iter; ++i) {
     ros::Duration(0.25).sleep();
     ros::spinOnce();
 
     // sample trajectories
     
-    std::cout << "[" << i << "] Sampling trajectories..." << std::endl;
     dist.sample(params,trajs);
-    std::cout <<"Publishing trajectories..."; // << std::endl;
     pub.publish(toPoseArray(trajs,0.05,"world"));
-    std::cout << "   ... done." << std::endl;
 
     double sum = 0;
 
-    //std::cout << "Computing probabilities..." << std::endl;
     // compute probabilities
     for (unsigned int j = 0; j < trajs.size(); ++j) {
-      std::cout << "   - traj=" << j << std::endl;
+      //std::cout << "   - traj=" << j << std::endl;
       std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),trajs[j]);
       FeatureVector v = approach.logL(features);
-      std::cout << v.array().exp() << std::endl;
+      //std::cout << v.array().exp() << std::endl;
       ps[j] = v.array().exp().sum() / v.size(); // would add other terms first
       sum += ps[j];
     }
 
-    std::cout << "New probabilities:" << std::endl;
-    for (unsigned int j = 0; j < trajs.size(); ++j) {
-      std::cout << "   - " << j << ": " << ps[j]/sum << std::endl;
-    }
+    //std::cout << "New probabilities:" << std::endl;
+    //for (unsigned int j = 0; j < trajs.size(); ++j) {
+    //  std::cout << "   - " << j << ": " << ps[j]/sum << std::endl;
+    //}
 
     // update distribution
-    std::cout << "Updating...";// << std::endl;
     dist.update(params,ps,noise,step_size);
-    std::cout << " done." << std::endl;
 
-    //std::cout << "Cleaning up..." << std::endl;
     for (unsigned int j = 0; j < trajs.size(); ++j) {
       delete trajs[j];
       trajs[j] = 0;
     }
+
+
+    std::cout << "[" << i << "] >>>> AVG P = " << (sum / ntrajs) << std::endl;
 
   }
 }

@@ -158,19 +158,19 @@ namespace grid {
       // one cluster only
       // compute mean
 
-      dist.ns[0].mu.setZero();
-      dist.ns[0].P.setZero();
+      dist.ns[0].mu *= (1 - step_size); //setZero();
+      dist.ns[0].P *= (1 - step_size); //setZero();
 
       for (unsigned int i = 0; i < params.size(); ++i) {
         //std::cout << "mu rows = " << dist.ns[0].mu.rows() << ", vec rows = " << vec.rows() << std::endl;
         //std::cout << "mu cols = " << dist.ns[0].mu.cols() << ", vec cols = " << vec.cols() << std::endl;
-        double wt = ps[i] / psum;
+        double wt = step_size * ps[i] / psum;
         dist.ns[0].mu += params[i] * wt;
       }
 
       for (unsigned int i = 0; i < params.size(); ++i) {
-        double wt = ps[i] / psum;
-        std::cout << wt << ", " << ps[i] << ", " << psum << std::endl;
+        double wt = step_size * ps[i] / psum;
+        //std::cout << wt << ", " << ps[i] << ", " << psum << std::endl;
         dist.ns[0].P += wt * (params[i] - dist.ns[0].mu) * (params[i] - dist.ns[0].mu).transpose();
       }
 
