@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
       wtf_ex->setRobotKinematics(rk_ptr);
       wtf_ex->read(filenames[i]);
       std::vector<FeatureVector> data = wtf_ex->getFeatureValues(approach.getFeatures());
-      /*
+#if 0
       for (FeatureVector &vec: data) {
         std::pair<FeatureVector,double> obs(vec,1.0);
         for (unsigned int i = 0; i < vec.size(); ++i) {
@@ -91,10 +91,11 @@ int main(int argc, char **argv) {
         }
         std::cout << std::endl;
       }
-      */
+#endif
+      approach.normalizeData(data);
       FeatureVector v = approach.logL(data);
-      double p = v.sum() / v.size();
-      std::cout << "training example " << i << " with " << data.size() << "examples: p = " << p << std::endl;
+      double p = v.array().exp().sum() / v.size();
+      std::cout << "training example " << i << " with " << data.size() << " examples: p = " << p << std::endl;
     }
   }
   ROS_INFO("Done setting up. Sleeping...");
@@ -128,9 +129,10 @@ int main(int argc, char **argv) {
 
     // compute probabilities
     for (unsigned int j = 0; j < trajs.size(); ++j) {
-      //std::cout << "   - traj=" << j << std::endl;
       std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),trajs[j]);
+      approach.normalizeData(features);
       FeatureVector v = approach.logL(features);
+      //std::cout << "   - traj=" << j << std::endl;
       //std::cout << v.array().exp() << std::endl;
       ps[j] = v.array().exp().sum() / v.size(); // would add other terms first
       sum += ps[j];

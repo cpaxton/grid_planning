@@ -119,6 +119,7 @@ namespace grid {
 
           //std::cout << __LINE__ << ": " << dim << ", " << idt << std::endl;
           getPoseFeatures(offset,f,idx);
+
           idx+= POSE_FEATURES_SIZE;
 
         } else if (feature_types[name] == TIME_FEATURE) {
@@ -126,7 +127,14 @@ namespace grid {
           idx += TIME_FEATURES_SIZE;
         }
       }
-      //std::cout << next_idx << " at " << t << " / " << traj->Duration() << " " << features.size() << std::endl;
+      
+#if 0
+      for (int i = 0; i < dim; ++i) {
+        std::cout << f(i) << " ";
+      } 
+      std::cout << std::endl;
+#endif
+
       features[next_idx++] = f;
       assert(idx == dim);
     }
