@@ -65,6 +65,12 @@ namespace grid {
     Skill &setName(const std::string &name);
 
     /**
+     * add a particular object that should be attached
+     * to the end of the kinematic chain for performing this motion
+     */
+    Skill &attachObject(const std::string &object);
+
+    /**
      * return name of this skill
      */
     const std::string &getName() const;
@@ -134,6 +140,9 @@ namespace grid {
 
     /** stores feature expectations for the skill */
     GmmPtr model;
+
+    /** stores attached object frame */
+    std::string attached_object;
 
     /**
      * Stores the list of feature names we will be querying.

@@ -46,8 +46,8 @@ int main(int argc, char **argv) {
 
   approach.appendFeature("link").appendFeature("time").setInitializationFeature("link");
   grasp.appendFeature("link").appendFeature("time").setInitializationFeature("link");
-  align.appendFeature("node").appendFeature("time").setInitializationFeature("node");
-  place.appendFeature("node").appendFeature("time").setInitializationFeature("node");
+  align.appendFeature("node").appendFeature("time").setInitializationFeature("node").attachObject("link");
+  place.appendFeature("node").appendFeature("time").setInitializationFeature("node").attachObject("link");
   release.appendFeature("link").appendFeature("time").setInitializationFeature("link");
   disengage.appendFeature("link").appendFeature("time").setInitializationFeature("link");
 
