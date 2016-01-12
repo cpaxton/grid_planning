@@ -139,7 +139,8 @@ namespace grid {
 
     void PrintInfo() const;
 
-    const std::shared_ptr<robot_state::RobotState> getState() const;
+    const std::vector<double> &currentPos() const;
+    const std::vector<double> &currentVel() const;
 
   protected:
     //std::unordered_map<std::string, std::string> object_lookup;

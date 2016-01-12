@@ -26,9 +26,12 @@ namespace grid {
   const std::string GridPlanner::GRIPPER("gripper");
   const std::string GridPlanner::PS_TOPIC("monitored_planning_scene");
 
+  const std::vector<double> &GridPlanner::currentPos() const {
+    return x0;
+  }
 
-  const std::shared_ptr<robot_state::RobotState> GridPlanner::getState() const {
-    return state;
+  const std::vector<double> &GridPlanner::currentVel() const {
+    return x0_dot;
   }
 
   /* keep robot joints up to date */
