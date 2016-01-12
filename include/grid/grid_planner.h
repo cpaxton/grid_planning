@@ -139,6 +139,8 @@ namespace grid {
 
     void PrintInfo() const;
 
+    const std::shared_ptr<robot_state::RobotState> getState() const;
+
   protected:
     //std::unordered_map<std::string, std::string> object_lookup;
     robot_model::RobotModelPtr model;

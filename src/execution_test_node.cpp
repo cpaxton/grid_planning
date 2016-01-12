@@ -101,7 +101,7 @@ int main(int argc, char **argv) {
   }
 
   for (int i = 0; i < iter; ++i) {
-    ros::Duration(0.25).sleep();
+    //ros::Duration(0.25).sleep();
     ros::spinOnce();
 
     // sample trajectories
@@ -114,7 +114,7 @@ int main(int argc, char **argv) {
     // compute probabilities
     for (unsigned int j = 0; j < trajs.size(); ++j) {
 
-      bool res = rk_ptr->toJointTrajectory(trajs[i],joint_trajs[i]);
+      bool res = rk_ptr->toJointTrajectory(trajs[i],joint_trajs[i],0.1);
 
       std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),trajs[j]);
       approach.normalizeData(features);
