@@ -3,6 +3,7 @@
 #include <grid/test_features.h>
 #include <grid/wam_training_features.h>
 #include <grid/visualize.h>
+#include <grid/grid_planner.h>
 
 #include <grid/wam/input.h>
 
@@ -20,6 +21,14 @@ int main(int argc, char **argv) {
   ros::Publisher jpub = nh.advertise<trajectory_msgs::JointTrajectory>("trajectory",1000);
 
   RobotKinematicsPointer rk_ptr = RobotKinematicsPointer(new RobotKinematics("robot_description","wam/base_link","wam/wrist_palm_link"));
+
+  GridPlanner gp("robot_description","/gazebo/barrett_manager/wam/joint_states","/gazebo/planning_scene");
+  gp.SetDof(7);
+  gp.SetNumBasisFunctions(5);
+  gp.SetK(100);
+  gp.SetD(20);
+  gp.SetTau(1.0);
+  gp.SetGoalThreshold(0.1);
 
   TestFeatures test;
   test.addFeature("node",grid::POSE_FEATURE);
@@ -104,6 +113,9 @@ int main(int argc, char **argv) {
 
     // compute probabilities
     for (unsigned int j = 0; j < trajs.size(); ++j) {
+
+      bool res = rk_ptr->toJointTrajectory(trajs[i],joint_trajs[i]);
+
       std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),trajs[j]);
       approach.normalizeData(features);
       FeatureVector v = approach.logL(features);
