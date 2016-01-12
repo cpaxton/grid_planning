@@ -4,7 +4,8 @@
 //#include <grid/features.h>
 #include <kdl/chain.hpp>
 #include <kdl/tree.hpp>
-#include <kdl/chainfksolverpos_recursive.hpp>
+#include <kdl/chainfksolver.hpp>
+#include <kdl/chainiksolver.hpp>
 
 #include <memory>
 
@@ -49,8 +50,13 @@ namespace grid {
     KDL::Chain kdl_chain;
     KDL::Tree kdl_tree;
     std::shared_ptr<KDL::ChainFkSolverPos> kdl_fk_solver_pos;
+    std::shared_ptr<KDL::ChainIkSolverVel> kdl_ik_solver_vel;
+    std::shared_ptr<KDL::ChainIkSolverPos> kdl_ik_solver_pos;
     unsigned int n_dof;
     int verbose;
+
+    KDL::JntArray joint_limits_min;
+    KDL::JntArray joint_limits_max;
 
   };
 
