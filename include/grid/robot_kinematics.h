@@ -2,10 +2,17 @@
 #define _GRID_ROBOT_KINEMATICS
 
 //#include <grid/features.h>
+//
+#include <kdl/frames.hpp>
+#include <kdl/trajectory.hpp>
+
 #include <kdl/chain.hpp>
 #include <kdl/tree.hpp>
 #include <kdl/chainfksolver.hpp>
 #include <kdl/chainiksolver.hpp>
+
+#include <sensor_msgs/JointState.h>
+#include <trajectory_msgs/JointTrajectory.h>
 
 #include <memory>
 
@@ -42,6 +49,30 @@ namespace grid {
      */
     unsigned int getDegreesOfFreedom() const;
 
+    /*
+     * toJointTrajectory
+     * Convert trajectory into a set of poses
+     * then use KDL inverse kinematics on it
+     */
+    bool toJointTrajectory(KDL::Trajectory *traj,
+                           trajectory_msgs::JointTrajectory &jtraj,
+                           double dt=0.05);
+
+    /**
+     * use KDL inverse kinematics to get the trajectories back
+     */
+    bool toJointTrajectory(const std::vector<Pose> &poses,
+                           trajectory_msgs::JointTrajectory &jtraj);
+
+    /**
+     * take a joint state message and use it to update KDL joints
+     */
+    void updateHint(const sensor_msgs::JointState &js);
+    /**
+     * just to get a jt
+     */
+    trajectory_msgs::JointTrajectory getEmptyJointTrajectory() const;
+
   protected:
     std::string robot_description_param;
     std::string robot_description;
@@ -57,6 +88,8 @@ namespace grid {
 
     KDL::JntArray joint_limits_min;
     KDL::JntArray joint_limits_max;
+
+    KDL::JntArray hint;
 
   };
 

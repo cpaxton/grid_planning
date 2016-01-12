@@ -7,6 +7,12 @@
 #include <kdl/chainiksolvervel_wdls.hpp>
 #include <kdl/chainiksolverpos_nr_jl.hpp>
 
+#include <trajectory_msgs/JointTrajectoryPoint.h>
+
+using trajectory_msgs::JointTrajectory;
+using trajectory_msgs::JointTrajectoryPoint;
+using KDL::Trajectory;
+
 namespace grid {
 
 
@@ -39,6 +45,7 @@ namespace grid {
 
       joint_limits_min.resize(n_dof);
       joint_limits_max.resize(n_dof);
+      hint.resize(n_dof);
 
       // load joint limits
       // based off some of Jon's code in lcsr_controllers
@@ -97,6 +104,52 @@ namespace grid {
 
     return p;
   }
+
+  /*
+   * toJointTrajectory
+   * Convert trajectory into a set of poses
+   * then use KDL inverse kinematics on it
+   */
+  bool RobotKinematics::toJointTrajectory(Trajectory *traj, JointTrajectory &jtraj, double dt) {
+    std::vector<Pose> poses((unsigned int)1+floor(traj->Duration() / dt));
+    
+    unsigned int i = 0;
+    for (double t = 0; t < traj->Duration(); t+=dt, ++i) {
+      poses[i] = traj->Pos(t);
+    }
+
+    return toJointTrajectory(poses, jtraj);
+  }
+
+  /**
+   * use KDL inverse kinematics to get the trajectories back
+   */
+  bool RobotKinematics::toJointTrajectory(const std::vector<Pose> &poses, JointTrajectory &traj) {
+
+    traj.points.resize(poses.size());
+
+    auto pose_ptr = poses.begin();
+    KDL::JntArray q;
+    for(unsigned int i = 0; i < poses.size(); ++i, ++pose_ptr) {
+      kdl_ik_solver_pos->CartToJnt(hint, *pose_ptr, q);
+    }
+
+    return true;
+  }
+
+  /**
+   * just to get a jt
+   */
+  JointTrajectory RobotKinematics::getEmptyJointTrajectory() const {
+    JointTrajectory traj;
+
+    for (const auto &link: kdl_chain.segments) {
+      traj.joint_names.push_back(link.getName());
+    }
+
+    return traj;
+  }
+
 
   /**
    * get number of degrees of freedom

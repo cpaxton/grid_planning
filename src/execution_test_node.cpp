@@ -11,6 +11,8 @@
 using namespace grid;
 using namespace KDL;
 
+using trajectory_msgs::JointTrajectory;
+
 int main(int argc, char **argv) {
   ros::init(argc,argv,"grid_execution_test_node");
   ros::NodeHandle nh;
@@ -82,7 +84,12 @@ int main(int argc, char **argv) {
 
   std::vector<Trajectory *> trajs(ntrajs);
   std::vector<EigenVectornd> params(ntrajs);
+  std::vector<JointTrajectory> joint_trajs(ntrajs);
   std::vector<double> ps(ntrajs);
+
+  for(unsigned int i = 0; i < ntrajs; ++i) {
+    joint_trajs[i] = rk_ptr->getEmptyJointTrajectory();
+  }
 
   for (int i = 0; i < iter; ++i) {
     ros::Duration(0.25).sleep();
