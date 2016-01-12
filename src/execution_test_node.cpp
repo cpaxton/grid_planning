@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
 
   for(unsigned int i = 0; i < ntrajs; ++i) {
     trajs[i] = 0;
-    joint_trajs[i] = rk_ptr->getEmptyJointTrajectory();
+    //joint_trajs[i] = rk_ptr->getEmptyJointTrajectory();
   }
 
 

@@ -143,11 +143,22 @@ namespace grid {
 
       traj.points[i].positions.resize(n_dof);
       traj.points[i].velocities.resize(n_dof);
+      //traj.points[i].accelerations.resize(n_dof);
+      //traj.points[i].effort.resize(n_dof);
       for (unsigned int j = 0; j < n_dof; ++j) {
         traj.points[i].positions[j] = q(j);
         traj.points[i].velocities[j] = qdot(j);
+        /*
+        if (j > 0) {
+          traj.points[i].accelerations[j] = 2*(qdot(j)-qdot(j-1));
+          traj.points[i].effort[j] = 2*(qdot(j)-qdot(j-1));
+        } else {
+          traj.points[i].accelerations[j] = 2*qdot(j);
+          traj.points[i].effort[j] = 2*qdot(j);
+        }
+        */
         //std::cout << qdot(j) << " ";
-        traj.points[i].time_from_start = ros::Duration(i * (duration / poses.size()));
+        //traj.points[i].time_from_start = ros::Duration(2 * i * (duration / poses.size()));
       }
       //std::cout << std::endl;
     }
