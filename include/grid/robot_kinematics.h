@@ -20,6 +20,7 @@ namespace grid {
 
   // grid (for robots) is going to be based on KDL
   typedef KDL::Frame Pose;
+  typedef KDL::Twist Twist;
 
   /** 
    * Robot kinematics object.
@@ -62,6 +63,7 @@ namespace grid {
      * use KDL inverse kinematics to get the trajectories back
      */
     bool toJointTrajectory(const std::vector<Pose> &poses,
+                           const std::vector<Twist> &twists, 
                            trajectory_msgs::JointTrajectory &jtraj,
                            double duration=1);
 

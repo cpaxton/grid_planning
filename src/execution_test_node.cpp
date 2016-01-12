@@ -151,11 +151,24 @@ int main(int argc, char **argv) {
   std::cout << "Found best tajectory after " << iter << " iterations." << std::endl;
 
   bool res = rk_ptr->toJointTrajectory(trajs[best_idx],joint_trajs[best_idx],0.1);
-  std::cout << "IK result: " << res << std::endl;
+  std::cout << "IK result: "; //<< res << std::endl;
+  if (res) {
+    std:: cout << "SUCCESS!" << std::endl;
+  } else {
+    std::cout << "failure :(" << std::endl;
+  }
 
   std::cout << "Length: " << joint_trajs[best_idx].points.size() << std::endl;
   std::cout << "DOF: " << joint_trajs[best_idx].points[0].positions.size() << std::endl;
-  jpub.publish(joint_trajs[best_idx]);
+
+  // set final point to all zeros
+  for (double &d: joint_trajs[best_idx].points.rbegin()->velocities) {
+    d = 0;
+  }
+
+  if (res) {
+    jpub.publish(joint_trajs[best_idx]);
+  }
 
   for (unsigned int j = 0; j < trajs.size(); ++j) {
     delete trajs[j];

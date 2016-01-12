@@ -110,9 +110,7 @@ namespace grid {
     state.~shared_ptr<RobotState>();
     scene.~shared_ptr<PlanningScene>();
     search_state.~shared_ptr<RobotState>();
-    std::cout << "Destroying planner!" << std::endl;
     model.~RobotModelPtr();
-    std::cout << "Done!" << std::endl;
   }
 
   /* add an object to the action here */

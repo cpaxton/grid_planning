@@ -112,34 +112,41 @@ namespace grid {
    */
   bool RobotKinematics::toJointTrajectory(Trajectory *traj, JointTrajectory &jtraj, double dt) {
     std::vector<Pose> poses((unsigned int)1+floor(traj->Duration() / dt));
+    std::vector<Twist> twists((unsigned int)1+floor(traj->Duration() / dt));
     
     unsigned int i = 0;
     for (double t = 0; t < traj->Duration(); t+=dt, ++i) {
       poses[i] = traj->Pos(t);
+      twists[i] = traj->Vel(t);
     }
 
-    return toJointTrajectory(poses, jtraj, traj->Duration());
+    return toJointTrajectory(poses, twists, jtraj, traj->Duration());
   }
 
   /**
    * use KDL inverse kinematics to get the trajectories back
    */
-  bool RobotKinematics::toJointTrajectory(const std::vector<Pose> &poses, JointTrajectory &traj, double duration) {
+  bool RobotKinematics::toJointTrajectory(const std::vector<Pose> &poses, const std::vector<Twist> &twists, JointTrajectory &traj, double duration) {
 
     traj.points.resize(poses.size());
 
     auto pose_ptr = poses.begin();
-    KDL::JntArray q;
+    auto twist_ptr = twists.begin();
+    KDL::JntArray q, qdot;
     for(unsigned int i = 0; i < poses.size(); ++i, ++pose_ptr) {
-      double res = kdl_ik_solver_pos->CartToJnt(hint, *pose_ptr, q);
+      int res = kdl_ik_solver_pos->CartToJnt(hint, *pose_ptr, q);
+      int res2 = kdl_ik_solver_vel->CartToJnt(q, *twist_ptr, qdot);
 
       if (res < 0 ) return false;
+      if (res2 < 0) return false;
       //else std::cout << res << std::endl;
 
       traj.points[i].positions.resize(n_dof);
+      traj.points[i].velocities.resize(n_dof);
       for (unsigned int j = 0; j < n_dof; ++j) {
         traj.points[i].positions[j] = q(j);
-        //std::cout << q(j) << " ";
+        traj.points[i].velocities[j] = qdot(j);
+        //std::cout << qdot(j) << " ";
         traj.points[i].time_from_start = ros::Duration(i * (duration / poses.size()));
       }
       //std::cout << std::endl;
@@ -182,11 +189,11 @@ namespace grid {
    */
   void RobotKinematics::updateHint(const std::vector<double> &js) {
     unsigned int i = 0;
-    std::cout << "Hint: ";
+    //std::cout << "Hint: ";
     for(unsigned int i = 0; i < js.size(); ++i) {
       hint(i) = js.at(i);
-      std::cout << hint(i) << " ";
+      //std::cout << hint(i) << " ";
     }
-    std::cout << std::endl;
+    //std::cout << std::endl;
   }
 }
