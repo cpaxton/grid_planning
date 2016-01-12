@@ -34,28 +34,48 @@ namespace grid {
   /* setFrame
    * Adds a frame of reference as a feature
    */
-  void TestFeatures::setFrame(const std::string &frame, const std::string &objectClass) {
+  TestFeatures &TestFeatures::setFrame(const std::string &frame, const std::string &objectClass) {
     objectClassToID[objectClass] = frame;
+    return *this;
   }
 
   /* addAgent:
    * configure agent's manipulation frame
    */
-  void TestFeatures::setAgentFrame(const std::string &agentFrame_) {
+  TestFeatures &TestFeatures::setAgentFrame(const std::string &agentFrame_) {
     agentFrame = agentFrame_;
     objectClassToID[AGENT] = agentFrame_;
     addFeature(AGENT,POSE_FEATURE);
+    return *this;
+  }
+
+  /* addBase:
+   * configure base's manipulation frame
+   */
+  TestFeatures &TestFeatures::setBaseFrame(const std::string &baseFrame_) {
+    baseFrame = baseFrame_;
+    objectClassToID[BASE] = baseFrame_;
+    addFeature(BASE,POSE_FEATURE);
+    return *this;
   }
 
   /* configure world frame for this TestFeatures object
   */
-  void TestFeatures::setWorldFrame(const std::string &worldFrame_) {
+  TestFeatures &TestFeatures::setWorldFrame(const std::string &worldFrame_) {
     worldFrame = worldFrame_;
+    return *this;
+  }
+
+  /* lookup tf frame for key
+   * in world frame
+  */
+  Pose TestFeatures::lookup(const std::string &key) {
+    return lookup(key, worldFrame);
   }
 
   /* lookup tf frame for key
   */
-  Pose TestFeatures::lookup(const std::string &key) {
+  Pose TestFeatures::lookup(const std::string &key, const std::string &in_frame) {
     tf::StampedTransform transform;
     Pose p;
 
@@ -63,7 +83,7 @@ namespace grid {
 #ifdef DEBUG_PRINT_TF_POSE
       std::cout << "looking up " << objectClassToID[key] << " for " << key << std::endl;
 #endif
-      listener.lookupTransform(worldFrame, objectClassToID[key],
+      listener.lookupTransform(in_frame, objectClassToID[key],
                                ros::Time(0), transform);
       tf::transformTFToKDL(transform, p);
 #ifdef DEBUG_PRINT_TF_POSE
@@ -79,18 +99,37 @@ namespace grid {
     return p;
   }
 
+  /**
+   * get the current end effector position
+   */
+  Pose TestFeatures::getCurrentEndEffector() const {
+    std::cerr << __FILE__ << ":" << __LINE__ << std::endl;
+    return currentPose.at(BASE) * currentPose.at(AGENT);
+  }
+
+    /**
+     * get the world frame
+     */
+    const std::string &TestFeatures::getWorldFrame() const {
+      return worldFrame;
+    }
+
   /*
    * run lookup for all objects
    * store results for poses from tf
    */
-  void TestFeatures::updateWorldfromTF() {
+  TestFeatures &TestFeatures::updateWorldfromTF() {
     for (const std::pair<std::string,FeatureType> &feature: feature_types) {
       //std::cout << feature.first << ", " << feature.second << std::endl;
+      //if (feature.first == AGENT) {
+      //  currentPose[feature.first] = lookup(feature.first,baseFrame);
+      //} else
       if(feature.second == POSE_FEATURE) {
         //std::cout << feature.first << std::endl;
         currentPose[feature.first] = lookup(feature.first);
       }
     }
+    return *this;
   }
 
   /* getFeaturesForTrajectory
@@ -161,7 +200,7 @@ namespace grid {
       for (const std::string &name: names) {
 
         if (feature_types[name] == POSE_FEATURE) {
-          Pose offset = currentPose[name].Inverse() * currentPose[AGENT] * p;
+          Pose offset = currentPose[name].Inverse() * p;
 
           getPoseFeatures(offset,f,idx);
           idx+= POSE_FEATURES_SIZE;

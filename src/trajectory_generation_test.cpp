@@ -19,7 +19,9 @@ int main(int argc, char **argv) {
   test.addFeature("link",grid::POSE_FEATURE);
   test.addFeature("time",grid::TIME_FEATURE);
   test.setAgentFrame("wam/wrist_palm_link");
-  test.setWorldFrame("world");
+  //test.setBaseFrame("wam/base_link");
+  //test.setWorldFrame("world");
+  test.setWorldFrame("wam/base_link");
   test.setFrame("gbeam_node_1/gbeam_node","node");
   test.setFrame("gbeam_link_1/gbeam_link","link");
 
@@ -124,7 +126,7 @@ int main(int argc, char **argv) {
 
       // print out all the sampled trajectories
       std::cout << "Publishing trajectories... ";
-      pub.publish(toPoseArray(trajs,0.05,"world"));
+      pub.publish(toPoseArray(trajs,0.05,test.getWorldFrame()));
       std::cout << "done." << std::endl;
 
       for(unsigned int i = 0; i < trajs.size(); ++i) {

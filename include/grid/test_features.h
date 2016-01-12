@@ -35,31 +35,51 @@ namespace grid {
      * Get information for a single feature over the whole trajectory given in traj.
      * Traj is a set of frames
      */
-  std::vector<FeatureVector> getFeaturesForTrajectory(const std::vector<std::string> &name, TrajectoryFrames traj);
+    std::vector<FeatureVector> getFeaturesForTrajectory(const std::vector<std::string> &name, TrajectoryFrames traj);
 
     /* addFrame
      * Adds a frame of reference as a feature
      */
-    void setFrame(const std::string &frame, const std::string &objectClass);
+    TestFeatures &setFrame(const std::string &frame, const std::string &objectClass);
 
     /* addAgent:
      * configure agent's manipulation frame
      */
-    void setAgentFrame(const std::string &agentFrame);
+    TestFeatures &setAgentFrame(const std::string &agentFrame);
+
+    /* addBase:
+     * configure base's manipulation frame
+     */
+    TestFeatures &setBaseFrame(const std::string &baseFrame_);
 
     /* configure world frame for this TestFeatures object
     */
-    void setWorldFrame(const std::string &worldFrame);
+    TestFeatures &setWorldFrame(const std::string &worldFrame);
+
+    /**
+     * get the world frame
+     */
+    const std::string &getWorldFrame() const;
+
+    /* lookup tf frame for key
+     * in world frame
+     */
+    Pose lookup(const std::string &key);
 
     /* lookup tf frame for key
     */
-    Pose lookup(const std::string &key);
+    Pose lookup(const std::string &key, const std::string &in_frame);
 
     /*
      * run lookup for all objects
      * store results for poses from tf
      */
-    void updateWorldfromTF();
+    TestFeatures &updateWorldfromTF();
+
+    /**
+     * get the current end effector position
+     */
+    Pose getCurrentEndEffector() const;
 
   private:
     std::unordered_map<std::string, std::string> objectClassToID;
@@ -67,6 +87,9 @@ namespace grid {
 
     // name of the frame representing the end effector, i.e. what are we planning from?
     std::string agentFrame;
+
+    // name of the base frame
+    std::string baseFrame;
 
     // name of the root/world frame
     std::string worldFrame;

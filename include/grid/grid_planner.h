@@ -140,6 +140,7 @@ namespace grid {
     void PrintInfo() const;
 
     const std::vector<double> &currentPos() const;
+
     const std::vector<double> &currentVel() const;
 
   protected:

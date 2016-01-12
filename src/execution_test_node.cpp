@@ -35,7 +35,9 @@ int main(int argc, char **argv) {
   test.addFeature("link",grid::POSE_FEATURE);
   test.addFeature("time",grid::TIME_FEATURE);
   test.setAgentFrame("wam/wrist_palm_link");
-  test.setWorldFrame("world");
+  //test.setBaseFrame("wam/base_link");
+  //test.setWorldFrame("world");
+  test.setWorldFrame("wam/base_link");
   test.setFrame("gbeam_node_1/gbeam_node","node");
   test.setFrame("gbeam_link_1/gbeam_link","link");
 
@@ -97,43 +99,66 @@ int main(int argc, char **argv) {
   std::vector<double> ps(ntrajs);
 
   for(unsigned int i = 0; i < ntrajs; ++i) {
+    trajs[i] = 0;
     joint_trajs[i] = rk_ptr->getEmptyJointTrajectory();
   }
 
+
+  double best_p = 0;
+  unsigned int best_idx = 0;
+
   for (int i = 0; i < iter; ++i) {
+
+    for (unsigned int j = 0; j < trajs.size(); ++j) {
+      if (trajs[j]) {
+        delete trajs[j];
+        trajs[j] = 0;
+      }
+    }
+
     //ros::Duration(0.25).sleep();
     ros::spinOnce();
+    rk_ptr->updateHint(gp.currentPos());
 
     // sample trajectories
-    
     dist.sample(params,trajs);
-    pub.publish(toPoseArray(trajs,0.05,"world"));
+    pub.publish(toPoseArray(trajs,0.05,test.getWorldFrame()));
 
     double sum = 0;
 
     // compute probabilities
     for (unsigned int j = 0; j < trajs.size(); ++j) {
-
-      bool res = rk_ptr->toJointTrajectory(trajs[i],joint_trajs[i],0.1);
-
       std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),trajs[j]);
       approach.normalizeData(features);
       FeatureVector v = approach.logL(features);
       FeatureVector ve = grasp.logL(features); // gets log likelihood only for the final entry in the trajectory
       ps[j] = (v.array().exp().sum() / v.size()) * (ve.array().exp()(ve.size()-1)); // would add other terms first
       sum += ps[j];
+
+      if (ps[j] > best_p) {
+        best_p = ps[j];
+        best_idx = j;
+      }
     }
 
     // update distribution
     dist.update(params,ps,noise,step_size);
 
-    for (unsigned int j = 0; j < trajs.size(); ++j) {
-      delete trajs[j];
-      trajs[j] = 0;
-    }
-
-
     std::cout << "[" << i << "] >>>> AVG P = " << (sum / ntrajs) << std::endl;
 
+  }
+
+  std::cout << "Found best tajectory after " << iter << " iterations." << std::endl;
+
+  bool res = rk_ptr->toJointTrajectory(trajs[best_idx],joint_trajs[best_idx],0.1);
+  std::cout << "IK result: " << res << std::endl;
+
+  std::cout << "Length: " << joint_trajs[best_idx].points.size() << std::endl;
+  std::cout << "DOF: " << joint_trajs[best_idx].points[0].positions.size() << std::endl;
+  jpub.publish(joint_trajs[best_idx]);
+
+  for (unsigned int j = 0; j < trajs.size(); ++j) {
+    delete trajs[j];
+    trajs[j] = 0;
   }
 }

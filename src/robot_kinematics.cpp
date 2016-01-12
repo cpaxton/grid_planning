@@ -60,7 +60,7 @@ namespace grid {
 
       unsigned int max_iter_ik_vel = 150u;
       double tol_ik_vel = 1e-6;
-      unsigned int max_iter_ik_pos = 10u;
+      unsigned int max_iter_ik_pos = 150u;
       double tol_ik_pos = 1e-6;
 
       kdl_fk_solver_pos.reset(new KDL::ChainFkSolverPos_recursive(kdl_chain));
@@ -118,20 +118,31 @@ namespace grid {
       poses[i] = traj->Pos(t);
     }
 
-    return toJointTrajectory(poses, jtraj);
+    return toJointTrajectory(poses, jtraj, traj->Duration());
   }
 
   /**
    * use KDL inverse kinematics to get the trajectories back
    */
-  bool RobotKinematics::toJointTrajectory(const std::vector<Pose> &poses, JointTrajectory &traj) {
+  bool RobotKinematics::toJointTrajectory(const std::vector<Pose> &poses, JointTrajectory &traj, double duration) {
 
     traj.points.resize(poses.size());
 
     auto pose_ptr = poses.begin();
     KDL::JntArray q;
     for(unsigned int i = 0; i < poses.size(); ++i, ++pose_ptr) {
-      kdl_ik_solver_pos->CartToJnt(hint, *pose_ptr, q);
+      double res = kdl_ik_solver_pos->CartToJnt(hint, *pose_ptr, q);
+
+      if (res < 0 ) return false;
+      //else std::cout << res << std::endl;
+
+      traj.points[i].positions.resize(n_dof);
+      for (unsigned int j = 0; j < n_dof; ++j) {
+        traj.points[i].positions[j] = q(j);
+        //std::cout << q(j) << " ";
+        traj.points[i].time_from_start = ros::Duration(i * (duration / poses.size()));
+      }
+      //std::cout << std::endl;
     }
 
     return true;
@@ -164,5 +175,18 @@ namespace grid {
 
   KDL::Chain &RobotKinematics::chain() {
     return kdl_chain;
+  }
+
+  /**
+   * take a joint state message and use it to update KDL joints
+   */
+  void RobotKinematics::updateHint(const std::vector<double> &js) {
+    unsigned int i = 0;
+    std::cout << "Hint: ";
+    for(unsigned int i = 0; i < js.size(); ++i) {
+      hint(i) = js.at(i);
+      std::cout << hint(i) << " ";
+    }
+    std::cout << std::endl;
   }
 }

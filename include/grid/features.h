@@ -48,6 +48,7 @@ namespace grid {
   typedef enum FeatureType { POSE_FEATURE, FLOAT_FEATURE, TIME_FEATURE } FeatureType;
 
   static const std::string AGENT("agent");
+  static const std::string BASE("base");
   static const unsigned int POSE_FEATURE_X(0);
   static const unsigned int POSE_FEATURE_Y(1);
   static const unsigned int POSE_FEATURE_Z(2);
@@ -157,6 +158,8 @@ namespace grid {
      * Compute number of features we expect to see
      */
     void updateFeaturesSize();
+
+
 
   protected:
     unsigned int features_size;

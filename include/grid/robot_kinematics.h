@@ -62,12 +62,13 @@ namespace grid {
      * use KDL inverse kinematics to get the trajectories back
      */
     bool toJointTrajectory(const std::vector<Pose> &poses,
-                           trajectory_msgs::JointTrajectory &jtraj);
+                           trajectory_msgs::JointTrajectory &jtraj,
+                           double duration=1);
 
     /**
      * take a joint state message and use it to update KDL joints
      */
-    void updateHint(const sensor_msgs::JointState &js);
+    void updateHint(const std::vector<double> &js);
     /**
      * just to get a jt
      */
