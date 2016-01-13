@@ -17,6 +17,28 @@ This code requires:
 
 To run the experiments, you'll need my ```grid_experiments``` ROS packages, as well as a working version of the ```lcsr_barrett``` simulation.
 
+## Experiments
+
+### Running Tests
+
+There are a lot of ways you can run the different experiments provided.
+
+The Execution test will let you connect two different skills. An example is this:
+
+```
+rosrun grid_plan execution_test _step_size:=0.65 _iter:=10 _ntrajs:=50 _noise:=1e-10 trajectory:=/gazebo/traj_rml/joint_traj_cmd _skill:=approach
+```
+
+This command runs with the Barrett simulation. It'll tell the arm to approach, with the goal being to grasp.
+
+```
+rosrun grid_plan execution_test _step_size:=0.75 _iter:=10 _ntrajs:=55 _noise:=1e-10 trajectory:=/gazebo/traj_rml/joint_traj_cmd _skill:=disengage
+```
+
+This one does something a little different. It tries to disengage from a link, and will move to a position a bit farther back away from it.
+
+Note that in both of these examples I set a large number of different parameters. You really don't need to worry about these. They matter a lot more depending on how many samples you're making. As my code is not heavily parallelized, it can be inefficient to create task plans for lots of different examples at once.
+
 ## Guide to Files
 
 ### Executables
