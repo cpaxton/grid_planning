@@ -163,6 +163,9 @@ int main(int argc, char **argv) {
     if (sum > 1e-50) { 
       // update distribution
       dist.update(params,ps,noise,step_size);
+    } else {
+      i--;
+      continue;
     }
 
     std::cout << "[" << i << "] >>>> AVG P = " << (sum / ntrajs) << std::endl;
