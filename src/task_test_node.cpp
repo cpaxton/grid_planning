@@ -44,6 +44,42 @@ int main(int argc, char **argv) {
   Skill release("release");
   Skill disengage("disengage");
 
+  /* Initialize Base Set of Features */
+  TestFeatures tf11;
+  tf11.setAgentFrame("wam/wrist_palm_link")
+    .setWorldFrame("wam/base_link")
+    .addFeature("node",POSE_FEATURE)
+    .addFeature("link",POSE_FEATURE)
+    .addFeature("time",TIME_FEATURE);
+
+  TestFeatures tf12;
+  tf12.setAgentFrame("wam/wrist_palm_link")
+    .setWorldFrame("wam/base_link")
+    .addFeature("node",POSE_FEATURE)
+    .addFeature("link",POSE_FEATURE)
+    .addFeature("time",TIME_FEATURE);
+
+  TestFeatures tf21;
+  tf21.setAgentFrame("wam/wrist_palm_link")
+    .setWorldFrame("wam/base_link")
+    .addFeature("node",POSE_FEATURE)
+    .addFeature("link",POSE_FEATURE)
+    .addFeature("time",TIME_FEATURE);
+
+  TestFeatures tf22;
+  tf22.setAgentFrame("wam/wrist_palm_link")
+    .setWorldFrame("wam/base_link")
+    .addFeature("node",POSE_FEATURE)
+    .addFeature("link",POSE_FEATURE)
+    .addFeature("time",TIME_FEATURE);
+
+  tf11.setFrame("gbeam_node_1/gbeam_node","node").setFrame("gbeam_link_1/gbeam_link","link");
+  tf12.setFrame("gbeam_node_1/gbeam_node","node").setFrame("gbeam_link_2/gbeam_link","link");
+  tf21.setFrame("gbeam_node_2/gbeam_node","node").setFrame("gbeam_link_1/gbeam_link","link");
+  tf22.setFrame("gbeam_node_2/gbeam_node","node").setFrame("gbeam_link_2/gbeam_link","link");
+
+
+  /* SET UP THE SKILLS */
   approach.appendFeature("link").appendFeature("time").setInitializationFeature("link");
   grasp.appendFeature("link").appendFeature("time").setInitializationFeature("link");
   align.appendFeature("node").appendFeature("time").setInitializationFeature("node").attachObject("link");

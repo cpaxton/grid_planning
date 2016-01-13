@@ -43,7 +43,7 @@ namespace grid {
      * FkPos
      * Compute position forward kinematics
      */
-    Pose FkPos(std::vector<double> pos);
+    Pose FkPos(std::vector<double> &pos);
 
     /**
      * get number of degrees of freedom
@@ -75,6 +75,11 @@ namespace grid {
      * just to get a jt
      */
     trajectory_msgs::JointTrajectory getEmptyJointTrajectory() const;
+
+    /**
+     * get a list of poses this trajectory tells us to visit
+     */
+    std::vector<Pose> FkPos(trajectory_msgs::JointTrajectory &traj);
 
   protected:
     std::string robot_description_param;

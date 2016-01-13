@@ -3,8 +3,12 @@
 #include <tf_conversions/tf_kdl.h>
 #include <tf/transform_datatypes.h>
 
+#include <trajectory_msgs/JointTrajectoryPoint.h>
+
 #include <kdl/trajectory_composite.hpp>
+
 using namespace KDL;
+using namespace trajectory_msgs;
 
 namespace grid {
 
@@ -44,6 +48,29 @@ namespace grid {
 
     return msg;
   }
+  /*  create a pose array message from a joint trajectory */
+  geometry_msgs::PoseArray toPoseArray(std::vector<trajectory_msgs::JointTrajectory> traj,
+                                       const std::string &frame,
+                                       RobotKinematicsPointer robot)
+  {
+    geometry_msgs::PoseArray msg;
+    msg.header.frame_id = frame;
 
+    for (unsigned int i = 0; i < traj.size(); ++i) {
+
+      for (JointTrajectoryPoint &pt: traj[i].points) {
+        Pose kdl_pose = robot->FkPos(pt.positions);
+        geometry_msgs::Pose p;
+        tf::Pose tfp;
+        tf::poseKDLToTF(kdl_pose,tfp);
+        tf::poseTFToMsg(tfp,p);
+
+        msg.poses.push_back(p);
+      }
+    }
+
+    return msg;
+
+  }
 
 }

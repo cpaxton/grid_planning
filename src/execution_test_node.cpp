@@ -164,7 +164,7 @@ int main(int argc, char **argv) {
       // update distribution
       dist.update(params,ps,noise,step_size);
     } else {
-      i--;
+      //i--;
       continue;
     }
 

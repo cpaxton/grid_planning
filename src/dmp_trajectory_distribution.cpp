@@ -1,25 +1,28 @@
 #include <grid/dmp_trajectory_distribution.h>
 
-
 #include <Eigen/Dense>
 #include <trajectory_msgs/JointTrajectoryPoint.h>
 
 using trajectory_msgs::JointTrajectoryPoint;
 using namespace Eigen;
 
+#define SHOW_SAMPLED_VALUES 0
+#define DEFAULT_SIGMA 0.01
+
 namespace grid {
 
   /**
    * Initialize a trajectory distribution with given params
    */
-  DmpTrajectoryDistribution::DmpTrajectoryDistribution(unsigned int dim_, unsigned int nbasis_, RobotKinematicsPointer robot_)
-    : dim(dim_),
+  DmpTrajectoryDistribution::DmpTrajectoryDistribution(unsigned int nbasis_, RobotKinematicsPointer robot_)
+    : dim(robot_->getDegreesOfFreedom()),
     nbasis(nbasis_),
     robot(robot_),
     dist((dim*nbasis) + POSE_FEATURES_SIZE,1),
     verbose(false)
   {
     // set up anything else?
+    nvars = dist.ns[0].mu.size();
   }
 
   /**
@@ -27,6 +30,39 @@ namespace grid {
    * set up the distribution based on a skill and an environment
    */
   void DmpTrajectoryDistribution::initialize(TestFeatures &features, const Skill &skill, std::vector<double> sigma) {
+    //Pose p0 = features.lookup(AGENT);
+    Pose p1 = features.lookup(skill.getInitializationFeature()) * skill.getInitializationFinalPose();
+
+    unsigned int idx = 0;
+
+    dist.ns[0].mu[POSE_FEATURE_X] = p1.p.x();
+    dist.ns[0].mu[POSE_FEATURE_Y] = p1.p.y();
+    dist.ns[0].mu[POSE_FEATURE_Z] = p1.p.z();
+
+    double roll, pitch, yaw;
+    p1.M.GetRPY(roll, pitch, yaw);
+
+    dist.ns[0].mu[POSE_FEATURE_YAW] = yaw;
+    dist.ns[0].mu[POSE_FEATURE_PITCH] = pitch;
+    dist.ns[0].mu[POSE_FEATURE_ROLL] = roll;
+
+    if (sigma.size() < nvars) {
+      if (verbose) {
+        std::cerr << "[GRID/TRAJECTORY DISTRIBUTION] Noise argument for trajectory search initialization was the wrong size!" << std::endl;
+        std::cerr << "[GRID/TRAJECTORY DISTRIBUTION] Should be: " << dim << std::endl;
+        std::cerr << "[GRID/TRAJECTORY DISTRIBUTION] Was: " << sigma.size() << std::endl;
+      }
+      for (int j = 0; j < nvars; ++j) {
+        dist.ns[0].P(j,j) = DEFAULT_SIGMA;
+      }
+
+    } else {
+      for (int j = 0; j < nvars; ++j) {
+        dist.ns[0].P(j,j) = sigma[j];
+      }
+    }
+    dist.Update();
+
 
   }
 

@@ -53,11 +53,18 @@ namespace grid {
   static const unsigned int POSE_FEATURE_Y(1);
   static const unsigned int POSE_FEATURE_Z(2);
 
-#ifdef USE_ROTATION_RPY
-  static const unsigned int POSE_FEATURES_SIZE(7);
+
+  /* index definitions for creating trajectory poses */
+  static const unsigned int POSE_RPY_SIZE(6);
   static const unsigned int POSE_FEATURE_ROLL(3);
   static const unsigned int POSE_FEATURE_PITCH(4);
   static const unsigned int POSE_FEATURE_YAW(5);
+
+#ifdef USE_ROTATION_RPY
+  static const unsigned int POSE_FEATURES_SIZE(7);
+  //static const unsigned int POSE_FEATURE_ROLL(3);
+  //static const unsigned int POSE_FEATURE_PITCH(4);
+  //static const unsigned int POSE_FEATURE_YAW(5);
   static const unsigned int POSE_FEATURE_DIST(6);
 #else
   static const unsigned int POSE_FEATURES_SIZE(8);

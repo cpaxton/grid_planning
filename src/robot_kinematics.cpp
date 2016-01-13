@@ -90,7 +90,7 @@ namespace grid {
    * FkPos
    * Compute position forward kinematics
    */
-  Pose RobotKinematics::FkPos(std::vector<double> pos) {
+  Pose RobotKinematics::FkPos(std::vector<double> &pos) {
     using KDL::JntArray;
 
     Pose p;
@@ -105,6 +105,21 @@ namespace grid {
     return p;
   }
 
+
+  /**
+   * get a list of poses this trajectory tells us to visit
+   */
+  std::vector<Pose> RobotKinematics::FkPos(trajectory_msgs::JointTrajectory &traj) {
+    std::vector<Pose> poses(traj.points.size());
+    unsigned int i = 0;
+    for (auto &pt: traj.points) {
+      poses[i++] = FkPos(pt.positions);
+    }
+    return poses;
+  }
+
+
+
   /*
    * toJointTrajectory
    * Convert trajectory into a set of poses
@@ -113,7 +128,7 @@ namespace grid {
   bool RobotKinematics::toJointTrajectory(Trajectory *traj, JointTrajectory &jtraj, double dt) {
     std::vector<Pose> poses((unsigned int)1+floor(traj->Duration() / dt));
     std::vector<Twist> twists((unsigned int)1+floor(traj->Duration() / dt));
-    
+
     unsigned int i = 0;
     for (double t = 0; t < traj->Duration(); t+=dt, ++i) {
       poses[i] = traj->Pos(t);
@@ -149,14 +164,14 @@ namespace grid {
         traj.points[i].positions[j] = q(j);
         traj.points[i].velocities[j] = qdot(j);
         /*
-        if (j > 0) {
-          traj.points[i].accelerations[j] = 2*(qdot(j)-qdot(j-1));
-          traj.points[i].effort[j] = 2*(qdot(j)-qdot(j-1));
-        } else {
-          traj.points[i].accelerations[j] = 2*qdot(j);
-          traj.points[i].effort[j] = 2*qdot(j);
-        }
-        */
+           if (j > 0) {
+           traj.points[i].accelerations[j] = 2*(qdot(j)-qdot(j-1));
+           traj.points[i].effort[j] = 2*(qdot(j)-qdot(j-1));
+           } else {
+           traj.points[i].accelerations[j] = 2*qdot(j);
+           traj.points[i].effort[j] = 2*qdot(j);
+           }
+           */
         //std::cout << qdot(j) << " ";
         //traj.points[i].time_from_start = ros::Duration(2 * i * (duration / poses.size()));
       }
