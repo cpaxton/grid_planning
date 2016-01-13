@@ -186,7 +186,13 @@ namespace grid {
       if (feature_types.find(feature) != feature_types.end()) {
         if (feature_types.at(feature) == POSE_FEATURE) {
 
-          Pose pose = w.object_poses.at(feature).Inverse() * w.base_tform * w.ee_tform;
+          Pose pose;
+          if (not attached) {
+            pose = w.object_poses.at(feature).Inverse() * w.base_tform * w.ee_tform;
+          } else {
+            pose = w.object_poses.at(attachedObject).Inverse() * w.base_tform * w.ee_tform;
+          }
+
           getPoseFeatures(pose,f,next_idx);
           next_idx += POSE_FEATURES_SIZE;
 

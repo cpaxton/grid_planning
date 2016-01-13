@@ -149,7 +149,14 @@ namespace grid {
       for (const std::string &name: names) {
         if (feature_types[name] == POSE_FEATURE) {
           //Pose offset = currentPose[name].Inverse() * currentPose[AGENT];// * traj->Pos(t);
-          Pose offset = currentPose[name].Inverse() * traj->Pos(t);
+
+          Pose offset;
+          if (not attached) {
+            offset = currentPose[name].Inverse() * traj->Pos(t);
+          } else {
+            std::cout << __FILE__ << ":" << __LINE__ << ": not quite done." << std::endl;
+            offset = currentPose[attachedObject].Inverse() * traj->Pos(t);
+          }
 
           //std::cout << "\tComputed at x=" << offset.p.x()
           //  <<", y=" << offset.p.y()
@@ -200,7 +207,14 @@ namespace grid {
       for (const std::string &name: names) {
 
         if (feature_types[name] == POSE_FEATURE) {
-          Pose offset = currentPose[name].Inverse() * p;
+
+          Pose offset;
+          if (not attached) {
+            offset = currentPose[name].Inverse() * p;
+          } else {
+            std::cout << __FILE__ << ":" << __LINE__ << ": not quite done." << std::endl;
+            offset = currentPose[attachedObject].Inverse() * p;
+          }
 
           getPoseFeatures(offset,f,idx);
           idx+= POSE_FEATURES_SIZE;
