@@ -128,7 +128,15 @@ namespace grid {
         //std::cout << feature.first << std::endl;
         currentPose[feature.first] = lookup(feature.first);
       }
+
     }
+
+    if (attached) {
+        attachedObjectFrame = lookup(attachedObject,AGENT);
+    } else {
+        attachedObjectFrame = Pose();
+    }
+
     return *this;
   }
 
@@ -150,12 +158,9 @@ namespace grid {
         if (feature_types[name] == POSE_FEATURE) {
           //Pose offset = currentPose[name].Inverse() * currentPose[AGENT];// * traj->Pos(t);
 
-          Pose offset;
-          if (not attached) {
-            offset = currentPose[name].Inverse() * traj->Pos(t);
-          } else {
-            std::cout << __FILE__ << ":" << __LINE__ << ": not quite done." << std::endl;
-            offset = currentPose[attachedObject].Inverse() * traj->Pos(t);
+          Pose offset = currentPose[name].Inverse() * traj->Pos(t);
+          if (attached) {
+            offset = offset * attachedObjectFrame;
           }
 
           //std::cout << "\tComputed at x=" << offset.p.x()
@@ -208,12 +213,9 @@ namespace grid {
 
         if (feature_types[name] == POSE_FEATURE) {
 
-          Pose offset;
-          if (not attached) {
-            offset = currentPose[name].Inverse() * p;
-          } else {
-            std::cout << __FILE__ << ":" << __LINE__ << ": not quite done." << std::endl;
-            offset = currentPose[attachedObject].Inverse() * p;
+          Pose offset = currentPose[name].Inverse() * p;
+          if (attached) {
+            offset = offset * attachedObjectFrame;
           }
 
           getPoseFeatures(offset,f,idx);

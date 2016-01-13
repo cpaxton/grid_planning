@@ -54,16 +54,18 @@ namespace grid {
   static const unsigned int POSE_FEATURE_Z(2);
 
 #ifdef USE_ROTATION_RPY
-  static const unsigned int POSE_FEATURES_SIZE(6);
+  static const unsigned int POSE_FEATURES_SIZE(7);
   static const unsigned int POSE_FEATURE_ROLL(3);
   static const unsigned int POSE_FEATURE_PITCH(4);
   static const unsigned int POSE_FEATURE_YAW(5);
+  static const unsigned int POSE_FEATURE_DIST(6);
 #else
-  static const unsigned int POSE_FEATURES_SIZE(7);
+  static const unsigned int POSE_FEATURES_SIZE(8);
   static const unsigned int POSE_FEATURE_WX(3);
   static const unsigned int POSE_FEATURE_WY(4);
   static const unsigned int POSE_FEATURE_WZ(5);
   static const unsigned int POSE_FEATURE_WW(6);
+  static const unsigned int POSE_FEATURE_DIST(7);
 #endif
 
   //static const Pose rotationHack(KDL::Rotation::RotY(M_PI/2));

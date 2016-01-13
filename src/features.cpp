@@ -114,6 +114,7 @@ namespace grid {
 #else
     pose.M.GetQuaternion(f(idx+POSE_FEATURE_WX),f(idx+POSE_FEATURE_WY),f(idx+POSE_FEATURE_WZ),f(idx+POSE_FEATURE_WW));
 #endif
+    f(idx+POSE_FEATURE_DIST)  = pose.p.Norm();
   }
 
   /**
