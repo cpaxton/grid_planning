@@ -133,4 +133,27 @@ namespace grid {
         Vector vec = Vector(f[POSE_FEATURE_X],f[POSE_FEATURE_Y],f[POSE_FEATURE_Z]);
         p = Pose(rot,vec);
   }
+
+    /**
+     * attach an object frame to this set of features by identifier
+     */
+    Features &Features::attachObjectFrame(const std::string &object) {
+      attached = true;
+      return *this;
+    }
+
+    /**
+     * detach all object frames
+     */
+    Features &Features::detachObjectFrame() {
+      attachedObject = std::string("");
+      return *this;
+    }
+
+    /**
+     * return the name of an attached object
+     */
+    const std::string &Features::getAttachedObject() const {
+      return attachedObject;
+    }
 }

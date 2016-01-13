@@ -89,6 +89,7 @@ set(SOURCES
   src/skill.cpp
   src/visualize.cpp
   src/trajectory_distribution.cpp
+  src/dmp_trajectory_distribution.cpp
   src/predicate.cpp
   src/grammar.cpp
   src/wam_training_features.cpp
@@ -111,6 +112,7 @@ set(HEADERS
   include/grid/features.h
   include/grid/visualize.h
   include/grid/trajectory_distribution.h
+  include/grid/dmp_trajectory_distribution.h
   include/grid/predicate.h
   include/grid/grammar.h
   include/grid/wam_training_features.h

@@ -159,9 +159,27 @@ namespace grid {
      */
     void updateFeaturesSize();
 
+    /**
+     * attach an object frame to this set of features by identifier
+     */
+    Features &attachObjectFrame(const std::string &object);
 
+    /**
+     * detach all object frames
+     */
+    Features &detachObjectFrame();
+
+    /**
+     * return the name of an attached object
+     */
+    const std::string &getAttachedObject() const;
 
   protected:
+
+    bool attached;
+    Pose attachedObjectFrame;
+    std::string attachedObject;
+
     unsigned int features_size;
     std::unordered_map<std::string,FeatureType> feature_types;
     std::unordered_map<std::string,unsigned int> feature_sizes;
