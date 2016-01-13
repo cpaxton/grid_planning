@@ -74,6 +74,40 @@ namespace grid {
    */
   void DmpTrajectoryDistribution::sample(std::vector<EigenVectornd> &params,std::vector<JointTrajectory> &trajs) {
 
+    using KDL::Vector;
+    using KDL::Rotation;
+
+    unsigned int nsamples = params.size();
+    trajs.resize(nsamples);
+
+    for (int sample = 0; sample < nsamples; ++sample) {
+
+      EigenVectornd vec;
+      vec.resize(nvars);
+      dist.Sample(vec);
+
+      params[sample] = vec;
+
+#if SHOW_SAMPLED_VALUES
+      std::cout << "Sampled: ";
+      for (int j = 0; j < dim; ++j) {
+        std::cout << vec[j] << " ";
+      }
+      std::cout << std::endl;
+#endif
+
+      // convert the first six into a pose
+      Vector v1 = Vector(vec[POSE_FEATURE_X],vec[POSE_FEATURE_Y],vec[POSE_FEATURE_Z]);
+      Rotation r1 = Rotation::RPY(vec[POSE_FEATURE_ROLL],vec[POSE_FEATURE_PITCH],vec[POSE_FEATURE_YAW]);
+      Pose p(r1,v1);
+
+      for(unsigned int idx = POSE_RPY_SIZE; idx < nvars; ++idx) {
+        // convert into DMP
+      }
+
+      // execute the DMP and get a set of features
+      std::cout << __FILE__ << ": " << __LINE__ << std::endl;
+    }
   }
 
 
