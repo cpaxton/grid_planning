@@ -20,6 +20,7 @@ int main(int argc, char **argv) {
   ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples",1000);
   ros::Publisher jpub = nh.advertise<trajectory_msgs::JointTrajectory>("trajectory",1000);
 
+  /* SET UP THE ROBOT KINEMATICS */
   RobotKinematicsPointer rk_ptr = RobotKinematicsPointer(new RobotKinematics("robot_description","wam/base_link","wam/wrist_palm_link"));
 
   GridPlanner gp("robot_description","/gazebo/barrett_manager/wam/joint_states","/gazebo/planning_scene");
@@ -45,6 +46,7 @@ int main(int argc, char **argv) {
   double noise;
   int ntrajs = 50;
   int iter = 10;
+  std::string skill_name;
   ros::NodeHandle nh_tilde("~");
   if (not nh_tilde.getParam("step_size",step_size)) {
     step_size = 0.80;
@@ -58,14 +60,17 @@ int main(int argc, char **argv) {
   if (not nh_tilde.getParam("iter",iter)) {
     iter = 10;
   }
+  if (not nh_tilde.getParam("skill",skill_name)) {
+    skill_name = "approach";
+  }
 
-  Skill approach("approach",1);
-  approach.appendFeature("link").appendFeature("time");
-  approach.setInitializationFeature("link"); // must be a pose so we can find out where to start looking
+  Skill approach("approach");
+  Skill grasp("grasp");
+  Skill disengage("disengage");
 
-  Skill grasp("grasp",1);
-  grasp.appendFeature("link").appendFeature("time");
-  grasp.setInitializationFeature("link");
+  approach.appendFeature("link").appendFeature("time").setInitializationFeature("link");
+  grasp.appendFeature("link").appendFeature("time").setInitializationFeature("link");
+  disengage.appendFeature("link").appendFeature("time").setInitializationFeature("link");
 
   /* LOAD TRAINING DATA FOR APPROACH */
   {
@@ -77,7 +82,11 @@ int main(int argc, char **argv) {
     std::string filenames[] = {"data/sim/grasp1.bag", "data/sim/grasp2.bag", "data/sim/grasp3.bag"};
     load_and_train_skill(grasp, rk_ptr, filenames);
   }
-
+  /* LOAD TRAINING DATA FOR DISENGAGE */
+  {
+    std::string filenames[] = {"data/sim/disengage1.bag", "data/sim/disengage2.bag", "data/sim/disengage3.bag"};
+    load_and_train_skill(disengage, rk_ptr, filenames);
+  }
 
   ROS_INFO("Done setting up. Sleeping...");
   ros::Duration(1.0).sleep();
@@ -91,7 +100,12 @@ int main(int argc, char **argv) {
 
   ROS_INFO("Initializing trajectory distribution...");
   TrajectoryDistribution dist(3,1);
-  dist.initialize(test,approach);
+
+  if (skill_name == "disengage") {
+    dist.initialize(test,disengage);
+  } else {
+    dist.initialize(test,approach);
+  }
 
   std::vector<Trajectory *> trajs(ntrajs);
   std::vector<EigenVectornd> params(ntrajs);
@@ -128,11 +142,16 @@ int main(int argc, char **argv) {
 
     // compute probabilities
     for (unsigned int j = 0; j < trajs.size(); ++j) {
+      bool res = rk_ptr->toJointTrajectory(trajs[j],joint_trajs[j],0.1);
       std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),trajs[j]);
       approach.normalizeData(features);
       FeatureVector v = approach.logL(features);
       FeatureVector ve = grasp.logL(features); // gets log likelihood only for the final entry in the trajectory
-      ps[j] = (v.array().exp().sum() / v.size()) * (ve.array().exp()(ve.size()-1)); // would add other terms first
+      if (skill_name == "disengage") {
+        ps[j] = (double)res * (v.array().exp().sum() / v.size()); // would add other terms first
+      } else {
+        ps[j] = (double)res * (v.array().exp().sum() / v.size()) * (ve.array().exp()(ve.size()-1)); // would add other terms first
+      }
       sum += ps[j];
 
       if (ps[j] > best_p) {
@@ -141,11 +160,12 @@ int main(int argc, char **argv) {
       }
     }
 
-    // update distribution
-    dist.update(params,ps,noise,step_size);
+    if (sum > 1e-50) { 
+      // update distribution
+      dist.update(params,ps,noise,step_size);
+    }
 
     std::cout << "[" << i << "] >>>> AVG P = " << (sum / ntrajs) << std::endl;
-
   }
 
   std::cout << "Found best tajectory after " << iter << " iterations." << std::endl;
