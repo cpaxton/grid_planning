@@ -145,11 +145,12 @@ int main(int argc, char **argv) {
       bool res = rk_ptr->toJointTrajectory(trajs[j],joint_trajs[j],0.1);
       std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),trajs[j]);
       approach.normalizeData(features);
-      FeatureVector v = approach.logL(features);
-      FeatureVector ve = grasp.logL(features); // gets log likelihood only for the final entry in the trajectory
       if (skill_name == "disengage") {
+        FeatureVector v = disengage.logL(features);
         ps[j] = (double)res * (v.array().exp().sum() / v.size()); // would add other terms first
       } else {
+        FeatureVector v = approach.logL(features);
+        FeatureVector ve = grasp.logL(features); // gets log likelihood only for the final entry in the trajectory
         ps[j] = (double)res * (v.array().exp().sum() / v.size()) * (ve.array().exp()(ve.size()-1)); // would add other terms first
       }
       sum += ps[j];

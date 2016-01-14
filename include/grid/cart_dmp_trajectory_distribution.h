@@ -28,14 +28,14 @@ namespace grid {
    * - provide a Skill
    * - provide a RobotKinematics
    */
-  class DmpTrajectoryDistribution {
+  class CartDmpTrajectoryDistribution {
 
   public:
 
     /**
      * Initialize a trajectory distribution with given params
      */
-    DmpTrajectoryDistribution(unsigned int dim, unsigned int nbasis, RobotKinematicsPointer robot);
+    CartDmpTrajectoryDistribution(unsigned int dim, unsigned int nbasis, RobotKinematicsPointer robot);
 
     /**
      * initialize

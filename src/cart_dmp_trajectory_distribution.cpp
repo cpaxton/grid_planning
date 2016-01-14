@@ -14,7 +14,7 @@ namespace grid {
   /**
    * Initialize a trajectory distribution with given params
    */
-  DmpTrajectoryDistribution::DmpTrajectoryDistribution(unsigned int dim_, unsigned int nbasis_, RobotKinematicsPointer robot_)
+  CartDmpTrajectoryDistribution::DmpTrajectoryDistribution(unsigned int dim_, unsigned int nbasis_, RobotKinematicsPointer robot_)
     : dim(dim_),
     nbasis(nbasis_),
     robot(robot_),
@@ -45,7 +45,7 @@ namespace grid {
    * initialize
    * set up the distribution based on a skill and an environment
    */
-  void DmpTrajectoryDistribution::initialize(TestFeatures &features, const Skill &skill, std::vector<double> sigma) {
+  void CartDmpTrajectoryDistribution::initialize(TestFeatures &features, const Skill &skill, std::vector<double> sigma) {
     //Pose p0 = features.lookup(AGENT);
     Pose p1 = features.lookup(skill.getInitializationFeature()) * skill.getInitializationFinalPose();
 
@@ -96,7 +96,7 @@ namespace grid {
    * Convert it into a KDL trajectory
    * NON-CONST becuse Gmm::sample is likewise non-const
    */
-  void DmpTrajectoryDistribution::sample(std::vector<EigenVectornd> &params,std::vector<JointTrajectory> &trajs) {
+  void CartDmpTrajectoryDistribution::sample(std::vector<EigenVectornd> &params,std::vector<JointTrajectory> &trajs) {
 
     using KDL::Vector;
     using KDL::Rotation;
@@ -184,7 +184,7 @@ namespace grid {
    * take a set of trajectories and samples
    * use the trajectories to reweight the distribution
    */
-  void DmpTrajectoryDistribution::update(
+  void CartDmpTrajectoryDistribution::update(
       std::vector<EigenVectornd> &params,
       std::vector<double> &ps,
       double diagonal_noise)
@@ -197,7 +197,7 @@ namespace grid {
    * take a set of trajectories and samples
    * use the trajectories to reweight the distribution
    */
-  void DmpTrajectoryDistribution::update(
+  void CartDmpTrajectoryDistribution::update(
       std::vector<EigenVectornd> &params,
       std::vector<double> &ps)
   {
@@ -210,7 +210,7 @@ namespace grid {
    * take a set of trajectories and samples
    * use the trajectories to reweight the distribution
    */
-  void DmpTrajectoryDistribution::update(
+  void CartDmpTrajectoryDistribution::update(
       std::vector<EigenVectornd> &params,
       std::vector<double> &ps,
       double diagonal_noise,
