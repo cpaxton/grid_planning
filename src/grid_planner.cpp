@@ -40,10 +40,13 @@ namespace grid {
       state->setVariableValues(*msg); // update the current robot state
       state->update(true);
     }
+    //std::cout << "js cb = ";
     for (unsigned int i = 0; i < dof; ++i) {
+      //std::cout << msg->position[i] << " ";
       x0[i] = msg->position[i];
       x0_dot[i] = msg->velocity[i];
     }
+    //std::cout << std::endl;
   }
 
   /* get current joint positions */

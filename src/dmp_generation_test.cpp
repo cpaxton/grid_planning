@@ -80,6 +80,7 @@ int main(int argc, char **argv) {
 
   /* LOOP */
 
+  ros::spinOnce();
   ROS_INFO("Done setting up. Sleeping...");
   ros::Duration(1.0).sleep();
 
@@ -91,9 +92,11 @@ int main(int argc, char **argv) {
 
   try {
     while (ros::ok()) {
+      ros::spinOnce();
 
       ROS_INFO("Updating world...");
       test.updateWorldfromTF();
+
       rk_ptr->updateHint(gp.currentPos());
       rk_ptr->updateVelocityHint(gp.currentVel());
 

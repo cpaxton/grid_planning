@@ -7,7 +7,7 @@ using trajectory_msgs::JointTrajectoryPoint;
 using namespace Eigen;
 
 #define SHOW_SAMPLED_VALUES 0
-#define DEFAULT_SIGMA 0.00000000001
+#define DEFAULT_SIGMA 0.01
 
 namespace grid {
 
@@ -67,7 +67,7 @@ namespace grid {
 
     /*for (unsigned int j = 0; j < dist.ns[0].mu.size(); ++j) {
       std::cout<<dist.ns[0].mu(j)<<"\n";
-    }*/
+      }*/
 
     if (sigma.size() < nvars) {
       if (verbose) {
@@ -126,12 +126,12 @@ namespace grid {
 
       robot->IkPos(p,q);
       unsigned int idx = 0;
-      std::cout << "GOAL = ";
+      //std::cout << "GOAL = ";
       for (; idx < dim; ++idx) {
         dmp_goal[idx] = q(idx);
-        std::cout << q(idx) << " ";
+        //std::cout << q(idx) << " ";
       }
-      std::cout << std::endl;
+      //std::cout << std::endl;
 
       for (unsigned int i = 0; i < dim; ++i) {
         for (unsigned int j = 0; j < nbasis; ++j) {
@@ -141,12 +141,19 @@ namespace grid {
 
       unsigned char at_goal;
       dmp::DMPTraj plan;
+
+
+
       dmp::generatePlan(dmp_list,robot->getJointPos(),robot->getJointVel(),0,dmp_goal,goal_threshold,-1,tau,0.1,5,plan,at_goal);
 
       if (verbose) {
         std::cout << "--------------------------" << std::endl;
 
-        std::cout << "at goal: " << (unsigned int)at_goal << std::endl;
+        std::cout << "Using joints = ";
+        for (const double &q: robot->getJointPos()) {
+          std::cout << q << " ";
+        }
+        std::cout << std::endl;        std::cout << "at goal: " << (unsigned int)at_goal << std::endl;
         std::cout << "points: " << plan.points.size() << std::endl;
       }
 
