@@ -14,19 +14,22 @@ namespace grid {
   /**
    * Initialize a trajectory distribution with given params
    */
-  DmpTrajectoryDistribution::DmpTrajectoryDistribution(unsigned int nbasis_, RobotKinematicsPointer robot_)
-    : dim(robot_->getDegreesOfFreedom()),
+  DmpTrajectoryDistribution::DmpTrajectoryDistribution(unsigned int dim_, unsigned int nbasis_, RobotKinematicsPointer robot_)
+    : dim(dim_),
     nbasis(nbasis_),
     robot(robot_),
-    dist((dim*nbasis) + POSE_FEATURES_SIZE,1),
+    dist((dim_*nbasis_) + POSE_FEATURES_SIZE,1),
     verbose(false),
-    dmp_list(dim),
-    dmp_goal(dim),
+    dmp_list(dim_),
+    dmp_goal(dim_),
     k_gain(100),
     d_gain(20),
     tau(1.0),
-    goal_threshold(dim,0.1)
+    goal_threshold(dim_,0.1)
   {
+
+    assert(dim == robot->getDegreesOfFreedom());
+
     // set up anything else?
     nvars = dist.ns[0].mu.size();
 

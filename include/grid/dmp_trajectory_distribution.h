@@ -35,7 +35,7 @@ namespace grid {
     /**
      * Initialize a trajectory distribution with given params
      */
-    DmpTrajectoryDistribution(unsigned int nbasis, RobotKinematicsPointer robot);
+    DmpTrajectoryDistribution(unsigned int dim, unsigned int nbasis, RobotKinematicsPointer robot);
 
     /**
      * initialize

@@ -97,7 +97,8 @@ int main(int argc, char **argv) {
       test.updateWorldfromTF();
 
       ROS_INFO("Initializing trajectory distribution...");
-      DmpTrajectoryDistribution dist(5,rk_ptr);
+      std::cout << rk_ptr->getDegreesOfFreedom() << std::endl;
+      DmpTrajectoryDistribution dist(rk_ptr->getDegreesOfFreedom(),5,rk_ptr);
       dist.initialize(test,approach);
 
       ROS_INFO("Generating trajectories...");
