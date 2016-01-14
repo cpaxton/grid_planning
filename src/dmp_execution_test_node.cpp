@@ -131,17 +131,29 @@ int main(int argc, char **argv) {
     for (unsigned int j = 0; j < trajs.size(); ++j) {
 
       std::vector<Pose> poses = rk_ptr->FkPos(trajs[j]);
-      std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),poses);
-      approach.normalizeData(features);
 
 
       if (skill_name == "disengage") {
+
+        std::vector<FeatureVector> features = test.getFeaturesForTrajectory(disengage.getFeatures(),poses);
+        disengage.normalizeData(features);
         FeatureVector v = disengage.logL(features);
         ps[j] = (v.array().exp().sum() / v.size()); // would add other terms first
+
       } else {
+
+        std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),poses);
+        std::vector<FeatureVector> grasp_features = test.getFeaturesForTrajectory(grasp.getFeatures(),poses);
+
+        test.setAll(grasp_features,grasp.getFeatures(),"time",0);
+
+        approach.normalizeData(features);
+        grasp.normalizeData(grasp_features);
+
         FeatureVector v = approach.logL(features);
-        FeatureVector ve = grasp.logL(features); // gets log likelihood only for the final entry in the trajectory
+        FeatureVector ve = grasp.logL(grasp_features); // gets log likelihood only for the final entry in the trajectory
         ps[j] = (v.array().exp().sum() / v.size()) * (ve.array().exp()(ve.size()-1)); // would add other terms first
+        //ps[j] = (v.array().sum() / v.size()) + (ve.array()(ve.size()-1)); // would add other terms first
       }
       sum += ps[j];
 

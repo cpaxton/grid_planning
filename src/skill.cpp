@@ -226,12 +226,12 @@ namespace grid {
     std::cout << *model << std::endl;
   }
 
-    /**
-     * add a particular object that should be attached
-     * to the end of the kinematic chain for performing this motion
-     */
-    Skill &Skill::attachObject(const std::string &object) {
-      attached_object = object;
-      return *this;
-    }
+  /**
+   * add a particular object that should be attached
+   * to the end of the kinematic chain for performing this motion
+   */
+  Skill &Skill::attachObject(const std::string &object) {
+    attached_object = object;
+    return *this;
+  }
 }

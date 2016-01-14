@@ -89,6 +89,14 @@ namespace grid {
   class Features {
   public:
 
+    /**
+     * set all values in the vector to something
+     */
+    void setAll(std::vector<FeatureVector> &features,
+                const std::vector<std::string> &all_features,
+                const std::string &name,
+                const double &value);
+
     /* getPose
      * This function needs to be implemented by inheriting classes.
      * Time field helps determine when the query should occur.

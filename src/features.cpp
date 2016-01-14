@@ -5,7 +5,7 @@ namespace grid {
   std::vector< FeatureVector > Features::getFeatures(std::vector<std::string> &names) {
 
     std::vector< std::vector <double> > f;
-
+    std::cout << __FILE__ << ":" << __LINE__ << std::endl;
     for (const std::string &name: names) {
 
     }
@@ -27,6 +27,34 @@ namespace grid {
     updateFeaturesSize();
 
     return *this;
+  }
+
+
+  /**
+   * set all values in the vector to something
+   */
+  void Features::setAll(std::vector<FeatureVector> &features,
+                        const std::vector<std::string> &all_features,
+                        const std::string &name,
+                        const double &value)
+  {
+    unsigned int size = feature_sizes[name];
+    unsigned int idx = 0;
+
+    for (const std::string &fname: all_features) {
+      if (fname == name) {
+        for (FeatureVector &vec: features) {
+          for (unsigned int i = 0; i < size; ++i) {
+            //std::cout << vec(idx+i) << " at " << (idx+i);
+            vec(idx+i) = value;
+            //std::cout << " = " << vec(idx+i) << std::endl;
+          }
+        }
+        break;
+      } else {
+        idx += feature_sizes[fname];
+      }
+    }
   }
 
   /**
@@ -55,34 +83,34 @@ namespace grid {
     return features_size;
   }
 
-    /**
-     * getFeaturesSize
-     * Compute number of features we expect to see
-     */
-    unsigned int Features::getFeaturesSize(const std::string &name) const {
+  /**
+   * getFeaturesSize
+   * Compute number of features we expect to see
+   */
+  unsigned int Features::getFeaturesSize(const std::string &name) const {
+    if (feature_sizes.find(name) != feature_sizes.end()) {
+      return feature_sizes.at(name);
+    } else {
+      std::cerr << __FILE__ << ":" << __LINE__ << ": Unrecognized feature: " << name << std::endl;
+      return 0;
+    }
+  }
+
+  /**
+   * getFeaturesSize
+   * Compute number of features we expect to see
+   */
+  unsigned int Features::getFeaturesSize(const std::vector<std::string> &names) const {
+    unsigned int size = 0;
+    for (const std::string &name: names) {
       if (feature_sizes.find(name) != feature_sizes.end()) {
-        return feature_sizes.at(name);
+        size += feature_sizes.at(name);
       } else {
         std::cerr << __FILE__ << ":" << __LINE__ << ": Unrecognized feature: " << name << std::endl;
-        return 0;
       }
     }
-
-    /**
-     * getFeaturesSize
-     * Compute number of features we expect to see
-     */
-    unsigned int Features::getFeaturesSize(const std::vector<std::string> &names) const {
-      unsigned int size = 0;
-      for (const std::string &name: names) {
-        if (feature_sizes.find(name) != feature_sizes.end()) {
-          size += feature_sizes.at(name);
-        } else {
-          std::cerr << __FILE__ << ":" << __LINE__ << ": Unrecognized feature: " << name << std::endl;
-        }
-      }
-      return size;
-    }
+    return size;
+  }
 
   /** 
    * setRobotKinematics
@@ -126,35 +154,35 @@ namespace grid {
     using KDL::Vector;
 
 #ifdef USE_ROTATION_RPY
-        Rotation rot = Rotation::RPY(f[POSE_FEATURE_ROLL], f[POSE_FEATURE_PITCH], f[POSE_FEATURE_YAW]);
+    Rotation rot = Rotation::RPY(f[POSE_FEATURE_ROLL], f[POSE_FEATURE_PITCH], f[POSE_FEATURE_YAW]);
 #else
-        Rotation rot = Rotation::Quaternion(f[POSE_FEATURE_WX],f[POSE_FEATURE_WY],f[POSE_FEATURE_WZ],f[POSE_FEATURE_WW]);
-        //Rotation rot = Rotation::Quaternion(0,0,0,1);
+    Rotation rot = Rotation::Quaternion(f[POSE_FEATURE_WX],f[POSE_FEATURE_WY],f[POSE_FEATURE_WZ],f[POSE_FEATURE_WW]);
+    //Rotation rot = Rotation::Quaternion(0,0,0,1);
 #endif
-        Vector vec = Vector(f[POSE_FEATURE_X],f[POSE_FEATURE_Y],f[POSE_FEATURE_Z]);
-        p = Pose(rot,vec);
+    Vector vec = Vector(f[POSE_FEATURE_X],f[POSE_FEATURE_Y],f[POSE_FEATURE_Z]);
+    p = Pose(rot,vec);
   }
 
-    /**
-     * attach an object frame to this set of features by identifier
-     */
-    Features &Features::attachObjectFrame(const std::string &object) {
-      attached = true;
-      return *this;
-    }
+  /**
+   * attach an object frame to this set of features by identifier
+   */
+  Features &Features::attachObjectFrame(const std::string &object) {
+    attached = true;
+    return *this;
+  }
 
-    /**
-     * detach all object frames
-     */
-    Features &Features::detachObjectFrame() {
-      attachedObject = std::string("");
-      return *this;
-    }
+  /**
+   * detach all object frames
+   */
+  Features &Features::detachObjectFrame() {
+    attachedObject = std::string("");
+    return *this;
+  }
 
-    /**
-     * return the name of an attached object
-     */
-    const std::string &Features::getAttachedObject() const {
-      return attachedObject;
-    }
+  /**
+   * return the name of an attached object
+   */
+  const std::string &Features::getAttachedObject() const {
+    return attachedObject;
+  }
 }

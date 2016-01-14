@@ -21,6 +21,7 @@ int main(int argc, char **argv) {
   std::vector<std::shared_ptr<WamTrainingFeatures> > wtf(3);
 
   std::string filenames[] = {"data/sim/app1.bag", "data/sim/app2.bag", "data/sim/app3.bag"};
+  //std::string filenames[] = {"data/sim/grasp1.bag", "data/sim/grasp2.bag", "data/sim/grasp3.bag"};
 
   for (unsigned int i = 0; i < 3; ++i) {
     std::shared_ptr<WamTrainingFeatures> wtf_ex(new WamTrainingFeatures(objects));
