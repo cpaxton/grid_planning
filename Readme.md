@@ -39,6 +39,21 @@ This one does something a little different. It tries to disengage from a link, a
 
 Note that in both of these examples I set a large number of different parameters. You really don't need to worry about these. They matter a lot more depending on how many samples you're making. As my code is not heavily parallelized, it can be inefficient to create task plans for lots of different examples at once.
 
+Running the DMP tests is a little different. The basic DMP is actually in joint space, not cartesian space. This means that the trajectories you find will deal with joint limits, singularities, etc., but the configuration space is huge and unintuitive. So we need to search more slowly and draw a lot more samples. Here's an example:
+
+```
+rosrun grid_plan dmp_execution_test _step_size:=0.25 _iter:=50 _ntrajs:=100 _noise:=1e-10 trajectory:=/gazebo/traj_rml/joint_traj_cmd _skill:=approach
+```
+
+Results, for example:
+```
+[45] >>>> AVG P = 0.020318
+[46] >>>> AVG P = 0.0203147
+[47] >>>> AVG P = 0.0229661
+[48] >>>> AVG P = 0.0238406
+[49] >>>> AVG P = 0.0240259
+```
+
 ## Guide to Files
 
 ### Executables

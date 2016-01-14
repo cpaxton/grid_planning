@@ -24,7 +24,7 @@ namespace grid {
     dmp_goal(dim_),
     k_gain(100),
     d_gain(20),
-    tau(1.0),
+    tau(3.0),
     goal_threshold(dim_,0.01),
     dmp_velocity_multiplier(0.1)
   {

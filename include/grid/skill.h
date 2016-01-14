@@ -133,6 +133,16 @@ namespace grid {
      */
     void normalizeData(std::vector<FeatureVector> &data);
 
+    /**
+     * add model normalization to the different things
+     */
+    void addModelNormalization(const double &value);
+
+    /**
+     * reset the model back to its original matrices
+     */
+    void resetModel();
+
   protected:
 
     /** number of clusters in gmm */

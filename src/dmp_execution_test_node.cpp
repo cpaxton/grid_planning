@@ -152,8 +152,9 @@ int main(int argc, char **argv) {
 
         FeatureVector v = approach.logL(features);
         FeatureVector ve = grasp.logL(grasp_features); // gets log likelihood only for the final entry in the trajectory
-        ps[j] = (v.array().exp().sum() / v.size()) * (ve.array().exp()(ve.size()-1)); // would add other terms first
+        ps[j] = (v.array().exp().sum() / v.size());// * (ve.array().exp()(ve.size()-1)); // would add other terms first
         //ps[j] = (v.array().sum() / v.size()) + (ve.array()(ve.size()-1)); // would add other terms first
+        //std::cout << ps[j] << std::endl;
       }
       sum += ps[j];
 
