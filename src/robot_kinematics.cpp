@@ -46,6 +46,8 @@ namespace grid {
       joint_limits_min.resize(n_dof);
       joint_limits_max.resize(n_dof);
       hint.resize(n_dof);
+      q.resize(n_dof);
+      q_dot.resize(n_dof);
 
       // load joint limits
       // based off some of Jon's code in lcsr_controllers
@@ -119,6 +121,12 @@ namespace grid {
   }
 
 
+  /**
+   * convert a single pose into joint positions
+   */
+  int RobotKinematics::IkPos (const Pose &pose, KDL::JntArray &q) {
+    return kdl_ik_solver_pos->CartToJnt(hint, pose, q);
+  }
 
   /*
    * toJointTrajectory
@@ -218,8 +226,33 @@ namespace grid {
     //std::cout << "Hint: ";
     for(unsigned int i = 0; i < js.size(); ++i) {
       hint(i) = js.at(i);
+      q[i] = js.at(i);
       //std::cout << hint(i) << " ";
     }
     //std::cout << std::endl;
   }
+
+    /**
+     * get a hint as to the current velocity
+     */
+    void RobotKinematics::updateVelocityHint(const std::vector<double> &js_dot) {
+      for (unsigned int i = 0; i < q_dot.size(); ++i) {
+        q_dot[i] = js_dot.at(i);
+      }
+    }
+
+
+    /**
+     * get current joint positions
+     */
+    const std::vector<double> &RobotKinematics::getJointPos() const {
+      return q;
+    }
+
+    /**
+     * get current joint velocitities
+     */
+    const std::vector<double> &RobotKinematics::getJointVel() const {
+      return q_dot;
+    }
 }

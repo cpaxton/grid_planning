@@ -19,10 +19,22 @@ namespace grid {
     nbasis(nbasis_),
     robot(robot_),
     dist((dim*nbasis) + POSE_FEATURES_SIZE,1),
-    verbose(false)
+    verbose(false),
+    dmp_list(dim),
+    dmp_goal(dim),
+    k_gain(100),
+    d_gain(20),
+    tau(1.0),
+    goal_threshold(dim,0.1)
   {
     // set up anything else?
     nvars = dist.ns[0].mu.size();
+
+    for (unsigned int i = 0; i < dim; ++i) {
+      dmp_list[i].k_gain = k_gain;
+      dmp_list[i].d_gain = d_gain;
+      dmp_list[i].weights.resize(nbasis);
+    }
   }
 
   /**
@@ -101,12 +113,29 @@ namespace grid {
       Rotation r1 = Rotation::RPY(vec[POSE_FEATURE_ROLL],vec[POSE_FEATURE_PITCH],vec[POSE_FEATURE_YAW]);
       Pose p(r1,v1);
 
-      for(unsigned int idx = POSE_RPY_SIZE; idx < nvars; ++idx) {
-        // convert into DMP
+      robot->IkPos(p,q);
+      unsigned int idx = 0;
+      for (; idx < dim; ++idx) {
+        dmp_goal[idx] = q(idx);
       }
 
-      // execute the DMP and get a set of features
-      std::cout << __FILE__ << ": " << __LINE__ << std::endl;
+      for (unsigned int i = 0; i < dim; ++i) {
+        for (unsigned int j = 0; j < nbasis; ++j) {
+          dmp_list[i].weights[j] = vec[idx++];
+        }
+      }
+
+      unsigned char at_goal;
+      dmp::DMPTraj plan;
+      dmp::generatePlan(dmp_list,robot->getJointPos(),robot->getJointVel(),0,dmp_goal,goal_threshold,-1,tau,0.1,5,plan,at_goal);
+
+      if (verbose) {
+        std::cout << "--------------------------" << std::endl;
+
+        std::cout << "at goal: " << (unsigned int)at_goal << std::endl;
+        std::cout << "points: " << plan.points.size() << std::endl;
+      }
+
     }
   }
 

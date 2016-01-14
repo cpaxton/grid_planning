@@ -68,9 +68,31 @@ namespace grid {
                            double duration=1);
 
     /**
+     * convert a single pose into joint positions
+     */
+    int IkPos (const Pose &pose, KDL::JntArray &q);
+
+    /**
      * take a joint state message and use it to update KDL joints
      */
     void updateHint(const std::vector<double> &js);
+
+    /**
+     * get a hint as to the current velocity
+     */
+    void updateVelocityHint(const std::vector<double> &js_dot);
+
+
+    /**
+     * get current joint positions
+     */
+    const std::vector<double> &getJointPos() const;
+
+    /**
+     * get current joint velocitities
+     */
+    const std::vector<double> &getJointVel() const;
+
     /**
      * just to get a jt
      */
@@ -93,6 +115,9 @@ namespace grid {
     std::shared_ptr<KDL::ChainIkSolverPos> kdl_ik_solver_pos;
     unsigned int n_dof;
     int verbose;
+
+    std::vector<double> q;
+    std::vector<double> q_dot;
 
     KDL::JntArray joint_limits_min;
     KDL::JntArray joint_limits_max;

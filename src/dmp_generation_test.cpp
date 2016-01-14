@@ -4,6 +4,8 @@
 #include <grid/visualize.h>
 #include <grid/dmp_trajectory_distribution.h>
 
+#include <grid/grid_planner.h>
+
 using namespace grid;
 using namespace KDL;
 
@@ -13,6 +15,14 @@ int main(int argc, char **argv) {
   ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples",1000);
 
   RobotKinematicsPointer rk_ptr = RobotKinematicsPointer(new RobotKinematics("robot_description","wam/base_link","wam/wrist_palm_link"));
+  GridPlanner gp("robot_description","/gazebo/barrett_manager/wam/joint_states","/gazebo/planning_scene");
+  gp.SetDof(7);
+  gp.SetNumBasisFunctions(5);
+  gp.SetK(100);
+  gp.SetD(20);
+  gp.SetTau(1.0);
+  gp.SetGoalThreshold(0.1);
+
 
   TestFeatures test;
   test.addFeature("node",grid::POSE_FEATURE);

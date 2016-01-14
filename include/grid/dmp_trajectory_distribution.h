@@ -7,6 +7,8 @@
 #include <grid/dist/gmm.h>
 #include <grid/robot_kinematics.h>
 
+#include <kdl/jntarray.hpp>
+
 #include <trajectory_msgs/JointTrajectory.h>
 
 // primitives for motion planning
@@ -94,6 +96,15 @@ namespace grid {
 
     unsigned int nvars;
 
+    std::vector<dmp::DMPData> dmp_list;
+    std::vector<double> dmp_goal;
+
+    double k_gain;
+    double d_gain;
+    double tau;
+    std::vector<double> goal_threshold;
+
+    KDL::JntArray q;
     
 
   };
