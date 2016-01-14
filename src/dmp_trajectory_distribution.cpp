@@ -256,7 +256,7 @@ namespace grid {
     }
 
     for (unsigned int i = 0; i < dist.k; ++i) {
-      dist.ns[0].P += diagonal_noise * Matrix<double,Dynamic,Dynamic>::Identity(dim,dim);
+      dist.ns[0].P += diagonal_noise * Matrix<double,Dynamic,Dynamic>::Identity(nvars,nvars);
     }
 
     dist.Update();

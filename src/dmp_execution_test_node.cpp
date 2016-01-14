@@ -1,5 +1,5 @@
 
-#include <grid/trajectory_distribution.h>
+#include <grid/dmp_trajectory_distribution.h>
 #include <grid/test_features.h>
 #include <grid/wam_training_features.h>
 #include <grid/visualize.h>
@@ -99,7 +99,7 @@ int main(int argc, char **argv) {
   test.updateWorldfromTF();
 
   ROS_INFO("Initializing trajectory distribution...");
-  TrajectoryDistribution dist(3,1);
+  DmpTrajectoryDistribution dist(rk_ptr->getDegreesOfFreedom(),5,rk_ptr);
 
   if (skill_name == "disengage") {
     dist.initialize(test,disengage);
@@ -107,50 +107,37 @@ int main(int argc, char **argv) {
     dist.initialize(test,approach);
   }
 
-  std::vector<Trajectory *> trajs(ntrajs);
   std::vector<EigenVectornd> params(ntrajs);
-  std::vector<JointTrajectory> joint_trajs(ntrajs);
+  std::vector<JointTrajectory> trajs(ntrajs);
   std::vector<double> ps(ntrajs);
-
-  for(unsigned int i = 0; i < ntrajs; ++i) {
-    trajs[i] = 0;
-    //joint_trajs[i] = rk_ptr->getEmptyJointTrajectory();
-  }
-
 
   double best_p = 0;
   unsigned int best_idx = 0;
 
   for (int i = 0; i < iter; ++i) {
 
-    for (unsigned int j = 0; j < trajs.size(); ++j) {
-      if (trajs[j]) {
-        delete trajs[j];
-        trajs[j] = 0;
-      }
-    }
-
     //ros::Duration(0.25).sleep();
     ros::spinOnce();
     rk_ptr->updateHint(gp.currentPos());
+    rk_ptr->updateVelocityHint(gp.currentVel());
 
     // sample trajectories
     dist.sample(params,trajs);
-    pub.publish(toPoseArray(trajs,0.05,test.getWorldFrame()));
+    pub.publish(toPoseArray(trajs,test.getWorldFrame(),rk_ptr));
 
     double sum = 0;
 
     // compute probabilities
     for (unsigned int j = 0; j < trajs.size(); ++j) {
-      bool res = rk_ptr->toJointTrajectory(trajs[j],joint_trajs[j],0.1);
-      std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),trajs[j]);
+      std::vector<Pose> poses = rk_ptr->FkPos(trajs[i]);
+      std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),poses);
       approach.normalizeData(features);
       FeatureVector v = approach.logL(features);
       FeatureVector ve = grasp.logL(features); // gets log likelihood only for the final entry in the trajectory
       if (skill_name == "disengage") {
-        ps[j] = (double)res * (v.array().exp().sum() / v.size()); // would add other terms first
+        ps[j] = (v.array().exp().sum() / v.size()); // would add other terms first
       } else {
-        ps[j] = (double)res * (v.array().exp().sum() / v.size()) * (ve.array().exp()(ve.size()-1)); // would add other terms first
+        ps[j] = (v.array().exp().sum() / v.size()) * (ve.array().exp()(ve.size()-1)); // would add other terms first
       }
       sum += ps[j];
 
@@ -173,28 +160,13 @@ int main(int argc, char **argv) {
 
   std::cout << "Found best tajectory after " << iter << " iterations." << std::endl;
 
-  bool res = rk_ptr->toJointTrajectory(trajs[best_idx],joint_trajs[best_idx],0.1);
-  std::cout << "IK result: "; //<< res << std::endl;
-  if (res) {
-    std:: cout << "SUCCESS!" << std::endl;
-  } else {
-    std::cout << "failure :(" << std::endl;
-  }
-
-  std::cout << "Length: " << joint_trajs[best_idx].points.size() << std::endl;
-  std::cout << "DOF: " << joint_trajs[best_idx].points[0].positions.size() << std::endl;
+  std::cout << "Length: " << trajs[best_idx].points.size() << std::endl;
+  std::cout << "DOF: " << trajs[best_idx].points[0].positions.size() << std::endl;
 
   // set final point to all zeros
-  for (double &d: joint_trajs[best_idx].points.rbegin()->velocities) {
+  for (double &d: trajs[best_idx].points.rbegin()->velocities) {
     d = 0;
   }
 
-  if (res) {
-    jpub.publish(joint_trajs[best_idx]);
-  }
-
-  for (unsigned int j = 0; j < trajs.size(); ++j) {
-    delete trajs[j];
-    trajs[j] = 0;
-  }
+  jpub.publish(trajs[best_idx]);
 }

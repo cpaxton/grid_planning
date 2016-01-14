@@ -20,7 +20,7 @@ namespace grid {
   protected:
     gcop::Gmm<> dist; // stores distributions
     unsigned int nseg; // number of segments
-    unsigned int dim; // dimensionality of the trajectory space
+    unsigned int nvars; // dimensionality of the trajectory space
     Pose initial;
     bool verbose;
     double diagonal_sigma;

@@ -29,7 +29,7 @@ namespace grid {
     diagonal_sigma(1e-5),
     def_step_size(0.80)
   {
-    dim = (POSE_FEATURES_SIZE + SPLINE_DIM) * nseg; // velocity, acceleration, position setpoints for each segment
+    nvars = (POSE_FEATURES_SIZE + SPLINE_DIM) * nseg; // velocity, acceleration, position setpoints for each segment
   }
 
   /**
@@ -85,18 +85,18 @@ namespace grid {
       dist.ns[0].mu[idx+SEGMENT_DURATION] = 1.0;
     }
 
-    if (sigma.size() < dim) {
+    if (sigma.size() < nvars) {
       if (verbose) {
         std::cerr << "[GRID/TRAJECTORY DISTRIBUTION] Noise argument for trajectory search initialization was the wrong size!" << std::endl;
-        std::cerr << "[GRID/TRAJECTORY DISTRIBUTION] Should be: " << dim << std::endl;
+        std::cerr << "[GRID/TRAJECTORY DISTRIBUTION] Should be: " << nvars << std::endl;
         std::cerr << "[GRID/TRAJECTORY DISTRIBUTION] Was: " << sigma.size() << std::endl;
       }
-      for (int j = 0; j < dim; ++j) {
+      for (int j = 0; j < nvars; ++j) {
         dist.ns[0].P(j,j) = DEFAULT_SIGMA;
       }
 
     } else {
-      for (int j = 0; j < dim; ++j) {
+      for (int j = 0; j < nvars; ++j) {
         dist.ns[0].P(j,j) = sigma[j];
       }
     }
@@ -191,7 +191,7 @@ namespace grid {
     }
 
     for (unsigned int i = 0; i < dist.k; ++i) {
-      dist.ns[0].P += diagonal_noise * Matrix<double,Dynamic,Dynamic>::Identity(dim,dim);
+      dist.ns[0].P += diagonal_noise * Matrix<double,Dynamic,Dynamic>::Identity(nvars,nvars);
     }
 
     dist.Update();
@@ -213,14 +213,14 @@ namespace grid {
       Trajectory_Composite *ctraj = new Trajectory_Composite();
 
       EigenVectornd vec;
-      vec.resize(dim);
+      vec.resize(nvars);
       dist.Sample(vec);
 
       params[sample] = vec;
 
 #if SHOW_SAMPLED_VALUES
       std::cout << "Sampled: ";
-      for (int j = 0; j < dim; ++j) {
+      for (int j = 0; j < nvars; ++j) {
         std::cout << vec[j] << " ";
       }
       std::cout << std::endl;
