@@ -7,7 +7,7 @@ using trajectory_msgs::JointTrajectoryPoint;
 using namespace Eigen;
 
 #define SHOW_SAMPLED_VALUES 0
-#define DEFAULT_SIGMA 0.01
+#define DEFAULT_SIGMA 0.00000000001
 
 namespace grid {
 
@@ -25,7 +25,7 @@ namespace grid {
     k_gain(100),
     d_gain(20),
     tau(1.0),
-    goal_threshold(dim_,0.1)
+    goal_threshold(dim_,0.01)
   {
 
     assert(dim == robot->getDegreesOfFreedom());
@@ -60,6 +60,14 @@ namespace grid {
     dist.ns[0].mu[POSE_FEATURE_YAW] = yaw;
     dist.ns[0].mu[POSE_FEATURE_PITCH] = pitch;
     dist.ns[0].mu[POSE_FEATURE_ROLL] = roll;
+
+    for (int j = POSE_RPY_SIZE; j < nvars; ++j) {
+      dist.ns[0].mu[j] = 0;
+    }
+
+    /*for (unsigned int j = 0; j < dist.ns[0].mu.size(); ++j) {
+      std::cout<<dist.ns[0].mu(j)<<"\n";
+    }*/
 
     if (sigma.size() < nvars) {
       if (verbose) {
@@ -118,9 +126,12 @@ namespace grid {
 
       robot->IkPos(p,q);
       unsigned int idx = 0;
+      std::cout << "GOAL = ";
       for (; idx < dim; ++idx) {
         dmp_goal[idx] = q(idx);
+        std::cout << q(idx) << " ";
       }
+      std::cout << std::endl;
 
       for (unsigned int i = 0; i < dim; ++i) {
         for (unsigned int j = 0; j < nbasis; ++j) {
@@ -139,6 +150,12 @@ namespace grid {
         std::cout << "points: " << plan.points.size() << std::endl;
       }
 
+
+      trajs[sample].points.resize(plan.points.size());
+      for (unsigned int j = 0; j < plan.points.size(); ++j) {
+        trajs[sample].points[j].positions = plan.points[j].positions;
+        trajs[sample].points[j].velocities = plan.points[j].velocities;
+      }
     }
   }
 

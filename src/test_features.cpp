@@ -229,7 +229,7 @@ namespace grid {
       }
       features[next_idx++] = f;
 
-      return features;
     }
+    return features;
   }
 }

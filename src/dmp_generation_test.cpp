@@ -23,7 +23,6 @@ int main(int argc, char **argv) {
   gp.SetTau(1.0);
   gp.SetGoalThreshold(0.1);
 
-
   TestFeatures test;
   test.addFeature("node",grid::POSE_FEATURE);
   test.addFeature("link",grid::POSE_FEATURE);
@@ -95,6 +94,8 @@ int main(int argc, char **argv) {
 
       ROS_INFO("Updating world...");
       test.updateWorldfromTF();
+      rk_ptr->updateHint(gp.currentPos());
+      rk_ptr->updateVelocityHint(gp.currentVel());
 
       ROS_INFO("Initializing trajectory distribution...");
       std::cout << rk_ptr->getDegreesOfFreedom() << std::endl;
