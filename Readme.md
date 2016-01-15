@@ -46,6 +46,7 @@ rosrun grid_plan dmp_execution_test _step_size:=0.25 _iter:=50 _ntrajs:=100 _noi
 ```
 
 Results, for example:
+
 ```
 [45] >>>> AVG P = 0.020318
 [46] >>>> AVG P = 0.0203147
@@ -53,6 +54,16 @@ Results, for example:
 [48] >>>> AVG P = 0.0238406
 [49] >>>> AVG P = 0.0240259
 ```
+
+As of 2016-01-15, some that worked:
+
+```
+rosrun grid_plan dmp_execution_test _step_size:=0.75 _iter:=20 _ntrajs:=50 _noise:=1e-10 trajectory:=/gazebo/traj_rml/joint_traj_cmd _skill:=disengage
+rosrun grid_plan dmp_execution_test _step_size:=0.75 _iter:=20 _ntrajs:=50 _noise:=1e-10 trajectory:=/gazebo/traj_rml/joint_traj_cmd _skill:=approach
+rosrun grid_plan dmp_execution_test _step_size:=0.75 _iter:=20 _ntrajs:=50 _noise:=1e-10 trajectory:=/gazebo/traj_rml/joint_traj_cmd _skill:=prepare
+```
+
+The __prepare__ action is intended to move to the beginning of an approach.
 
 ## Guide to Files
 
