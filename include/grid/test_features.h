@@ -97,7 +97,6 @@ namespace grid {
     // tf
     tf::TransformListener listener;
   };
-
 }
 
 #endif

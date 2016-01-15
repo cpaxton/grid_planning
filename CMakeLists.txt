@@ -80,6 +80,10 @@ catkin_package(
 include_directories( include ${orocos_kdl_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_PATH} ${EIGEN3_INCLUDE_DIRS} )
 #message(STATUS ${GCOP_INCLUDE_DIRS})
 
+set(PY_SOURCES
+  src/grid_planner.cpp
+)
+
 set(SOURCES 
   src/grid_planner.cpp
   src/collision_map.cpp
@@ -102,6 +106,10 @@ set(SOURCES
   src/wam/input.cpp
 
   src/dist/utils.cc
+)
+
+set(PY_HEADERS
+  include/grid/grid_planner.h
 )
 
 set(HEADERS
@@ -132,7 +140,7 @@ set(HEADERS
 
 ## Declare a cpp library
 add_library(grid_planner ${SOURCES} ${HEADERS})
-add_library(pygrid_planner ${SOURCES} ${HEADERS})
+add_library(pygrid_planner ${PY_SOURCES} ${PY_HEADERS})
 
 SET(PY_PROJECT_NAME grid)
 SET(PY_PACKAGE_DIR python/grid)

@@ -26,4 +26,30 @@ namespace grid {
     return *this;
   }
 
+
+    /**
+     * create a new skill with dmps
+     */
+    InstantiatedSkillPointer InstantiatedSkill::DmpInstance(SkillPointer skill, TestFeaturesPointer features, unsigned int nbasis) {
+      InstantiatedSkill is;
+
+    }
+
+    /**
+     * create a new skill with spline and segments
+     */
+    InstantiatedSkillPointer InstantiatedSkill::SplineInstance(SkillPointer skill, TestFeaturesPointer features, unsigned int nseg) {
+
+      InstantiatedSkill is;
+      is.skill = skill;
+      is.features = features;
+
+
+    }
+
+    void InstantiatedSkill::step() {
+
+
+    }
+
 }
