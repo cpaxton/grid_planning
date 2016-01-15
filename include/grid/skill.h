@@ -45,6 +45,16 @@ namespace grid {
     Pose &getInitializationFinalPose();
 
     /**
+     * return a pose associated with object frame for a given feature
+     */
+    Pose getInitializationStartPose() const;
+
+    /**
+     * return a pose associated with object frame for a given feature
+     */
+    Pose &getInitializationStartPose();
+
+    /**
      * return the exact list of features used for training this
      */
     const std::vector<std::string> &getFeatures() const;
@@ -109,6 +119,7 @@ namespace grid {
      * return the name of the best feature and only that feature
      */
     const std::string &getInitializationFeature() const;
+
 
     /**
      * concatenate
@@ -182,6 +193,7 @@ namespace grid {
     std::string name;
 
     Pose init_final; // final pose relative to best_feature_name
+    Pose init_start; // starting pose
 
     std::vector<Matrixnd> P; // true P as per initialization
     FeatureVector mean; // normalizer mean

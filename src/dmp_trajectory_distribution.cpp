@@ -45,9 +45,14 @@ namespace grid {
    * initialize
    * set up the distribution based on a skill and an environment
    */
-  void DmpTrajectoryDistribution::initialize(TestFeatures &features, const Skill &skill, std::vector<double> sigma) {
+  void DmpTrajectoryDistribution::initialize(TestFeatures &features, const Skill &skill, bool initBegin, std::vector<double> sigma) {
     //Pose p0 = features.lookup(AGENT);
-    Pose p1 = features.lookup(skill.getInitializationFeature()) * skill.getInitializationFinalPose();
+    Pose p1 = features.lookup(skill.getInitializationFeature());
+    if (not initBegin) {
+      p1 = p1 * skill.getInitializationFinalPose();
+    } else {
+      p1 = p1 * skill.getInitializationStartPose();
+    }
 
     unsigned int idx = 0;
 

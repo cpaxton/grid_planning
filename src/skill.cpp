@@ -26,6 +26,22 @@ namespace grid {
   }
 
   /**
+   * return a pose associated with object frame for a given feature
+   */
+  Pose &Skill::getInitializationStartPose() {
+    return init_start;
+  }
+
+  /**
+   * return a pose associated with object frame for a given feature
+   */
+  Pose Skill::getInitializationStartPose() const {
+    return init_start;
+  }
+
+
+
+  /**
    * default skill;
    * one object feature; identity covariance; k=1 gmm
    */
@@ -104,7 +120,7 @@ namespace grid {
     }
 
     init_final = data.getPoseFrom(best_feature_name,*ex_data.rbegin());
-
+    init_start = data.getPoseFrom(best_feature_name,*ex_data.begin());
   }
 
   /**

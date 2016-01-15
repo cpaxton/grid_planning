@@ -126,6 +126,21 @@ int main(int argc, char **argv) {
         FeatureVector v = disengage.logL(features);
         ps[j] = (v.array().exp().sum() / v.size()); // would add other terms first
 
+      } else if (p.skill_name == "prepare") {
+
+        approach.resetModel();
+        approach.addModelNormalization(model_norm);
+
+        std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),poses);
+
+        test.setAll(features,approach.getFeatures(),"time",0);
+
+        approach.normalizeData(features);
+        grasp.normalizeData(features);
+
+        FeatureVector v = approach.logL(features);
+        ps[j] = (v.array().exp()(v.size()-1)); // would add other terms first
+
       } else {
 
         approach.resetModel();
