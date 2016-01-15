@@ -234,4 +234,28 @@ namespace grid {
     attached_object = object;
     return *this;
   }
+
+    /**
+     * add model normalization to the different things
+     */
+    void Skill::addModelNormalization(const double &value) {
+      unsigned int i = 0;
+      unsigned int dim = model->ns[0].mu.size();
+      for (auto &n: model->ns) {
+        n.P += (value * Matrixnd::Identity(dim,dim));
+        ++i;
+      }
+    }
+
+    /**
+     * reset the model back to its original matrices
+     */
+    void Skill::resetModel() {
+      unsigned int i = 0;
+      for (auto &n: model->ns) {
+        n.P = P[i];
+        ++i;
+      }
+    }
+
 }
