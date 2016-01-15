@@ -111,6 +111,7 @@ namespace grid {
   };
 
 
+  typedef std::shared_ptr<DmpTrajectoryDistribution> DmpTrajectoryDistributionPointer;
 }
 
 #endif

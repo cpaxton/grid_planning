@@ -95,6 +95,7 @@ set(SOURCES
   src/wam_training_features.cpp
   src/robot_kinematics.cpp
   src/task_model.cpp
+  src/instantiated_skill.cpp
 
   src/utils/commander.cpp
 
@@ -118,6 +119,7 @@ set(HEADERS
   include/grid/wam_training_features.h
   include/grid/robot_kinematics.h
   include/grid/task_model.h
+  include/grid/instantiated_skill.h
 
   include/grid/utils/commander.h
 

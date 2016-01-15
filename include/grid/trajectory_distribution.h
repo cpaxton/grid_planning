@@ -78,6 +78,8 @@ namespace grid {
 
   };
 
+  typedef std::shared_ptr<TrajectoryDistribution> TrajectoryDistributionPointer;
+
 }
 
 #endif

@@ -10,35 +10,6 @@
 namespace grid {
 
   /**
-   * creating predicates
-   * What is going to change after we do this
-   */
-  struct PredicateEffect {
-    std::string predicate;
-    bool value;
-    SkillPointer skill; // this is where we actually need to learn the effects model
-  };
-
-
-
-  /**
-   * Defines a particular instance of a skill
-   */
-  struct InstantiatedSkill {
-
-    unsigned int id; // unique id for this skill
-
-    std::unordered_map<std::string,std::string> assignment;
-    SkillPointer skill; // the skill itself
-    TrajectoryDistribution dist; // the path we end up taking for this skill
-
-    std::vector<double> T; // probability of going to each of the possible next actions
-    std::vector<InstantiatedSkillPointer> next;
-
-    std::vector<PredicateEffect> effects;
-  };
-
-  /**
    * Defines the whole task model.
    * We add a set of "raw" skills, appropriately configured.
    * We use these to set up transitions.
