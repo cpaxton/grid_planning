@@ -4,6 +4,7 @@
 #include <grid/wam_training_features.h>
 #include <grid/visualize.h>
 #include <grid/grid_planner.h>
+#include <grid/utils/params.hpp>
 
 #include <grid/wam/input.h>
 
@@ -42,27 +43,7 @@ int main(int argc, char **argv) {
   test.setFrame("gbeam_node_1/gbeam_node","node");
   test.setFrame("gbeam_link_1/gbeam_link","link");
 
-  double step_size;
-  double noise;
-  int ntrajs = 50;
-  int iter = 10;
-  std::string skill_name;
-  ros::NodeHandle nh_tilde("~");
-  if (not nh_tilde.getParam("step_size",step_size)) {
-    step_size = 0.80;
-  }
-  if (not nh_tilde.getParam("noise",noise)) {
-    noise = 1e-10;
-  }
-  if (not nh_tilde.getParam("ntrajs",ntrajs)) {
-    ntrajs = 50;
-  }
-  if (not nh_tilde.getParam("iter",iter)) {
-    iter = 10;
-  }
-  if (not nh_tilde.getParam("skill",skill_name)) {
-    skill_name = "approach";
-  }
+  Params p = readRosParams();
 
   Skill approach("approach");
   Skill grasp("grasp");
@@ -101,20 +82,22 @@ int main(int argc, char **argv) {
   ROS_INFO("Initializing trajectory distribution...");
   DmpTrajectoryDistribution dist(rk_ptr->getDegreesOfFreedom(),5,rk_ptr);
 
-  if (skill_name == "disengage") {
+  if (p.skill_name == "disengage") {
     dist.initialize(test,disengage);
   } else {
     dist.initialize(test,approach);
   }
 
-  std::vector<EigenVectornd> params(ntrajs);
-  std::vector<JointTrajectory> trajs(ntrajs);
-  std::vector<double> ps(ntrajs);
+  std::vector<EigenVectornd> params(p.ntrajs);
+  std::vector<JointTrajectory> trajs(p.ntrajs);
+  std::vector<double> ps(p.ntrajs);
 
   double best_p = 0;
   unsigned int best_idx = 0;
 
-  for (int i = 0; i < iter; ++i) {
+  std::vector<double> iter_lls(p.iter);
+
+  for (int i = 0; i < p.iter; ++i) {
 
     ros::Duration(0.25).sleep();
     ros::spinOnce();
@@ -126,14 +109,14 @@ int main(int argc, char **argv) {
     pub.publish(toPoseArray(trajs,test.getWorldFrame(),rk_ptr));
 
     double sum = 0;
+    double model_norm = p.base_model_norm;
 
     // compute probabilities
     for (unsigned int j = 0; j < trajs.size(); ++j) {
 
       std::vector<Pose> poses = rk_ptr->FkPos(trajs[j]);
 
-
-      if (skill_name == "disengage") {
+      if (p.skill_name == "disengage") {
 
         std::vector<FeatureVector> features = test.getFeaturesForTrajectory(disengage.getFeatures(),poses);
         disengage.normalizeData(features);
@@ -141,6 +124,12 @@ int main(int argc, char **argv) {
         ps[j] = (v.array().exp().sum() / v.size()); // would add other terms first
 
       } else {
+
+        approach.resetModel();
+        approach.addModelNormalization(model_norm);
+
+        grasp.resetModel();
+        grasp.addModelNormalization(model_norm);
 
         std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),poses);
         std::vector<FeatureVector> grasp_features = test.getFeaturesForTrajectory(grasp.getFeatures(),poses);
@@ -152,8 +141,8 @@ int main(int argc, char **argv) {
 
         FeatureVector v = approach.logL(features);
         FeatureVector ve = grasp.logL(grasp_features); // gets log likelihood only for the final entry in the trajectory
-        ps[j] = (v.array().exp().sum() / v.size());// * (ve.array().exp()(ve.size()-1)); // would add other terms first
-        //ps[j] = (v.array().sum() / v.size()) + (ve.array()(ve.size()-1)); // would add other terms first
+        //ps[j] = (v.array().exp().sum() / v.size());// * (ve.array().exp()(ve.size()-1)); // would add other terms first
+        ps[j] = (v.array().exp().sum() / v.size()) * (ve.array().exp()(ve.size()-1)); // would add other terms first
         //std::cout << ps[j] << std::endl;
       }
       sum += ps[j];
@@ -162,20 +151,28 @@ int main(int argc, char **argv) {
         best_p = ps[j];
         best_idx = j;
       }
+
     }
 
     //if (sum > 1e-50) { 
     // update distribution
-    dist.update(params,ps,noise,step_size);
+    dist.update(params,ps,p.noise,p.step_size);
     //} else {
     //i--;
     //   continue;
     //}
 
-    std::cout << "[" << i << "] >>>> AVG P = " << (sum / ntrajs) << std::endl;
+    std::cout << "[" << i << "] >>>> AVG P = " << (sum / p.ntrajs) << std::endl;
+    iter_lls[i] = sum / p.ntrajs;
+
+
+    if (i > 0 && iter_lls[i] > iter_lls[i+1]) {
+      std::cout<<"decreasing normalization\n";
+      model_norm *= p.model_norm_step;
+    }
   }
 
-  std::cout << "Found best tajectory after " << iter << " iterations." << std::endl;
+  std::cout << "Found best tajectory after " << p.iter << " iterations." << std::endl;
 
   std::cout << "Length: " << trajs[best_idx].points.size() << std::endl;
   std::cout << "DOF: " << trajs[best_idx].points[0].positions.size() << std::endl;
