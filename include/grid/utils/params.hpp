@@ -9,8 +9,11 @@ namespace grid {
   struct Params {
     double base_model_norm;
     double model_norm_step;
+    double base_sampling_noise;
+    double sampling_noise_step;
     double step_size;
     double noise;
+    double wait;
     int ntrajs = 50;
     int iter = 10;
     std::string skill_name;
@@ -44,6 +47,15 @@ namespace grid {
     }
     if (not nh_tilde.getParam("model_norm_step",p.model_norm_step)) {
       p.model_norm_step = 0.1;
+    }
+    if (not nh_tilde.getParam("base_sampling_noise",p.base_sampling_noise)) {
+      p.base_sampling_noise = 0.01;
+    }
+    if (not nh_tilde.getParam("sampling_noise_step",p.sampling_noise_step)) {
+      p.sampling_noise_step = 0.1;
+    }
+    if (not nh_tilde.getParam("wait",p.wait)) {
+      p.wait = 0.25;
     }
 
   return p;

@@ -21,7 +21,7 @@ namespace grid {
     for (double t = 0; t < traj->Duration(); t += dt) {
       geometry_msgs::Pose p;
       tf::Pose tfp;
-      tf::poseKDLToTF(traj->Pos(t),tfp);
+      tf::poseKDLToTF(traj->Pos(t) * KDL::Frame(KDL::Rotation::RotY(-1. * M_PI / 2)),tfp);
       tf::poseTFToMsg(tfp,p);
 
       msg.poses.push_back(p);
@@ -39,7 +39,7 @@ namespace grid {
       for (double t = 0; t < traj[i]->Duration(); t += dt) {
         geometry_msgs::Pose p;
         tf::Pose tfp;
-        tf::poseKDLToTF(traj[i]->Pos(t),tfp);
+        tf::poseKDLToTF(traj[i]->Pos(t) * KDL::Frame(KDL::Rotation::RotY(-1. * M_PI / 2)),tfp);
         tf::poseTFToMsg(tfp,p);
 
         msg.poses.push_back(p);
@@ -59,7 +59,7 @@ namespace grid {
     for (unsigned int i = 0; i < traj.size(); ++i) {
 
       for (JointTrajectoryPoint &pt: traj[i].points) {
-        Pose kdl_pose = robot->FkPos(pt.positions);
+        Pose kdl_pose = robot->FkPos(pt.positions) * KDL::Frame(KDL::Rotation::RotY(-1. * M_PI / 2));
         geometry_msgs::Pose p;
         tf::Pose tfp;
         tf::poseKDLToTF(kdl_pose,tfp);

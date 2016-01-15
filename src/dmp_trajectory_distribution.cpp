@@ -7,7 +7,7 @@ using trajectory_msgs::JointTrajectoryPoint;
 using namespace Eigen;
 
 #define SHOW_SAMPLED_VALUES 0
-#define DEFAULT_SIGMA 0.1
+#define DEFAULT_SIGMA 0.01
 
 namespace grid {
 
@@ -77,7 +77,12 @@ namespace grid {
         std::cerr << "[GRID/TRAJECTORY DISTRIBUTION] Was: " << sigma.size() << std::endl;
       }
       for (int j = 0; j < nvars; ++j) {
-        dist.ns[0].P(j,j) = DEFAULT_SIGMA;
+        if (j < POSE_RPY_SIZE) { 
+          dist.ns[0].P(j,j) = DEFAULT_SIGMA;
+        }
+        else {
+          dist.ns[0].P(j,j) = 10*DEFAULT_SIGMA;
+        }
       }
 
     } else {

@@ -99,7 +99,7 @@ int main(int argc, char **argv) {
 
   for (int i = 0; i < p.iter; ++i) {
 
-    ros::Duration(0.25).sleep();
+    ros::Duration(p.wait).sleep();
     ros::spinOnce();
     rk_ptr->updateHint(gp.currentPos());
     rk_ptr->updateVelocityHint(gp.currentVel());
@@ -117,6 +117,9 @@ int main(int argc, char **argv) {
       std::vector<Pose> poses = rk_ptr->FkPos(trajs[j]);
 
       if (p.skill_name == "disengage") {
+
+        disengage.resetModel();
+        disengage.addModelNormalization(model_norm);
 
         std::vector<FeatureVector> features = test.getFeaturesForTrajectory(disengage.getFeatures(),poses);
         disengage.normalizeData(features);
@@ -167,7 +170,7 @@ int main(int argc, char **argv) {
 
 
     if (i > 0 && iter_lls[i] > iter_lls[i+1]) {
-      std::cout<<"decreasing normalization\n";
+      //std::cout<<"decreasing normalization\n";
       model_norm *= p.model_norm_step;
     }
   }

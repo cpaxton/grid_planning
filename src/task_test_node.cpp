@@ -11,6 +11,8 @@
 #include <grid/task_model.h>
 #include <grid/robot_kinematics.h>
 
+#include <grid/utils/params.hpp>
+
 #include <grid/wam/input.h>
 
 using namespace grid;
@@ -19,23 +21,7 @@ int main(int argc, char **argv) {
 
   ros::init(argc,argv,"task_model_test_node");
 
-  double step_size;
-  double noise;
-  int ntrajs = 50;
-  int iter = 10;
-  ros::NodeHandle nh_tilde("~");
-  if (not nh_tilde.getParam("step_size",step_size)) {
-    step_size = 0.80;
-  }
-  if (not nh_tilde.getParam("noise",noise)) {
-    noise = 1e-10;
-  }
-  if (not nh_tilde.getParam("ntrajs",ntrajs)) {
-    ntrajs = 50;
-  }
-  if (not nh_tilde.getParam("iter",iter)) {
-    iter = 10;
-  }
+  Params p = readRosParams();
 
   Skill approach("approach");
   Skill grasp("grasp");
