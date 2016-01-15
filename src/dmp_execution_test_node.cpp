@@ -136,7 +136,6 @@ int main(int argc, char **argv) {
         test.setAll(features,approach.getFeatures(),"time",0);
 
         approach.normalizeData(features);
-        grasp.normalizeData(features);
 
         FeatureVector v = approach.logL(features);
         ps[j] = (v.array().exp()(v.size()-1)); // would add other terms first
