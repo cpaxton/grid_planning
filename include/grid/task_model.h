@@ -4,6 +4,7 @@
 #include <unordered_map>
 
 #include <grid/skill.h>
+#include <grid/instantiated_skill.h>
 #include <grid/trajectory_distribution.h>
 
 namespace grid {
@@ -15,6 +16,7 @@ namespace grid {
   struct PredicateEffect {
     std::string predicate;
     bool value;
+    SkillPointer skill; // this is where we actually need to learn the effects model
   };
 
 
@@ -30,7 +32,8 @@ namespace grid {
     SkillPointer skill; // the skill itself
     TrajectoryDistribution dist; // the path we end up taking for this skill
 
-    std::vector<double> transitions; // probability of going to each of the possible next actions
+    std::vector<double> T; // probability of going to each of the possible next actions
+    std::vector<InstantiatedSkillPointer> next;
 
     std::vector<PredicateEffect> effects;
   };
