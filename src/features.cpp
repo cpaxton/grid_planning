@@ -2,6 +2,15 @@
 
 namespace grid {
 
+
+    /** 
+     * initializers
+     */
+  Features::Features() : attached(false), attachedObjectFrame(), attachedObject("")
+  {
+
+  }
+
   std::vector< FeatureVector > Features::getFeatures(std::vector<std::string> &names) {
 
     std::vector< std::vector <double> > f;

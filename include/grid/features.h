@@ -191,6 +191,12 @@ namespace grid {
      */
     const std::string &getAttachedObject() const;
 
+
+    /** 
+     * initializers
+     */
+    Features();
+
   protected:
 
     bool attached;

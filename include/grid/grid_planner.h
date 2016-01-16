@@ -169,13 +169,14 @@ namespace grid {
     bool verbose;
 
     std::shared_ptr<boost::mutex> ps_mutex;
+    std::shared_ptr<boost::mutex> js_mutex;
 
   private:
     ros::NodeHandle nh;
+
     std::shared_ptr<robot_state::RobotState> state;
-    //robot_state::RobotStatePtr state;
     std::shared_ptr<planning_scene::PlanningScene> scene;
-    //planning_scene::PlanningScenePtr scene;
+
     ros::Subscriber js_sub;
     ros::Subscriber ps_sub;
 

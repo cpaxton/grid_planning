@@ -6,6 +6,7 @@
 #include <grid/test_features.h>
 #include <grid/dmp_trajectory_distribution.h>
 #include <grid/trajectory_distribution.h>
+#include <grid/robot_kinematics.h>
 #include <grid/skill.h>
 
 namespace grid {
@@ -64,12 +65,20 @@ namespace grid {
     /**
      * create a new skill with dmps
      */
-    static InstantiatedSkillPointer DmpInstance(SkillPointer skill, TestFeaturesPointer features, unsigned int nbasis);
+    static InstantiatedSkillPointer DmpInstance(SkillPointer skill,
+                                                TestFeaturesPointer features,
+                                                RobotKinematicsPointer robot,
+                                                unsigned int nbasis);
 
     /**
      * create a new skill with spline and segments
      */
     static InstantiatedSkillPointer SplineInstance(SkillPointer skill, TestFeaturesPointer features, unsigned int nseg);
+
+    /**
+     * create an empty root node
+     */
+    static InstantiatedSkillPointer Root();
 
     /**
      * define a possible child

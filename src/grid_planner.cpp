@@ -27,15 +27,18 @@ namespace grid {
   const std::string GridPlanner::PS_TOPIC("monitored_planning_scene");
 
   const std::vector<double> &GridPlanner::currentPos() const {
+    boost::mutex::scoped_lock lock(*js_mutex);
     return x0;
   }
 
   const std::vector<double> &GridPlanner::currentVel() const {
+    boost::mutex::scoped_lock lock(*js_mutex);
     return x0_dot;
   }
 
   /* keep robot joints up to date */
   void GridPlanner::JointStateCallback(const sensor_msgs::JointState::ConstPtr &msg) {
+    boost::mutex::scoped_lock lock(*js_mutex);
     if (state) {
       state->setVariableValues(*msg); // update the current robot state
       state->update(true);
@@ -72,9 +75,12 @@ namespace grid {
                            const std::string &scene_topic,
                            const double padding)
 
-    : nh(), dof(7), num_basis(5), goal(7), x0(7), x0_dot(7), goal_threshold(7,0.1), threshold(0.1), verbose(false)
+    : nh(), dof(7), num_basis(5), goal(7), x0(7), x0_dot(7), goal_threshold(7,0.1), threshold(0.1), verbose(false),
+    entry_names(), joint_names(7)
     {
       ps_mutex = std::shared_ptr<boost::mutex>(new boost::mutex);
+      js_mutex = std::shared_ptr<boost::mutex>(new boost::mutex);
+
       js_sub = nh.subscribe(js_topic.c_str(),1000,&GridPlanner::JointStateCallback,this);
 
       // needs to set up the Robot objects and listeners
@@ -89,18 +95,24 @@ namespace grid {
         std::cerr << ex.what() << std::endl;
       }
 
+      std::vector<std::string> tmp_entry_names;
+
       scene = std::shared_ptr<PlanningScene>(new PlanningScene(model));
-      scene->getAllowedCollisionMatrix().getAllEntryNames(entry_names);
+      scene->getAllowedCollisionMatrix().getAllEntryNames(tmp_entry_names);
       scene->getCollisionRobotNonConst()->setPadding(padding);
       scene->propogateRobotPadding();
       state = std::shared_ptr<RobotState>(new RobotState(model));
       search_state = std::shared_ptr<RobotState>(new RobotState(model));
 
+      for (const std::string &entry: tmp_entry_names) {
+        entry_names.push_back(std::string(entry));
+      }
+
       //scene = PlanningScenePtr(new PlanningScene(model));
       //state = RobotStatePtr(new RobotState(model));
       //search_state = RobotStatePtr(new RobotState(model));
 
-      boost::shared_ptr<tf::TransformListener> tf(new tf::TransformListener(ros::Duration(2.0)));
+      //boost::shared_ptr<tf::TransformListener> tf(new tf::TransformListener(ros::Duration(2.0)));
 
       //monitor->startPublishingPlanningScene(PlanningSceneMonitor::SceneUpdateType::UPDATE_SCENE,PS_TOPIC);
       ps_sub = nh.subscribe(scene_topic.c_str(),1000,&GridPlanner::PlanningSceneCallback,this);
@@ -108,12 +120,30 @@ namespace grid {
 
   /* destructor */
   GridPlanner::~GridPlanner() {
+    using std::vector; 
+
+    boost::mutex::scoped_lock ps_lock(*ps_mutex);
+    boost::mutex::scoped_lock js_lock(*js_mutex);
+
     js_sub.~Subscriber();
     ps_sub.~Subscriber();
+
+#if 0
     state.~shared_ptr<RobotState>();
     scene.~shared_ptr<PlanningScene>();
     search_state.~shared_ptr<RobotState>();
     model.~RobotModelPtr();
+#endif
+
+#if 0
+    goal.~vector<double>();
+    goal_threshold.~vector<double>();
+    x0.~vector<double>();
+    x0_dot.~vector<double>();
+
+    joint_names.~vector<std::string>();
+    entry_names.~vector<std::string>();
+#endif
   }
 
   /* add an object to the action here */
@@ -331,7 +361,7 @@ namespace grid {
       int i = 0;
       for (const std::string &name: search_state->getVariableNames()) {
         std::cout << "setting up joint " << i << ":" << name << std::endl;
-        joint_names.push_back(name);
+        joint_names[i] = std::string(name);
         i++;
         if (i >= dof) { break; }
       }

@@ -29,7 +29,7 @@ namespace grid {
    * initialize training features with the necessary world objects to find
    */
   TrainingFeatures::TrainingFeatures(const std::vector<std::string> &objects_) :
-    objects(objects_), min_t(0), max_t(0)
+    Features(), objects(objects_), min_t(0), max_t(0)
   {
     topics.push_back(JOINT_STATES_TOPIC);
     topics.push_back(BASE_TFORM_TOPIC);
