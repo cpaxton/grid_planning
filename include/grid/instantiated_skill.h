@@ -8,6 +8,7 @@
 #include <grid/trajectory_distribution.h>
 #include <grid/robot_kinematics.h>
 #include <grid/skill.h>
+#include <grid/utils/params.h>
 
 namespace grid {
 
@@ -35,7 +36,7 @@ namespace grid {
 
     static unsigned int next_id;
 
-    unsigned int id; // unique id for this skill
+    const unsigned int id; // unique id for this skill
     bool done; // set to true if we don't need to keep evaluating this
     bool touched; // has anyone done anything with this skill yet
 
@@ -50,6 +51,22 @@ namespace grid {
 
     std::vector<PredicateEffect> effects;
 
+    RobotKinematicsPointer robot;
+
+    // data
+    std::vector<FeatureVector> params;
+    std::vector<JointTrajectory> trajs;
+    std::vector<double> ps;
+    std::vector<double> iter_lls;
+
+    Params p;
+
+    // parameters
+    double model_norm;
+    double best_p;
+    unsigned int best_idx;
+    unsigned int cur_iter;
+
   public:
 
     /** 
@@ -58,9 +75,19 @@ namespace grid {
     InstantiatedSkill();
 
     /**
+     * set up with parameters
+     */
+    InstantiatedSkill(Params &p_);
+
+    /**
      * set all child skills to not done
      */
     InstantiatedSkill &refresh();
+
+    /**
+     * set all variables back to original values
+     */
+    void reset();
 
     /**
      * create a new skill with dmps
@@ -73,7 +100,10 @@ namespace grid {
     /**
      * create a new skill with spline and segments
      */
-    static InstantiatedSkillPointer SplineInstance(SkillPointer skill, TestFeaturesPointer features, unsigned int nseg);
+    static InstantiatedSkillPointer SplineInstance(SkillPointer skill,
+                                                   TestFeaturesPointer features,
+                                                   RobotKinematicsPointer robot,
+                                                   unsigned int nseg);
 
     /**
      * create an empty root node

@@ -4,7 +4,7 @@
 #include <grid/wam_training_features.h>
 #include <grid/visualize.h>
 #include <grid/grid_planner.h>
-#include <grid/utils/params.hpp>
+#include <grid/utils/params.h>
 
 #include <grid/wam/input.h>
 
@@ -97,6 +97,8 @@ int main(int argc, char **argv) {
 
   std::vector<double> iter_lls(p.iter);
 
+  double model_norm = p.base_model_norm;
+
   for (int i = 0; i < p.iter; ++i) {
 
     ros::Duration(p.wait).sleep();
@@ -109,7 +111,6 @@ int main(int argc, char **argv) {
     pub.publish(toPoseArray(trajs,test.getWorldFrame(),rk_ptr));
 
     double sum = 0;
-    double model_norm = p.base_model_norm;
 
     // compute probabilities
     for (unsigned int j = 0; j < trajs.size(); ++j) {
@@ -183,7 +184,7 @@ int main(int argc, char **argv) {
     iter_lls[i] = sum / p.ntrajs;
 
 
-    if (i > 0 && iter_lls[i] > iter_lls[i+1]) {
+    if (i > 0 && iter_lls[i] > iter_lls[i-1]) {
       //std::cout<<"decreasing normalization\n";
       model_norm *= p.model_norm_step;
     }

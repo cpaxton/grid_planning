@@ -12,7 +12,7 @@
 #include <grid/robot_kinematics.h>
 #include <grid/grid_planner.h>
 
-#include <grid/utils/params.hpp>
+#include <grid/utils/params.h>
 
 #include <grid/wam/input.h>
 

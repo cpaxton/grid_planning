@@ -102,6 +102,7 @@ set(SOURCES
   src/instantiated_skill.cpp
 
   src/utils/commander.cpp
+  src/utils/params.cpp
 
   src/wam/input.cpp
 
@@ -130,6 +131,7 @@ set(HEADERS
   include/grid/instantiated_skill.h
 
   include/grid/utils/commander.h
+  include/grid/utils/params.h
 
   include/grid/wam/input.h
 
