@@ -132,7 +132,9 @@ namespace grid {
     }
 
     if (attached) {
-        attachedObjectFrame = lookup(attachedObject,AGENT);
+        attachedObjectFrame = lookup(AGENT).Inverse() * lookup(attachedObject);
+        //attachedObjectFrame = lookup(AGENT,attachedObject);
+        //std::cout << attachedObjectFrame << "\n";
     } else {
         attachedObjectFrame = Pose();
     }
@@ -215,8 +217,15 @@ namespace grid {
 
           Pose offset = currentPose[name].Inverse() * p;
           if (attached) {
+            //std::cout << "attaching\n";
+            //std::cout << attachedObjectFrame << "\n";
             offset = offset * attachedObjectFrame;
           }
+          //std::cout << "\tComputed at x=" << offset.p.x()
+          //  <<", y=" << offset.p.y()
+          //  <<", z=" << offset.p.z()
+          //  <<std::endl;
+
 
           getPoseFeatures(offset,f,idx);
           idx+= POSE_FEATURES_SIZE;

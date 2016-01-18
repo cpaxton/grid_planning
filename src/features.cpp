@@ -177,6 +177,7 @@ namespace grid {
    */
   Features &Features::attachObjectFrame(const std::string &object) {
     attached = true;
+    attachedObject = object;
     return *this;
   }
 

@@ -48,26 +48,35 @@ int main(int argc, char **argv) {
   Skill approach("approach");
   Skill grasp("grasp");
   Skill disengage("disengage");
+  Skill align("align");
 
   approach.appendFeature("link").appendFeature("time").setInitializationFeature("link");
   grasp.appendFeature("link").appendFeature("time").setInitializationFeature("link");
   disengage.appendFeature("link").appendFeature("time").setInitializationFeature("link");
+  align.appendFeature("link").appendFeature("time").setInitializationFeature("link").attachObject("link");
 
-  /* LOAD TRAINING DATA FOR APPROACH */
-  {
-    std::string filenames[] = {"data/sim/app1.bag", "data/sim/app2.bag", "data/sim/app3.bag"};
-    load_and_train_skill(approach, rk_ptr, filenames);
-  }
-  /* LOAD TRAINING DATA FOR GRASP */
-  {
-    std::string filenames[] = {"data/sim/grasp1.bag", "data/sim/grasp2.bag", "data/sim/grasp3.bag"};
-    load_and_train_skill(grasp, rk_ptr, filenames);
-  }
-  /* LOAD TRAINING DATA FOR DISENGAGE */
-  {
+  if (p.skill_name == "approach") {
+    /* LOAD TRAINING DATA FOR APPROACH */
+    {
+      std::string filenames[] = {"data/sim/app1.bag", "data/sim/app2.bag", "data/sim/app3.bag"};
+      load_and_train_skill(approach, rk_ptr, filenames);
+    }
+    /* LOAD TRAINING DATA FOR GRASP */
+    {
+      std::string filenames[] = {"data/sim/grasp1.bag", "data/sim/grasp2.bag", "data/sim/grasp3.bag"};
+      load_and_train_skill(grasp, rk_ptr, filenames);
+    }
+  } else if (p.skill_name == "disengage") {
+    /* LOAD TRAINING DATA FOR DISENGAGE */
     std::string filenames[] = {"data/sim/disengage1.bag", "data/sim/disengage2.bag", "data/sim/disengage3.bag"};
     load_and_train_skill(disengage, rk_ptr, filenames);
+  } else if (p.skill_name == "align") {
+    /* LOAD TRAINING DATA FOR ALIGN*/
+    std::string filenames[] = {"data/sim/align1.bag", "data/sim/align2.bag", "data/sim/align3.bag"};
+    load_and_train_skill(align, rk_ptr, filenames);
+    test.attachObjectFrame(align.attachedObjectFrame());
   }
+
 
   ROS_INFO("Done setting up. Sleeping...");
   ros::Duration(1.0).sleep();
@@ -84,6 +93,8 @@ int main(int argc, char **argv) {
 
   if (p.skill_name == "disengage") {
     dist.initialize(test,disengage);
+  } else if (p.skill_name == "align") {
+    dist.initialize(test,align);
   } else {
     dist.initialize(test,approach);
   }
@@ -126,6 +137,17 @@ int main(int argc, char **argv) {
         disengage.normalizeData(features);
         FeatureVector v = disengage.logL(features);
         ps[j] = (v.array().exp().sum() / v.size()); // would add other terms first
+
+      } else if (p.skill_name == "align") {
+
+        align.resetModel();
+        align.addModelNormalization(model_norm);
+
+        std::vector<FeatureVector> features = test.getFeaturesForTrajectory(align.getFeatures(),poses);
+        align.normalizeData(features);
+        FeatureVector v = align.logL(features);
+        ps[j] = (v.array().exp().sum() / v.size()); // would add other terms first
+
 
       } else if (p.skill_name == "prepare") {
 

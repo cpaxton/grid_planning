@@ -32,6 +32,7 @@ int main (int argc, char **argv) {
   test.setWorldFrame("world");
   test.setFrame("gbeam_node_1/gbeam_node","node");
   test.setFrame("gbeam_link_1/gbeam_link","link");
+  test.attachObjectFrame("link");
 
   ROS_INFO("Done setting up. Sleeping...");
   ros::Duration(1.0).sleep();
@@ -82,7 +83,7 @@ int main (int argc, char **argv) {
         std::cout<<traj->Duration()<<std::endl;
 
         for (; t < traj->Duration(); t += dt) {
-          Frame f = traj->Pos(t);
+          Frame f = test.lookup(AGENT) * traj->Pos(t);
           frames.push_back(f);
         }
 
@@ -101,7 +102,8 @@ int main (int argc, char **argv) {
         using namespace std;
 
         std::vector<std::string> test_set;
-        test_set.push_back("link");
+        //test_set.push_back("link");
+        test_set.push_back("node");
         clock_t begin = clock();
         features = test.getFeaturesForTrajectory(test_set,frames);
         clock_t end = clock();
@@ -110,9 +112,10 @@ int main (int argc, char **argv) {
       }
 
       geometry_msgs::PoseArray msg;
-      msg.header.frame_id = "gbeam_link_1/gbeam_link"; //"wam/wrist_palm_link";
+      //msg.header.frame_id = "gbeam_link_1/gbeam_link"; //"wam/wrist_palm_link";
+      msg.header.frame_id = "gbeam_node_1/gbeam_node"; //"wam/wrist_palm_node";
 
-      std::cout << "Feature size: " << features[0].size() << std::endl;
+      //std::cout << "Feature size: " << features[0].size() << std::endl;
 
       for (int idx = 0; idx < features.size(); ++idx) {
 

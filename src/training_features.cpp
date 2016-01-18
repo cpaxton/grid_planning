@@ -190,6 +190,7 @@ namespace grid {
           if (not attached) {
             pose = w.object_poses.at(feature).Inverse() * w.base_tform * w.ee_tform;
           } else {
+            //std::cout << "attached object: " << attachedObject << "\n";
             pose = w.object_poses.at(attachedObject).Inverse() * w.base_tform * w.ee_tform;
           }
 

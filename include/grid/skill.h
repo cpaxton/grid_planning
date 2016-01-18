@@ -154,6 +154,17 @@ namespace grid {
      */
     void resetModel();
 
+    /**
+     * is an object attached?
+     */
+    const bool hasAttachedObject() const;
+
+    /** 
+     * what object is attached?
+     */
+    const std::string &attachedObjectFrame() const;
+
+
   protected:
 
     /** number of clusters in gmm */

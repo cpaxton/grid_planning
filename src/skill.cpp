@@ -73,7 +73,7 @@ namespace grid {
    * create a skill based on a set of features and a number of clusters
    */
   Skill::Skill(int k, std::vector<std::string> &feature_names_, Features &features) :
-    feature_names(feature_names_)
+    feature_names(feature_names_), attached_object("")
   {
     unsigned int dim = features.getFeaturesSize();
     model = GmmPtr(new Gmm(dim,k));
@@ -82,7 +82,7 @@ namespace grid {
   /**
    * create a skill based on k and d
    */
-  Skill::Skill(const std::string &name_, int k_) : name(name_), k(k_) {
+  Skill::Skill(const std::string &name_, int k_) : name(name_), k(k_), attached_object("") {
     // do nothing for now
   }
 
@@ -251,27 +251,41 @@ namespace grid {
     return *this;
   }
 
-    /**
-     * add model normalization to the different things
-     */
-    void Skill::addModelNormalization(const double &value) {
-      unsigned int i = 0;
-      unsigned int dim = model->ns[0].mu.size();
-      for (auto &n: model->ns) {
-        n.P += (value * Matrixnd::Identity(dim,dim));
-        ++i;
-      }
+  /**
+   * add model normalization to the different things
+   */
+  void Skill::addModelNormalization(const double &value) {
+    unsigned int i = 0;
+    unsigned int dim = model->ns[0].mu.size();
+    for (auto &n: model->ns) {
+      n.P += (value * Matrixnd::Identity(dim,dim));
+      ++i;
     }
+  }
 
-    /**
-     * reset the model back to its original matrices
-     */
-    void Skill::resetModel() {
-      unsigned int i = 0;
-      for (auto &n: model->ns) {
-        n.P = P[i];
-        ++i;
-      }
+  /**
+   * reset the model back to its original matrices
+   */
+  void Skill::resetModel() {
+    unsigned int i = 0;
+    for (auto &n: model->ns) {
+      n.P = P[i];
+      ++i;
     }
+  }
+
+  /**
+   * is an object attached?
+   */
+  const bool Skill::hasAttachedObject() const {
+    return attached_object.size() > 0;
+  }
+
+  /** 
+   * what object is attached?
+   */
+  const std::string &Skill::attachedObjectFrame() const {
+    return attached_object;
+  }
 
 }

@@ -20,7 +20,8 @@ int main(int argc, char **argv) {
 
   std::vector<std::shared_ptr<WamTrainingFeatures> > wtf(3);
 
-  std::string filenames[] = {"data/sim/app1.bag", "data/sim/app2.bag", "data/sim/app3.bag"};
+  //std::string filenames[] = {"data/sim/app1.bag", "data/sim/app2.bag", "data/sim/app3.bag"};
+  std::string filenames[] = {"data/sim/align1.bag", "data/sim/align2.bag", "data/sim/align3.bag"};
   //std::string filenames[] = {"data/sim/grasp1.bag", "data/sim/grasp2.bag", "data/sim/grasp3.bag"};
 
   for (unsigned int i = 0; i < 3; ++i) {
@@ -28,6 +29,7 @@ int main(int argc, char **argv) {
     wtf_ex->addFeature("time",TIME_FEATURE);
     wtf_ex->setRobotKinematics(rk_ptr);
     wtf_ex->read(filenames[i]);
+    wtf_ex->attachObjectFrame("link");
     wtf[i] = wtf_ex;
   }
 
@@ -39,7 +41,8 @@ int main(int argc, char **argv) {
   {
 
     std::vector<std::string> features;
-    features.push_back("link");
+    //features.push_back("link");
+    features.push_back("node");
     features.push_back("time");
 
     clock_t begin = clock();
@@ -90,6 +93,7 @@ int main(int argc, char **argv) {
 
   Skill test("approach",1);
   test.appendFeature("link").appendFeature("time");
+  test.attachObject("link");
   for (unsigned int i = 0; i < 3; ++i) {
     test.addTrainingData(*wtf[i]);
   }
@@ -106,7 +110,8 @@ int main(int argc, char **argv) {
   msg.header.frame_id = "gbeam_link_1/gbeam_link"; //"wam/wrist_palm_link";
   for (unsigned int i = 0; i < 3; ++i) {
 
-    std::vector<Pose> poses = wtf[i]->getPose("link");
+    //std::vector<Pose> poses = wtf[i]->getPose("link");
+    std::vector<Pose> poses = wtf[i]->getPose("node");
 
     for (Pose &pose: poses) {
       tf::Pose tfp;
