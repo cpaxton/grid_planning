@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
   approach.appendFeature("link").appendFeature("time").setInitializationFeature("link");
   grasp.appendFeature("link").appendFeature("time").setInitializationFeature("link");
   disengage.appendFeature("link").appendFeature("time").setInitializationFeature("link");
-  align.appendFeature("link").appendFeature("time").setInitializationFeature("link").attachObject("link");
+  align.appendFeature("node").appendFeature("time").setInitializationFeature("node").attachObject("link");
 
   if (p.skill_name == "approach") {
     /* LOAD TRAINING DATA FOR APPROACH */

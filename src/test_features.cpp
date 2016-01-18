@@ -241,4 +241,12 @@ namespace grid {
     }
     return features;
   }
+
+
+    /**
+     * get current attached object frame
+     */
+    const Pose &TestFeatures::getAttachedObjectFrame() const {
+      return attachedObjectFrame;
+    }
 }

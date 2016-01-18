@@ -81,6 +81,11 @@ namespace grid {
      */
     Pose getCurrentEndEffector() const;
 
+    /**
+     * get current attached object frame
+     */
+    const Pose &getAttachedObjectFrame() const;
+
   private:
     std::unordered_map<std::string, std::string> objectClassToID;
     std::unordered_map<std::string, Pose> currentPose; // used for fast lookup
