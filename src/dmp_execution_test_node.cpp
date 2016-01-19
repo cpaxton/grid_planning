@@ -128,7 +128,14 @@ int main(int argc, char **argv) {
 
       std::vector<Pose> poses = rk_ptr->FkPos(trajs[j]);
 
-      if (p.skill_name == "disengage") {
+      bool collision = false;
+      if (p.detect_collisions) {
+        collision = !gp.TryTrajectory(trajs[j]);
+      }
+
+      if (collision) {
+        ps[j] = 0;
+      } else if (p.skill_name == "disengage") {
 
         disengage.resetModel();
         disengage.addModelNormalization(model_norm);

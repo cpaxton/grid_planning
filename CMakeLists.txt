@@ -95,7 +95,6 @@ set(SOURCES
   src/trajectory_distribution.cpp
   src/dmp_trajectory_distribution.cpp
   src/predicate.cpp
-  src/grammar.cpp
   src/wam_training_features.cpp
   src/robot_kinematics.cpp
   src/task_model.cpp
@@ -124,7 +123,6 @@ set(HEADERS
   include/grid/trajectory_distribution.h
   include/grid/dmp_trajectory_distribution.h
   include/grid/predicate.h
-  include/grid/grammar.h
   include/grid/wam_training_features.h
   include/grid/robot_kinematics.h
   include/grid/task_model.h

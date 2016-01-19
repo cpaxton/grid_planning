@@ -38,6 +38,9 @@ namespace grid {
       if (not nh_tilde.getParam("wait",p.wait)) {
         p.wait = 0.25;
       }
+      if (not nh_tilde.getParam("detect_collisions",p.detect_collisions)) {
+        p.detect_collisions = false;
+      }
 
       return p;
     }

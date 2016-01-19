@@ -458,6 +458,47 @@ namespace grid {
       return !drop_trajectory;
     }
 
+    /*
+     * try a single trajectory and see if it works.
+     * this is the joint trajectory version (so we can use a consistent message type)
+     * */
+    bool GridPlanner::TryTrajectory(const Traj_t &traj) {
+      boost::mutex::scoped_lock lock(*ps_mutex);
+      scene->getCurrentStateNonConst().update(); 
+
+      bool colliding, bounds_satisfied;
+
+      collision_detection::CollisionRobotConstPtr robot1 = scene->getCollisionRobot();
+      std::string name = robot1->getRobotModel()->getName();
+
+      state->update();
+
+      bool drop_trajectory = false;
+      for (const auto &pt: traj.points) {
+        if (verbose) {
+          std::cout << "pt: ";
+          for (double q: pt.positions) {
+            std::cout << q << " ";
+          }
+        }
+
+        search_state->setVariablePositions(joint_names,pt.positions);
+        search_state->update(true);
+
+        drop_trajectory |= !scene->isStateValid(*search_state,"",verbose);
+
+        if (verbose) {
+          std::cout << " = dropped? " << drop_trajectory << std::endl;
+        }
+
+
+        if (drop_trajectory) {
+          break;
+        }
+      }
+
+      return !drop_trajectory;
+    }
   }
 
   BOOST_PYTHON_MODULE(pygrid_planner) {

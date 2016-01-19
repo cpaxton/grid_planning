@@ -115,6 +115,12 @@ namespace grid {
     /* try a single trajectory and see if it works. */
     bool TryTrajectory(const std::vector <std::vector<double> > &traj);
 
+    /*
+     * try a single trajectory and see if it works.
+     * this is the joint trajectory version (so we can use a consistent message type)
+     * */
+    bool TryTrajectory(const Traj_t &traj);
+
     /* update planning scene topic */
     void  SetPlanningSceneTopic(const std::string &topic);
   

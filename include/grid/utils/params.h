@@ -16,6 +16,7 @@ namespace grid {
     double wait;
     int ntrajs = 50;
     int iter = 10;
+    bool detect_collisions;
     std::string skill_name;
     std::string goal_name;
   };
