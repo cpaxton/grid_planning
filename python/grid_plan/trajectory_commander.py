@@ -7,7 +7,7 @@ import std_msgs
 '''
 Trajectory Commander
 sends points to the robot, one at a time.
-This relies on us having a particular positon/velocity goal.
+This relies on us having a particular position/velocity goal.
 The reason we do this is to let us sync up with time commands.
 '''
 
