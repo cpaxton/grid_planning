@@ -65,6 +65,14 @@ rosrun grid_plan dmp_execution_test _step_size:=0.75 _iter:=20 _ntrajs:=50 _nois
 
 The __prepare__ action is intended to move to the beginning of an approach.
 
+### Enabling Collision Detection
+
+Collision detection is disabled by default for now, but you can enable it in any particular node by setting the __detect_collisions__ flag to true. For example:
+
+```
+rosrun grid_plan dmp_execution_test _step_size:=0.75 _iter:=10 _ntrajs:=20 _noise:=1e-10 trajectory:=/gazebo/traj_rml/joint_traj_cmd _skill:=approach _wait:=0.25 _detect_collisions:=1
+```
+
 ## Guide to Files
 
 ### Executables
