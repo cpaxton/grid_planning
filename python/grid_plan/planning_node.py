@@ -144,9 +144,9 @@ class PyPlanner:
         self.gp.SetTau(2.0);
         self.gp.SetGoalThreshold(0.1);
         self.gp.SetVerbose(False);
-        self.skill_pub = rospy.Publisher(SKILL_TOPIC,std_msgs.msg.String)
-        self.msg_pub = rospy.Publisher(MSG_TOPIC,PoseArray)
-        self.sample_pub = rospy.Publisher('samples',PoseArray)
+        self.skill_pub = rospy.Publisher(SKILL_TOPIC,std_msgs.msg.String,queue_size=1000)
+        self.msg_pub = rospy.Publisher(MSG_TOPIC,PoseArray,queue_size=1000)
+        self.sample_pub = rospy.Publisher('samples',PoseArray,queue_size=1000)
 
     def notify(self,skill_name):
         print "Planning skill '%s'..."%(skill_name)

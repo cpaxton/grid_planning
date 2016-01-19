@@ -80,7 +80,7 @@ class GripperRegressor:
         self.skill_sub = rospy.Subscriber(skill_topic,std_msgs.msg.String,self.skill_cb)
         self.progress_sub = rospy.Subscriber(progress_topic,std_msgs.msg.Float64,self.progress_cb)
         self.js_sub = rospy.Subscriber(features.js_topic,sensor_msgs.msg.JointState,self.js_cb)
-        self.cmd_pub = rospy.Publisher(cmd_topic,oro_barrett_msgs.msg.BHandCmd)
+        self.cmd_pub = rospy.Publisher(cmd_topic,oro_barrett_msgs.msg.BHandCmd,queue_size=1000)
         self.robot = grid.RobotFeatures(
                 base_link=features.base_link,
                 end_link=features.end_link,

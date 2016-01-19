@@ -21,7 +21,7 @@ class TrajectoryCommander:
         self.command_topic = command_topic
         self.step = abs(step);
 
-        self.pub = rospy.Publisher(output_topic,std_msgs.msg.Float64)
+        self.pub = rospy.Publisher(output_topic,std_msgs.msg.Float64,queue_size=1000)
         if not command_topic is None:
             self.sub = rospy.Subscriber(command_topic,trajectory_msgs.msg.JointTrajectory,self.cmd_cb)
 
