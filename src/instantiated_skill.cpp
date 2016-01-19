@@ -19,7 +19,11 @@ namespace grid {
   InstantiatedSkill::InstantiatedSkill(Params &p_) :
     p(p_),
     id(next_id++), done(false), touched(false), spline_dist(0), dmp_dist(0), skill(0),
-    effects(), iter_lls(p_.iter), current(false), trajs(p_.ntrajs), params(p_.ntrajs), cur_iter(0)
+    effects(),
+    ps(p_.ntrajs), iter_lls(p_.iter),
+    current(false),
+    trajs(p_.ntrajs),
+    params(p_.ntrajs), cur_iter(0)
   {
     reset();
   }
@@ -64,7 +68,8 @@ namespace grid {
                                                           unsigned int nbasis)
   {
 
-    InstantiatedSkillPointer is(new InstantiatedSkill());
+    Params p = readRosParams();
+    InstantiatedSkillPointer is(new InstantiatedSkill(p));
     is->skill = skill;
     is->features = features;
     is->robot = robot;
@@ -72,6 +77,7 @@ namespace grid {
         new DmpTrajectoryDistribution(robot->getDegreesOfFreedom(),
                                       nbasis,
                                       robot));
+    is->dmp_dist->initialize(*features,*skill);
 
     return is;
   }
@@ -151,19 +157,13 @@ namespace grid {
 
     }
 
-    //if (sum > 1e-50) { 
-    // update distribution
     dmp_dist->update(params,ps,p.noise,p.step_size);
-    //} else {
-    //i--;
-    //   continue;
-    //}
 
+    // compute ll for this iteration
     iter_lls[cur_iter] = sum / p.ntrajs;
 
-
+    // decrease normalization
     if (cur_iter > 0 && iter_lls[cur_iter] > iter_lls[cur_iter-1]) {
-      //std::cout<<"decreasing normalization\n";
       model_norm *= p.model_norm_step;
     }
 

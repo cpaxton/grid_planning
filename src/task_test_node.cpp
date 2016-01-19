@@ -17,7 +17,7 @@
 
 #include <grid/wam/input.h>
 
-#include "utils/load_wam_skills.hpp"
+#include "wam/load_wam_skills.hpp"
 
 using namespace grid;
 
@@ -33,6 +33,20 @@ int main(int argc, char **argv) {
 
   InstantiatedSkillPointer root = InstantiatedSkill::Root();
 
+  TestFeatures *test = new TestFeatures();
+  test->addFeature("node",grid::POSE_FEATURE);
+  test->addFeature("link",grid::POSE_FEATURE);
+  test->addFeature("time",grid::TIME_FEATURE);
+  test->setAgentFrame("wam/wrist_palm_link");
+  //test.setBaseFrame("wam/base_link");
+  //test.setWorldFrame("world");
+  test->setWorldFrame("wam/base_link");
+  test->setFrame("gbeam_node_1/gbeam_node","node");
+  test->setFrame("gbeam_link_1/gbeam_link","link");
+  
+  TestFeaturesPointer test_ptr(test);
+
+
   InstantiatedSkillPointer app1 = InstantiatedSkill::DmpInstance(
       skills.at("approach"),
       features.at("node1,link1"),
@@ -45,6 +59,7 @@ int main(int argc, char **argv) {
       robot,
       5);
 
+#if 0
   InstantiatedSkillPointer prep1 = InstantiatedSkill::DmpInstance(
       SkillPointer(0),
       features["node1,link1"],
@@ -56,6 +71,7 @@ int main(int argc, char **argv) {
       features["node2,link2"],
       robot,
       5);
+#endif
 
   InstantiatedSkillPointer grasp1 = InstantiatedSkill::DmpInstance(
       skills["grasp"],
@@ -71,8 +87,10 @@ int main(int argc, char **argv) {
 
   root->addNext(app1);
   root->addNext(app2);
+#if 0
   root->addNext(prep1);
   root->addNext(prep2);
+#endif
 
   app1->addNext(grasp1);
   app1->addNext(app1);
@@ -83,7 +101,13 @@ int main(int argc, char **argv) {
   ros::NodeHandle nh;
   ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples",1000);
 
+  std::cout << "sleeping...\n";
+
+  ros::Duration(0.25).sleep();
+
   for (unsigned int i = 0; i < p.iter; ++i) {
+
+    std::cout << "ITER " << i << std::endl;
 
     app1->step();
     pub.publish(toPoseArray(app1->trajs,app1->features->getWorldFrame(),robot));

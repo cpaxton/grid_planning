@@ -36,6 +36,10 @@ namespace grid {
       wtf_ex->addFeature("time",TIME_FEATURE);
       wtf_ex->setRobotKinematics(rk_ptr);
       wtf_ex->read(filenames[i]);
+      if (skill.hasAttachedObject()) {
+        //std::cout << "attaching object \"" << skill.attachedObjectFrame() << "\"\n";
+        wtf_ex->attachObjectFrame(skill.attachedObjectFrame());
+      }
       std::vector<FeatureVector> data = wtf_ex->getFeatureValues(skill.getFeatures());
 
 #if 0
