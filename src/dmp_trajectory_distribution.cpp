@@ -7,8 +7,8 @@ using trajectory_msgs::JointTrajectoryPoint;
 using namespace Eigen;
 
 #define SHOW_SAMPLED_VALUES 0
-//#define DEFAULT_SIGMA 0.01
-#define DEFAULT_SIGMA 0.0000000001
+#define DEFAULT_SIGMA 0.01
+//#define DEFAULT_SIGMA 0.0000000001
 
 namespace grid {
 
