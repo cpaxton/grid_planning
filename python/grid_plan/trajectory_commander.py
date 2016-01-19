@@ -53,6 +53,7 @@ class TrajectoryCommander:
             client.wait_for_result(rospy.Duration(1.0))
 
             self.pub.publish(progress)
+            print "t = %f"%(progress)
 
         self.pub.publish(1.01) # make sure it's clearly done
 

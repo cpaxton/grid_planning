@@ -11,6 +11,7 @@
 #include <grid/task_model.h>
 #include <grid/robot_kinematics.h>
 #include <grid/grid_planner.h>
+#include <grid/visualize.h>
 
 #include <grid/utils/params.h>
 
@@ -78,5 +79,16 @@ int main(int argc, char **argv) {
 
   app2->addNext(grasp2);
   app2->addNext(app2);
+
+  ros::NodeHandle nh;
+  ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples",1000);
+
+  for (unsigned int i = 0; i < p.iter; ++i) {
+
+    app1->step();
+    pub.publish(toPoseArray(app1->trajs,app1->features->getWorldFrame(),robot));
+
+    ros::Duration(p.wait).sleep();
+  }
 
 }

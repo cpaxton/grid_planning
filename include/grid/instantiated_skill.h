@@ -44,7 +44,6 @@ namespace grid {
     SkillPointer skill; // the skill itself
     TrajectoryDistributionPointer spline_dist; // the path we end up taking for this skill
     DmpTrajectoryDistributionPointer dmp_dist; // the path we end up taking for this skill
-    TestFeaturesPointer features;
 
     std::vector<double> T; // probability of going to each of the possible next actions
     std::vector<InstantiatedSkillPointer> next;
@@ -52,12 +51,6 @@ namespace grid {
     std::vector<PredicateEffect> effects;
 
     RobotKinematicsPointer robot;
-
-    // data
-    std::vector<FeatureVector> params;
-    std::vector<JointTrajectory> trajs;
-    std::vector<double> ps;
-    std::vector<double> iter_lls;
 
     Params p;
 
@@ -68,6 +61,16 @@ namespace grid {
     unsigned int cur_iter;
 
   public:
+
+    TestFeaturesPointer features;
+
+    // data
+    std::vector<FeatureVector> params;
+    std::vector<JointTrajectory> trajs;
+    std::vector<double> ps;
+    std::vector<double> iter_lls;
+
+    bool current;
 
     /** 
      * default constructor
@@ -119,7 +122,7 @@ namespace grid {
      * run a single iteration of the loop. return a set of trajectories.
      * this is very similar to code in the demo
      */
-    void step();
+    void step(unsigned int samples = 0);
 
   };
 

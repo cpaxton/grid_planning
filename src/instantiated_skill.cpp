@@ -9,7 +9,7 @@ namespace grid {
    * default constructor
    */
   InstantiatedSkill::InstantiatedSkill()
-    : id(next_id++), done(false), touched(false), spline_dist(0), dmp_dist(0), skill(0), trajs(), effects(), cur_iter(0)
+    : id(next_id++), done(false), current(false), touched(false), spline_dist(0), dmp_dist(0), skill(0), trajs(), effects(), cur_iter(0)
   {
   }
 
@@ -19,7 +19,7 @@ namespace grid {
   InstantiatedSkill::InstantiatedSkill(Params &p_) :
     p(p_),
     id(next_id++), done(false), touched(false), spline_dist(0), dmp_dist(0), skill(0),
-    effects(), iter_lls(p_.iter), trajs(p_.ntrajs), params(p_.ntrajs), cur_iter(0)
+    effects(), iter_lls(p_.iter), current(false), trajs(p_.ntrajs), params(p_.ntrajs), cur_iter(0)
   {
     reset();
   }
@@ -114,7 +114,7 @@ namespace grid {
    * run a single iteration of the loop. return a set of trajectories.
    * this is very similar to code in the demo
    */
-  void InstantiatedSkill::step() {
+  void InstantiatedSkill::step(unsigned int samples) {
 
     touched = true;
 
