@@ -99,12 +99,12 @@ namespace grid {
       std::string filenames[] = {"data/sim/release1.bag", "data/sim/release2.bag", "data/sim/release3.bag"};
       load_and_train_skill(*release, rk_ptr, filenames);
     }
+#endif
     /* LOAD TRAINING DATA FOR DISENGAGE */
     {
       std::string filenames[] = {"data/sim/disengage1.bag", "data/sim/disengage2.bag", "data/sim/disengage3.bag"};
       load_and_train_skill(*disengage, rk_ptr, filenames);
     }
-#endif
 
     std::unordered_map<std::string, SkillPointer> skills;
     skills["approach"] = approach;
@@ -113,8 +113,8 @@ namespace grid {
 #if 0
     skills["place"] = place;
     skills["release"] = release;
-    skills["disengage"] = disengage;
 #endif
+    skills["disengage"] = disengage;
 
     return skills;
 

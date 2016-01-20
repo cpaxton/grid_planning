@@ -37,7 +37,8 @@ namespace grid {
     start_pts(p_.ntrajs),
     start_ps(p_.ntrajs),
     prev_p_sums(p_.ntrajs),
-    prev_counts(p_.ntrajs)
+    prev_counts(p_.ntrajs),
+    acc(p_.ntrajs)
   {
     reset();
   }
@@ -147,6 +148,20 @@ namespace grid {
     }
   }
 
+
+  // randomly sample an index from the probabilities
+  unsigned int InstantiatedSkill::sampleIndex(unsigned int nsamples) const {
+    // sample a random index from the skill
+    
+    assert(fabs(acc.at(nsamples-1) - 1) < 1e-5);
+
+    double r = (double)rand() / RAND_MAX;
+    for (unsigned int i = 0; i < nsamples; ++i) {
+      if (r < acc.at(i)) return i;
+    }
+    return 0;
+  }
+
   /**
    * run a single iteration of the loop. return a set of trajectories.
    * this is very similar to code in the demo
@@ -169,13 +184,27 @@ namespace grid {
     //for (unsigned int i = 0; i < len; ++i) {
     //  std::cout << prev_end_pts[i].positions.size() << "\n";
     //}
-    
+
+    /************* ACCUMULATE PROBABILITIES *************/
     for (unsigned int i = 0; i < nsamples; ++i) {
       next_ps[i] = 0;
+      if (i > 0) {
+        acc[i] = prev_ps[i] + acc[i-1];
+      } else {
+        acc[i] = prev_ps[i];
+      }
+
     }
+    std::cout << "accumulating for " << id << ": ";
+    for (double &d: acc) {
+      d /= acc[nsamples-1];
+      std::cout << d << " ";
+    }
+    std::cout << "\n";
 
     touched = true;
 
+    /************* SAMPLE TRAJECTORIES IF NECESSARY *************/
     if (horizon < 0) {
       return;
     } else if (nsamples == 0) { 
@@ -189,7 +218,7 @@ namespace grid {
       // sample start points
       for (unsigned int i = 0; i < nsamples; ++i) {
 
-        unsigned int idx = 0;
+        unsigned int idx = sampleIndex(nsamples);
 
         // sample an index
         start_pts[i].positions = prev_end_pts[idx].positions;
@@ -274,8 +303,8 @@ namespace grid {
           std::cout << "[" << id << "] " << skill->getName()
             << ": "<<ps[i]<<" * "<<next_ps[i]<<"\n";
         } else {
-        std::cout << "[" << id << "] [no skill]"
-          << ": "<<ps[i]<<" * "<<next_ps[i]<<"\n";
+          std::cout << "[" << id << "] [no skill]"
+            << ": "<<ps[i]<<" * "<<next_ps[i]<<"\n";
         }
         ps[i] *= next_ps[i];
       }

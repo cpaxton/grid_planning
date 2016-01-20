@@ -54,6 +54,7 @@ int main(int argc, char **argv) {
 
   ros::NodeHandle nh;
   ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples",1000);
+  ros::Publisher pub2 = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples_2",1000);
 
   ros::spinOnce();
   robot->updateHint(gp.currentPos());
@@ -97,6 +98,18 @@ int main(int argc, char **argv) {
       5);
 #endif
 
+  InstantiatedSkillPointer disengage1 = InstantiatedSkill::DmpInstance(
+      skills["disengage"],
+      features["node1,link1"],
+      robot,
+      5);
+
+  InstantiatedSkillPointer disengage2 = InstantiatedSkill::DmpInstance(
+      skills["disengage"],
+      features["node2,link2"],
+      robot,
+      5);
+
   InstantiatedSkillPointer grasp1 = InstantiatedSkill::DmpInstance(
       skills["grasp"],
       features["node1,link1"],
@@ -110,21 +123,19 @@ int main(int argc, char **argv) {
       5);
 
   root->addNext(app1);
-  root->addNext(app2);
+  //root->addNext(app2);
 #if 0
   root->addNext(prep1);
   root->addNext(prep2);
 #endif
 
-  app1->addNext(grasp1);
-  app1->addNext(app1);
-
-  app2->addNext(grasp2);
-  app2->addNext(app2);
+  app1->addNext(disengage1);
+  app2->addNext(disengage2);
 
   /*************************************************************************/
 
   std::vector<trajectory_msgs::JointTrajectory> approach_trajs;
+  std::vector<trajectory_msgs::JointTrajectory> disengage_trajs;
 
   //std::vector<double> ps(1.0,p.ntrajs);
   //std::vector<trajectory_msgs::JointTrajectoryPoint> starts(p.ntrajs);
@@ -143,6 +154,7 @@ int main(int argc, char **argv) {
     std::cout << starts[i].positions.size() << "\n";
   }
 
+  int horizon = 2;
   double prob = 0;
   for (unsigned int i = 0; i < p.iter; ++i) {
     ros::spinOnce();
@@ -153,16 +165,24 @@ int main(int argc, char **argv) {
 
     // this is where the magic happens
     ps[0] = 1.; // set prior
-    root->step(ps,starts,ps_out,prob,1,1,p.ntrajs);
+    root->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
 
     approach_trajs.resize(0);
     for (auto &traj: app1->trajs) {
       approach_trajs.push_back(traj);
     }
-    for (auto &traj: app2->trajs) {
-      approach_trajs.push_back(traj);
+    //for (auto &traj: app2->trajs) {
+    //  approach_trajs.push_back(traj);
+    //}
+    disengage_trajs.resize(0);
+    for (auto &traj: disengage1->trajs) {
+      disengage_trajs.push_back(traj);
+    }
+    for (auto &traj: disengage2->trajs) {
+      disengage_trajs.push_back(traj);
     }
     pub.publish(toPoseArray(approach_trajs,app1->features->getWorldFrame(),robot));
+    pub2.publish(toPoseArray(disengage_trajs,disengage1->features->getWorldFrame(),robot));
 
     ros::Duration(p.wait).sleep();
   }

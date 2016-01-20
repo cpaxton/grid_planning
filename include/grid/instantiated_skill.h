@@ -57,6 +57,7 @@ namespace grid {
     std::vector<unsigned int> prev_idx;
     std::vector<unsigned int> prev_counts;
     std::vector<double> prev_p_sums;
+    std::vector<double> acc;
 
 
     std::vector<PredicateEffect> effects;
@@ -152,7 +153,7 @@ namespace grid {
 
 
     // randomly sample an index from the probabilities
-    unsigned int sampleIndex() const;
+    unsigned int sampleIndex(unsigned int nsamples) const;
 
   };
 
