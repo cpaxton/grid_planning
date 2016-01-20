@@ -97,17 +97,18 @@ int main(int argc, char **argv) {
       robot,
       5);
 
-  InstantiatedSkillPointer grasp1 = InstantiatedSkill::DmpInstance(
-      skills["grasp"],
-      features["node1,link1"],
-      robot,
-      5);
+  InstantiatedSkillPointer grasp1 = InstantiatedSkill::DmpInstance(skills["grasp"], features["node1,link1"], robot, 5);
+  InstantiatedSkillPointer grasp2 = InstantiatedSkill::DmpInstance(skills["grasp"], features["node2,link2"], robot, 5);
 
-  InstantiatedSkillPointer grasp2 = InstantiatedSkill::DmpInstance(
-      skills["grasp"],
-      features["node2,link2"],
-      robot,
-      5);
+  InstantiatedSkillPointer align11 = InstantiatedSkill::DmpInstance(skills["align"], features["node1,link1"], robot, 5);
+  InstantiatedSkillPointer align12 = InstantiatedSkill::DmpInstance(skills["align"], features["node1,link2"], robot, 5);
+  InstantiatedSkillPointer align21 = InstantiatedSkill::DmpInstance(skills["align"], features["node2,link1"], robot, 5);
+  InstantiatedSkillPointer align22 = InstantiatedSkill::DmpInstance(skills["align"], features["node2,link2"], robot, 5);
+
+  InstantiatedSkillPointer place11 = InstantiatedSkill::DmpInstance(skills["place"], features["node1,link1"], robot, 5);
+  InstantiatedSkillPointer place12 = InstantiatedSkill::DmpInstance(skills["place"], features["node1,link2"], robot, 5);
+  InstantiatedSkillPointer place21 = InstantiatedSkill::DmpInstance(skills["place"], features["node2,link1"], robot, 5);
+  InstantiatedSkillPointer place22 = InstantiatedSkill::DmpInstance(skills["place"], features["node2,link2"], robot, 5);
 
   root->addNext(app1);
   root->addNext(app2);
@@ -116,8 +117,20 @@ int main(int argc, char **argv) {
   root->addNext(prep2);
 #endif
 
+#if 0
   app1->addNext(disengage1);
   app2->addNext(disengage2);
+#endif
+
+  app1->addNext(align11);
+  app1->addNext(align12);
+  app2->addNext(align21);
+  app2->addNext(align22);
+
+  align11->addNext(place11);
+  align12->addNext(place12);
+  align21->addNext(place21);
+  align22->addNext(place22);
 
   /*************************************************************************/
 

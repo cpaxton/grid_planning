@@ -88,7 +88,6 @@ namespace grid {
       std::string filenames[] = {"data/sim/align1.bag", "data/sim/align2.bag", "data/sim/align3.bag"};
       load_and_train_skill(*align, rk_ptr, filenames);
     }
-#if 0
     /* LOAD TRAINING DATA FOR PLACE */
     {
       std::string filenames[] = {"data/sim/place1.bag", "data/sim/place2.bag", "data/sim/place3.bag"};
@@ -99,7 +98,6 @@ namespace grid {
       std::string filenames[] = {"data/sim/release1.bag", "data/sim/release2.bag", "data/sim/release3.bag"};
       load_and_train_skill(*release, rk_ptr, filenames);
     }
-#endif
     /* LOAD TRAINING DATA FOR DISENGAGE */
     {
       std::string filenames[] = {"data/sim/disengage1.bag", "data/sim/disengage2.bag", "data/sim/disengage3.bag"};
