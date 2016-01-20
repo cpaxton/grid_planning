@@ -96,6 +96,7 @@ namespace grid {
     is->features = features;
     is->robot = robot;
     is->spline_dist = TrajectoryDistributionPointer(new TrajectoryDistribution(nseg));
+    is->spline_dist->initialize(*features,*skill);
 
     return is;
   }
@@ -167,6 +168,7 @@ namespace grid {
       model_norm *= p.model_norm_step;
     }
 
+    std::cout << skill->getName() << " >>>> AVG P = " << (sum / p.ntrajs) << std::endl;
     ++cur_iter;
   }
 

@@ -21,6 +21,12 @@
 
 using namespace grid;
 
+void update_features(std::unordered_map<std::string, TestFeaturesPointer> &features) {
+  for (auto &nf: features) {
+    nf.second->updateWorldfromTF();
+  }
+}
+
 int main(int argc, char **argv) {
 
   ros::init(argc,argv,"task_model_test_node");
@@ -46,6 +52,24 @@ int main(int argc, char **argv) {
   
   TestFeaturesPointer test_ptr(test);
 
+  ros::NodeHandle nh;
+  ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples",1000);
+
+  ros::spinOnce();
+  robot->updateHint(gp.currentPos());
+  robot->updateVelocityHint(gp.currentVel());
+
+  std::cout << "sleeping...\n";
+
+  ros::Duration(1.0).sleep();
+
+  ros::spinOnce();
+  robot->updateHint(gp.currentPos());
+  robot->updateVelocityHint(gp.currentVel());
+
+  update_features(features);
+
+  /*************************************************************************/
 
   InstantiatedSkillPointer app1 = InstantiatedSkill::DmpInstance(
       skills.at("approach"),
@@ -98,14 +122,12 @@ int main(int argc, char **argv) {
   app2->addNext(grasp2);
   app2->addNext(app2);
 
-  ros::NodeHandle nh;
-  ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples",1000);
-
-  std::cout << "sleeping...\n";
-
-  ros::Duration(0.25).sleep();
+  /*************************************************************************/
 
   for (unsigned int i = 0; i < p.iter; ++i) {
+    ros::spinOnce();
+    robot->updateHint(gp.currentPos());
+    robot->updateVelocityHint(gp.currentVel());
 
     std::cout << "ITER " << i << std::endl;
 

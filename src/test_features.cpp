@@ -93,6 +93,10 @@ namespace grid {
 #endif
     }
     catch (tf::TransformException ex){
+      std::cout << __FILE__ << ":" << __LINE__ << std::endl;
+      std::cerr << ex.what() << std::endl;
+      std::cerr << "With key = " << key << std::endl;
+      std::cerr << "With world = " << worldFrame << std::endl;
       ROS_ERROR("%s with key \"%s\"",ex.what(),key.c_str());
     }
 
