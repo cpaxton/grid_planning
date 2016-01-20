@@ -28,14 +28,16 @@ namespace grid {
     effects(),
     ps(p_.ntrajs), iter_lls(p_.iter),
     current(false),
-    trajs(p_.ntrajs), next_ps(p_.ntrajs),
+    trajs(p_.ntrajs),
+    next_ps(p_.ntrajs),
     params(p_.ntrajs), cur_iter(0),
     next_skill(p_.ntrajs),
     prev_idx(p_.ntrajs),
     end_pts(p_.ntrajs),
     start_pts(p_.ntrajs),
     start_ps(p_.ntrajs),
-    prev_p_sums(p_.ntrajs)
+    prev_p_sums(p_.ntrajs),
+    prev_counts(p_.ntrajs)
   {
     reset();
   }
@@ -149,13 +151,13 @@ namespace grid {
    * run a single iteration of the loop. return a set of trajectories.
    * this is very similar to code in the demo
    */
-  void InstantiatedSkill::step(std::vector<double> &prev_ps,
-                               std::vector<JointTrajectoryPoint> &prev_end_pts,
+  void InstantiatedSkill::step(const std::vector<double> &prev_ps,
+                               const std::vector<JointTrajectoryPoint> &prev_end_pts,
+                               std::vector<double> &ps_out,
                                double &probability,
                                unsigned int len,
                                int horizon,
-                               unsigned int nsamples,
-                               unsigned int start_idx)
+                               unsigned int nsamples)
   {
 
 
@@ -167,6 +169,10 @@ namespace grid {
     //for (unsigned int i = 0; i < len; ++i) {
     //  std::cout << prev_end_pts[i].positions.size() << "\n";
     //}
+    
+    for (unsigned int i = 0; i < nsamples; ++i) {
+      next_ps[i] = 0;
+    }
 
     touched = true;
 
@@ -191,10 +197,9 @@ namespace grid {
         start_ps[i] = prev_ps[idx];
         prev_idx[i] = idx;
         prev_p_sums[idx] = 0;
-        //for (unsigned int j = 0; j < robot->getDegreesOfFreedom(); ++j) {
-        //  std::cout << prev_end_pts[0].positions[j] << " ";
-        //}
-        //std::cout << std::endl;
+
+        // initialize
+        next_ps[i] = 0;
       }
 
       // sample trajectories
@@ -235,17 +240,12 @@ namespace grid {
     } else {
       sum = 0;
       for (unsigned int i = 0; i < len; ++ i) {
-        ps[i] = prev_ps[i];
+        ps[i] = prev_ps.at(i);
         sum += ps[i];
-        end_pts[i].positions = prev_end_pts[i].positions;
-        end_pts[i].velocities = prev_end_pts[i].velocities;
+        end_pts[i].positions = prev_end_pts.at(i).positions;
+        end_pts[i].velocities = prev_end_pts.at(i).velocities;
       }
       next_len = len;
-    }
-
-    // normalize here
-    for (double &d: ps) {
-      d /= sum;
     }
 
     // do we want to continue?
@@ -257,14 +257,31 @@ namespace grid {
       unsigned int next_skill_idx = 0;
       for (auto &ns: next) {
         unsigned int next_nsamples = ceil(T[next_skill_idx]*nsamples);
-        ns->step(ps, end_pts, T[next_idx], next_len, horizon-1, next_nsamples, next_idx);
+        ns->step(ps, end_pts,
+                 next_ps, T[next_idx], // outputs
+                 next_len, horizon-1, next_nsamples); // params
         next_idx += next_nsamples;
 
-        std::cout << " >>> probability of " << ns->skill->getName() << ":" << ns->id << " = " << T[next_idx] << std::endl;
+        std::cout << " >>> probability of " << ns->skill->getName()
+          << " " << ns->id << " = " << T[next_idx]
+          << std::endl;
 
         ++next_skill_idx;
-      }      
+      }
+
+      for (unsigned int i = 0; i < nsamples; ++i) {
+        if (skill) {
+          std::cout << "[" << id << "] " << skill->getName()
+            << ": "<<ps[i]<<" * "<<next_ps[i]<<"\n";
+        } else {
+        std::cout << "[" << id << "] [no skill]"
+          << ": "<<ps[i]<<" * "<<next_ps[i]<<"\n";
+        }
+        ps[i] *= next_ps[i];
+      }
     }
+
+    updateTransitions();
 
     // update probabilities for all
     {
@@ -273,18 +290,30 @@ namespace grid {
       // use the start_idx field to match start_idx to 
       double prev_psum_sum = 0;
       for (unsigned int i = 0; i < nsamples; ++i) {
-        std::cout << " - propogating p(" << i << ") = " << ps[i] << " back to " << prev_idx[i] << "\n";
-        prev_p_sums[prev_idx[i]] = ps[i];
+        std::cout << " - propogating p(" << i << ") = " << ps[i] << " back to " << prev_idx[i] << " ... " << probability << "\n";
+        prev_p_sums[prev_idx[i]] += ps[i];
+        ++prev_counts[prev_idx[i]];
         probability += ps[i];
       }
       probability /= nsamples;
 
       // update transitions based on these results
       for (unsigned int i = 0; i < len; ++i) {
-        std::cout << " - future sum " << i << " = " << prev_p_sums[i] << "\n";
+        if (prev_counts[i] > 0) {
+          ps_out[i] += prev_p_sums[i] / prev_counts[i];
+        } else {
+          ps_out[i] += 0;
+        }
+        std::cout << " - future sum for " << i << " = " << prev_ps[i]
+          << "(" << prev_counts[i] << " chosen, sum = " << prev_p_sums[i] << ")"
+          << "\n";
       }
     }
 
+    // normalize here
+    for (double &d: ps) {
+      d /= sum;
+    }
     if(skill) {
       dmp_dist->update(params,ps,nsamples,p.noise,p.step_size);
     }
@@ -304,7 +333,5 @@ namespace grid {
     }
 
     ++cur_iter;
-
-    updateTransitions();
   }
 }

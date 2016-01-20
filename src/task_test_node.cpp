@@ -129,6 +129,7 @@ int main(int argc, char **argv) {
   //std::vector<double> ps(1.0,p.ntrajs);
   //std::vector<trajectory_msgs::JointTrajectoryPoint> starts(p.ntrajs);
   std::vector<double> ps(1.0,1);
+  std::vector<double> ps_out(1.0,1);
   std::vector<trajectory_msgs::JointTrajectoryPoint> starts(1);
 
   for (auto &pt: starts) {
@@ -151,7 +152,8 @@ int main(int argc, char **argv) {
     std::cout << "ITER " << i << std::endl;
 
     // this is where the magic happens
-    root->step(ps,starts,prob,1,1,p.ntrajs);
+    ps[0] = 1.; // set prior
+    root->step(ps,starts,ps_out,prob,1,1,p.ntrajs);
 
     approach_trajs.resize(0);
     for (auto &traj: app1->trajs) {

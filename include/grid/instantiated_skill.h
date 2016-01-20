@@ -55,6 +55,7 @@ namespace grid {
     std::vector<JointTrajectoryPoint> start_pts;
     std::vector<double> start_ps;
     std::vector<unsigned int> prev_idx;
+    std::vector<unsigned int> prev_counts;
     std::vector<double> prev_p_sums;
 
 
@@ -138,9 +139,12 @@ namespace grid {
     /**
      * run a single iteration of the loop. return a set of trajectories.
      * this is very similar to code in the demo
+     * PROBABILITY is p(next_skill)
+     * PS_OUT is the adjusted probability of each trajectory (normalized)
      */
-    void step(std::vector<double> &ps ,
-              std::vector<trajectory_msgs::JointTrajectoryPoint> &start_pts,
+    void step(const std::vector<double> &ps,
+              const std::vector<trajectory_msgs::JointTrajectoryPoint> &start_pts,
+              std::vector<double> &ps_out,
               double &probability,
               unsigned int len, // number of input samples provided (AKA prev samples)
               int horizon = 1,
