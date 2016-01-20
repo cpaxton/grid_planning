@@ -149,7 +149,13 @@ namespace grid {
       Rotation r1 = Rotation::RPY(params[sample][POSE_FEATURE_ROLL],params[sample][POSE_FEATURE_PITCH],params[sample][POSE_FEATURE_YAW]);
       Pose p(r1,v1);
 
-      robot->IkPos(p,q);
+      int ik_result = robot->IkPos(p,q);
+
+      if (ik_result < 0) {
+        --sample;
+        continue;
+      }
+
       unsigned int idx = 0;
       //std::cout << "GOAL = ";
       for (; idx < dim; ++idx) {

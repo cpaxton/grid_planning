@@ -109,7 +109,7 @@ int main(int argc, char **argv) {
       robot,
       5);
 
-  //root->addNext(app1);
+  root->addNext(app1);
   root->addNext(app2);
 #if 0
   root->addNext(prep1);

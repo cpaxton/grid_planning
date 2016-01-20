@@ -253,6 +253,12 @@ namespace grid {
       // compute probabilities
       for (unsigned int j = 0; j < nsamples; ++j) {
 
+
+        if (trajs[j].points.size() == 0) {
+          ps[j] = 0;
+          continue;
+        }
+
         // TODO: speed this up
         std::vector<Pose> poses = robot->FkPos(trajs[j]);
 
