@@ -39,19 +39,6 @@ int main(int argc, char **argv) {
 
   InstantiatedSkillPointer root = InstantiatedSkill::Root();
 
-  TestFeatures *test = new TestFeatures();
-  test->addFeature("node",grid::POSE_FEATURE);
-  test->addFeature("link",grid::POSE_FEATURE);
-  test->addFeature("time",grid::TIME_FEATURE);
-  test->setAgentFrame("wam/wrist_palm_link");
-  //test.setBaseFrame("wam/base_link");
-  //test.setWorldFrame("world");
-  test->setWorldFrame("wam/base_link");
-  test->setFrame("gbeam_node_1/gbeam_node","node");
-  test->setFrame("gbeam_link_1/gbeam_link","link");
-  
-  TestFeaturesPointer test_ptr(test);
-
   ros::NodeHandle nh;
   ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples",1000);
   ros::Publisher pub2 = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples_2",1000);
@@ -122,8 +109,8 @@ int main(int argc, char **argv) {
       robot,
       5);
 
-  root->addNext(app1);
-  //root->addNext(app2);
+  //root->addNext(app1);
+  root->addNext(app2);
 #if 0
   root->addNext(prep1);
   root->addNext(prep2);
@@ -171,18 +158,22 @@ int main(int argc, char **argv) {
     for (auto &traj: app1->trajs) {
       approach_trajs.push_back(traj);
     }
-    //for (auto &traj: app2->trajs) {
-    //  approach_trajs.push_back(traj);
-    //}
-    disengage_trajs.resize(0);
-    for (auto &traj: disengage1->trajs) {
-      disengage_trajs.push_back(traj);
+
+    /* PUT EVERYTHING INTO SOME MESSAGES */
+    {
+      for (auto &traj: app2->trajs) {
+        approach_trajs.push_back(traj);
+      }
+      disengage_trajs.resize(0);
+      for (auto &traj: disengage1->trajs) {
+        disengage_trajs.push_back(traj);
+      }
+      for (auto &traj: disengage2->trajs) {
+        disengage_trajs.push_back(traj);
+      }
+      pub.publish(toPoseArray(approach_trajs,app1->features->getWorldFrame(),robot));
+      pub2.publish(toPoseArray(disengage_trajs,disengage1->features->getWorldFrame(),robot));
     }
-    for (auto &traj: disengage2->trajs) {
-      disengage_trajs.push_back(traj);
-    }
-    pub.publish(toPoseArray(approach_trajs,app1->features->getWorldFrame(),robot));
-    pub2.publish(toPoseArray(disengage_trajs,disengage1->features->getWorldFrame(),robot));
 
     ros::Duration(p.wait).sleep();
   }

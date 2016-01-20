@@ -38,6 +38,7 @@ namespace grid {
     start_ps(p_.ntrajs),
     prev_p_sums(p_.ntrajs),
     prev_counts(p_.ntrajs),
+    transitions_step(p_.step_size),
     acc(p_.ntrajs)
   {
     reset();
@@ -130,6 +131,7 @@ namespace grid {
   InstantiatedSkill &InstantiatedSkill::addNext(InstantiatedSkillPointer skill) {
     next.push_back(skill);
     T.push_back(1);
+    last_T.push_back(1);
 
     updateTransitions();
   }
@@ -139,20 +141,29 @@ namespace grid {
    */
   void InstantiatedSkill::updateTransitions() {
 
+    double last_tsum = 0;
+    for (double &d: last_T) {
+      last_tsum += d;
+    }
     double tsum = 0;
     for (double &d: T) {
       tsum += d;
     }
-    for (double &d: T) {
-      d /= tsum;
+    std::cout << "Transitions: ";
+    for(unsigned int i = 0; i < T.size(); ++i) {
+      T[i] = ((1 - p.step_size)*(last_T[i]/last_tsum))
+        + (p.step_size * (T[i] / tsum));
+      std::cout << T[i] << " ";
+      last_T[i] = T[i];
     }
+    std::cout << std::endl;
   }
 
 
   // randomly sample an index from the probabilities
   unsigned int InstantiatedSkill::sampleIndex(unsigned int nsamples) const {
     // sample a random index from the skill
-    
+
     assert(fabs(acc.at(nsamples-1) - 1) < 1e-5);
 
     double r = (double)rand() / RAND_MAX;
@@ -195,12 +206,17 @@ namespace grid {
       }
 
     }
-    std::cout << "accumulating for " << id << ": ";
     for (double &d: acc) {
       d /= acc[nsamples-1];
-      std::cout << d << " ";
     }
-    std::cout << "\n";
+
+    if (p.verbosity > 3) {
+      std::cout << "accumulating for " << id << ": ";
+      for (double &d: acc) {
+        std::cout << d << " ";
+      }
+      std::cout << "\n";
+    }
 
     touched = true;
 
@@ -252,7 +268,9 @@ namespace grid {
         } else {
           ps[j] = 1;
         }
-        std::cout << "[" << id << "] " << skill->getName() << ": "<<ps[j]<<" * "<<start_ps[j]<<"\n";
+        if (p.verbosity > 1) {
+          std::cout << "[" << id << "] " << skill->getName() << ": "<<ps[j]<<" * "<<start_ps[j]<<"\n";
+        }
         ps[j] *= start_ps[j];
 
         sum += ps[j];
@@ -291,20 +309,24 @@ namespace grid {
                  next_len, horizon-1, next_nsamples); // params
         next_idx += next_nsamples;
 
-        std::cout << " >>> probability of " << ns->skill->getName()
-          << " " << ns->id << " = " << T[next_idx]
-          << std::endl;
+        if (p.verbosity > 0) {
+          std::cout << " >>> probability of " << ns->skill->getName()
+            << " " << ns->id << " = " << T[next_idx]
+            << std::endl;
+        }
 
         ++next_skill_idx;
       }
 
       for (unsigned int i = 0; i < nsamples; ++i) {
-        if (skill) {
-          std::cout << "[" << id << "] " << skill->getName()
-            << ": "<<ps[i]<<" * "<<next_ps[i]<<"\n";
-        } else {
-          std::cout << "[" << id << "] [no skill]"
-            << ": "<<ps[i]<<" * "<<next_ps[i]<<"\n";
+        if (p.verbosity > 1) {
+          if (skill) {
+            std::cout << "[" << id << "] " << skill->getName()
+              << ": "<<ps[i]<<" * "<<next_ps[i]<<"\n";
+          } else {
+            std::cout << "[" << id << "] [no skill]"
+              << ": "<<ps[i]<<" * "<<next_ps[i]<<"\n";
+          }
         }
         ps[i] *= next_ps[i];
       }
@@ -319,7 +341,9 @@ namespace grid {
       // use the start_idx field to match start_idx to 
       double prev_psum_sum = 0;
       for (unsigned int i = 0; i < nsamples; ++i) {
-        std::cout << " - propogating p(" << i << ") = " << ps[i] << " back to " << prev_idx[i] << " ... " << probability << "\n";
+        if (p.verbosity > 2) {
+          std::cout << " - propogating p(" << i << ") = " << ps[i] << " back to " << prev_idx[i] << " ... " << probability << "\n";
+        }
         prev_p_sums[prev_idx[i]] += ps[i];
         ++prev_counts[prev_idx[i]];
         probability += ps[i];
@@ -333,9 +357,11 @@ namespace grid {
         } else {
           ps_out[i] += 0;
         }
-        std::cout << " - future sum for " << i << " = " << prev_ps[i]
-          << "(" << prev_counts[i] << " chosen, sum = " << prev_p_sums[i] << ")"
-          << "\n";
+        if (p.verbosity > 0) {
+          std::cout << " - future sum for " << i << " = " << prev_ps[i]
+            << "(" << prev_counts[i] << " chosen, sum = " << prev_p_sums[i] << ")"
+            << "\n";
+        }
       }
     }
 
@@ -355,10 +381,12 @@ namespace grid {
       model_norm *= p.model_norm_step;
     }
 
-    if (skill) {
-      std::cout << "[" << id << "] " << skill->getName() << " >>>> AVG P = " << (sum / nsamples) << std::endl;
-    } else {
-      std::cout << "[" << id << "] [no skill] >>>> AVG P = " << (sum / len) << std::endl;
+    if (p.verbosity >= 0) {
+      if (skill) {
+        std::cout << "[" << id << "] " << skill->getName() << " >>>> AVG P = " << (sum / nsamples) << std::endl;
+      } else {
+        std::cout << "[" << id << "] [no skill] >>>> AVG P = " << (sum / len) << std::endl;
+      }
     }
 
     ++cur_iter;

@@ -46,6 +46,7 @@ namespace grid {
     DmpTrajectoryDistributionPointer dmp_dist; // the path we end up taking for this skill
 
     std::vector<double> T; // probability of going to each of the possible next actions
+    std::vector<double> last_T; // probability of going to each of the possible next actions
     std::vector<InstantiatedSkillPointer> next;
 
     // selected endpoints for this trajectory
@@ -69,6 +70,7 @@ namespace grid {
     // parameters
     double model_norm;
     double best_p;
+    double transitions_step;
     unsigned int best_idx;
     unsigned int cur_iter;
 

@@ -41,6 +41,9 @@ namespace grid {
       if (not nh_tilde.getParam("detect_collisions",p.detect_collisions)) {
         p.detect_collisions = false;
       }
+      if (not nh_tilde.getParam("verbosity",p.verbosity)) {
+        p.verbosity = 0;
+      }
 
       return p;
     }
