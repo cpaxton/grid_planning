@@ -114,33 +114,37 @@ namespace grid {
    * Convert it into a KDL trajectory
    * NON-CONST becuse Gmm::sample is likewise non-const
    */
-  void DmpTrajectoryDistribution::sample(std::vector<EigenVectornd> &params,std::vector<JointTrajectory> &trajs) {
+  void DmpTrajectoryDistribution::sample(std::vector<EigenVectornd> &params,std::vector<JointTrajectory> &trajs, unsigned int nsamples) {
 
     using KDL::Vector;
     using KDL::Rotation;
 
-    unsigned int nsamples = params.size();
+    if (nsamples == 0) {
+      nsamples = params.size();
+    } else {
+      params.resize(nsamples);
+    }
     trajs.resize(nsamples);
 
     for (int sample = 0; sample < nsamples; ++sample) {
 
-      EigenVectornd vec;
-      vec.resize(nvars);
-      dist.Sample(vec);
+      //EigenVectornd vec(nvars);
+      //vec.resize(nvars);
 
-      params[sample] = vec;
+      params[sample].resize(nvars);
+      dist.Sample(params[sample]);
 
 #if SHOW_SAMPLED_VALUES
       std::cout << "Sampled: ";
       for (int j = 0; j < dim; ++j) {
-        std::cout << vec[j] << " ";
+        std::cout << params[sample][j] << " ";
       }
       std::cout << std::endl;
 #endif
 
       // convert the first six into a pose
-      Vector v1 = Vector(vec[POSE_FEATURE_X],vec[POSE_FEATURE_Y],vec[POSE_FEATURE_Z]);
-      Rotation r1 = Rotation::RPY(vec[POSE_FEATURE_ROLL],vec[POSE_FEATURE_PITCH],vec[POSE_FEATURE_YAW]);
+      Vector v1 = Vector(params[sample][POSE_FEATURE_X],params[sample][POSE_FEATURE_Y],params[sample][POSE_FEATURE_Z]);
+      Rotation r1 = Rotation::RPY(params[sample][POSE_FEATURE_ROLL],params[sample][POSE_FEATURE_PITCH],params[sample][POSE_FEATURE_YAW]);
       Pose p(r1,v1);
 
       robot->IkPos(p,q);
@@ -154,7 +158,7 @@ namespace grid {
 
       for (unsigned int i = 0; i < dim; ++i) {
         for (unsigned int j = 0; j < nbasis; ++j) {
-          dmp_list[i].weights[j] = vec[idx++];
+          dmp_list[i].weights[j] = params[sample][idx++];
         }
       }
 

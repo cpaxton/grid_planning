@@ -124,6 +124,16 @@ int main(int argc, char **argv) {
 
   /*************************************************************************/
 
+  std::vector<trajectory_msgs::JointTrajectory> approach_trajs;
+
+  std::vector<double> ps(p.ntrajs);
+  std::vector<trajectory_msgs::JointTrajectoryPoint> starts(p.ntrajs);
+
+  for (auto &pt: starts) {
+    pt.positions = gp.currentPos();
+    pt.velocities = gp.currentPos();
+  }
+
   for (unsigned int i = 0; i < p.iter; ++i) {
     ros::spinOnce();
     robot->updateHint(gp.currentPos());
@@ -131,8 +141,17 @@ int main(int argc, char **argv) {
 
     std::cout << "ITER " << i << std::endl;
 
-    app1->step();
-    pub.publish(toPoseArray(app1->trajs,app1->features->getWorldFrame(),robot));
+    // this is where the magic happens
+    root->step(ps,starts,1,p.ntrajs);
+
+    approach_trajs.resize(0);
+    for (auto &traj: app1->trajs) {
+      approach_trajs.push_back(traj);
+    }
+    for (auto &traj: app2->trajs) {
+      approach_trajs.push_back(traj);
+    }
+    pub.publish(toPoseArray(approach_trajs,app1->features->getWorldFrame(),robot));
 
     ros::Duration(p.wait).sleep();
   }

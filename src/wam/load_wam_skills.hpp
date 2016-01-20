@@ -47,7 +47,7 @@ namespace grid {
     features["node1,link1"] = tf11;
     features["node1,link2"] = tf12;
     features["node2,link1"] = tf21;
-    features["node2,link2"] = tf11;
+    features["node2,link2"] = tf22;
 
     return features;
   }

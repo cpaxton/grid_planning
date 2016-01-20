@@ -48,6 +48,9 @@ namespace grid {
     std::vector<double> T; // probability of going to each of the possible next actions
     std::vector<InstantiatedSkillPointer> next;
 
+    // selected endpoints for this trajectory
+    std::vector<trajectory_msgs::JointTrajectoryPoint> end_pts;
+
     std::vector<PredicateEffect> effects;
 
     RobotKinematicsPointer robot;
@@ -68,9 +71,15 @@ namespace grid {
     std::vector<FeatureVector> params;
     std::vector<JointTrajectory> trajs;
     std::vector<double> ps;
+    std::vector<double> next_ps;
     std::vector<double> iter_lls;
 
     bool current;
+
+    /**
+     * normalize the transition probabilities
+     */
+    void updateTransitions();
 
     /** 
      * default constructor
@@ -122,7 +131,11 @@ namespace grid {
      * run a single iteration of the loop. return a set of trajectories.
      * this is very similar to code in the demo
      */
-    void step(unsigned int samples = 0);
+    void step(std::vector<double> &ps ,
+              std::vector<trajectory_msgs::JointTrajectoryPoint> &start_pts,
+              int horizon = 1,
+              unsigned int samples = 0,
+              unsigned int start_idx = 0);
 
   };
 

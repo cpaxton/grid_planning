@@ -49,7 +49,7 @@ namespace grid {
      * Convert it into a KDL trajectory
      * NON-CONST becuse Gmm::sample is likewise non-const
      */
-    void sample(std::vector<EigenVectornd> &params,std::vector<JointTrajectory> &trajs);
+    void sample(std::vector<EigenVectornd> &params,std::vector<JointTrajectory> &trajs, unsigned int nsamples = 0);
 
     /**
      * update
