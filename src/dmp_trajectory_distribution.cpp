@@ -128,7 +128,9 @@ namespace grid {
     }
     trajs.resize(nsamples);
 
-    for (int sample = 0; sample < nsamples; ++sample) {
+    int sample = 0;
+    //for (int sample = 0; sample < nsamples; ++sample) {
+    while (sample < nsamples) {
 
       //EigenVectornd vec(nvars);
       //vec.resize(nvars);
@@ -152,7 +154,6 @@ namespace grid {
       int ik_result = robot->IkPos(p,q);
 
       if (ik_result < 0) {
-        --sample;
         continue;
       }
 
@@ -202,6 +203,8 @@ namespace grid {
           v *= dmp_velocity_multiplier;
         }
       }
+
+      ++sample;
     }
   }
 
