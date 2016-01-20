@@ -3,7 +3,6 @@
 #include <Eigen/Dense>
 #include <trajectory_msgs/JointTrajectoryPoint.h>
 
-using trajectory_msgs::JointTrajectoryPoint;
 using namespace Eigen;
 
 #define SHOW_SAMPLED_VALUES 0
@@ -114,7 +113,10 @@ namespace grid {
    * Convert it into a KDL trajectory
    * NON-CONST becuse Gmm::sample is likewise non-const
    */
-  void DmpTrajectoryDistribution::sample(std::vector<EigenVectornd> &params,std::vector<JointTrajectory> &trajs, unsigned int nsamples) {
+  void DmpTrajectoryDistribution::sample(
+      const std::vector<JointTrajectoryPoint> &start_pts,
+      std::vector<EigenVectornd> &params,
+      std::vector<JointTrajectory> &trajs, unsigned int nsamples) {
 
     using KDL::Vector;
     using KDL::Rotation;
@@ -166,8 +168,13 @@ namespace grid {
       dmp::DMPTraj plan;
 
 
+      //std::cout << sample << "\n" << start_pts.size() << "\n";
+      //std::cout << "pos " << start_pts[0].positions.size() << "\n";
 
-      dmp::generatePlan(dmp_list,robot->getJointPos(),robot->getJointVel(),0,dmp_goal,goal_threshold,-1,tau,0.1,5,plan,at_goal);
+      dmp::generatePlan(dmp_list,
+                        start_pts[sample].positions,
+                        start_pts[sample].velocities,
+                        0,dmp_goal,goal_threshold,-1,tau,0.1,5,plan,at_goal);
 
       if (verbose) {
         std::cout << "--------------------------" << std::endl;
@@ -209,9 +216,10 @@ namespace grid {
   void DmpTrajectoryDistribution::update(
       std::vector<EigenVectornd> &params,
       std::vector<double> &ps,
+      unsigned int nsamples,
       double diagonal_noise)
   {
-    update(params,ps,diagonal_noise,def_step_size);
+    update(params,ps,nsamples,diagonal_noise,def_step_size);
   }
 
   /**
@@ -221,9 +229,10 @@ namespace grid {
    */
   void DmpTrajectoryDistribution::update(
       std::vector<EigenVectornd> &params,
-      std::vector<double> &ps)
+      std::vector<double> &ps,
+      unsigned int nsamples)
   {
-    update(params,ps,diagonal_sigma,def_step_size);
+    update(params,ps,nsamples,diagonal_sigma,def_step_size);
   }
 
 
@@ -235,13 +244,14 @@ namespace grid {
   void DmpTrajectoryDistribution::update(
       std::vector<EigenVectornd> &params,
       std::vector<double> &ps,
+      unsigned int nsamples,
       double diagonal_noise,
       double step_size)
   {
 
     double psum = 0;
-    for (double &d: ps) {
-      psum += d;
+    for (unsigned int i = 0; i < nsamples; ++i) {
+      psum += ps[i];
     }
 
     if (dist.k == 1) {
@@ -252,14 +262,14 @@ namespace grid {
       dist.ns[0].mu *= (1 - step_size); //setZero();
       dist.ns[0].P *= (1 - step_size); //setZero();
 
-      for (unsigned int i = 0; i < params.size(); ++i) {
+      for (unsigned int i = 0; i < nsamples; ++i) {//i < params.size(); ++i) {
         //std::cout << "mu rows = " << dist.ns[0].mu.rows() << ", vec rows = " << vec.rows() << std::endl;
         //std::cout << "mu cols = " << dist.ns[0].mu.cols() << ", vec cols = " << vec.cols() << std::endl;
         double wt = step_size * ps[i] / psum;
         dist.ns[0].mu += params[i] * wt;
       }
 
-      for (unsigned int i = 0; i < params.size(); ++i) {
+      for (unsigned int i = 0; i < nsamples; ++i) { //i < params.size(); ++i) {
         double wt = step_size * ps[i] / psum;
         //std::cout << wt << ", " << ps[i] << ", " << psum << std::endl;
         dist.ns[0].P += wt * (params[i] - dist.ns[0].mu) * (params[i] - dist.ns[0].mu).transpose();
@@ -272,7 +282,7 @@ namespace grid {
       // and then fit GMM again
 
       std::vector<std::pair<EigenVectornd,double> > data(ps.size());
-      for (unsigned int i = 0; i < ps.size(); ++i) {
+      for (unsigned int i = 0; i < nsamples; ++i) { //i < ps.size(); ++i) {
         data[0].first = params[i];
         data[0].second = ps[i] / psum;
       }

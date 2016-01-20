@@ -126,14 +126,23 @@ int main(int argc, char **argv) {
 
   std::vector<trajectory_msgs::JointTrajectory> approach_trajs;
 
-  std::vector<double> ps(p.ntrajs);
-  std::vector<trajectory_msgs::JointTrajectoryPoint> starts(p.ntrajs);
+  //std::vector<double> ps(1.0,p.ntrajs);
+  //std::vector<trajectory_msgs::JointTrajectoryPoint> starts(p.ntrajs);
+  std::vector<double> ps(1.0,1);
+  std::vector<trajectory_msgs::JointTrajectoryPoint> starts(1);
 
   for (auto &pt: starts) {
     pt.positions = gp.currentPos();
-    pt.velocities = gp.currentPos();
+    pt.velocities = gp.currentVel();
+  }
+  ps[0] = 1.;
+
+  std::cout << starts.size() << std::endl;
+  for (unsigned int i = 0; i < starts.size(); ++i) {
+    std::cout << starts[i].positions.size() << "\n";
   }
 
+  double prob = 0;
   for (unsigned int i = 0; i < p.iter; ++i) {
     ros::spinOnce();
     robot->updateHint(gp.currentPos());
@@ -142,7 +151,7 @@ int main(int argc, char **argv) {
     std::cout << "ITER " << i << std::endl;
 
     // this is where the magic happens
-    root->step(ps,starts,1,p.ntrajs);
+    root->step(ps,starts,prob,1,1,p.ntrajs);
 
     approach_trajs.resize(0);
     for (auto &traj: app1->trajs) {

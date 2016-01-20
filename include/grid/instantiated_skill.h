@@ -49,7 +49,14 @@ namespace grid {
     std::vector<InstantiatedSkillPointer> next;
 
     // selected endpoints for this trajectory
-    std::vector<trajectory_msgs::JointTrajectoryPoint> end_pts;
+    std::vector<JointTrajectoryPoint> end_pts;
+
+    // store start points for this trajectory
+    std::vector<JointTrajectoryPoint> start_pts;
+    std::vector<double> start_ps;
+    std::vector<unsigned int> prev_idx;
+    std::vector<double> prev_p_sums;
+
 
     std::vector<PredicateEffect> effects;
 
@@ -73,6 +80,7 @@ namespace grid {
     std::vector<double> ps;
     std::vector<double> next_ps;
     std::vector<double> iter_lls;
+    std::vector<unsigned int> next_skill;
 
     bool current;
 
@@ -133,9 +141,14 @@ namespace grid {
      */
     void step(std::vector<double> &ps ,
               std::vector<trajectory_msgs::JointTrajectoryPoint> &start_pts,
+              double &probability,
+              unsigned int len, // number of input samples provided (AKA prev samples)
               int horizon = 1,
-              unsigned int samples = 0,
-              unsigned int start_idx = 0);
+              unsigned int samples = 0);
+
+
+    // randomly sample an index from the probabilities
+    unsigned int sampleIndex() const;
 
   };
 

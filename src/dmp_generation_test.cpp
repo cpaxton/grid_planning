@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
 
   Skill approach("approach",1);
   approach.appendFeature("link").appendFeature("time");
-  
+
   // set feature to use to initialize this action
   // must be a pose so we can find out where to start looking
   approach.setInitializationFeature("link"); 
@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
     }
     approach.trainSkillModel();
     approach.printGmm();
-  
+
     for (unsigned int i = 0; i < 3; ++i) {
       std::shared_ptr<WamTrainingFeatures> wtf_ex(new WamTrainingFeatures(objects));
       wtf_ex->addFeature("time",TIME_FEATURE); // add time as a feature
@@ -90,6 +90,8 @@ int main(int argc, char **argv) {
   std::vector<JointTrajectory> trajs;
   trajs.resize(ntrajs);
 
+  std::vector<trajectory_msgs::JointTrajectoryPoint> starts(ntrajs);
+
   try {
     while (ros::ok()) {
       ros::spinOnce();
@@ -105,6 +107,12 @@ int main(int argc, char **argv) {
       DmpTrajectoryDistribution dist(rk_ptr->getDegreesOfFreedom(),5,rk_ptr);
       dist.initialize(test,approach);
 
+
+      for (auto &pt: starts) {
+        pt.positions = gp.currentPos();
+        pt.velocities = gp.currentVel();
+      }
+
       ROS_INFO("Generating trajectories...");
       std::vector<EigenVectornd> params(ntrajs);
 
@@ -113,7 +121,7 @@ int main(int argc, char **argv) {
         using namespace std;
 
         clock_t begin = clock();
-        dist.sample(params,trajs);
+        dist.sample(starts,params,trajs);
         clock_t end = clock();
         double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
         std::cout << "Sampling " << ntrajs << " trajectories took " << elapsed_secs << " seconds." << std::endl;

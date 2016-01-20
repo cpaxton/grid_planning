@@ -103,6 +103,8 @@ int main(int argc, char **argv) {
   std::vector<JointTrajectory> trajs(p.ntrajs);
   std::vector<double> ps(p.ntrajs);
 
+  std::vector<trajectory_msgs::JointTrajectoryPoint> starts(p.ntrajs);
+
   double best_p = 0;
   unsigned int best_idx = 0;
 
@@ -112,13 +114,18 @@ int main(int argc, char **argv) {
 
   for (int i = 0; i < p.iter; ++i) {
 
+    for (auto &pt: starts) {
+      pt.positions = gp.currentPos();
+      pt.velocities = gp.currentVel();
+    }
+
     ros::Duration(p.wait).sleep();
     ros::spinOnce();
     rk_ptr->updateHint(gp.currentPos());
     rk_ptr->updateVelocityHint(gp.currentVel());
 
     // sample trajectories
-    dist.sample(params,trajs);
+    dist.sample(starts,params,trajs);
     pub.publish(toPoseArray(trajs,test.getWorldFrame(),rk_ptr));
 
     double sum = 0;
@@ -203,7 +210,7 @@ int main(int argc, char **argv) {
 
     //if (sum > 1e-50) { 
     // update distribution
-    dist.update(params,ps,p.noise,p.step_size);
+    dist.update(params,ps,p.ntrajs,p.noise,p.step_size);
     //} else {
     //i--;
     //   continue;

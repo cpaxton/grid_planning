@@ -29,7 +29,13 @@ namespace grid {
     ps(p_.ntrajs), iter_lls(p_.iter),
     current(false),
     trajs(p_.ntrajs), next_ps(p_.ntrajs),
-    params(p_.ntrajs), cur_iter(0)
+    params(p_.ntrajs), cur_iter(0),
+    next_skill(p_.ntrajs),
+    prev_idx(p_.ntrajs),
+    end_pts(p_.ntrajs),
+    start_pts(p_.ntrajs),
+    start_ps(p_.ntrajs),
+    prev_p_sums(p_.ntrajs)
   {
     reset();
   }
@@ -143,12 +149,24 @@ namespace grid {
    * run a single iteration of the loop. return a set of trajectories.
    * this is very similar to code in the demo
    */
-  void InstantiatedSkill::step(std::vector<double> &ps,
-                               std::vector<JointTrajectoryPoint> &start_pts,
+  void InstantiatedSkill::step(std::vector<double> &prev_ps,
+                               std::vector<JointTrajectoryPoint> &prev_end_pts,
+                               double &probability,
+                               unsigned int len,
                                int horizon,
                                unsigned int nsamples,
                                unsigned int start_idx)
   {
+
+
+    probability = 0;
+
+    unsigned int next_len = nsamples;
+
+    //std::cout << "in: " << len << std::endl;
+    //for (unsigned int i = 0; i < len; ++i) {
+    //  std::cout << prev_end_pts[i].positions.size() << "\n";
+    //}
 
     touched = true;
 
@@ -158,16 +176,32 @@ namespace grid {
       nsamples = p.ntrajs;
     }
 
-
     double sum = 0;
 
-    if (skill) {
+    if (skill) { // or goal?
+
+      // sample start points
+      for (unsigned int i = 0; i < nsamples; ++i) {
+
+        unsigned int idx = 0;
+
+        // sample an index
+        start_pts[i].positions = prev_end_pts[idx].positions;
+        start_pts[i].velocities = prev_end_pts[idx].velocities;
+        start_ps[i] = prev_ps[idx];
+        prev_idx[i] = idx;
+        prev_p_sums[idx] = 0;
+        //for (unsigned int j = 0; j < robot->getDegreesOfFreedom(); ++j) {
+        //  std::cout << prev_end_pts[0].positions[j] << " ";
+        //}
+        //std::cout << std::endl;
+      }
 
       // sample trajectories
-      dmp_dist->sample(params,trajs);
+      dmp_dist->sample(start_pts,params,trajs,nsamples);
 
       // compute probabilities
-      for (unsigned int j = 0; j < trajs.size(); ++j) {
+      for (unsigned int j = 0; j < nsamples; ++j) {
 
         // TODO: speed this up
         std::vector<Pose> poses = robot->FkPos(trajs[j]);
@@ -182,8 +216,10 @@ namespace grid {
           FeatureVector v = skill->logL(obs);
           ps[j] = (v.array().exp().sum() / v.size()); // would add other terms first
         } else {
-          ps[j] = 0;
+          ps[j] = 1;
         }
+        std::cout << "[" << id << "] " << skill->getName() << ": "<<ps[j]<<" * "<<start_ps[j]<<"\n";
+        ps[j] *= start_ps[j];
 
         sum += ps[j];
 
@@ -192,24 +228,65 @@ namespace grid {
           best_idx = j;
         }
 
+        // set up all the end points!
+        end_pts[j].positions = trajs[j].points.rbegin()->positions;
+        end_pts[j].velocities = trajs[j].points.rbegin()->velocities;
       }
+    } else {
+      sum = 0;
+      for (unsigned int i = 0; i < len; ++ i) {
+        ps[i] = prev_ps[i];
+        sum += ps[i];
+        end_pts[i].positions = prev_end_pts[i].positions;
+        end_pts[i].velocities = prev_end_pts[i].velocities;
+      }
+      next_len = len;
     }
 
-    // update end points
+    // normalize here
+    for (double &d: ps) {
+      d /= sum;
+    }
 
+    // do we want to continue?
+    // if so descend through the tree
+    // descent through the tree
     if (horizon > 0) {
+
       unsigned int next_idx = 0;
       unsigned int next_skill_idx = 0;
       for (auto &ns: next) {
         unsigned int next_nsamples = ceil(T[next_skill_idx]*nsamples);
-        ns->step(next_ps, end_pts, horizon-1, next_nsamples, next_idx);
+        ns->step(ps, end_pts, T[next_idx], next_len, horizon-1, next_nsamples, next_idx);
         next_idx += next_nsamples;
+
+        std::cout << " >>> probability of " << ns->skill->getName() << ":" << ns->id << " = " << T[next_idx] << std::endl;
+
         ++next_skill_idx;
+      }      
+    }
+
+    // update probabilities for all
+    {
+      // now loop over all the stuff!
+      // go over probabilities and make sure they work
+      // use the start_idx field to match start_idx to 
+      double prev_psum_sum = 0;
+      for (unsigned int i = 0; i < nsamples; ++i) {
+        std::cout << " - propogating p(" << i << ") = " << ps[i] << " back to " << prev_idx[i] << "\n";
+        prev_p_sums[prev_idx[i]] = ps[i];
+        probability += ps[i];
+      }
+      probability /= nsamples;
+
+      // update transitions based on these results
+      for (unsigned int i = 0; i < len; ++i) {
+        std::cout << " - future sum " << i << " = " << prev_p_sums[i] << "\n";
       }
     }
 
     if(skill) {
-      dmp_dist->update(params,ps,p.noise,p.step_size);
+      dmp_dist->update(params,ps,nsamples,p.noise,p.step_size);
     }
 
     // compute ll for this iteration
@@ -221,9 +298,9 @@ namespace grid {
     }
 
     if (skill) {
-      std::cout << "[" << id << "] " << skill->getName() << " >>>> AVG P = " << (sum / p.ntrajs) << std::endl;
+      std::cout << "[" << id << "] " << skill->getName() << " >>>> AVG P = " << (sum / nsamples) << std::endl;
     } else {
-      std::cout << "[" << id << "] [no skill] >>>> AVG P = " << (sum / p.ntrajs) << std::endl;
+      std::cout << "[" << id << "] [no skill] >>>> AVG P = " << (sum / len) << std::endl;
     }
 
     ++cur_iter;

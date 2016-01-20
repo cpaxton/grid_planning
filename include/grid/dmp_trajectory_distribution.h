@@ -16,6 +16,7 @@
 
 
 using trajectory_msgs::JointTrajectory;
+using trajectory_msgs::JointTrajectoryPoint;
 
 namespace grid {
 
@@ -49,7 +50,11 @@ namespace grid {
      * Convert it into a KDL trajectory
      * NON-CONST becuse Gmm::sample is likewise non-const
      */
-    void sample(std::vector<EigenVectornd> &params,std::vector<JointTrajectory> &trajs, unsigned int nsamples = 0);
+    void sample(
+        const std::vector<JointTrajectoryPoint> &start_pts,
+        std::vector<EigenVectornd> &params,
+        std::vector<JointTrajectory> &trajs,
+        unsigned int nsamples = 0);
 
     /**
      * update
@@ -57,7 +62,8 @@ namespace grid {
      * use the trajectories to reweight the distribution
      */
     void update(std::vector<EigenVectornd> &params,
-                std::vector<double> &ps);
+                std::vector<double> &ps,
+                unsigned int nsamples);
 
 
     /**
@@ -67,6 +73,7 @@ namespace grid {
      */
     void update(std::vector<EigenVectornd> &params,
                 std::vector<double> &ps,
+                unsigned int nsamples,
                 double diagonal_noise);
 
 
@@ -77,6 +84,7 @@ namespace grid {
      */
     void update(std::vector<EigenVectornd> &params,
                 std::vector<double> &ps,
+                unsigned int nsamples,
                 double diagonal_noise,
                 double step_size);
 
@@ -105,7 +113,7 @@ namespace grid {
     std::vector<double> goal_threshold;
 
     KDL::JntArray q;
-    
+
     double dmp_velocity_multiplier;
 
   };
