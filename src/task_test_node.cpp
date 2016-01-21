@@ -157,6 +157,10 @@ int main(int argc, char **argv) {
   grasp2->addNext(align22);
 #endif
 
+  align11->addNext(place11);
+  align12->addNext(place12);
+  align21->addNext(place21);
+  align22->addNext(place22);
 
   std::vector<InstantiatedSkillPointer> approaches;
   approaches.push_back(app1);
@@ -178,13 +182,6 @@ int main(int argc, char **argv) {
   disengages.push_back(disengage1);
   disengages.push_back(disengage2);
 
-  /*
-  align11->addNext(place11);
-  align12->addNext(place12);
-  align21->addNext(place21);
-  align22->addNext(place22);
-  */
-
   /*************************************************************************/
 
   std::vector<trajectory_msgs::JointTrajectory> approach_trajs;
@@ -205,7 +202,7 @@ int main(int argc, char **argv) {
   }
   ps[0] = 1.;
 
-  int horizon = 2;
+  int horizon = 3;
   double prob = 0;
   for (unsigned int i = 0; i < p.iter; ++i) {
     ros::spinOnce();
@@ -228,7 +225,7 @@ int main(int argc, char **argv) {
       //pub2.publish(toPoseArray(disengage_trajs,disengage1->features->getWorldFrame(),robot));
       pub5.publish(toPoseArray(grasp_trajs,grasp1->features->getWorldFrame(),robot));
       pub3.publish(toPoseArray(align_trajs,app1->features->getWorldFrame(),robot));
-      //pub4.publish(toPoseArray(place_trajs,app1->features->getWorldFrame(),robot));
+      pub4.publish(toPoseArray(place_trajs,app1->features->getWorldFrame(),robot));
     }
 
     ros::Duration(p.wait).sleep();
