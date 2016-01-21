@@ -99,6 +99,31 @@ namespace grid {
   }
 
   /**
+   * create a new skill with dmps
+   */
+  InstantiatedSkillPointer InstantiatedSkill::DmpInstance(SkillPointer skill,
+                                                          SkillPointer grasp,
+                                                          TestFeaturesPointer features,
+                                                          RobotKinematicsPointer robot,
+                                                          unsigned int nbasis)
+  {
+
+    Params p = readRosParams();
+    InstantiatedSkillPointer is(new InstantiatedSkill(p));
+    is->skill = skill;
+    is->features = features;
+    is->robot = robot;
+    is->dmp_dist = DmpTrajectoryDistributionPointer(
+        new DmpTrajectoryDistribution(robot->getDegreesOfFreedom(),
+                                      nbasis,
+                                      robot));
+    is->dmp_dist->attachObjectFromSkill(*grasp);
+    is->dmp_dist->initialize(*features,*skill);
+
+    return is;
+  }
+
+  /**
    * create a new skill with spline and segments
    */
   InstantiatedSkillPointer InstantiatedSkill::SplineInstance(SkillPointer skill,
@@ -196,10 +221,16 @@ namespace grid {
     //for (unsigned int i = 0; i < len; ++i) {
     //  std::cout << prev_end_pts[i].positions.size() << "\n";
     //}
+    //
+
+    for (unsigned int i = 0; i < nsamples; ++i) {
+
+        // initialize
+        next_ps[i] = 0;//-999999; /******/
+    }
 
     /************* ACCUMULATE PROBABILITIES *************/
-    for (unsigned int i = 0; i < nsamples; ++i) {
-      next_ps[i] = 0;
+    for (unsigned int i = 0; i < len; ++i) {
       if (i > 0) {
         acc[i] = prev_ps[i] + acc[i-1];
       } else {
@@ -208,7 +239,7 @@ namespace grid {
 
     }
     for (double &d: acc) {
-      d /= acc[nsamples-1];
+      d /= acc[len-1];
     }
 
     if (p.verbosity > 3) {
@@ -235,7 +266,7 @@ namespace grid {
       // sample start points
       for (unsigned int i = 0; i < nsamples; ++i) {
 
-        unsigned int idx = sampleIndex(nsamples);
+        unsigned int idx = sampleIndex(len);
 
         // sample an index
         start_pts[i].positions = prev_end_pts[idx].positions;
@@ -248,8 +279,16 @@ namespace grid {
         next_ps[i] = 0;
       }
 
-      // sample trajectories
-      dmp_dist->sample(start_pts,params,trajs,nsamples);
+      if (!skill->isStatic()) {
+        // sample trajectories
+        dmp_dist->sample(start_pts,params,trajs,nsamples);
+      } else {
+        // just stay put
+        for (unsigned int i = 0; i < nsamples; ++i) {
+          trajs[i].points.resize(1);
+          trajs[i].points[0] = start_pts[i];
+        }
+      }
 
       // compute probabilities
       for (unsigned int j = 0; j < nsamples; ++j) {
@@ -376,7 +415,7 @@ namespace grid {
     for (double &d: ps) {
       d /= sum;
     }
-    if(skill) {
+    if(skill and not skill->isStatic()) {
       dmp_dist->update(params,ps,nsamples,p.noise,p.step_size);
     }
 

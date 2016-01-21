@@ -127,6 +127,16 @@ namespace grid {
                                                 unsigned int nbasis);
 
     /**
+     * create a new skill with dmps
+     */
+    static InstantiatedSkillPointer DmpInstance(SkillPointer skill,
+                                                SkillPointer grasp,
+                                                TestFeaturesPointer features,
+                                                RobotKinematicsPointer robot,
+                                                unsigned int nbasis);
+
+
+    /**
      * create a new skill with spline and segments
      */
     static InstantiatedSkillPointer SplineInstance(SkillPointer skill,

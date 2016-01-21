@@ -43,6 +43,14 @@ namespace grid {
   }
 
   /**
+   * use a model of a skill
+   * compute the grasp pose from that skill and use it to plan for now
+   */
+  void DmpTrajectoryDistribution::attachObjectFromSkill(Skill &skill) {
+    attachObjectFrame(skill.getInitializationStartPose());
+  }
+
+  /**
    * set an attached object
    */
   void DmpTrajectoryDistribution::attachObjectFrame(Pose &pose) {

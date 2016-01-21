@@ -88,6 +88,11 @@ namespace grid {
                 double diagonal_noise,
                 double step_size);
 
+  /**
+   * use a model of a skill
+   * compute the grasp pose from that skill and use it to plan for now
+   */
+  void attachObjectFromSkill(Skill &skill);
 
     /**
      * set an attached object

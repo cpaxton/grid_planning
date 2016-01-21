@@ -174,7 +174,6 @@ namespace grid {
      */
     const std::string &attachedObjectFrame() const;
 
-
   protected:
 
     /** does this skill mean the robot needs to move */

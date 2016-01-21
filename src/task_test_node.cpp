@@ -53,6 +53,7 @@ int main(int argc, char **argv) {
   ros::Publisher pub2 = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples_2",1000);
   ros::Publisher pub3 = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples_3",1000);
   ros::Publisher pub4 = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples_4",1000);
+  ros::Publisher pub5 = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples_5",1000);
 
   ros::spinOnce();
   robot->updateHint(gp.currentPos());
@@ -136,10 +137,25 @@ int main(int argc, char **argv) {
   app2->addNext(disengage2);
 #endif
 
+#if 1
   app1->addNext(align11);
   app1->addNext(align12);
   app2->addNext(align21);
   app2->addNext(align22);
+#endif
+
+
+#if 0
+  app1->addNext(grasp1);
+  app2->addNext(grasp2);
+#endif
+
+#if 0
+  grasp1->addNext(align11);
+  grasp1->addNext(align12);
+  grasp2->addNext(align21);
+  grasp2->addNext(align22);
+#endif
 
 
   std::vector<InstantiatedSkillPointer> approaches;
@@ -155,6 +171,9 @@ int main(int argc, char **argv) {
   places.push_back(place21);
   places.push_back(place12);
   places.push_back(place22);
+  std::vector<InstantiatedSkillPointer> grasps;
+  grasps.push_back(disengage1);
+  grasps.push_back(disengage2);
   std::vector<InstantiatedSkillPointer> disengages;
   disengages.push_back(disengage1);
   disengages.push_back(disengage2);
@@ -172,6 +191,7 @@ int main(int argc, char **argv) {
   std::vector<trajectory_msgs::JointTrajectory> disengage_trajs;
   std::vector<trajectory_msgs::JointTrajectory> align_trajs;
   std::vector<trajectory_msgs::JointTrajectory> place_trajs;
+  std::vector<trajectory_msgs::JointTrajectory> grasp_trajs;
 
   //std::vector<double> ps(1.0,p.ntrajs);
   //std::vector<trajectory_msgs::JointTrajectoryPoint> starts(p.ntrajs);
@@ -206,6 +226,7 @@ int main(int argc, char **argv) {
       //load_to_one_array(disengages,disengage_trajs);
       pub.publish(toPoseArray(approach_trajs,app1->features->getWorldFrame(),robot));
       //pub2.publish(toPoseArray(disengage_trajs,disengage1->features->getWorldFrame(),robot));
+      pub5.publish(toPoseArray(grasp_trajs,grasp1->features->getWorldFrame(),robot));
       pub3.publish(toPoseArray(align_trajs,app1->features->getWorldFrame(),robot));
       //pub4.publish(toPoseArray(place_trajs,app1->features->getWorldFrame(),robot));
     }
