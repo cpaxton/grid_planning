@@ -3,9 +3,9 @@
 namespace grid {
 
 
-    /** 
-     * initializers
-     */
+  /** 
+   * initializers
+   */
   Features::Features() : attached(false), attachedObjectFrame(), attachedObject("")
   {
 
@@ -36,6 +36,14 @@ namespace grid {
     updateFeaturesSize();
 
     return *this;
+  }
+
+
+  /**
+   * is there an object here
+   */
+  bool Features::hasAttachedObjectFrame() const {
+    return attached;
   }
 
 

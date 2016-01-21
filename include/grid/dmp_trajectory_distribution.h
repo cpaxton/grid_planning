@@ -89,6 +89,17 @@ namespace grid {
                 double step_size);
 
 
+    /**
+     * set an attached object
+     */
+    void attachObjectFrame(Pose &pose);
+
+    /*
+     * remove object
+     */
+    void detachObjectFrame();
+
+
   protected:
     gcop::Gmm<> dist; // stores distributions
 
@@ -115,6 +126,11 @@ namespace grid {
     KDL::JntArray q;
 
     double dmp_velocity_multiplier;
+
+
+    // attached object
+    bool attached;
+    Pose attachedObjectFrame;
 
   };
 

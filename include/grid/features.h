@@ -191,6 +191,11 @@ namespace grid {
      */
     const std::string &getAttachedObject() const;
 
+    /**
+     * is there an object here
+     */
+    bool hasAttachedObjectFrame() const;
+
 
     /** 
      * initializers

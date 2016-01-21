@@ -26,7 +26,8 @@ namespace grid {
     d_gain(20),
     tau(3.0),
     goal_threshold(dim_,0.01),
-    dmp_velocity_multiplier(0.1)
+    dmp_velocity_multiplier(0.1),
+    attached(false)
   {
 
     assert(dim == robot->getDegreesOfFreedom());
@@ -39,6 +40,21 @@ namespace grid {
       dmp_list[i].d_gain = d_gain;
       dmp_list[i].weights.resize(nbasis);
     }
+  }
+
+  /**
+   * set an attached object
+   */
+  void DmpTrajectoryDistribution::attachObjectFrame(Pose &pose) {
+    attachedObjectFrame = pose;
+    attached = true;
+  }
+
+  /*
+   * remove object
+   */
+  void DmpTrajectoryDistribution::detachObjectFrame() {
+    attached = false;
   }
 
   /**
@@ -56,7 +72,8 @@ namespace grid {
       p1 = p1 * skill.getInitializationStartPose();
     }
 
-    if (skill.hasAttachedObject()) {
+    if (skill.hasAttachedObject() and features.hasAttachedObjectFrame()) {
+      std::cout << "Attached frame loaded from FEATURES\n";
       std::cout << features.getAttachedObjectFrame() << "\n";
       p1 = p1 * features.getAttachedObjectFrame().Inverse();
     }
@@ -285,25 +302,25 @@ namespace grid {
       }
 
 
-    } else {
+      } else {
 
-      // set up weighted data
-      // and then fit GMM again
+        // set up weighted data
+        // and then fit GMM again
 
-      std::vector<std::pair<EigenVectornd,double> > data(ps.size());
-      for (unsigned int i = 0; i < nsamples; ++i) { //i < ps.size(); ++i) {
-        data[0].first = params[i];
-        data[0].second = ps[i] / psum;
+        std::vector<std::pair<EigenVectornd,double> > data(ps.size());
+        for (unsigned int i = 0; i < nsamples; ++i) { //i < ps.size(); ++i) {
+          data[0].first = params[i];
+          data[0].second = ps[i] / psum;
+        }
+
+        dist.Fit(data);
+
+        }
+
+        for (unsigned int i = 0; i < dist.k; ++i) {
+          dist.ns[0].P += diagonal_noise * Matrix<double,Dynamic,Dynamic>::Identity(nvars,nvars);
+        }
+
+        dist.Update();
       }
-
-      dist.Fit(data);
-
-    }
-
-    for (unsigned int i = 0; i < dist.k; ++i) {
-      dist.ns[0].P += diagonal_noise * Matrix<double,Dynamic,Dynamic>::Identity(nvars,nvars);
-    }
-
-    dist.Update();
-  }
-};
+      };
