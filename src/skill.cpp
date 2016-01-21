@@ -39,7 +39,20 @@ namespace grid {
     return init_start;
   }
 
+  /**
+   * make this a static skill (no movement)
+   */
+  Skill &Skill::setStatic(bool set_static) {
+    is_static = set_static;
+    return *this;
+  }
 
+  /**
+   * is this static
+   */
+  bool Skill::isStatic() const {
+    return is_static;
+  }
 
   /**
    * default skill;
@@ -73,7 +86,7 @@ namespace grid {
    * create a skill based on a set of features and a number of clusters
    */
   Skill::Skill(int k, std::vector<std::string> &feature_names_, Features &features) :
-    feature_names(feature_names_), attached_object("")
+    feature_names(feature_names_), attached_object(""), is_static(false)
   {
     unsigned int dim = features.getFeaturesSize();
     model = GmmPtr(new Gmm(dim,k));
@@ -82,7 +95,7 @@ namespace grid {
   /**
    * create a skill based on k and d
    */
-  Skill::Skill(const std::string &name_, int k_) : name(name_), k(k_), attached_object("") {
+  Skill::Skill(const std::string &name_, int k_) : name(name_), k(k_), attached_object(""), is_static(false) {
     // do nothing for now
   }
 

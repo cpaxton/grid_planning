@@ -27,6 +27,15 @@ void update_features(std::unordered_map<std::string, TestFeaturesPointer> &featu
   }
 }
 
+void load_to_one_array(std::vector<InstantiatedSkillPointer> &is, std::vector<JointTrajectory> &trajs) {
+  trajs.resize(0);
+  for (auto &ptr: is) {
+    for (auto &traj: ptr->trajs) {
+      trajs.push_back(traj);
+    }
+  }
+}
+
 int main(int argc, char **argv) {
 
   ros::init(argc,argv,"task_model_test_node");
@@ -42,6 +51,8 @@ int main(int argc, char **argv) {
   ros::NodeHandle nh;
   ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples",1000);
   ros::Publisher pub2 = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples_2",1000);
+  ros::Publisher pub3 = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples_3",1000);
+  ros::Publisher pub4 = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples_4",1000);
 
   ros::spinOnce();
   robot->updateHint(gp.currentPos());
@@ -130,6 +141,24 @@ int main(int argc, char **argv) {
   app2->addNext(align21);
   app2->addNext(align22);
 
+
+  std::vector<InstantiatedSkillPointer> approaches;
+  approaches.push_back(app1);
+  approaches.push_back(app2);
+  std::vector<InstantiatedSkillPointer> aligns;
+  aligns.push_back(align11);
+  aligns.push_back(align21);
+  aligns.push_back(align12);
+  aligns.push_back(align22);
+  std::vector<InstantiatedSkillPointer> places;
+  places.push_back(place11);
+  places.push_back(place21);
+  places.push_back(place12);
+  places.push_back(place22);
+  std::vector<InstantiatedSkillPointer> disengages;
+  disengages.push_back(disengage1);
+  disengages.push_back(disengage2);
+
   /*
   align11->addNext(place11);
   align12->addNext(place12);
@@ -141,6 +170,8 @@ int main(int argc, char **argv) {
 
   std::vector<trajectory_msgs::JointTrajectory> approach_trajs;
   std::vector<trajectory_msgs::JointTrajectory> disengage_trajs;
+  std::vector<trajectory_msgs::JointTrajectory> align_trajs;
+  std::vector<trajectory_msgs::JointTrajectory> place_trajs;
 
   //std::vector<double> ps(1.0,p.ntrajs);
   //std::vector<trajectory_msgs::JointTrajectoryPoint> starts(p.ntrajs);
@@ -167,25 +198,16 @@ int main(int argc, char **argv) {
     ps[0] = 1.; // set prior
     root->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
 
-    approach_trajs.resize(0);
-    for (auto &traj: app1->trajs) {
-      approach_trajs.push_back(traj);
-    }
-
     /* PUT EVERYTHING INTO SOME MESSAGES */
     {
-      for (auto &traj: app2->trajs) {
-        approach_trajs.push_back(traj);
-      }
-      disengage_trajs.resize(0);
-      for (auto &traj: disengage1->trajs) {
-        disengage_trajs.push_back(traj);
-      }
-      for (auto &traj: disengage2->trajs) {
-        disengage_trajs.push_back(traj);
-      }
+      load_to_one_array(approaches,approach_trajs);
+      load_to_one_array(aligns,align_trajs);
+      //load_to_one_array(places,place_trajs);
+      //load_to_one_array(disengages,disengage_trajs);
       pub.publish(toPoseArray(approach_trajs,app1->features->getWorldFrame(),robot));
-      pub2.publish(toPoseArray(disengage_trajs,disengage1->features->getWorldFrame(),robot));
+      //pub2.publish(toPoseArray(disengage_trajs,disengage1->features->getWorldFrame(),robot));
+      pub3.publish(toPoseArray(align_trajs,app1->features->getWorldFrame(),robot));
+      //pub4.publish(toPoseArray(place_trajs,app1->features->getWorldFrame(),robot));
     }
 
     ros::Duration(p.wait).sleep();

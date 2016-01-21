@@ -10,6 +10,8 @@
 #include <grid/skill.h>
 #include <grid/utils/params.h>
 
+#include <random>
+
 namespace grid {
 
   typedef std::shared_ptr<TestFeatures> TestFeaturesPointer;
@@ -73,6 +75,9 @@ namespace grid {
     double transitions_step;
     unsigned int best_idx;
     unsigned int cur_iter;
+
+    //static std::uniform_real_distribution<double> unif_rand(0.,1.);
+    //static std::default_random_engine re;
 
   public:
 

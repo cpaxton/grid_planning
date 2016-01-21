@@ -63,12 +63,12 @@ namespace grid {
     SkillPointer disengage(new Skill("disengage"));
 
     /* SET UP THE SKILLS */
-    approach->appendFeature("link").appendFeature("time").setInitializationFeature("link");
-    grasp->appendFeature("link").appendFeature("time").setInitializationFeature("link");
-    align->appendFeature("node").appendFeature("time").setInitializationFeature("node").attachObject("link");
-    place->appendFeature("node").appendFeature("time").setInitializationFeature("node").attachObject("link");
-    release->appendFeature("link").appendFeature("time").setInitializationFeature("link");
-    disengage->appendFeature("link").appendFeature("time").setInitializationFeature("link");
+    approach->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false);
+    grasp->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(true);
+    align->appendFeature("node").appendFeature("time").setInitializationFeature("node").attachObject("link").setStatic(false);
+    place->appendFeature("node").appendFeature("time").setInitializationFeature("node").attachObject("link").setStatic(false);
+    release->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(true);
+    disengage->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false);
 
     /* SET UP THE ROBOT KINEMATICS */
     RobotKinematicsPointer rk_ptr = RobotKinematicsPointer(new RobotKinematics("robot_description","wam/base_link","wam/wrist_palm_link"));

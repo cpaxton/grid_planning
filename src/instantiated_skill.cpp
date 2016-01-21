@@ -167,6 +167,7 @@ namespace grid {
     assert(fabs(acc.at(nsamples-1) - 1) < 1e-5);
 
     double r = (double)rand() / RAND_MAX;
+    //double r = unif_rand(re);
     for (unsigned int i = 0; i < nsamples; ++i) {
       if (r < acc.at(i)) return i;
     }

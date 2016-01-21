@@ -70,6 +70,16 @@ namespace grid {
     Skill &appendFeature(const std::string &feature);
 
     /**
+     * make this a static skill (no movement)
+     */
+    Skill &setStatic(bool is_static);
+
+    /**
+     * is this static
+     */
+    bool isStatic() const;
+
+    /**
      * set up the name
      */
     Skill &setName(const std::string &name);
@@ -166,6 +176,9 @@ namespace grid {
 
 
   protected:
+
+    /** does this skill mean the robot needs to move */
+    bool is_static;
 
     /** number of clusters in gmm */
     int k;
