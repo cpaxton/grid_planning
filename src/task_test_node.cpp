@@ -219,7 +219,8 @@ int main(int argc, char **argv) {
     {
       load_to_one_array(approaches,approach_trajs);
       load_to_one_array(aligns,align_trajs);
-      //load_to_one_array(places,place_trajs);
+      load_to_one_array(places,place_trajs);
+      load_to_one_array(grasps,grasp_trajs);
       //load_to_one_array(disengages,disengage_trajs);
       pub.publish(toPoseArray(approach_trajs,app1->features->getWorldFrame(),robot));
       //pub2.publish(toPoseArray(disengage_trajs,disengage1->features->getWorldFrame(),robot));
