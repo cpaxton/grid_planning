@@ -149,14 +149,14 @@ namespace grid {
     for (double &d: T) {
       tsum += d;
     }
-    std::cout << "Transitions: ";
+    //std::cout << "Transitions: ";
     for(unsigned int i = 0; i < T.size(); ++i) {
       T[i] = ((1 - p.step_size)*(last_T[i]/last_tsum))
         + (p.step_size * (T[i] / tsum));
-      std::cout << T[i] << " ";
+      //std::cout << T[i] << " ";
       last_T[i] = T[i];
     }
-    std::cout << std::endl;
+    //std::cout << std::endl;
   }
 
 

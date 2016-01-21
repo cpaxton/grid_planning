@@ -130,10 +130,12 @@ int main(int argc, char **argv) {
   app2->addNext(align21);
   app2->addNext(align22);
 
+  /*
   align11->addNext(place11);
   align12->addNext(place12);
   align21->addNext(place21);
   align22->addNext(place22);
+  */
 
   /*************************************************************************/
 
@@ -151,11 +153,6 @@ int main(int argc, char **argv) {
     pt.velocities = gp.currentVel();
   }
   ps[0] = 1.;
-
-  std::cout << starts.size() << std::endl;
-  for (unsigned int i = 0; i < starts.size(); ++i) {
-    std::cout << starts[i].positions.size() << "\n";
-  }
 
   int horizon = 2;
   double prob = 0;

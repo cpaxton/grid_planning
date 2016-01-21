@@ -35,7 +35,17 @@ namespace grid {
      * Get information for a single feature over the whole trajectory given in traj.
      * Traj is a set of frames
      */
-    std::vector<FeatureVector> getFeaturesForTrajectory(const std::vector<std::string> &name, TrajectoryFrames traj);
+    std::vector<FeatureVector> getFeaturesForTrajectory(const std::vector<std::string> &name, const TrajectoryFrames &traj);
+
+    /* getFeaturesForTrajectory
+     * Get information for a single feature over the whole trajectory given in traj.
+     * Traj is a set of frames
+     * Uses an attached object frame
+     */
+    std::vector<FeatureVector> getFeaturesForTrajectory(const std::vector<std::string> &name,
+                                                        const TrajectoryFrames &traj,
+                                                        const bool useAttachedObjectFrame,
+                                                        const Pose &attachedObjectFrame);
 
     /* addFrame
      * Adds a frame of reference as a feature

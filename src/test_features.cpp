@@ -68,7 +68,7 @@ namespace grid {
 
   /* lookup tf frame for key
    * in world frame
-  */
+   */
   Pose TestFeatures::lookup(const std::string &key) {
     return lookup(key, worldFrame);
   }
@@ -111,12 +111,12 @@ namespace grid {
     return currentPose.at(BASE) * currentPose.at(AGENT);
   }
 
-    /**
-     * get the world frame
-     */
-    const std::string &TestFeatures::getWorldFrame() const {
-      return worldFrame;
-    }
+  /**
+   * get the world frame
+   */
+  const std::string &TestFeatures::getWorldFrame() const {
+    return worldFrame;
+  }
 
   /*
    * run lookup for all objects
@@ -136,11 +136,11 @@ namespace grid {
     }
 
     if (attached) {
-        attachedObjectFrame = lookup(AGENT).Inverse() * lookup(attachedObject);
-        //attachedObjectFrame = lookup(AGENT,attachedObject);
-        //std::cout << attachedObjectFrame << "\n";
+      attachedObjectFrame = lookup(AGENT).Inverse() * lookup(attachedObject);
+      //attachedObjectFrame = lookup(AGENT,attachedObject);
+      //std::cout << attachedObjectFrame << "\n";
     } else {
-        attachedObjectFrame = Pose();
+      attachedObjectFrame = Pose();
     }
 
     return *this;
@@ -150,7 +150,9 @@ namespace grid {
    * Get information for a single feature over the whole trajectory given in traj.
    * Traj is KDL::Trajectory
    */
-  std::vector<FeatureVector> TestFeatures::getFeaturesForTrajectory(const std::vector<std::string> &names, Trajectory *traj, double dt) {
+  std::vector<FeatureVector> TestFeatures::getFeaturesForTrajectory(const std::vector<std::string> &names,
+                                                                    Trajectory *traj, double dt)
+  {
 
     using KDL::Rotation;
 
@@ -184,7 +186,7 @@ namespace grid {
           idx += TIME_FEATURES_SIZE;
         }
       }
-      
+
 #if 0
       for (int i = 0; i < dim; ++i) {
         std::cout << f(i) << " ";
@@ -203,8 +205,13 @@ namespace grid {
   /* getFeaturesForTrajectory
    * Get information for a single feature over the whole trajectory given in traj.
    * Traj is a set of frames
+   * Uses an attached object frame
    */
-  std::vector<FeatureVector> TestFeatures::getFeaturesForTrajectory(const std::vector<std::string> &names, TrajectoryFrames traj) {
+  std::vector<FeatureVector> TestFeatures::getFeaturesForTrajectory(const std::vector<std::string> &names,
+                                                                    const TrajectoryFrames &traj,
+                                                                    const bool useAttachedObjectFrame,
+                                                                    const Pose &attachedObjectFrame)
+  {
 
     std::vector<FeatureVector> features(traj.size());
 
@@ -220,7 +227,7 @@ namespace grid {
         if (feature_types[name] == POSE_FEATURE) {
 
           Pose offset = currentPose[name].Inverse() * p;
-          if (attached) {
+          if (useAttachedObjectFrame) {
             //std::cout << "attaching\n";
             //std::cout << attachedObjectFrame << "\n";
             offset = offset * attachedObjectFrame;
@@ -229,7 +236,6 @@ namespace grid {
           //  <<", y=" << offset.p.y()
           //  <<", z=" << offset.p.z()
           //  <<std::endl;
-
 
           getPoseFeatures(offset,f,idx);
           idx+= POSE_FEATURES_SIZE;
@@ -244,13 +250,26 @@ namespace grid {
 
     }
     return features;
+
   }
 
 
-    /**
-     * get current attached object frame
-     */
-    const Pose &TestFeatures::getAttachedObjectFrame() const {
-      return attachedObjectFrame;
-    }
+
+  /* getFeaturesForTrajectory
+   * Get information for a single feature over the whole trajectory given in traj.
+   * Traj is a set of frames
+   */
+  std::vector<FeatureVector> TestFeatures::getFeaturesForTrajectory(const std::vector<std::string> &names,
+                                                                    const TrajectoryFrames &traj)
+  {
+    return getFeaturesForTrajectory(names, traj, attached, attachedObjectFrame);
+  }
+
+
+  /**
+   * get current attached object frame
+   */
+  const Pose &TestFeatures::getAttachedObjectFrame() const {
+    return attachedObjectFrame;
+  }
 }

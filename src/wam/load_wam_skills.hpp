@@ -108,10 +108,8 @@ namespace grid {
     skills["approach"] = approach;
     skills["grasp"] = grasp;
     skills["align"] = align;
-#if 0
     skills["place"] = place;
     skills["release"] = release;
-#endif
     skills["disengage"] = disengage;
 
     return skills;

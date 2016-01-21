@@ -47,8 +47,8 @@ namespace grid {
    */
   void DmpTrajectoryDistribution::initialize(TestFeatures &features, const Skill &skill, bool initBegin, std::vector<double> sigma) {
     //Pose p0 = features.lookup(AGENT);
+    std::cout << skill.getInitializationFeature() << std::endl;
     Pose p1 = features.lookup(skill.getInitializationFeature());
-    //std::cout << skill.getInitializationFeature() << std::endl;
     //std::cout << p1 << std::endl;
     if (not initBegin) {
       p1 = p1 * skill.getInitializationFinalPose();
