@@ -115,14 +115,14 @@ int main(int argc, char **argv) {
 
   std::cout << "Initializing aligns..." << std::endl;
   InstantiatedSkillPointer align11 = InstantiatedSkill::DmpInstance(skills["align"], skills["grasp"], features["node1,link1"], robot, 5);
-  InstantiatedSkillPointer align12 = InstantiatedSkill::DmpInstance(skills["align"], skills["grasp"], features["node1,link2"], robot, 5);
-  InstantiatedSkillPointer align21 = InstantiatedSkill::DmpInstance(skills["align"], skills["grasp"], features["node2,link1"], robot, 5);
+  InstantiatedSkillPointer align12 = InstantiatedSkill::DmpInstance(skills["align"], skills["grasp"], features["node2,link1"], robot, 5);
+  InstantiatedSkillPointer align21 = InstantiatedSkill::DmpInstance(skills["align"], skills["grasp"], features["node1,link2"], robot, 5);
   InstantiatedSkillPointer align22 = InstantiatedSkill::DmpInstance(skills["align"], skills["grasp"], features["node2,link2"], robot, 5);
 
   std::cout << "Initializing places..." << std::endl;
   InstantiatedSkillPointer place11 = InstantiatedSkill::DmpInstance(skills["place"], skills["grasp"], features["node1,link1"], robot, 5);
-  InstantiatedSkillPointer place12 = InstantiatedSkill::DmpInstance(skills["place"], skills["grasp"], features["node1,link2"], robot, 5);
-  InstantiatedSkillPointer place21 = InstantiatedSkill::DmpInstance(skills["place"], skills["grasp"], features["node2,link1"], robot, 5);
+  InstantiatedSkillPointer place12 = InstantiatedSkill::DmpInstance(skills["place"], skills["grasp"], features["node2,link1"], robot, 5);
+  InstantiatedSkillPointer place21 = InstantiatedSkill::DmpInstance(skills["place"], skills["grasp"], features["node1,link2"], robot, 5);
   InstantiatedSkillPointer place22 = InstantiatedSkill::DmpInstance(skills["place"], skills["grasp"], features["node2,link2"], robot, 5);
 
   root->addNext(app1);
