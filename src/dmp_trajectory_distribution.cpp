@@ -80,10 +80,19 @@ namespace grid {
       p1 = p1 * skill.getInitializationStartPose();
     }
 
-    if (skill.hasAttachedObject() and features.hasAttachedObjectFrame()) {
-      std::cout << "Attached frame loaded from FEATURES\n";
-      std::cout << features.getAttachedObjectFrame() << "\n";
-      p1 = p1 * features.getAttachedObjectFrame().Inverse();
+    if (skill.hasAttachedObject()) {
+      if (attached) {
+        std::cout << "Attached frame loaded from DISTRIBUTION\n";
+        std::cout << attachedObjectFrame << "\n";
+        p1 = p1 * attachedObjectFrame.Inverse();
+      } else if (features.hasAttachedObjectFrame()) {
+        std::cout << "Attached frame loaded from FEATURES\n";
+        std::cout << features.getAttachedObjectFrame() << "\n";
+        p1 = p1 * features.getAttachedObjectFrame().Inverse();
+      } else {
+        std::cerr << __FILE__ << ":" << __LINE__ << ": This skill requires an attached object and none was provided!\n";
+        assert(false);
+      }
     }
 
     unsigned int idx = 0;
@@ -241,6 +250,15 @@ namespace grid {
   /* ==================================================================== */
   /* ==================================================================== */
 
+  /** is there an object attached */
+  bool DmpTrajectoryDistribution::hasAttachedObject() const {
+    return attached;
+  }
+
+  /** get the attached object frame */
+  const Pose &DmpTrajectoryDistribution::getAttachedObjectFrame() const {
+    return attachedObjectFrame;
+  }
 
   /**
    * update
@@ -310,25 +328,25 @@ namespace grid {
       }
 
 
-      } else {
+    } else {
 
-        // set up weighted data
-        // and then fit GMM again
+      // set up weighted data
+      // and then fit GMM again
 
-        std::vector<std::pair<EigenVectornd,double> > data(ps.size());
-        for (unsigned int i = 0; i < nsamples; ++i) { //i < ps.size(); ++i) {
-          data[0].first = params[i];
-          data[0].second = ps[i] / psum;
-        }
-
-        dist.Fit(data);
-
-        }
-
-        for (unsigned int i = 0; i < dist.k; ++i) {
-          dist.ns[0].P += diagonal_noise * Matrix<double,Dynamic,Dynamic>::Identity(nvars,nvars);
-        }
-
-        dist.Update();
+      std::vector<std::pair<EigenVectornd,double> > data(ps.size());
+      for (unsigned int i = 0; i < nsamples; ++i) { //i < ps.size(); ++i) {
+        data[0].first = params[i];
+        data[0].second = ps[i] / psum;
       }
-      };
+
+      dist.Fit(data);
+
+      }
+
+    for (unsigned int i = 0; i < dist.k; ++i) {
+      dist.ns[0].P += diagonal_noise * Matrix<double,Dynamic,Dynamic>::Identity(nvars,nvars);
+    }
+
+    dist.Update();
+  }
+}

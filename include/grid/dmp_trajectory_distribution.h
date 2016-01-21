@@ -104,6 +104,12 @@ namespace grid {
      */
     void detachObjectFrame();
 
+    /** is there an object attached */
+    bool hasAttachedObject() const;
+
+    /** get the attached object frame */
+    const Pose &getAttachedObjectFrame() const;
+
 
   protected:
     gcop::Gmm<> dist; // stores distributions

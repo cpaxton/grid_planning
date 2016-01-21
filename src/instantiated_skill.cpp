@@ -307,7 +307,12 @@ namespace grid {
           skill->addModelNormalization(model_norm);
 
           // TODO: speed this up
-          std::vector<FeatureVector> obs = features->getFeaturesForTrajectory(skill->getFeatures(),poses);
+          std::vector<FeatureVector> obs = features->getFeaturesForTrajectory(
+              skill->getFeatures(),
+              poses,
+              dmp_dist->hasAttachedObject(),
+              dmp_dist->getAttachedObjectFrame()
+          );
           skill->normalizeData(obs);
           FeatureVector v = skill->logL(obs);
           ps[j] = (v.array().exp().sum() / v.size()); // would add other terms first
