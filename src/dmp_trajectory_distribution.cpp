@@ -155,6 +155,8 @@ namespace grid {
     using KDL::Vector;
     using KDL::Rotation;
 
+    int ik_tries = 0;
+
     if (nsamples == 0) {
       nsamples = params.size();
     } else {
@@ -188,6 +190,17 @@ namespace grid {
       int ik_result = robot->IkPos(p,q);
 
       if (ik_result < 0) {
+        ++ik_tries;
+        if (ik_tries > 10*nsamples) {
+          std::cerr << __FILE__ << ":" << __LINE__ << ": We are really having trouble with IK!\n";
+          for (unsigned int i = 0; i < POSE_RPY_SIZE; ++i) {
+            std::cout << params[sample][i];
+          }
+          std::cout << std::endl;
+          std::cout << p << std::endl;
+          assert(ik_tries < 10*nsamples);
+          break;
+        }
         continue;
       }
 

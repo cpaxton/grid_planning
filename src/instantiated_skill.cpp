@@ -286,7 +286,8 @@ namespace grid {
         // just stay put
         for (unsigned int i = 0; i < nsamples; ++i) {
           trajs[i].points.resize(1);
-          trajs[i].points[0] = start_pts[i];
+          trajs[i].points[0].positions = start_pts[i].positions;
+          trajs[i].points[0].velocities = start_pts[i].velocities;
         }
       }
 
@@ -334,6 +335,7 @@ namespace grid {
         // set up all the end points!
         end_pts[j].positions = trajs[j].points.rbegin()->positions;
         end_pts[j].velocities = trajs[j].points.rbegin()->velocities;
+        //std::cout << skill->getName() << " " << trajs[j].points.size() << std::endl;
       }
     } else {
       sum = 0;

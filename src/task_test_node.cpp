@@ -54,6 +54,7 @@ int main(int argc, char **argv) {
   ros::Publisher pub3 = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples_3",1000);
   ros::Publisher pub4 = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples_4",1000);
   ros::Publisher pub5 = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples_5",1000);
+  ros::Publisher pub6 = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples_6",1000);
 
   ros::spinOnce();
   robot->updateHint(gp.currentPos());
@@ -127,10 +128,6 @@ int main(int argc, char **argv) {
 
   root->addNext(app1);
   root->addNext(app2);
-#if 0
-  root->addNext(prep1);
-  root->addNext(prep2);
-#endif
 
 #if 0
   app1->addNext(disengage1);
@@ -138,23 +135,18 @@ int main(int argc, char **argv) {
 #endif
 
 #if 1
-  app1->addNext(align11);
-  app1->addNext(align12);
-  app2->addNext(align21);
-  app2->addNext(align22);
-#endif
-
-
-#if 0
   app1->addNext(grasp1);
   app2->addNext(grasp2);
-#endif
 
-#if 0
   grasp1->addNext(align11);
   grasp1->addNext(align12);
   grasp2->addNext(align21);
   grasp2->addNext(align22);
+#else
+  app1->addNext(align11);
+  app1->addNext(align12);
+  app2->addNext(align21);
+  app2->addNext(align22);
 #endif
 
   align11->addNext(place11);
@@ -176,8 +168,8 @@ int main(int argc, char **argv) {
   places.push_back(place12);
   places.push_back(place22);
   std::vector<InstantiatedSkillPointer> grasps;
-  grasps.push_back(disengage1);
-  grasps.push_back(disengage2);
+  grasps.push_back(grasp1);
+  grasps.push_back(grasp2);
   std::vector<InstantiatedSkillPointer> disengages;
   disengages.push_back(disengage1);
   disengages.push_back(disengage2);
@@ -189,6 +181,7 @@ int main(int argc, char **argv) {
   std::vector<trajectory_msgs::JointTrajectory> align_trajs;
   std::vector<trajectory_msgs::JointTrajectory> place_trajs;
   std::vector<trajectory_msgs::JointTrajectory> grasp_trajs;
+  std::vector<trajectory_msgs::JointTrajectory> release_trajs;
 
   //std::vector<double> ps(1.0,p.ntrajs);
   //std::vector<trajectory_msgs::JointTrajectoryPoint> starts(p.ntrajs);
@@ -202,7 +195,7 @@ int main(int argc, char **argv) {
   }
   ps[0] = 1.;
 
-  int horizon = 3;
+  int horizon = p.starting_horizon;
   double prob = 0;
   for (unsigned int i = 0; i < p.iter; ++i) {
     ros::spinOnce();
@@ -217,14 +210,16 @@ int main(int argc, char **argv) {
 
     /* PUT EVERYTHING INTO SOME MESSAGES */
     {
+      std::cout << "publishing\n";
       load_to_one_array(approaches,approach_trajs);
       load_to_one_array(aligns,align_trajs);
       load_to_one_array(places,place_trajs);
       load_to_one_array(grasps,grasp_trajs);
       //load_to_one_array(disengages,disengage_trajs);
       pub.publish(toPoseArray(approach_trajs,app1->features->getWorldFrame(),robot));
-      //pub2.publish(toPoseArray(disengage_trajs,disengage1->features->getWorldFrame(),robot));
+      pub2.publish(toPoseArray(disengage_trajs,disengage1->features->getWorldFrame(),robot));
       pub5.publish(toPoseArray(grasp_trajs,grasp1->features->getWorldFrame(),robot));
+      pub6.publish(toPoseArray(release_trajs,app1->features->getWorldFrame(),robot));
       pub3.publish(toPoseArray(align_trajs,app1->features->getWorldFrame(),robot));
       pub4.publish(toPoseArray(place_trajs,app1->features->getWorldFrame(),robot));
     }

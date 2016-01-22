@@ -44,6 +44,9 @@ namespace grid {
       if (not nh_tilde.getParam("verbosity",p.verbosity)) {
         p.verbosity = 0;
       }
+      if (not nh_tilde.getParam("starting_horizon",p.starting_horizon)) {
+        p.starting_horizon = 2;
+      }
 
       return p;
     }
