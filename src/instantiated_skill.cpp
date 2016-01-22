@@ -1,6 +1,8 @@
 #include <grid/instantiated_skill.h>
 //#include <grid/utils/params.hpp>
 
+#define LOW_PROBABILITY 0
+#define MAX_PROBABILITY 1
 
 using trajectory_msgs::JointTrajectory;
 using trajectory_msgs::JointTrajectoryPoint;
@@ -214,29 +216,29 @@ namespace grid {
 
     unsigned int next_len = nsamples;
 
-    //std::cout << "in: " << len << std::endl;
-    //for (unsigned int i = 0; i < len; ++i) {
-    //  std::cout << prev_end_pts[i].positions.size() << "\n";
-    //}
-    //
+    if (len == 0) {
+      return;
+    }
 
+    // initialize next probabilities
     for (unsigned int i = 0; i < nsamples; ++i) {
-
-        // initialize
-        next_ps[i] = 0;//-999999; /******/
+      next_ps[i] = 0;
     }
 
     /************* ACCUMULATE PROBABILITIES *************/
     for (unsigned int i = 0; i < len; ++i) {
       if (i > 0) {
         acc[i] = prev_ps[i] + acc[i-1];
+        //acc[i] = exp(prev_ps[i]) + acc[i-1];
       } else {
         acc[i] = prev_ps[i];
+        //acc[i] = exp(prev_ps[i]);
       }
 
     }
     for (double &d: acc) {
       d /= acc[len-1];
+      assert (not isnan(d));
     }
 
     if (p.verbosity > 3) {
@@ -269,9 +271,6 @@ namespace grid {
         start_ps[i] = prev_ps[idx];
         prev_idx[i] = idx;
         prev_p_sums[idx] = 0;
-
-        // initialize
-        next_ps[i] = 0;
       }
 
       if (!skill->isStatic()) {
@@ -289,9 +288,8 @@ namespace grid {
       // compute probabilities
       for (unsigned int j = 0; j < nsamples; ++j) {
 
-
         if (trajs[j].points.size() == 0) {
-          ps[j] = 0;
+          ps[j] = LOW_PROBABILITY;
           continue;
         }
 
@@ -308,17 +306,19 @@ namespace grid {
               poses,
               dmp_dist->hasAttachedObject(),
               dmp_dist->getAttachedObjectFrame()
-          );
+              );
           skill->normalizeData(obs);
           FeatureVector v = skill->logL(obs);
           ps[j] = (v.array().exp().sum() / v.size()); // would add other terms first
         } else {
-          ps[j] = 1;
+          ps[j] = MAX_PROBABILITY;
         }
         if (p.verbosity > 1) {
           std::cout << "[" << id << "] " << skill->getName() << ": "<<ps[j]<<" * "<<start_ps[j]<<"\n";
+          //std::cout << "[" << id << "] " << skill->getName() << ": "<<ps[j]<<" + "<<start_ps[j]<<"\n";
         }
         ps[j] *= start_ps[j];
+        //ps[j] += start_ps[j];
 
         if (ps[j] > best_p) {
           best_p = ps[j];
@@ -367,12 +367,15 @@ namespace grid {
           if (skill) {
             std::cout << "[" << id << "] " << skill->getName()
               << ": "<<ps[i]<<" * "<<next_ps[i]<<"\n";
+            //<< ": "<<ps[i]<<" + "<<log(next_ps[i])<<"\n";
           } else {
             std::cout << "[" << id << "] [no skill]"
               << ": "<<ps[i]<<" * "<<next_ps[i]<<"\n";
+            //<< ": "<<ps[i]<<" + "<<log(next_ps[i])<<"\n";
           }
         }
         ps[i] *= next_ps[i];
+        //ps[i] += log(next_ps[i]);
       }
     }
 
@@ -423,12 +426,18 @@ namespace grid {
     }
 
     if(skill and not skill->isStatic()) {
-      std::cout << skill->getName() << " probabilities: ";
-      for (double &p: ps) {
-        std::cout << p << " ";
+
+      if (p.verbosity > 4) {
+        std::cout << skill->getName() << " probabilities: ";
+        for (double &p: ps) {
+          std::cout << p << " ";
+        }
+        std::cout << std::endl;
       }
-      std::cout << std::endl;
-      dmp_dist->update(params,ps,nsamples,p.noise,p.step_size);
+      
+      if (nsamples > 1) {
+        dmp_dist->update(params,ps,nsamples,p.noise,p.step_size);
+      }
     }
 
     // compute ll for this iteration

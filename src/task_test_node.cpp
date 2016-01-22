@@ -83,32 +83,6 @@ int main(int argc, char **argv) {
       features["node2,link2"],
       robot,
       5);
-
-#if 0
-  InstantiatedSkillPointer prep1 = InstantiatedSkill::DmpInstance(
-      SkillPointer(0),
-      features["node1,link1"],
-      robot,
-      5);
-
-  InstantiatedSkillPointer prep2 = InstantiatedSkill::DmpInstance(
-      SkillPointer(0),
-      features["node2,link2"],
-      robot,
-      5);
-#endif
-
-  InstantiatedSkillPointer disengage1 = InstantiatedSkill::DmpInstance(
-      skills["disengage"],
-      features["node1,link1"],
-      robot,
-      5);
-
-  InstantiatedSkillPointer disengage2 = InstantiatedSkill::DmpInstance(
-      skills["disengage"],
-      features["node2,link2"],
-      robot,
-      5);
   
   std::cout << "Initializing grasps..." << std::endl;
   InstantiatedSkillPointer grasp1 = InstantiatedSkill::DmpInstance(skills["grasp"], features["node1,link1"], robot, 5);
@@ -125,6 +99,18 @@ int main(int argc, char **argv) {
   InstantiatedSkillPointer place12 = InstantiatedSkill::DmpInstance(skills["place"], skills["grasp"], features["node2,link1"], robot, 5);
   InstantiatedSkillPointer place21 = InstantiatedSkill::DmpInstance(skills["place"], skills["grasp"], features["node1,link2"], robot, 5);
   InstantiatedSkillPointer place22 = InstantiatedSkill::DmpInstance(skills["place"], skills["grasp"], features["node2,link2"], robot, 5);
+
+  std::cout << "Initializing releases..." << std::endl;
+  InstantiatedSkillPointer release11 = InstantiatedSkill::DmpInstance(skills["release"], skills["grasp"], features["node1,link1"], robot, 5);
+  InstantiatedSkillPointer release12 = InstantiatedSkill::DmpInstance(skills["release"], skills["grasp"], features["node2,link1"], robot, 5);
+  InstantiatedSkillPointer release21 = InstantiatedSkill::DmpInstance(skills["release"], skills["grasp"], features["node1,link2"], robot, 5);
+  InstantiatedSkillPointer release22 = InstantiatedSkill::DmpInstance(skills["release"], skills["grasp"], features["node2,link2"], robot, 5);
+
+  std::cout << "Initializing disengages..." << std::endl;
+  InstantiatedSkillPointer disengage11 = InstantiatedSkill::DmpInstance(skills["disengage"], skills["grasp"], features["node1,link1"], robot, 5);
+  InstantiatedSkillPointer disengage12 = InstantiatedSkill::DmpInstance(skills["disengage"], skills["grasp"], features["node2,link1"], robot, 5);
+  InstantiatedSkillPointer disengage21 = InstantiatedSkill::DmpInstance(skills["disengage"], skills["grasp"], features["node1,link2"], robot, 5);
+  InstantiatedSkillPointer disengage22 = InstantiatedSkill::DmpInstance(skills["disengage"], skills["grasp"], features["node2,link2"], robot, 5);
 
   root->addNext(app1);
   root->addNext(app2);
@@ -154,6 +140,11 @@ int main(int argc, char **argv) {
   align21->addNext(place21);
   align22->addNext(place22);
 
+  place11->addNext(release11);
+  place12->addNext(release12);
+  place21->addNext(release21);
+  place22->addNext(release22);
+
   std::vector<InstantiatedSkillPointer> approaches;
   approaches.push_back(app1);
   approaches.push_back(app2);
@@ -162,6 +153,11 @@ int main(int argc, char **argv) {
   aligns.push_back(align21);
   aligns.push_back(align12);
   aligns.push_back(align22);
+  std::vector<InstantiatedSkillPointer> releases;
+  releases.push_back(release11);
+  releases.push_back(release21);
+  releases.push_back(release12);
+  releases.push_back(release22);
   std::vector<InstantiatedSkillPointer> places;
   places.push_back(place11);
   places.push_back(place21);
@@ -171,8 +167,10 @@ int main(int argc, char **argv) {
   grasps.push_back(grasp1);
   grasps.push_back(grasp2);
   std::vector<InstantiatedSkillPointer> disengages;
-  disengages.push_back(disengage1);
-  disengages.push_back(disengage2);
+  disengages.push_back(disengage11);
+  disengages.push_back(disengage21);
+  disengages.push_back(disengage12);
+  disengages.push_back(disengage22);
 
   /*************************************************************************/
 
@@ -195,6 +193,8 @@ int main(int argc, char **argv) {
   }
   ps[0] = 1.;
 
+  std::vector<double> iter_p(p.iter);
+
   int horizon = p.starting_horizon;
   double prob = 0;
   for (unsigned int i = 0; i < p.iter; ++i) {
@@ -215,13 +215,22 @@ int main(int argc, char **argv) {
       load_to_one_array(aligns,align_trajs);
       load_to_one_array(places,place_trajs);
       load_to_one_array(grasps,grasp_trajs);
-      //load_to_one_array(disengages,disengage_trajs);
+      load_to_one_array(disengages,disengage_trajs);
+      load_to_one_array(releases,release_trajs);
       pub.publish(toPoseArray(approach_trajs,app1->features->getWorldFrame(),robot));
-      pub2.publish(toPoseArray(disengage_trajs,disengage1->features->getWorldFrame(),robot));
+      pub2.publish(toPoseArray(disengage_trajs,app1->features->getWorldFrame(),robot));
       pub5.publish(toPoseArray(grasp_trajs,grasp1->features->getWorldFrame(),robot));
       pub6.publish(toPoseArray(release_trajs,app1->features->getWorldFrame(),robot));
       pub3.publish(toPoseArray(align_trajs,app1->features->getWorldFrame(),robot));
       pub4.publish(toPoseArray(place_trajs,app1->features->getWorldFrame(),robot));
+    }
+
+    iter_p[i] = ps_out[0];
+    std::cout << "... " << iter_p[i] << " ... ";
+    if (i > 1) {
+      if (fabs(iter_p[i] - iter_p[i-1]) < p.update_horizon && horizon < p.max_horizon) {
+        ++horizon;
+      }
     }
 
     ros::Duration(p.wait).sleep();

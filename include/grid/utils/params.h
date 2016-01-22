@@ -17,10 +17,12 @@ namespace grid {
     int ntrajs = 50;
     int iter = 10;
     int starting_horizon;
+    int max_horizon;
     int verbosity;
     bool detect_collisions;
     std::string skill_name;
     std::string goal_name;
+    double update_horizon;
   };
 
   Params readRosParams();

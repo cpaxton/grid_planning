@@ -168,6 +168,13 @@ namespace grid {
               int horizon = 1,
               unsigned int samples = 0);
 
+    /**
+     * descend through the tree
+     * execute as we reach nodes that require it
+     * use gripper tool to send messages
+     */
+    void execute();
+
 
     // randomly sample an index from the probabilities
     unsigned int sampleIndex(unsigned int nsamples) const;

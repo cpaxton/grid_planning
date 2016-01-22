@@ -38,6 +38,9 @@ namespace grid {
       if (not nh_tilde.getParam("wait",p.wait)) {
         p.wait = 0.25;
       }
+      if (not nh_tilde.getParam("update_horizon",p.update_horizon)) {
+        p.update_horizon = 1e-8;
+      }
       if (not nh_tilde.getParam("detect_collisions",p.detect_collisions)) {
         p.detect_collisions = false;
       }
@@ -46,6 +49,9 @@ namespace grid {
       }
       if (not nh_tilde.getParam("starting_horizon",p.starting_horizon)) {
         p.starting_horizon = 2;
+      }
+      if (not nh_tilde.getParam("max_horizon",p.max_horizon)) {
+        p.max_horizon = 5;
       }
 
       return p;

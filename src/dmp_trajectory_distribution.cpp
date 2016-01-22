@@ -316,6 +316,7 @@ namespace grid {
 
     double psum = 0;
     for (unsigned int i = 0; i < nsamples; ++i) {
+      assert(not isnan(ps[i]));
       psum += ps[i];
     }
 
@@ -331,6 +332,7 @@ namespace grid {
         //std::cout << "mu rows = " << dist.ns[0].mu.rows() << ", vec rows = " << vec.rows() << std::endl;
         //std::cout << "mu cols = " << dist.ns[0].mu.cols() << ", vec cols = " << vec.cols() << std::endl;
         double wt = step_size * ps[i] / psum;
+        assert (not isnan(wt));
         dist.ns[0].mu += params[i] * wt;
       }
 
