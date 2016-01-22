@@ -10,6 +10,8 @@
 
 #include <trajectory_msgs/JointTrajectory.h>
 
+#include <std_srvs/Empty.h>
+
 using namespace grid;
 using namespace KDL;
 
@@ -31,6 +33,8 @@ int main(int argc, char **argv) {
   gp.SetD(20);
   gp.SetTau(1.0);
   gp.SetGoalThreshold(0.1);
+
+  ros::ServiceClient client = nh.serviceClient<std_srvs::Empty>("/gazebo/publish_planning_scene");
 
   TestFeatures test;
   test.addFeature("node",grid::POSE_FEATURE);
@@ -141,6 +145,7 @@ int main(int argc, char **argv) {
       }
 
       if (collision) {
+        std::cout << "COLLISION DETECTED\n";
         ps[j] = 0;
       } else if (p.skill_name == "disengage") {
 
