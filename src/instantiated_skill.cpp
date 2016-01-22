@@ -427,7 +427,9 @@ namespace grid {
       }
       // normalize here
       for (double &d: ps) {
+        //std::cout << d << "/" << sum << " = " << d / sum << "\n";
         d /= sum;
+        assert(not isnan(d));
       }
     }
 
