@@ -88,6 +88,9 @@ namespace grid {
                 double diagonal_noise,
                 double step_size);
 
+    void addNoise(double d);
+    void addNoise(std::vector<double> d);
+
   /**
    * use a model of a skill
    * compute the grasp pose from that skill and use it to plan for now

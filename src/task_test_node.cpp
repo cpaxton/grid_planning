@@ -209,7 +209,7 @@ int main(int argc, char **argv) {
     //ps[0] = 1.; // set prior
     ps_out[0] = 0.;
     ps[0] = 0.; // set prior
-    align22->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
+    root->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
 
     /* PUT EVERYTHING INTO SOME MESSAGES */
     {
@@ -234,6 +234,7 @@ int main(int argc, char **argv) {
     if (i > 1) {
       if (fabs(iter_p[i] - iter_p[i-1]) < (p.update_horizon * iter_p[i]) && horizon < p.max_horizon) {
         ++horizon;
+        root->refresh();
       }
     }
     std::cout << std::endl;

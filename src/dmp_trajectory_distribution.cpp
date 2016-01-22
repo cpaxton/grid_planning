@@ -42,6 +42,42 @@ namespace grid {
     }
   }
 
+
+  void DmpTrajectoryDistribution::addNoise(double d) {
+    for (int j = 0; j < nvars; ++j) {
+      if (j < POSE_RPY_SIZE) { 
+        dist.ns[0].P(j,j) = d;
+      }
+      else {
+        dist.ns[0].P(j,j) = 10*d;
+      }
+    }
+  }
+
+  void DmpTrajectoryDistribution::addNoise(std::vector<double> sigma) {
+    if (sigma.size() < nvars) {
+      if (verbose) {
+        std::cerr << "[GRID/TRAJECTORY DISTRIBUTION] Noise argument for trajectory search initialization was the wrong size!" << std::endl;
+        std::cerr << "[GRID/TRAJECTORY DISTRIBUTION] Should be: " << dim << std::endl;
+        std::cerr << "[GRID/TRAJECTORY DISTRIBUTION] Was: " << sigma.size() << std::endl;
+      }
+      for (int j = 0; j < nvars; ++j) {
+        if (j < POSE_RPY_SIZE) { 
+          dist.ns[0].P(j,j) = DEFAULT_SIGMA;
+        }
+        else {
+          dist.ns[0].P(j,j) = 10*DEFAULT_SIGMA;
+        }
+      }
+
+    } else {
+      for (int j = 0; j < nvars; ++j) {
+        dist.ns[0].P(j,j) = sigma[j];
+      }
+    }
+    dist.Update();
+  }
+
   /**
    * use a model of a skill
    * compute the grasp pose from that skill and use it to plan for now
@@ -320,6 +356,10 @@ namespace grid {
       psum += ps[i];
     }
 
+    if (psum == 0) {
+      return;
+    }
+
     if (dist.k == 1) {
 
       // one cluster only
@@ -343,25 +383,25 @@ namespace grid {
       }
 
 
-    } else {
+      } else {
 
-      // set up weighted data
-      // and then fit GMM again
+        // set up weighted data
+        // and then fit GMM again
 
-      std::vector<std::pair<EigenVectornd,double> > data(ps.size());
-      for (unsigned int i = 0; i < nsamples; ++i) { //i < ps.size(); ++i) {
-        data[0].first = params[i];
-        data[0].second = ps[i] / psum;
+        std::vector<std::pair<EigenVectornd,double> > data(ps.size());
+        for (unsigned int i = 0; i < nsamples; ++i) { //i < ps.size(); ++i) {
+          data[0].first = params[i];
+          data[0].second = ps[i] / psum;
+        }
+
+        dist.Fit(data);
+
+        }
+
+        for (unsigned int i = 0; i < dist.k; ++i) {
+          dist.ns[0].P += diagonal_noise * Matrix<double,Dynamic,Dynamic>::Identity(nvars,nvars);
+        }
+
+        dist.Update();
       }
-
-      dist.Fit(data);
-
       }
-
-    for (unsigned int i = 0; i < dist.k; ++i) {
-      dist.ns[0].P += diagonal_noise * Matrix<double,Dynamic,Dynamic>::Identity(nvars,nvars);
-    }
-
-    dist.Update();
-  }
-}

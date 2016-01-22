@@ -267,6 +267,7 @@ namespace grid {
      */
     void InstantiatedSkill::refresh(int horizon) {
       model_norm = p.base_model_norm;
+      dmp_dist->addNoise(0.01);
       if (horizon > 0) {
         for (auto &child: next) {
           child->refresh(horizon-1);
@@ -385,7 +386,7 @@ namespace grid {
       unsigned int next_idx = 0;
       unsigned int next_skill_idx = 0;
       for (auto &ns: next) {
-        unsigned int next_nsamples = ceil(T[next_skill_idx]*nsamples);
+        unsigned int next_nsamples = floor(T[next_skill_idx]*nsamples);
         ns->step(my_ps, end_pts,
                  next_ps, T[next_idx], // outputs
                  next_len, horizon-1, next_nsamples); // params
