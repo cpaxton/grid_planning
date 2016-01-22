@@ -205,12 +205,12 @@ int main(int argc, char **argv) {
     std::cout << "ITER " << i << std::endl;
 
     // this is where the magic happens
+    ps_out[0] = 0.;
     ps[0] = 1.; // set prior
     root->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
 
     /* PUT EVERYTHING INTO SOME MESSAGES */
     {
-      std::cout << "publishing\n";
       load_to_one_array(approaches,approach_trajs);
       load_to_one_array(aligns,align_trajs);
       load_to_one_array(places,place_trajs);
@@ -232,6 +232,7 @@ int main(int argc, char **argv) {
         ++horizon;
       }
     }
+    std::cout << std::endl;
 
     ros::Duration(p.wait).sleep();
   }

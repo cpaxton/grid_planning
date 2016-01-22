@@ -201,30 +201,14 @@ namespace grid {
     return 0;
   }
 
-  /**
-   * run a single iteration of the loop. return a set of trajectories.
-   * this is very similar to code in the demo
-   */
-  void InstantiatedSkill::step(const std::vector<double> &prev_ps,
-                               const std::vector<JointTrajectoryPoint> &prev_end_pts,
-                               std::vector<double> &ps_out,
-                               double &probability,
-                               unsigned int len,
-                               int horizon,
-                               unsigned int nsamples)
-  {
-
-    unsigned int next_len = nsamples;
-
-    if (len == 0) {
-      return;
+  // initialize next probabilities
+  void InstantiatedSkill::initializePs(std::vector<double> &ps_) {
+    for (unsigned int i = 0; i < ps_.size(); ++i) {
+      ps_[i] = 0;
     }
+  }
 
-    // initialize next probabilities
-    for (unsigned int i = 0; i < nsamples; ++i) {
-      next_ps[i] = 0;
-    }
-
+  void InstantiatedSkill::accumulateProbs(const std::vector<double> &prev_ps, unsigned int len) {
     /************* ACCUMULATE PROBABILITIES *************/
     for (unsigned int i = 0; i < len; ++i) {
       if (i > 0) {
@@ -248,17 +232,44 @@ namespace grid {
       }
       std::cout << "\n";
     }
+  }
 
+  void InstantiatedSkill::copyEndPoints(const std::vector<JointTrajectoryPoint> &prev_end_pts,
+                                        const std::vector<double> &prev_ps,
+                                        unsigned int len)
+  {
+    for (unsigned int i = 0; i < len; ++ i) {
+      ps[i] = prev_ps.at(i);
+      end_pts[i].positions = prev_end_pts.at(i).positions;
+      end_pts[i].velocities = prev_end_pts.at(i).velocities;
+    }
+  }
+
+  /**
+   * run a single iteration of the loop. return a set of trajectories.
+   * this is very similar to code in the demo
+   */
+  void InstantiatedSkill::step(const std::vector<double> &prev_ps,
+                               const std::vector<JointTrajectoryPoint> &prev_end_pts,
+                               std::vector<double> &ps_out,
+                               double &probability,
+                               unsigned int len,
+                               int horizon,
+                               unsigned int nsamples)
+  {
+
+    unsigned int next_len = nsamples;
+    if (len == 0 || horizon < 0) {
+      return;
+    }
     touched = true;
+    initializePs(next_ps);
+    initializePs(prev_p_sums);
+    accumulateProbs(prev_ps,len);
+
 
     /************* SAMPLE TRAJECTORIES IF NECESSARY *************/
-    if (horizon < 0) {
-      return;
-    } else if (nsamples == 0) { 
-      nsamples = p.ntrajs;
-    }
-
-    if (skill) { // or goal?
+    if (skill) {
 
       // sample start points
       for (unsigned int i = 0; i < nsamples; ++i) {
@@ -270,7 +281,6 @@ namespace grid {
         start_pts[i].velocities = prev_end_pts[idx].velocities;
         start_ps[i] = prev_ps[idx];
         prev_idx[i] = idx;
-        prev_p_sums[idx] = 0;
       }
 
       if (!skill->isStatic()) {
@@ -331,11 +341,7 @@ namespace grid {
         //std::cout << skill->getName() << " " << trajs[j].points.size() << std::endl;
       }
     } else {
-      for (unsigned int i = 0; i < len; ++ i) {
-        ps[i] = prev_ps.at(i);
-        end_pts[i].positions = prev_end_pts.at(i).positions;
-        end_pts[i].velocities = prev_end_pts.at(i).velocities;
-      }
+      copyEndPoints(prev_end_pts, prev_ps, len);
       next_len = len;
     }
 
@@ -406,8 +412,8 @@ namespace grid {
           ps_out[i] += 0;
         }
         if (p.verbosity > 0) {
-          std::cout << " - future sum for " << i << " = " << prev_ps[i]
-            << "(" << prev_counts[i] << " chosen, sum = " << prev_p_sums[i] << ")"
+          std::cout << " - future sum for " << i << " = " << ps_out[i]
+            << " (" << prev_counts[i] << " chosen, sum = " << prev_p_sums[i] << ")"
             << "\n";
         }
       }
@@ -434,7 +440,7 @@ namespace grid {
         }
         std::cout << std::endl;
       }
-      
+
       if (nsamples > 1) {
         dmp_dist->update(params,ps,nsamples,p.noise,p.step_size);
       }

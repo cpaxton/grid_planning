@@ -165,8 +165,8 @@ namespace grid {
               std::vector<double> &ps_out,
               double &probability,
               unsigned int len, // number of input samples provided (AKA prev samples)
-              int horizon = 1,
-              unsigned int samples = 0);
+              int horizon,
+              unsigned int samples);
 
     /**
      * descend through the tree
@@ -178,6 +178,11 @@ namespace grid {
 
     // randomly sample an index from the probabilities
     unsigned int sampleIndex(unsigned int nsamples) const;
+
+    void initializePs(std::vector<double> &ps);
+    void accumulateProbs(const std::vector<double> &prev_ps, unsigned int len);
+    void copyEndPoints(const std::vector<JointTrajectoryPoint> &prev_end_pts,
+                       const std::vector<double> &prev_ps, unsigned int len);
 
   };
 
