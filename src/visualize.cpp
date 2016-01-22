@@ -72,5 +72,28 @@ namespace grid {
     return msg;
 
   }
+  /*  create a pose array message from a joint trajectory */
+  geometry_msgs::PoseArray toPoseArray(std::vector<trajectory_msgs::JointTrajectory> traj,
+                                       const std::string &frame,
+                                       RobotKinematicsPointer robot, const Pose &attached)
+  {
+    geometry_msgs::PoseArray msg;
+    msg.header.frame_id = frame;
 
+    for (unsigned int i = 0; i < traj.size(); ++i) {
+
+      for (JointTrajectoryPoint &pt: traj[i].points) {
+        Pose kdl_pose = robot->FkPos(pt.positions) * attached * KDL::Frame(KDL::Rotation::RotY(-1. * M_PI / 2));
+        geometry_msgs::Pose p;
+        tf::Pose tfp;
+        tf::poseKDLToTF(kdl_pose,tfp);
+        tf::poseTFToMsg(tfp,p);
+
+        msg.poses.push_back(p);
+      }
+    }
+
+    return msg;
+
+  }
 }

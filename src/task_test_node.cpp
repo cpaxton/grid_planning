@@ -55,6 +55,7 @@ int main(int argc, char **argv) {
   ros::Publisher pub4 = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples_4",1000);
   ros::Publisher pub5 = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples_5",1000);
   ros::Publisher pub6 = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples_6",1000);
+  ros::Publisher attached_pub = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples_attached",1000);
 
   ros::spinOnce();
   robot->updateHint(gp.currentPos());
@@ -208,7 +209,7 @@ int main(int argc, char **argv) {
     //ps[0] = 1.; // set prior
     ps_out[0] = 0.;
     ps[0] = 0.; // set prior
-    root->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
+    align22->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
 
     /* PUT EVERYTHING INTO SOME MESSAGES */
     {
@@ -223,6 +224,7 @@ int main(int argc, char **argv) {
       pub5.publish(toPoseArray(grasp_trajs,grasp1->features->getWorldFrame(),robot));
       pub6.publish(toPoseArray(release_trajs,app1->features->getWorldFrame(),robot));
       pub3.publish(toPoseArray(align_trajs,app1->features->getWorldFrame(),robot));
+      attached_pub.publish(toPoseArray(place_trajs,app1->features->getWorldFrame(),robot,align22->dmp_dist->getAttachedObjectFrame()));
       pub4.publish(toPoseArray(place_trajs,app1->features->getWorldFrame(),robot));
     }
 

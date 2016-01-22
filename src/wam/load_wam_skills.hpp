@@ -67,7 +67,7 @@ namespace grid {
     grasp->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(true);
     align->appendFeature("node").appendFeature("time").setInitializationFeature("node").attachObject("link").setStatic(false);
     place->appendFeature("node").appendFeature("time").setInitializationFeature("node").attachObject("link").setStatic(false);
-    release->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(true);
+    release->appendFeature("node").appendFeature("time").setInitializationFeature("node").attachObject("link").setStatic(true);
     disengage->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false);
 
     /* SET UP THE ROBOT KINEMATICS */
@@ -90,7 +90,7 @@ namespace grid {
     }
     /* LOAD TRAINING DATA FOR PLACE */
     {
-      std::string filenames[] = {"data/sim/place1.bag", "data/sim/place2.bag", "data/sim/place3.bag"};
+      std::string filenames[] = {"data/sim/place1.bag", "data/sim/place3.bag", "data/sim/place3.bag"};
       load_and_train_skill(*place, rk_ptr, filenames);
     }
     /* LOAD TRAINING DATA FOR RELEASE */

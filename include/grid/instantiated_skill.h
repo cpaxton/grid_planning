@@ -45,7 +45,6 @@ namespace grid {
     std::unordered_map<std::string,std::string> assignment;
     SkillPointer skill; // the skill itself
     TrajectoryDistributionPointer spline_dist; // the path we end up taking for this skill
-    DmpTrajectoryDistributionPointer dmp_dist; // the path we end up taking for this skill
 
     std::vector<double> T; // probability of going to each of the possible next actions
     std::vector<double> last_T; // probability of going to each of the possible next actions
@@ -82,6 +81,7 @@ namespace grid {
   public:
 
     TestFeaturesPointer features;
+    DmpTrajectoryDistributionPointer dmp_dist; // the path we end up taking for this skill
 
     // data
     std::vector<FeatureVector> params;
@@ -168,6 +168,11 @@ namespace grid {
               unsigned int len, // number of input samples provided (AKA prev samples)
               int horizon,
               unsigned int samples);
+
+    /**
+     * add some noise and refresh norm terms
+     */
+    void refresh(int horizon);
 
     /**
      * descend through the tree

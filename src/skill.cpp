@@ -274,6 +274,7 @@ namespace grid {
       n.P += (value * Matrixnd::Identity(dim,dim));
       ++i;
     }
+    model->Update();
   }
 
   /**

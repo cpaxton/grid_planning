@@ -181,24 +181,25 @@ namespace grid {
     }
 
     if (tsum < 1e-200) {
-      std::cout << "Transitions: ";
       for (unsigned int i = 0; i < T.size(); ++i) {
-
         T[i] = last_T[i];
+      }
+      return;
+    } else {
+      for(unsigned int i = 0; i < T.size(); ++i) {
+        T[i] = ((1 - p.step_size)*(last_T[i]/last_tsum))
+          + (p.step_size * (T[i] / tsum));
+        last_T[i] = T[i];
+      }
+    }
+
+    if (p.verbosity > 4) {
+      std::cout << "Transitions: ";
+      for(unsigned int i = 0; i < T.size(); ++i) {
         std::cout << T[i] << " ";
       }
-      std::cout << " (no update)" << std::endl;
-      return;
+      std::cout << std::endl;
     }
-
-    std::cout << "Transitions: ";
-    for(unsigned int i = 0; i < T.size(); ++i) {
-      T[i] = ((1 - p.step_size)*(last_T[i]/last_tsum))
-        + (p.step_size * (T[i] / tsum));
-      std::cout << T[i] << " ";
-      last_T[i] = T[i];
-    }
-    std::cout << std::endl;
   }
 
 
@@ -261,6 +262,18 @@ namespace grid {
     }
   }
 
+    /**
+     * add some noise and refresh norm terms
+     */
+    void InstantiatedSkill::refresh(int horizon) {
+      model_norm = p.base_model_norm;
+      if (horizon > 0) {
+        for (auto &child: next) {
+          child->refresh(horizon-1);
+        }
+      }
+    }
+
   /**
    * run a single iteration of the loop. return a set of trajectories.
    * this is very similar to code in the demo
@@ -319,7 +332,7 @@ namespace grid {
       for (unsigned int j = 0; j < nsamples; ++j) {
 
         if (trajs[j].points.size() == 0) {
-          ps[j] = LOW_PROBABILITY;
+          my_ps[j] = LOW_PROBABILITY;
           continue;
         }
 
@@ -359,10 +372,10 @@ namespace grid {
     // check to make sure this is a valid path to explore
     double sum_so_far = 0;
     for (unsigned int j = 0; j < nsamples; ++j) {
+      //std::cout << start_ps[j] << " " << my_ps[j] << "\n";
       ps[j] = my_ps[j] + start_ps[j];
       sum_so_far += exp(my_ps[j]);
     }
-    std::cout << "SO FAR: " << sum_so_far << "\n";
 
     // do we want to continue?
     // if so descend through the tree
@@ -418,7 +431,6 @@ namespace grid {
         if (p.verbosity > 2) {
           std::cout << " - propogating p(" << i << ") = " << my_ps[i] + next_ps[i] << " back to " << prev_idx[i] << " ... " << log(probability) << "\n";
         }
-        std::cout << "..." << my_ps[i] << " " << next_ps[i];
         prev_p_sums[prev_idx[i]] += exp(my_ps[i]+next_ps[i]);
         ++prev_counts[prev_idx[i]];
         probability += exp(my_ps[i]+next_ps[i]);
@@ -429,7 +441,6 @@ namespace grid {
       // update transitions based on these results
       for (unsigned int i = 0; i < len; ++i) {
         if (prev_counts[i] > 0) {
-          std::cout << prev_p_sums[i] << "\n";
           ps_out[i] += log(prev_p_sums[i] / prev_counts[i]);
         } else {
           ps_out[i] += 0;
