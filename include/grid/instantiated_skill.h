@@ -87,6 +87,7 @@ namespace grid {
     std::vector<FeatureVector> params;
     std::vector<JointTrajectory> trajs;
     std::vector<double> ps;
+    std::vector<double> my_ps;
     std::vector<double> next_ps;
     std::vector<double> iter_lls;
     std::vector<unsigned int> next_skill;
@@ -179,7 +180,7 @@ namespace grid {
     // randomly sample an index from the probabilities
     unsigned int sampleIndex(unsigned int nsamples) const;
 
-    void initializePs(std::vector<double> &ps);
+    void initializePs(std::vector<double> &ps, double val);
     void accumulateProbs(const std::vector<double> &prev_ps, unsigned int len);
     void copyEndPoints(const std::vector<JointTrajectoryPoint> &prev_end_pts,
                        const std::vector<double> &prev_ps, unsigned int len);

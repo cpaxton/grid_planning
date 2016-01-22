@@ -1,8 +1,10 @@
 #include <grid/instantiated_skill.h>
 //#include <grid/utils/params.hpp>
 
-#define LOW_PROBABILITY 0
-#define MAX_PROBABILITY 1
+//#define LOW_PROBABILITY 0
+//#define MAX_PROBABILITY 1
+#define LOW_PROBABILITY -999999
+#define MAX_PROBABILITY 0
 
 using trajectory_msgs::JointTrajectory;
 using trajectory_msgs::JointTrajectoryPoint;
@@ -38,6 +40,7 @@ namespace grid {
     end_pts(p_.ntrajs),
     start_pts(p_.ntrajs),
     start_ps(p_.ntrajs),
+    my_ps(p_.ntrajs),
     prev_p_sums(p_.ntrajs),
     prev_counts(p_.ntrajs),
     transitions_step(p_.step_size),
@@ -54,7 +57,7 @@ namespace grid {
     done = false;
     touched = false;
     model_norm = p.base_model_norm;
-    best_p = 0;
+    best_p = LOW_PROBABILITY;
     cur_iter = 0;
     best_idx = 0;
     for (double &d: iter_lls) {
@@ -176,14 +179,26 @@ namespace grid {
     for (double &d: T) {
       tsum += d;
     }
-    //std::cout << "Transitions: ";
+
+    if (tsum < 1e-200) {
+      std::cout << "Transitions: ";
+      for (unsigned int i = 0; i < T.size(); ++i) {
+
+        T[i] = last_T[i];
+        std::cout << T[i] << " ";
+      }
+      std::cout << " (no update)" << std::endl;
+      return;
+    }
+
+    std::cout << "Transitions: ";
     for(unsigned int i = 0; i < T.size(); ++i) {
       T[i] = ((1 - p.step_size)*(last_T[i]/last_tsum))
         + (p.step_size * (T[i] / tsum));
-      //std::cout << T[i] << " ";
+      std::cout << T[i] << " ";
       last_T[i] = T[i];
     }
-    //std::cout << std::endl;
+    std::cout << std::endl;
   }
 
 
@@ -202,9 +217,9 @@ namespace grid {
   }
 
   // initialize next probabilities
-  void InstantiatedSkill::initializePs(std::vector<double> &ps_) {
+  void InstantiatedSkill::initializePs(std::vector<double> &ps_, double val) {
     for (unsigned int i = 0; i < ps_.size(); ++i) {
-      ps_[i] = 0;
+      ps_[i] = val;
     }
   }
 
@@ -212,10 +227,10 @@ namespace grid {
     /************* ACCUMULATE PROBABILITIES *************/
     for (unsigned int i = 0; i < len; ++i) {
       if (i > 0) {
-        acc[i] = prev_ps[i] + acc[i-1];
+        acc[i] = exp(prev_ps[i]) + acc[i-1];
         //acc[i] = exp(prev_ps[i]) + acc[i-1];
       } else {
-        acc[i] = prev_ps[i];
+        acc[i] = exp(prev_ps[i]);
         //acc[i] = exp(prev_ps[i]);
       }
 
@@ -239,7 +254,8 @@ namespace grid {
                                         unsigned int len)
   {
     for (unsigned int i = 0; i < len; ++ i) {
-      ps[i] = prev_ps.at(i);
+      start_ps[i] = prev_ps.at(i);
+      my_ps[i] = 0;
       end_pts[i].positions = prev_end_pts.at(i).positions;
       end_pts[i].velocities = prev_end_pts.at(i).velocities;
     }
@@ -260,13 +276,16 @@ namespace grid {
 
     unsigned int next_len = nsamples;
     if (len == 0 || horizon < 0) {
+      std::cout << "SKIPPING\n";
       return;
+    } else if (horizon == 0) {
+      initializePs(next_ps,0);
+    } else {
+      initializePs(next_ps,LOW_PROBABILITY);
     }
     touched = true;
-    initializePs(next_ps);
-    initializePs(prev_p_sums);
+    initializePs(prev_p_sums,0);
     accumulateProbs(prev_ps,len);
-
 
     /************* SAMPLE TRAJECTORIES IF NECESSARY *************/
     if (skill) {
@@ -281,6 +300,7 @@ namespace grid {
         start_pts[i].velocities = prev_end_pts[idx].velocities;
         start_ps[i] = prev_ps[idx];
         prev_idx[i] = idx;
+        ps_out[idx] = 0;
       }
 
       if (!skill->isStatic()) {
@@ -319,42 +339,41 @@ namespace grid {
               );
           skill->normalizeData(obs);
           FeatureVector v = skill->logL(obs);
-          ps[j] = (v.array().exp().sum() / v.size()); // would add other terms first
+          my_ps[j] = log(v.array().exp().sum() / v.size()); // would add other terms first
         } else {
-          ps[j] = MAX_PROBABILITY;
+          my_ps[j] = MAX_PROBABILITY;
         }
         if (p.verbosity > 1) {
-          std::cout << "[" << id << "] " << skill->getName() << ": "<<ps[j]<<" * "<<start_ps[j]<<"\n";
-          //std::cout << "[" << id << "] " << skill->getName() << ": "<<ps[j]<<" + "<<start_ps[j]<<"\n";
-        }
-        ps[j] *= start_ps[j];
-        //ps[j] += start_ps[j];
-
-        if (ps[j] > best_p) {
-          best_p = ps[j];
-          best_idx = j;
+          std::cout << "[" << id << "] " << skill->getName() << ": "<< my_ps[j]<<" + "<< start_ps[j]<<"\n";
         }
 
         // set up all the end points!
         end_pts[j].positions = trajs[j].points.rbegin()->positions;
         end_pts[j].velocities = trajs[j].points.rbegin()->velocities;
-        //std::cout << skill->getName() << " " << trajs[j].points.size() << std::endl;
       }
     } else {
       copyEndPoints(prev_end_pts, prev_ps, len);
       next_len = len;
     }
 
+    // check to make sure this is a valid path to explore
+    double sum_so_far = 0;
+    for (unsigned int j = 0; j < nsamples; ++j) {
+      ps[j] = my_ps[j] + start_ps[j];
+      sum_so_far += exp(my_ps[j]);
+    }
+    std::cout << "SO FAR: " << sum_so_far << "\n";
+
     // do we want to continue?
     // if so descend through the tree
     // descent through the tree
-    if (horizon > 0) {
+    if (horizon > 0 && log(sum_so_far) > LOW_PROBABILITY) {
 
       unsigned int next_idx = 0;
       unsigned int next_skill_idx = 0;
       for (auto &ns: next) {
         unsigned int next_nsamples = ceil(T[next_skill_idx]*nsamples);
-        ns->step(ps, end_pts,
+        ns->step(my_ps, end_pts,
                  next_ps, T[next_idx], // outputs
                  next_len, horizon-1, next_nsamples); // params
 
@@ -372,16 +391,17 @@ namespace grid {
         if (p.verbosity > 1) {
           if (skill) {
             std::cout << "[" << id << "] " << skill->getName()
-              << ": "<<ps[i]<<" * "<<next_ps[i]<<"\n";
-            //<< ": "<<ps[i]<<" + "<<log(next_ps[i])<<"\n";
+              << ": "<<my_ps[i]<<" + "<< next_ps[i]<<"\n";
           } else {
             std::cout << "[" << id << "] [no skill]"
-              << ": "<<ps[i]<<" * "<<next_ps[i]<<"\n";
-            //<< ": "<<ps[i]<<" + "<<log(next_ps[i])<<"\n";
+              << ": "<<my_ps[i]<<" + "<< next_ps[i] <<"\n";
           }
         }
-        ps[i] *= next_ps[i];
-        //ps[i] += log(next_ps[i]);
+        if (my_ps[i] > best_p) {
+          best_p = my_ps[i];
+          best_idx = i;
+        }
+        ps[i] = start_ps[i] + my_ps[i] + next_ps[i];
       }
     }
 
@@ -396,24 +416,27 @@ namespace grid {
       probability = 0;
       for (unsigned int i = 0; i < nsamples; ++i) {
         if (p.verbosity > 2) {
-          std::cout << " - propogating p(" << i << ") = " << ps[i] << " back to " << prev_idx[i] << " ... " << probability << "\n";
+          std::cout << " - propogating p(" << i << ") = " << my_ps[i] + next_ps[i] << " back to " << prev_idx[i] << " ... " << log(probability) << "\n";
         }
-        prev_p_sums[prev_idx[i]] += ps[i];
+        std::cout << "..." << my_ps[i] << " " << next_ps[i];
+        prev_p_sums[prev_idx[i]] += exp(my_ps[i]+next_ps[i]);
         ++prev_counts[prev_idx[i]];
-        probability += ps[i];
+        probability += exp(my_ps[i]+next_ps[i]);
       }
       probability /= nsamples;
+      //probability = log(probability);
 
       // update transitions based on these results
       for (unsigned int i = 0; i < len; ++i) {
         if (prev_counts[i] > 0) {
-          ps_out[i] += prev_p_sums[i] / prev_counts[i];
+          std::cout << prev_p_sums[i] << "\n";
+          ps_out[i] += log(prev_p_sums[i] / prev_counts[i]);
         } else {
           ps_out[i] += 0;
         }
         if (p.verbosity > 0) {
           std::cout << " - future sum for " << i << " = " << ps_out[i]
-            << " (" << prev_counts[i] << " chosen, sum = " << prev_p_sums[i] << ")"
+            << " (" << prev_counts[i] << " chosen, sum = " << log(prev_p_sums[i]) << ")"
             << "\n";
         }
       }
@@ -423,12 +446,13 @@ namespace grid {
     // normalize everything
     {
       for (const double &d: ps) {
-        sum += d;
+        //std::cout << exp(d) << std::endl;
+        sum += exp(d);
       }
       // normalize here
       for (double &d: ps) {
-        //std::cout << d << "/" << sum << " = " << d / sum << "\n";
-        d /= sum;
+        //std::cout << exp(d) << "/" << sum << " = " << exp(d) / sum << "\n";
+        d = exp(d) / sum;
         assert(not isnan(d));
       }
     }

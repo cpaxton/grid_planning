@@ -202,11 +202,12 @@ int main(int argc, char **argv) {
     robot->updateHint(gp.currentPos());
     robot->updateVelocityHint(gp.currentVel());
 
-    std::cout << "ITER " << i << std::endl;
 
     // this is where the magic happens
+    //ps_out[0] = 0.;
+    //ps[0] = 1.; // set prior
     ps_out[0] = 0.;
-    ps[0] = 1.; // set prior
+    ps[0] = 0.; // set prior
     root->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
 
     /* PUT EVERYTHING INTO SOME MESSAGES */
@@ -225,10 +226,11 @@ int main(int argc, char **argv) {
       pub4.publish(toPoseArray(place_trajs,app1->features->getWorldFrame(),robot));
     }
 
-    iter_p[i] = ps_out[0];
-    std::cout << "... " << iter_p[i] << " ... ";
+    iter_p[i] = exp(ps_out[0]);
+    std::cout << "ITER " << i; // << std::endl;
+    std::cout << ": " << iter_p[i] << " ... ";
     if (i > 1) {
-      if (fabs(iter_p[i] - iter_p[i-1]) < p.update_horizon && horizon < p.max_horizon) {
+      if (fabs(iter_p[i] - iter_p[i-1]) < (p.update_horizon * iter_p[i]) && horizon < p.max_horizon) {
         ++horizon;
       }
     }

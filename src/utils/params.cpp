@@ -39,7 +39,7 @@ namespace grid {
         p.wait = 0.25;
       }
       if (not nh_tilde.getParam("update_horizon",p.update_horizon)) {
-        p.update_horizon = 1e-8;
+        p.update_horizon = 1e-2;
       }
       if (not nh_tilde.getParam("detect_collisions",p.detect_collisions)) {
         p.detect_collisions = false;
