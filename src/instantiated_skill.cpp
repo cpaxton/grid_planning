@@ -212,9 +212,6 @@ namespace grid {
                                unsigned int nsamples)
   {
 
-
-    probability = 0;
-
     unsigned int next_len = nsamples;
 
     //std::cout << "in: " << len << std::endl;
@@ -258,8 +255,6 @@ namespace grid {
     } else if (nsamples == 0) { 
       nsamples = p.ntrajs;
     }
-
-    double sum = 0;
 
     if (skill) { // or goal?
 
@@ -325,8 +320,6 @@ namespace grid {
         }
         ps[j] *= start_ps[j];
 
-        sum += ps[j];
-
         if (ps[j] > best_p) {
           best_p = ps[j];
           best_idx = j;
@@ -338,10 +331,8 @@ namespace grid {
         //std::cout << skill->getName() << " " << trajs[j].points.size() << std::endl;
       }
     } else {
-      sum = 0;
       for (unsigned int i = 0; i < len; ++ i) {
         ps[i] = prev_ps.at(i);
-        sum += ps[i];
         end_pts[i].positions = prev_end_pts.at(i).positions;
         end_pts[i].velocities = prev_end_pts.at(i).velocities;
       }
@@ -360,7 +351,6 @@ namespace grid {
         ns->step(ps, end_pts,
                  next_ps, T[next_idx], // outputs
                  next_len, horizon-1, next_nsamples); // params
-        next_idx += next_nsamples;
 
         if (p.verbosity > 0) {
           std::cout << " >>> probability of " << ns->skill->getName()
@@ -368,6 +358,7 @@ namespace grid {
             << std::endl;
         }
 
+        next_idx += next_nsamples;
         ++next_skill_idx;
       }
 
@@ -393,6 +384,7 @@ namespace grid {
       // go over probabilities and make sure they work
       // use the start_idx field to match start_idx to 
       double prev_psum_sum = 0;
+      probability = 0;
       for (unsigned int i = 0; i < nsamples; ++i) {
         if (p.verbosity > 2) {
           std::cout << " - propogating p(" << i << ") = " << ps[i] << " back to " << prev_idx[i] << " ... " << probability << "\n";
@@ -418,11 +410,24 @@ namespace grid {
       }
     }
 
-    // normalize here
-    for (double &d: ps) {
-      d /= sum;
+    double sum = 0;
+    // normalize everything
+    {
+      for (const double &d: ps) {
+        sum += d;
+      }
+      // normalize here
+      for (double &d: ps) {
+        d /= sum;
+      }
     }
+
     if(skill and not skill->isStatic()) {
+      std::cout << skill->getName() << " probabilities: ";
+      for (double &p: ps) {
+        std::cout << p << " ";
+      }
+      std::cout << std::endl;
       dmp_dist->update(params,ps,nsamples,p.noise,p.step_size);
     }
 
