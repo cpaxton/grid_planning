@@ -1,11 +1,14 @@
 #ifndef _GRID_DMP_TRAJECTORY_DISTRIBUTION
 #define _GRID_DMP_TRAJECTORY_DISTRIBUTION
 
+#include <memory>
+
 #include <grid/features.h>
 #include <grid/test_features.h>
 #include <grid/skill.h>
 #include <grid/dist/gmm.h>
 #include <grid/robot_kinematics.h>
+#include <grid/grid_planner.h>
 
 #include <kdl/jntarray.hpp>
 
@@ -20,6 +23,7 @@ using trajectory_msgs::JointTrajectoryPoint;
 
 namespace grid {
 
+  typedef std::shared_ptr<GridPlanner> TrajectoryCheckerPointer;
 
   /**
    * Ideally this class would inherit from the same parent as TrajectoryDistribution
@@ -113,9 +117,12 @@ namespace grid {
     /** get the attached object frame */
     const Pose &getAttachedObjectFrame() const;
 
+    /** check for collisions */
+    void setCollisionChecker(GridPlanner *);
 
   protected:
     gcop::Gmm<> dist; // stores distributions
+    GridPlanner *checker;
 
     Pose initial;
     bool verbose;

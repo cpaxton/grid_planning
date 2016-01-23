@@ -16,6 +16,7 @@ namespace grid {
    */
   DmpTrajectoryDistribution::DmpTrajectoryDistribution(unsigned int dim_, unsigned int nbasis_, RobotKinematicsPointer robot_)
     : dim(dim_),
+    checker(0),
     nbasis(nbasis_),
     robot(robot_),
     dist((dim_*nbasis_) + POSE_FEATURES_SIZE,1),
@@ -42,6 +43,10 @@ namespace grid {
     }
   }
 
+  /** check for collisions */
+  void DmpTrajectoryDistribution::setCollisionChecker(GridPlanner *c) {
+    checker = c;
+  }
 
   void DmpTrajectoryDistribution::addNoise(double d) {
     for (int j = 0; j < nvars; ++j) {
@@ -52,6 +57,7 @@ namespace grid {
         dist.ns[0].P(j,j) = 10*d;
       }
     }
+    dist.Update();
   }
 
   void DmpTrajectoryDistribution::addNoise(std::vector<double> sigma) {
