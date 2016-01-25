@@ -5,31 +5,83 @@ import rospy
 import actionlib
 
 from grid_plan.msg import *
+import grid
+from grid_plan import PyPlanner
+from grid_plan import GripperRegressor
+from grid_plan import TrajectoryCommander
 
 class CommandActionExecutor(object):
   # create messages that are used to publish feedback/result
   _feedback = CommandFeedback()
   _result   = CommandResult()
+  _reg = None
 
-  def __init__(self, name):
+  def __init__(self, name, robot, skills, gripper_topic):
     self._action_name = name
     self._as = actionlib.SimpleActionServer(self._action_name, CommandAction, execute_cb=self.execute_cb, auto_start = False)
     self._as.start()
+    _reg = GripperRegressor(robot,gripper_topic,None,None)
+    for skill in skills:
+      _reg.addSkill(skill)
     
   def execute_cb(self, goal):
     # helper variables
-    r = rospy.Rate(1)
     success = True
     
     print goal
       
     if success:
-      self._result.sequence = self._feedback.sequence
+      #self._result.sequence = self._feedback.sequence
       rospy.loginfo('%s: Succeeded' % self._action_name)
       self._as.set_succeeded(self._result)
       
 if __name__ == '__main__':
   rospy.init_node('execute_server')
-  FibonacciAction(rospy.get_name())
+
+  skills = []
+  for i in range(2,len(sys.argv)):
+	skill_filename = 'skills/sim/%s_skill.yml'%(sys.argv[i])
+	skills.append(grid.RobotSkill(filename=skill_filename))
+	print "Loaded skill '%s'"%(skills[-1].name)
+
+
+  skill_topic = "current_skill"
+  config = [('link','/gbeam_link_1/gbeam_link'),('node','/gbeam_node_1/gbeam_node')]
+  joint_states_topic="/gazebo/barrett_manager/wam/joint_states"
+  planning_scene_topic="/gazebo/planning_scene"
+  gripper_topic='/gazebo/barrett_manager/hand/cmd'
+
+  preset = "wam7_sim"
+  if preset == "wam7_sim":
+    base_link = 'wam/base_link'
+    end_link = 'wam/wrist_palm_link'
+    robot_description="robot_description"
+    joint_states_topic="/gazebo/barrett_manager/wam/joint_states"
+    planning_scene_topic="/gazebo/planning_scene"
+    gripper_topic="/gazebo/barrett_manager/hand/cmd"
+    command_topic="/gazebo/traj_rml/joint_traj_cmd"
+    dof = 7
+
+  elif preset == "ur5":
+    base_link = '/base_link'
+    end_link = '/ee_link'
+    robot_description="/robot_description"
+    joint_states_topic="/joint_states"
+    planning_scene_topic="/planning_scene"
+    command_topic='/arm_controller/command'
+    dof = 6
+
+  robot = grid.RobotFeatures(
+        base_link=base_link,
+        end_link=end_link,
+        js_topic=joint_states_topic,
+        gripper_topic=gripper_topic,
+        dof=dof,
+        preset=preset)
+
+
+  CommandActionExecutor('command',robot,skills,gripper_topic)
+
+  print "\n\nReady to receive commands!"
   rospy.spin()
 

@@ -254,6 +254,7 @@ int main(int argc, char **argv) {
         ++horizon;
         if (horizon > p.max_horizon) {
           std::cout << std::endl;
+          --horizon; // don't execute that last node
           break;
         }
         //root->refresh(horizon);
@@ -266,5 +267,6 @@ int main(int argc, char **argv) {
 
 
   // execute here
+  root->execute(ac,horizon);
 
 }
