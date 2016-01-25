@@ -121,7 +121,8 @@ namespace grid {
     static InstantiatedSkillPointer DmpInstance(SkillPointer skill,
                                                 TestFeaturesPointer features,
                                                 RobotKinematicsPointer robot,
-                                                unsigned int nbasis);
+                                                unsigned int nbasis,
+                                                GridPlanner *checker = 0);
 
     /**
      * create a new skill with dmps
@@ -130,7 +131,8 @@ namespace grid {
                                                 SkillPointer grasp,
                                                 TestFeaturesPointer features,
                                                 RobotKinematicsPointer robot,
-                                                unsigned int nbasis);
+                                                unsigned int nbasis,
+                                                GridPlanner *checker = 0);
 
 
     /**
@@ -182,6 +184,7 @@ namespace grid {
     unsigned int sampleIndex(unsigned int nsamples) const;
 
     void initializePs(std::vector<double> &ps, double val);
+    void initializeCounts(std::vector<unsigned int> &ps, unsigned int val);
     void accumulateProbs(const std::vector<double> &prev_ps, unsigned int len);
     void copyEndPoints(const std::vector<JointTrajectoryPoint> &prev_end_pts,
                        const std::vector<double> &prev_ps, unsigned int len);

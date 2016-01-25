@@ -76,7 +76,8 @@ namespace grid {
   InstantiatedSkillPointer InstantiatedSkill::DmpInstance(SkillPointer skill,
                                                           TestFeaturesPointer features,
                                                           RobotKinematicsPointer robot,
-                                                          unsigned int nbasis)
+                                                          unsigned int nbasis,
+                                                          GridPlanner *checker)
   {
 
     Params p = readRosParams();
@@ -90,6 +91,10 @@ namespace grid {
                                       robot));
     is->dmp_dist->initialize(*features,*skill);
 
+    if(checker) {
+      is->dmp_dist->setCollisionChecker(checker);
+    }
+
     return is;
   }
 
@@ -100,7 +105,8 @@ namespace grid {
                                                           SkillPointer grasp,
                                                           TestFeaturesPointer features,
                                                           RobotKinematicsPointer robot,
-                                                          unsigned int nbasis)
+                                                          unsigned int nbasis,
+                                                          GridPlanner *checker)
   {
 
     Params p = readRosParams();
@@ -114,6 +120,10 @@ namespace grid {
                                       robot));
     is->dmp_dist->attachObjectFromSkill(*grasp);
     is->dmp_dist->initialize(*features,*skill);
+
+    if(checker) {
+      is->dmp_dist->setCollisionChecker(checker);
+    }
 
     return is;
   }
@@ -166,9 +176,12 @@ namespace grid {
       last_tsum += d;
     }
     double tsum = 0;
+    std::cout << "new transitions: ";
     for (double &d: T) {
+      std::cout << d << " ";
       tsum += d;
     }
+    std::cout << "\n";
 
     if (tsum < 1e-200) {
       for (unsigned int i = 0; i < T.size(); ++i) {
@@ -183,7 +196,7 @@ namespace grid {
       }
     }
 
-    if (p.verbosity > 4) {
+    if (p.verbosity > 0) {
       std::cout << "Transitions: ";
       for(unsigned int i = 0; i < T.size(); ++i) {
         std::cout << T[i] << " ";
@@ -252,18 +265,24 @@ namespace grid {
     }
   }
 
-    /**
-     * add some noise and refresh norm terms
-     */
-    void InstantiatedSkill::refresh(int horizon) {
-      std::cout << "refreshing\n";
-      //model_norm = p.base_model_norm;
-      if (horizon > 0) {
-        for (auto &child: next) {
-          child->refresh(horizon-1);
-        }
+  /**
+   * add some noise and refresh norm terms
+   */
+  void InstantiatedSkill::refresh(int horizon) {
+    std::cout << "refreshing\n";
+    //model_norm = p.base_model_norm;
+    if (horizon > 0) {
+      for (auto &child: next) {
+        child->refresh(horizon-1);
       }
     }
+  }
+
+  void InstantiatedSkill::initializeCounts(std::vector<unsigned int> &ps, unsigned int val) {
+    for (auto &u: ps) {
+      u = val;
+    }
+  }
 
   /**
    * run a single iteration of the loop. return a set of trajectories.
@@ -279,7 +298,7 @@ namespace grid {
   {
 
     unsigned int next_len = nsamples;
-    if (len == 0 || horizon < 0) {
+    if (len == 0 || horizon < 0 || nsamples == 0) {
       std::cout << "SKIPPING\n";
       return;
     } else if (horizon == 0 || next.size() == 0) {
@@ -289,6 +308,7 @@ namespace grid {
     }
     touched = true;
     initializePs(prev_p_sums,0);
+    initializeCounts(prev_counts,0u);
     accumulateProbs(prev_ps,len);
 
     /************* SAMPLE TRAJECTORIES IF NECESSARY *************/
@@ -298,6 +318,7 @@ namespace grid {
       for (unsigned int i = 0; i < nsamples; ++i) {
 
         unsigned int idx = sampleIndex(len);
+        assert (idx < len);
 
         // sample an index
         start_pts[i].positions = prev_end_pts[idx].positions;
@@ -330,7 +351,7 @@ namespace grid {
         // TODO: speed this up
         std::vector<Pose> poses = robot->FkPos(trajs[j]);
 
-        if (skill) {
+        if (skill) { // and not done) {
           skill->resetModel();
           skill->addModelNormalization(model_norm);
 
@@ -344,167 +365,158 @@ namespace grid {
           skill->normalizeData(obs);
           FeatureVector v = skill->logL(obs);
           my_ps[j] = log(v.array().exp().sum() / v.size()); // would add other terms first
-        } else {
-          my_ps[j] = MAX_PROBABILITY;
         }
         if (p.verbosity > 1) {
-          std::cout << "[" << id << "] " << skill->getName() << ": "<< my_ps[j]<<" + "<< start_ps[j]<<"\n";
+          std::cout << "[" << id << "] " << j << ": " << skill->getName() << ": "<< my_ps[j]<<" + "<< start_ps[j]<<"\n";
         }
 
         // set up all the end points!
         end_pts[j].positions = trajs[j].points.rbegin()->positions;
         end_pts[j].velocities = trajs[j].points.rbegin()->velocities;
+        }
+      } else {
+        copyEndPoints(prev_end_pts, prev_ps, len);
+        next_len = len;
       }
-    } else {
-      copyEndPoints(prev_end_pts, prev_ps, len);
-      next_len = len;
-    }
 
-    // check to make sure this is a valid path to explore
-    double sum_so_far = 0;
-    for (unsigned int j = 0; j < nsamples; ++j) {
-      //std::cout << start_ps[j] << " " << my_ps[j] << "\n";
-      ps[j] = my_ps[j] + start_ps[j];
-      sum_so_far += exp(my_ps[j]);
-    }
+      // check to make sure this is a valid path to explore
+      double sum_so_far = 0;
+      for (unsigned int j = 0; j < nsamples; ++j) {
+        //std::cout << start_ps[j] << " " << my_ps[j] << "\n";
+        ps[j] = my_ps[j] + start_ps[j];
+        sum_so_far += exp(my_ps[j]);
+      }
 
-    // do we want to continue?
-    // if so descend through the tree
-    // descent through the tree
-    if (horizon > 0 && log(sum_so_far) > LOW_PROBABILITY) {
+      // do we want to continue?
+      // if so descend through the tree
+      // descent through the tree
+      if (horizon > 0 && log(sum_so_far) > LOW_PROBABILITY) {
 
-      unsigned int next_idx = 0;
-      unsigned int next_skill_idx = 0;
-      for (auto &ns: next) {
-        unsigned int next_nsamples = floor(T[next_skill_idx]*nsamples);
-        ns->step(my_ps, end_pts,
-                 next_ps, T[next_idx], // outputs
-                 next_len, horizon-1, next_nsamples); // params
+        unsigned int next_skill_idx = 0;
+        for (auto &ns: next) {
+          unsigned int next_nsamples = floor((T[next_skill_idx]*nsamples));
+          //std::cout << "samples: " << next_nsamples << ", " << T[next_skill_idx] << "\n";
+          ns->step(my_ps, end_pts,
+                   next_ps, T[next_skill_idx], // outputs
+                   next_len, horizon-1, next_nsamples); // params
 
-        if (p.verbosity > 0) {
-          std::cout << " >>> probability of " << ns->skill->getName()
-            << " " << ns->id << " = " << T[next_idx]
-            << std::endl;
+          if (p.verbosity > 0) {
+            std::cout << " >>> probability of " << ns->skill->getName()
+              << " " << ns->id << " = " << T[next_skill_idx]
+              << std::endl;
+          }
+
+          ++next_skill_idx;
         }
 
-        next_idx += next_nsamples;
-        ++next_skill_idx;
-      }
-
-#if 0
-      {
-        double next_ps_sum = 0;
         for (unsigned int i = 0; i < nsamples; ++i) {
-          next_ps_sum += next_ps[i];
-        }
-        if (next_ps_sum / nsamples < LOW_PROBABILITY) {
-
+          if (p.verbosity > 1) {
+            if (skill) {
+              std::cout << "[" << id << "] " << skill->getName()
+                << ": "<<my_ps[i]<<" + "<< next_ps[i]<<"\n";
+            } else {
+              std::cout << "[" << id << "] [no skill]"
+                << ": "<<my_ps[i]<<" + "<< next_ps[i] <<"\n";
+            }
+          }
+          if (my_ps[i] > best_p) {
+            best_p = my_ps[i];
+            best_idx = i;
+          }
+          ps[i] = start_ps[i] + my_ps[i] + next_ps[i];
         }
       }
-#endif
 
-      for (unsigned int i = 0; i < nsamples; ++i) {
-        if (p.verbosity > 1) {
-          if (skill) {
-            std::cout << "[" << id << "] " << skill->getName()
-              << ": "<<my_ps[i]<<" + "<< next_ps[i]<<"\n";
+      updateTransitions();
+
+      // update probabilities for all
+      {
+        // now loop over all the stuff!
+        // go over probabilities and make sure they work
+        // use the start_idx field to match start_idx to 
+        double prev_psum_sum = 0;
+        probability = 0;
+        for (unsigned int i = 0; i < nsamples; ++i) {
+          if (p.verbosity > 2) {
+            std::cout << " - propogating p(" << i << ") = " << my_ps[i] + next_ps[i] << " back to " << prev_idx[i] << " ... " << log(probability) << "\n";
+          }
+          prev_p_sums[prev_idx[i]] += exp(my_ps[i]+next_ps[i]);
+          ++prev_counts[prev_idx[i]];
+          probability += exp(my_ps[i]+next_ps[i]);
+        }
+        probability /= nsamples;
+        //probability = log(probability);
+
+        // update transitions based on these results
+        for (unsigned int i = 0; i < len; ++i) {
+          if (prev_counts[i] > 0) {
+            ps_out[i] += log(prev_p_sums[i] / prev_counts[i]);
           } else {
-            std::cout << "[" << id << "] [no skill]"
-              << ": "<<my_ps[i]<<" + "<< next_ps[i] <<"\n";
+            ps_out[i] += 0;
+          }
+          if (p.verbosity > 0) {
+            std::cout << " - future sum for " << i << " = " << ps_out[i]
+              << " (" << prev_counts[i] << " chosen, sum = " << log(prev_p_sums[i]) << ")"
+              << "\n";
           }
         }
-        if (my_ps[i] > best_p) {
-          best_p = my_ps[i];
-          best_idx = i;
-        }
-        ps[i] = start_ps[i] + my_ps[i] + next_ps[i];
       }
-    }
 
-    updateTransitions();
-
-    // update probabilities for all
-    {
-      // now loop over all the stuff!
-      // go over probabilities and make sure they work
-      // use the start_idx field to match start_idx to 
-      double prev_psum_sum = 0;
-      probability = 0;
-      for (unsigned int i = 0; i < nsamples; ++i) {
-        if (p.verbosity > 2) {
-          std::cout << " - propogating p(" << i << ") = " << my_ps[i] + next_ps[i] << " back to " << prev_idx[i] << " ... " << log(probability) << "\n";
+      double sum = 0;
+      // normalize everything
+      {
+        for (unsigned int i = 0; i < nsamples; ++i) {
+          sum += exp(ps[i]);
         }
-        prev_p_sums[prev_idx[i]] += exp(my_ps[i]+next_ps[i]);
-        ++prev_counts[prev_idx[i]];
-        probability += exp(my_ps[i]+next_ps[i]);
+        // normalize here
+        for (unsigned int i = 0; i < nsamples; ++i) {
+          ps[i] = exp(ps[i]) / sum;
+          //assert(not isnan(ps[i]));
+        }
       }
-      probability /= nsamples;
-      //probability = log(probability);
 
-      // update transitions based on these results
-      for (unsigned int i = 0; i < len; ++i) {
-        if (prev_counts[i] > 0) {
-          ps_out[i] += log(prev_p_sums[i] / prev_counts[i]);
+      if (log(sum) < LOW_PROBABILITY) {
+        std::cout << "nothing here \n";
+      }
+
+      if(skill and not skill->isStatic()) {
+
+        if (p.verbosity > 4) {
+          std::cout << skill->getName() << " probabilities: ";
+          for (double &p: ps) {
+            std::cout << p << " ";
+          }
+          std::cout << std::endl;
+        }
+
+        if (nsamples > 1) {
+          dmp_dist->update(params,ps,nsamples,p.noise,p.step_size);
+          dmp_dist->addNoise(pow(0.01,cur_iter+2));
+        }
+      }
+
+      // compute ll for this iteration
+      iter_lls[cur_iter] = sum / p.ntrajs;
+
+      if (cur_iter > 0 and fabs(iter_lls[cur_iter]-iter_lls[cur_iter]) < 1e-2*iter_lls[cur_iter]) {
+        done = true;
+      }
+
+      // decrease normalization
+      if (cur_iter > 0 && iter_lls[cur_iter] > iter_lls[cur_iter-1]) {
+        model_norm *= p.model_norm_step;
+      }
+
+      if (p.verbosity >= 0) {
+        if (skill) {
+          std::cout << "[" << id << "] " << skill->getName() << " >>>> AVG P = " << (sum / len) << std::endl;
         } else {
-          ps_out[i] += 0;
-        }
-        if (p.verbosity > 0) {
-          std::cout << " - future sum for " << i << " = " << ps_out[i]
-            << " (" << prev_counts[i] << " chosen, sum = " << log(prev_p_sums[i]) << ")"
-            << "\n";
+          std::cout << "[" << id << "] [no skill] >>>> AVG P = " << (sum / len) << std::endl;
         }
       }
+
+      ++cur_iter;
     }
-
-    double sum = 0;
-    // normalize everything
-    {
-      for (const double &d: ps) {
-        //std::cout << exp(d) << std::endl;
-        sum += exp(d);
-      }
-      // normalize here
-      for (double &d: ps) {
-        //std::cout << exp(d) << "/" << sum << " = " << exp(d) / sum << "\n";
-        d = exp(d) / sum;
-        assert(not isnan(d));
-      }
-    }
-
-    if(skill and not skill->isStatic()) {
-
-      if (p.verbosity > 4) {
-        std::cout << skill->getName() << " probabilities: ";
-        for (double &p: ps) {
-          std::cout << p << " ";
-        }
-        std::cout << std::endl;
-      }
-
-      if (nsamples > 1) {
-        dmp_dist->update(params,ps,nsamples,p.noise,p.step_size);
-        dmp_dist->addNoise(pow(0.01,cur_iter+2));
-      }
-    }
-
-    // compute ll for this iteration
-    iter_lls[cur_iter] = sum / p.ntrajs;
-
-    // decrease normalization
-    if (cur_iter > 0 && iter_lls[cur_iter] > iter_lls[cur_iter-1]) {
-      model_norm *= p.model_norm_step;
-    }
-
-    if (p.verbosity >= 0) {
-      if (skill) {
-        std::cout << "[" << id << "] " << skill->getName() << " >>>> AVG P = " << (sum / nsamples) << std::endl;
-      } else {
-        std::cout << "[" << id << "] [no skill] >>>> AVG P = " << (sum / len) << std::endl;
-      }
-    }
-
-    ++cur_iter;
-  }
 
     /**
      * descend through the tree
@@ -520,9 +532,9 @@ namespace grid {
         // replan from here
       }
 
-      
+
 
 
     }
 
-}
+  }

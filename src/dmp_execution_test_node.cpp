@@ -35,6 +35,8 @@ int main(int argc, char **argv) {
   gp.SetGoalThreshold(0.1);
 
   ros::ServiceClient client = nh.serviceClient<std_srvs::Empty>("/gazebo/publish_planning_scene");
+  std_srvs::Empty empty;
+  client.call(empty);
 
   TestFeatures test;
   test.addFeature("node",grid::POSE_FEATURE);
@@ -116,6 +118,11 @@ int main(int argc, char **argv) {
 
   double model_norm = p.base_model_norm;
 
+
+  if (p.detect_collisions) {
+    dist.setCollisionChecker(&gp);
+  }
+
   for (int i = 0; i < p.iter; ++i) {
 
     for (auto &pt: starts) {
@@ -140,9 +147,11 @@ int main(int argc, char **argv) {
       std::vector<Pose> poses = rk_ptr->FkPos(trajs[j]);
 
       bool collision = false;
+#if 0
       if (p.detect_collisions) {
         collision = !gp.TryTrajectory(trajs[j]);
       }
+#endif
 
       if (collision) {
         std::cout << "COLLISION DETECTED\n";

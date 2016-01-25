@@ -293,6 +293,15 @@ namespace grid {
         }
       }
 
+      if (checker) {
+        bool collision = !checker->TryTrajectory(trajs[sample]);
+
+        if (collision) {
+          std::cout << "COLLISION DETECTED!\n";
+          continue;
+        }
+      }
+
       ++sample;
     }
   }

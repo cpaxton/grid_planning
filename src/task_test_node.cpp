@@ -12,12 +12,14 @@
 #include <grid/robot_kinematics.h>
 #include <grid/grid_planner.h>
 #include <grid/visualize.h>
-
 #include <grid/utils/params.h>
-
 #include <grid/wam/input.h>
 
 #include "wam/load_wam_skills.hpp"
+
+#include <ros/ros.h>
+#include <std_srvs/Empty.h>
+
 
 using namespace grid;
 
@@ -39,16 +41,21 @@ void load_to_one_array(std::vector<InstantiatedSkillPointer> &is, std::vector<Jo
 int main(int argc, char **argv) {
 
   ros::init(argc,argv,"task_model_test_node");
+  ros::NodeHandle nh;
+
   Params p = readRosParams();
   RobotKinematicsPointer robot = RobotKinematicsPointer(new RobotKinematics("robot_description","wam/base_link","wam/wrist_palm_link"));
   GridPlanner gp("robot_description","/gazebo/barrett_manager/wam/joint_states","/gazebo/planning_scene");
+
+  ros::ServiceClient client = nh.serviceClient<std_srvs::Empty>("/gazebo/publish_planning_scene");
+  std_srvs::Empty empty;
+  client.call(empty);
 
   std::unordered_map<std::string, SkillPointer> skills = loadWamSkills();
   std::unordered_map<std::string, TestFeaturesPointer> features = setupTestFeaturesForTrials();
 
   InstantiatedSkillPointer root = InstantiatedSkill::Root();
 
-  ros::NodeHandle nh;
   ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples",1000);
   ros::Publisher pub2 = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples_2",1000);
   ros::Publisher pub3 = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples_3",1000);
@@ -145,6 +152,11 @@ int main(int argc, char **argv) {
   place12->addNext(release12);
   place21->addNext(release21);
   place22->addNext(release22);
+
+  release11->addNext(disengage11);
+  release12->addNext(disengage12);
+  release21->addNext(disengage21);
+  release22->addNext(disengage22);
 
   std::vector<InstantiatedSkillPointer> approaches;
   approaches.push_back(app1);
