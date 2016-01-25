@@ -1,0 +1,9 @@
+# goal
+trajectory_msgs/JointTrajectory traj
+String name
+---
+# result 
+int32 result
+---
+# feedback
+float64 t

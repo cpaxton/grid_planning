@@ -234,7 +234,10 @@ int main(int argc, char **argv) {
     if (i > 1) {
       if (fabs(iter_p[i] - iter_p[i-1]) < (p.update_horizon * iter_p[i]) && horizon < p.max_horizon) {
         ++horizon;
-        root->refresh();
+        if (horizon > p.max_horizon) {
+          break;
+        }
+        //root->refresh(horizon);
       }
     }
     std::cout << std::endl;

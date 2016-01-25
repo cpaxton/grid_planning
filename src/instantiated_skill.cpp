@@ -52,6 +52,7 @@ namespace grid {
 
   /**
    * set all variables back to original values
+   * set all children to not done
    */
   void InstantiatedSkill::reset() {
     done = false;
@@ -63,20 +64,9 @@ namespace grid {
     for (double &d: iter_lls) {
       d = 0;
     }
-  }
-
-  /**
-   * set all child skills to not done
-   * assumes children of an unfinished node are not finished
-   */
-  InstantiatedSkill &InstantiatedSkill::refresh() {
-    if (touched) {
-      for (InstantiatedSkillPointer ptr: next) {
-        ptr->refresh();
-      }
-      reset();
+    for (InstantiatedSkillPointer ptr: next) {
+      ptr->reset();
     }
-    return *this;
   }
 
 
@@ -266,8 +256,8 @@ namespace grid {
      * add some noise and refresh norm terms
      */
     void InstantiatedSkill::refresh(int horizon) {
-      model_norm = p.base_model_norm;
-      dmp_dist->addNoise(0.01);
+      std::cout << "refreshing\n";
+      //model_norm = p.base_model_norm;
       if (horizon > 0) {
         for (auto &child: next) {
           child->refresh(horizon-1);
@@ -292,7 +282,7 @@ namespace grid {
     if (len == 0 || horizon < 0) {
       std::cout << "SKIPPING\n";
       return;
-    } else if (horizon == 0) {
+    } else if (horizon == 0 || next.size() == 0) {
       initializePs(next_ps,0);
     } else {
       initializePs(next_ps,LOW_PROBABILITY);
@@ -401,6 +391,18 @@ namespace grid {
         ++next_skill_idx;
       }
 
+#if 0
+      {
+        double next_ps_sum = 0;
+        for (unsigned int i = 0; i < nsamples; ++i) {
+          next_ps_sum += next_ps[i];
+        }
+        if (next_ps_sum / nsamples < LOW_PROBABILITY) {
+
+        }
+      }
+#endif
+
       for (unsigned int i = 0; i < nsamples; ++i) {
         if (p.verbosity > 1) {
           if (skill) {
@@ -481,6 +483,7 @@ namespace grid {
 
       if (nsamples > 1) {
         dmp_dist->update(params,ps,nsamples,p.noise,p.step_size);
+        dmp_dist->addNoise(pow(0.01,cur_iter+2));
       }
     }
 
@@ -502,4 +505,24 @@ namespace grid {
 
     ++cur_iter;
   }
+
+    /**
+     * descend through the tree
+     * execute as we reach nodes that require it
+     * use gripper tool to send messages
+     */
+    void InstantiatedSkill::execute(int horizon) {
+
+      // trigger action server
+
+
+      if (skill && skill->isStatic()) {
+        // replan from here
+      }
+
+      
+
+
+    }
+
 }

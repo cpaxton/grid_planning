@@ -71,6 +71,10 @@ catkin_package(
   DEPENDS EIGEN3 orocos_kdl
 )
 
+
+## Add actions
+add_action_files(DIRECTORY action FILES Command.action)
+
 ###########
 ## Build ##
 ###########
@@ -166,6 +170,7 @@ add_executable(task_test src/task_test_node.cpp)
 
 ## Add cmake target dependencies of the executable/libname,rary
 ## as an example, message headers may need to be generated before nodes
+add_dependencies(grid_planner ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(grid_plan_node grid_planner)
 add_dependencies(features_test grid_planner)
 

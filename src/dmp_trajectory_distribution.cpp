@@ -51,10 +51,10 @@ namespace grid {
   void DmpTrajectoryDistribution::addNoise(double d) {
     for (int j = 0; j < nvars; ++j) {
       if (j < POSE_RPY_SIZE) { 
-        dist.ns[0].P(j,j) = d;
+        dist.ns[0].P(j,j) += d;
       }
       else {
-        dist.ns[0].P(j,j) = 10*d;
+        dist.ns[0].P(j,j) += 10*d;
       }
     }
     dist.Update();

@@ -110,12 +110,8 @@ namespace grid {
     InstantiatedSkill(Params &p_);
 
     /**
-     * set all child skills to not done
-     */
-    InstantiatedSkill &refresh();
-
-    /**
      * set all variables back to original values
+     * set children to not done too
      */
     void reset();
 
@@ -179,7 +175,7 @@ namespace grid {
      * execute as we reach nodes that require it
      * use gripper tool to send messages
      */
-    void execute();
+    void execute(int horizon);
 
 
     // randomly sample an index from the probabilities
