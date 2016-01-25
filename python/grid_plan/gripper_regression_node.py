@@ -49,6 +49,42 @@ class GripperRegressor:
         self.skill_is_active = True
 
     '''
+    in case we want to call this directly
+    '''
+    def set_active_skill(self,skill):
+        self.active_skill = skill
+    
+        if self.active_skill in self.skills:
+            skill = self.skills[self.active_skill]
+            self.robot.indices = {}
+            [self.robot.AddObject(obj) for obj in skill.objs]
+            [self.robot.AddObject(obj,frame) for obj,frame in self.config if obj in skill.objs]
+            self.means = [i for i in skill.gripper_model.means_]
+            self.covars = [i for i in skill.gripper_model.covars_]
+            self.weights = skill.gripper_model.weights_
+            self.objs = skill.objs
+            self.robot.SetActionNormalizer(skill)
+        self.robot.AddObject('gripper')
+
+        self.ndims = self.robot.max_index
+
+        while self.world is None:
+            self.world = self.robot.TfCreateWorld()
+        self.skill_is_active = True
+
+
+    '''
+    tick for a while
+    '''
+    def regress(self,dt=0.1,delay=0.1):
+        self.progress = 0
+        while self.progress < 1:
+            self.progress += dt
+            self.tick()
+            rospy.sleep(delay)
+        self.tick()
+
+    '''
     keeps progrss up to date
     '''
     def progress_cb(self,msg):
@@ -115,7 +151,6 @@ class GripperRegressor:
             return
         
         if self.skill_is_active and self.active_skill in self.gmms:
-
             # get features for current time step
             objs = self.skills[self.active_skill].objs
 
@@ -152,6 +187,7 @@ class GripperRegressor:
             msg.cmd[0:(idx[1]-idx[0])] = data[0,np.ix_(np.r_[idx[0]:idx[1]])].tolist()[0]
             if any(np.isnan(msg.cmd)):
                 print "ERR: Expected gripper command not defined!"
+
                 msg.cmd = [0,0,0,0]
             msg.mode = [4]*4
             self.cmd_pub.publish(msg)

@@ -540,6 +540,12 @@ namespace grid {
         cmd.name = skill->getName();
         cmd.traj = trajs[best_idx];
       }
+      if (features) {
+        cmd.keys = features->getClasses();
+        cmd.values = features->getIds();
+      }
+
+
       std::cout << "waiting for server... (" << horizon << ")\n";
       ac.waitForServer();
       std::cout << "sending command...\n";

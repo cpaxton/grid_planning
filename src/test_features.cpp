@@ -29,8 +29,6 @@ namespace grid {
     return values;
   }
 
-
-
   /* setFrame
    * Adds a frame of reference as a feature
    */
@@ -271,5 +269,29 @@ namespace grid {
    */
   const Pose &TestFeatures::getAttachedObjectFrame() const {
     return attachedObjectFrame;
+  }
+
+
+  std::vector<std::string> TestFeatures::getClasses() const {
+    std::vector<std::string> out;
+    for (const std::pair<std::string,FeatureType> &elem: feature_types) {
+      if (elem.second == POSE_FEATURE) {
+        out.push_back(elem.first);
+      }
+    }
+    return out;
+  }
+
+  /**
+   * get all the current IDs (coordinate frames)
+   */
+  std::vector<std::string> TestFeatures::getIds() const {
+    std::vector<std::string> out;
+    for (const std::pair<std::string,FeatureType> &elem: feature_types) {
+      if (elem.second == POSE_FEATURE) {
+        out.push_back(objectClassToID.at(elem.first));
+      }
+    }
+    return out;
   }
 }

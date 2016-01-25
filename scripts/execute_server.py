@@ -24,6 +24,7 @@ class CommandActionExecutor(object):
     self._as = actionlib.SimpleActionServer(self._action_name, CommandAction, execute_cb=self.execute_cb, auto_start = False)
     self._as.start()
     self._reg = GripperRegressor(robot,gripper_topic,None,None)
+
     for skill in skills:
       self._reg.addSkill(skill)
 
@@ -36,8 +37,18 @@ class CommandActionExecutor(object):
     print goal
     self._traj_pub.publish(goal.traj)
 
-    wait = rospy.Duration(len(goal.traj.points)*0.2)
-    rospy.sleep(wait);
+    config = []
+    for i in range(len(goal.keys)):
+        config.append((goal.keys[i], goal.values[i]))
+
+    #print config
+    if len(config) > 0:
+        self._reg.configure(config)
+        self._reg.set_active_skill(goal.name)
+
+        wait = rospy.Duration(len(goal.traj.points)*0.1)
+        rospy.sleep(wait)
+        self._reg.regress(0.025,0.2)
       
     if success:
       #self._result.sequence = self._feedback.sequence
@@ -48,7 +59,7 @@ if __name__ == '__main__':
   rospy.init_node('execute_server')
 
   skills = []
-  for i in range(2,len(sys.argv)):
+  for i in range(1,len(sys.argv)):
 	skill_filename = 'skills/sim/%s_skill.yml'%(sys.argv[i])
 	skills.append(grid.RobotSkill(filename=skill_filename))
 	print "Loaded skill '%s'"%(skills[-1].name)

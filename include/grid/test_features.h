@@ -96,6 +96,13 @@ namespace grid {
      */
     const Pose &getAttachedObjectFrame() const;
 
+    std::vector<std::string> getClasses() const;
+
+    /**
+     * get all the current IDs (coordinate frames)
+     */
+    std::vector<std::string> getIds() const;
+
   private:
     std::unordered_map<std::string, std::string> objectClassToID;
     std::unordered_map<std::string, Pose> currentPose; // used for fast lookup
