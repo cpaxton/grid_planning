@@ -6,6 +6,7 @@
 #define LOW_PROBABILITY -999999
 #define MAX_PROBABILITY 0
 
+using namespace grid_plan;
 using trajectory_msgs::JointTrajectory;
 using trajectory_msgs::JointTrajectoryPoint;
 
@@ -420,11 +421,11 @@ namespace grid {
                 << ": "<<my_ps[i]<<" + "<< next_ps[i] <<"\n";
             }
           }
-          if (my_ps[i] > best_p) {
+          ps[i] = start_ps[i] + my_ps[i] + next_ps[i];
+          if (ps[i] > best_p) {
             best_p = my_ps[i];
             best_idx = i;
           }
-          ps[i] = start_ps[i] + my_ps[i] + next_ps[i];
         }
       }
 
@@ -529,18 +530,43 @@ namespace grid {
      * execute as we reach nodes that require it
      * use gripper tool to send messages
      */
-    void InstantiatedSkill::execute(int horizon) {
+    void InstantiatedSkill::execute(actionlib::SimpleActionClient<grid_plan::CommandAction> &ac,
+                                    int horizon)
+    {
 
       // trigger action server
-
-
-      if (skill && skill->isStatic()) {
-        // replan from here
+      CommandGoal cmd;
+      if (skill) {
+        cmd.name = skill->getName();
+        cmd.traj = trajs[best_idx];
       }
+      std::cout << "waiting for server...\n";
+      ac.waitForServer();
+      std::cout << "sending command...\n";
+      ac.sendGoal(cmd);
+
+      // continue execution
+      if (horizon > 0 && next.size() > 0) {
+        if (skill && skill->isStatic()) {
+          // replan from here
+        }
+
+        ac.waitForResult();
+
+        double best_t_p = 0;
+        unsigned int idx = 0;
+        for (unsigned int i = 0; i < T.size(); ++i) {
+          if (T[i] > best_t_p) {
+            idx = i;
+            best_t_p = T[i];
+          }
+        }
+
+        next[idx]->execute(ac,horizon-1);
+      } else {
 
 
-
-
+      }
     }
 
   }

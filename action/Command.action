@@ -1,6 +1,6 @@
 # goal
 trajectory_msgs/JointTrajectory traj
-String name
+string name
 ---
 # result 
 int32 result

@@ -33,6 +33,10 @@ find_package(catkin REQUIRED COMPONENTS
 
   # ros stuff
   rosbag
+
+  # action
+  actionlib
+  message_generation
 )
 
 find_package(orocos_kdl REQUIRED)
@@ -54,6 +58,10 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
 catkin_python_setup()
 
+## Add actions
+add_action_files(DIRECTORY action FILES Command.action)
+generate_messages(DEPENDENCIES std_msgs trajectory_msgs geometry_msgs actionlib_msgs)
+
 ###################################
 ## catkin specific configuration ##
 ###################################
@@ -70,10 +78,6 @@ catkin_package(
   #DEPENDS GCOP EIGEN3
   DEPENDS EIGEN3 orocos_kdl
 )
-
-
-## Add actions
-add_action_files(DIRECTORY action FILES Command.action)
 
 ###########
 ## Build ##

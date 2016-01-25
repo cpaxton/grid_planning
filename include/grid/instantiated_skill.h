@@ -10,6 +10,10 @@
 #include <grid/skill.h>
 #include <grid/utils/params.h>
 
+
+#include <actionlib/client/simple_action_client.h>
+#include <grid_plan/CommandAction.h>
+
 #include <random>
 
 namespace grid {
@@ -178,7 +182,7 @@ namespace grid {
      * execute as we reach nodes that require it
      * use gripper tool to send messages
      */
-    void execute(int horizon);
+    void execute(actionlib::SimpleActionClient<grid_plan::CommandAction> &ac, int horizon);
 
 
     // randomly sample an index from the probabilities

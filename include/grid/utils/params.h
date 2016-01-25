@@ -14,8 +14,8 @@ namespace grid {
     double step_size;
     double noise;
     double wait;
-    int ntrajs = 50;
-    int iter = 10;
+    int ntrajs;
+    int iter;
     int starting_horizon;
     int max_horizon;
     int verbosity;

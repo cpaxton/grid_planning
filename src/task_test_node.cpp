@@ -19,7 +19,10 @@
 
 #include <ros/ros.h>
 #include <std_srvs/Empty.h>
+#include <actionlib/client/simple_action_client.h>
+#include <actionlib/client/terminal_state.h>
 
+#include <grid_plan/CommandAction.h>
 
 using namespace grid;
 
@@ -42,6 +45,8 @@ int main(int argc, char **argv) {
 
   ros::init(argc,argv,"task_model_test_node");
   ros::NodeHandle nh;
+
+  actionlib::SimpleActionClient<grid_plan::CommandAction> ac("command", true);
 
   Params p = readRosParams();
   RobotKinematicsPointer robot = RobotKinematicsPointer(new RobotKinematics("robot_description","wam/base_link","wam/wrist_palm_link"));
