@@ -241,12 +241,14 @@ int main(int argc, char **argv) {
     }
 
     iter_p[i] = exp(ps_out[0]);
+    std::cout << "\n\n===================================\n";
     std::cout << "ITER " << i; // << std::endl;
     std::cout << ": " << iter_p[i] << " ... ";
     if (i > 1) {
-      if (fabs(iter_p[i] - iter_p[i-1]) < (p.update_horizon * iter_p[i]) && horizon < p.max_horizon) {
+      if (fabs(iter_p[i] - iter_p[i-1]) < (p.update_horizon * iter_p[i])) {
         ++horizon;
         if (horizon > p.max_horizon) {
+          std::cout << std::endl;
           break;
         }
         //root->refresh(horizon);

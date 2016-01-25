@@ -34,7 +34,7 @@ namespace grid {
     current(false),
     trajs(p_.ntrajs),
     next_ps(p_.ntrajs),
-    params(p_.ntrajs), cur_iter(0),
+    params(p_.ntrajs), cur_iter(0), good_iter(0),
     next_skill(p_.ntrajs),
     prev_idx(p_.ntrajs),
     end_pts(p_.ntrajs),
@@ -300,7 +300,7 @@ namespace grid {
     unsigned int next_len = nsamples;
     if (len == 0 || horizon < 0 || nsamples == 0) {
       std::cout << "SKIPPING\n";
-      probability = 1e-20;
+      probability = 1e-200;
       return;
     } else if (horizon == 0 || next.size() == 0) {
       initializePs(next_ps,0);
@@ -478,11 +478,13 @@ namespace grid {
         }
       }
 
+      bool skip = false;
       if (log(sum) < LOW_PROBABILITY) {
-        std::cout << "nothing here \n";
+        skip = true;
+        //std::cout << "nothing here \n";
       }
 
-      if(skill and not skill->isStatic()) {
+      if(skill and not skill->isStatic() and not skip) {
 
         if (p.verbosity > 4) {
           std::cout << skill->getName() << " probabilities: ";
@@ -508,6 +510,7 @@ namespace grid {
       // decrease normalization
       if (cur_iter > 0 && iter_lls[cur_iter] > iter_lls[cur_iter-1]) {
         model_norm *= p.model_norm_step;
+        ++good_iter;
       }
 
       if (p.verbosity >= 0) {

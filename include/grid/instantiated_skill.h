@@ -74,6 +74,7 @@ namespace grid {
     double transitions_step;
     unsigned int best_idx;
     unsigned int cur_iter;
+    unsigned int good_iter;
 
     //static std::uniform_real_distribution<double> unif_rand(0.,1.);
     //static std::default_random_engine re;

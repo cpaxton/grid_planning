@@ -65,6 +65,14 @@ rosrun grid_plan dmp_execution_test _step_size:=0.75 _iter:=20 _ntrajs:=50 _nois
 
 The __prepare__ action is intended to move to the beginning of an approach.
 
+The __task_test__ node actually executes task planning, and has even more options to consider:
+
+```
+rosrun grid_plan task_test _step_size:=0.75 _iter:=70 _ntrajs:=75 _verbosity:=0 _starting_horizon:=4 _max_horizon:=5 _update_horizon:=0.1
+```
+
+We may want to set the number of actions we want to start thinking about (root, approach, grasp, and align with ```_starting_horizon:=4``` as above). Or we might want to adjust how confident we need to be to add another action to the skill tree.
+
 ### Enabling Collision Detection
 
 Collision detection is disabled by default for now, but you can enable it in any particular node by setting the __detect_collisions__ flag to true. For example:
