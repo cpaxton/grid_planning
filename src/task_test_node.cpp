@@ -236,6 +236,7 @@ int main(int argc, char **argv) {
       load_to_one_array(grasps,grasp_trajs);
       load_to_one_array(disengages,disengage_trajs);
       load_to_one_array(releases,release_trajs);
+      std::cout << "pub len = " << approach_trajs.size() << "\n";
       pub.publish(toPoseArray(approach_trajs,app1->features->getWorldFrame(),robot));
       pub2.publish(toPoseArray(disengage_trajs,app1->features->getWorldFrame(),robot));
       pub5.publish(toPoseArray(grasp_trajs,grasp1->features->getWorldFrame(),robot));

@@ -10,25 +10,34 @@ from grid_plan import PyPlanner
 from grid_plan import GripperRegressor
 from grid_plan import TrajectoryCommander
 
+from trajectory_msgs.msg import JointTrajectory
+
 class CommandActionExecutor(object):
   # create messages that are used to publish feedback/result
   _feedback = CommandFeedback()
   _result   = CommandResult()
   _reg = None
+  _traj_pub = rospy.Publisher("/gazebo/traj_rml/joint_traj_cmd", JointTrajectory, queue_size=100)
 
   def __init__(self, name, robot, skills, gripper_topic):
     self._action_name = name
     self._as = actionlib.SimpleActionServer(self._action_name, CommandAction, execute_cb=self.execute_cb, auto_start = False)
     self._as.start()
-    _reg = GripperRegressor(robot,gripper_topic,None,None)
+    self._reg = GripperRegressor(robot,gripper_topic,None,None)
     for skill in skills:
-      _reg.addSkill(skill)
+      self._reg.addSkill(skill)
+
+    self._traj_pub = rospy.Publisher("/gazebo/traj_rml/joint_traj_cmd", JointTrajectory, queue_size=100)
     
   def execute_cb(self, goal):
     # helper variables
     success = True
     
     print goal
+    self._traj_pub.publish(goal.traj)
+
+    wait = rospy.Duration(len(goal.traj.points)*0.2)
+    rospy.sleep(wait);
       
     if success:
       #self._result.sequence = self._feedback.sequence

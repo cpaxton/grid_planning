@@ -544,6 +544,8 @@ namespace grid {
       ac.waitForServer();
       std::cout << "sending command...\n";
       ac.sendGoal(cmd);
+        std::cout << "waiting for result\n";
+        ac.waitForResult();
 
       // continue execution
       if (horizon > 0 && next.size() > 0) {
@@ -551,7 +553,6 @@ namespace grid {
           // replan from here
         }
 
-        ac.waitForResult();
 
         double best_t_p = 0;
         unsigned int idx = 0;
@@ -563,9 +564,6 @@ namespace grid {
         }
 
         next[idx]->execute(ac,horizon-1);
-      } else {
-
-
       }
     }
 
