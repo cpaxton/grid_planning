@@ -300,6 +300,7 @@ namespace grid {
     unsigned int next_len = nsamples;
     if (len == 0 || horizon < 0 || nsamples == 0) {
       std::cout << "SKIPPING\n";
+      probability = 1e-20;
       return;
     } else if (horizon == 0 || next.size() == 0) {
       initializePs(next_ps,0);
@@ -394,7 +395,7 @@ namespace grid {
 
         unsigned int next_skill_idx = 0;
         for (auto &ns: next) {
-          unsigned int next_nsamples = floor((T[next_skill_idx]*nsamples));
+          unsigned int next_nsamples = floor((T[next_skill_idx]*nsamples) + 0.5);
           //std::cout << "samples: " << next_nsamples << ", " << T[next_skill_idx] << "\n";
           ns->step(my_ps, end_pts,
                    next_ps, T[next_skill_idx], // outputs
@@ -444,7 +445,9 @@ namespace grid {
           ++prev_counts[prev_idx[i]];
           probability += exp(my_ps[i]+next_ps[i]);
         }
+        //std::cout << "P =" << probability << " nsamples = " << nsamples <<"\n";
         probability /= nsamples;
+        //std::cout << "P =" << probability <<"\n";
         //probability = log(probability);
 
         // update transitions based on these results
