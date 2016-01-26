@@ -35,8 +35,10 @@ void update_features(std::unordered_map<std::string, TestFeaturesPtr> &features)
 void load_to_one_array(std::vector<InstantiatedSkillPtr> &is, std::vector<JointTrajectory> &trajs) {
   trajs.resize(0);
   for (auto &ptr: is) {
-    for (auto &traj: ptr->trajs) {
-      trajs.push_back(traj);
+    if (ptr->last_samples > 0 and ptr->last_probability > 1e-199) {
+      for (auto &traj: ptr->trajs) {
+        trajs.push_back(traj);
+      }
     }
   }
 }
@@ -56,8 +58,7 @@ int main(int argc, char **argv) {
   gp.SetCollisions("gbeam_soup.gbeam_link_1",true);
   gp.SetCollisions("gbeam_soup.gbeam_link_2",true);
 
-
-    GridPlanner *checker = 0;
+  GridPlanner *checker = 0;
   if (p.detect_collisions) {
     checker = &gp;
   }
@@ -106,7 +107,7 @@ int main(int argc, char **argv) {
       features["node2,link2"],
       robot,
       5);
-  
+
   std::cout << "Initializing grasps..." << std::endl;
   InstantiatedSkillPtr grasp1 = InstantiatedSkill::DmpInstance(skills["grasp"], features["node1,link1"], robot, 5, checker);
   InstantiatedSkillPtr grasp2 = InstantiatedSkill::DmpInstance(skills["grasp"], features["node2,link2"], robot, 5, checker);

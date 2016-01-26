@@ -402,8 +402,8 @@ namespace grid {
       //  std::cout << entry << "\n";
       //}
       scene->getAllowedCollisionMatrixNonConst().setEntry(obj,allowed);
-      scene->getAllowedCollisionMatrixNonConst().setDefaultEntry(obj,allowed);
-      scene->getAllowedCollisionMatrixNonConst().print(std::cout);
+      //scene->getAllowedCollisionMatrixNonConst().setDefaultEntry(obj,allowed);
+      //scene->getAllowedCollisionMatrixNonConst().print(std::cout);
     }
 
 

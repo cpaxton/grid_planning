@@ -96,7 +96,9 @@ namespace grid {
     std::vector<double> next_ps;
     std::vector<double> iter_lls;
     std::vector<unsigned int> next_skill;
-
+    
+    double last_probability;
+    unsigned int last_samples;
     bool current;
 
     /**

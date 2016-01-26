@@ -20,7 +20,7 @@ namespace grid {
   InstantiatedSkill::InstantiatedSkill()
     : id(next_id++), done(false), current(false),
     touched(false), spline_dist(0), dmp_dist(0), skill(0),
-    trajs(), effects(), cur_iter(0)
+    trajs(), effects(), cur_iter(0), last_probability(0), last_samples(0u)
   {
   }
 
@@ -45,7 +45,9 @@ namespace grid {
     prev_p_sums(p_.ntrajs),
     prev_counts(p_.ntrajs),
     transitions_step(p_.step_size),
-    acc(p_.ntrajs)
+    acc(p_.ntrajs),
+    last_probability(0),
+    last_samples(0u)
   {
     reset();
   }
@@ -299,6 +301,7 @@ namespace grid {
   {
 
     unsigned int next_len = nsamples;
+    last_samples = nsamples;
     if (len == 0 || horizon < 0 || nsamples == 0) {
       std::cout << "SKIPPING\n";
       probability = 1e-200;
@@ -448,6 +451,7 @@ namespace grid {
         }
         //std::cout << "P =" << probability << " nsamples = " << nsamples <<"\n";
         probability /= nsamples;
+        last_probability = probability;
         //std::cout << "P =" << probability <<"\n";
         //probability = log(probability);
 
