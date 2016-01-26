@@ -8,6 +8,12 @@
 
 namespace grid {
 
+
+
+    const std::vector<WorldConfiguration> &TrainingFeatures::getData() const {
+      return data;
+    }
+
   /**
    * get last pose
    */

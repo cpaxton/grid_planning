@@ -113,28 +113,28 @@ int main(int argc, char **argv) {
   InstantiatedSkillPtr grasp2 = InstantiatedSkill::DmpInstance(skills["grasp"], features["node2,link2"], robot, 5, checker);
 
   std::cout << "Initializing aligns..." << std::endl;
-  InstantiatedSkillPtr align11 = InstantiatedSkill::DmpInstance(skills["align"], skills["grasp"], features["node1,link1"], robot, 5, checker);
-  InstantiatedSkillPtr align12 = InstantiatedSkill::DmpInstance(skills["align"], skills["grasp"], features["node2,link1"], robot, 5, checker);
-  InstantiatedSkillPtr align21 = InstantiatedSkill::DmpInstance(skills["align"], skills["grasp"], features["node1,link2"], robot, 5, checker);
-  InstantiatedSkillPtr align22 = InstantiatedSkill::DmpInstance(skills["align"], skills["grasp"], features["node2,link2"], robot, 5, checker);
+  InstantiatedSkillPtr align11 = InstantiatedSkill::DmpInstance(skills["align"], features["node1,link1"], robot, 5, checker);
+  InstantiatedSkillPtr align12 = InstantiatedSkill::DmpInstance(skills["align"], features["node2,link1"], robot, 5, checker);
+  InstantiatedSkillPtr align21 = InstantiatedSkill::DmpInstance(skills["align"], features["node1,link2"], robot, 5, checker);
+  InstantiatedSkillPtr align22 = InstantiatedSkill::DmpInstance(skills["align"], features["node2,link2"], robot, 5, checker);
 
   std::cout << "Initializing places..." << std::endl;
-  InstantiatedSkillPtr place11 = InstantiatedSkill::DmpInstance(skills["place"], skills["grasp"], features["node1,link1"], robot, 5, checker);
-  InstantiatedSkillPtr place12 = InstantiatedSkill::DmpInstance(skills["place"], skills["grasp"], features["node2,link1"], robot, 5, checker);
-  InstantiatedSkillPtr place21 = InstantiatedSkill::DmpInstance(skills["place"], skills["grasp"], features["node1,link2"], robot, 5, checker);
-  InstantiatedSkillPtr place22 = InstantiatedSkill::DmpInstance(skills["place"], skills["grasp"], features["node2,link2"], robot, 5, checker);
+  InstantiatedSkillPtr place11 = InstantiatedSkill::DmpInstance(skills["place"], features["node1,link1"], robot, 5, checker);
+  InstantiatedSkillPtr place12 = InstantiatedSkill::DmpInstance(skills["place"], features["node2,link1"], robot, 5, checker);
+  InstantiatedSkillPtr place21 = InstantiatedSkill::DmpInstance(skills["place"], features["node1,link2"], robot, 5, checker);
+  InstantiatedSkillPtr place22 = InstantiatedSkill::DmpInstance(skills["place"], features["node2,link2"], robot, 5, checker);
 
   std::cout << "Initializing releases..." << std::endl;
-  InstantiatedSkillPtr release11 = InstantiatedSkill::DmpInstance(skills["release"], skills["grasp"], features["node1,link1"], robot, 5, checker);
-  InstantiatedSkillPtr release12 = InstantiatedSkill::DmpInstance(skills["release"], skills["grasp"], features["node2,link1"], robot, 5, checker);
-  InstantiatedSkillPtr release21 = InstantiatedSkill::DmpInstance(skills["release"], skills["grasp"], features["node1,link2"], robot, 5, checker);
-  InstantiatedSkillPtr release22 = InstantiatedSkill::DmpInstance(skills["release"], skills["grasp"], features["node2,link2"], robot, 5, checker);
+  InstantiatedSkillPtr release11 = InstantiatedSkill::DmpInstance(skills["release"], features["node1,link1"], robot, 5, checker);
+  InstantiatedSkillPtr release12 = InstantiatedSkill::DmpInstance(skills["release"], features["node2,link1"], robot, 5, checker);
+  InstantiatedSkillPtr release21 = InstantiatedSkill::DmpInstance(skills["release"], features["node1,link2"], robot, 5, checker);
+  InstantiatedSkillPtr release22 = InstantiatedSkill::DmpInstance(skills["release"], features["node2,link2"], robot, 5, checker);
 
   std::cout << "Initializing disengages..." << std::endl;
-  InstantiatedSkillPtr disengage11 = InstantiatedSkill::DmpInstance(skills["disengage"], skills["grasp"], features["node1,link1"], robot, 5, checker);
-  InstantiatedSkillPtr disengage12 = InstantiatedSkill::DmpInstance(skills["disengage"], skills["grasp"], features["node2,link1"], robot, 5, checker);
-  InstantiatedSkillPtr disengage21 = InstantiatedSkill::DmpInstance(skills["disengage"], skills["grasp"], features["node1,link2"], robot, 5, checker);
-  InstantiatedSkillPtr disengage22 = InstantiatedSkill::DmpInstance(skills["disengage"], skills["grasp"], features["node2,link2"], robot, 5, checker);
+  InstantiatedSkillPtr disengage11 = InstantiatedSkill::DmpInstance(skills["disengage"], features["node1,link1"], robot, 5, checker);
+  InstantiatedSkillPtr disengage12 = InstantiatedSkill::DmpInstance(skills["disengage"], features["node2,link1"], robot, 5, checker);
+  InstantiatedSkillPtr disengage21 = InstantiatedSkill::DmpInstance(skills["disengage"], features["node1,link2"], robot, 5, checker);
+  InstantiatedSkillPtr disengage22 = InstantiatedSkill::DmpInstance(skills["disengage"], features["node2,link2"], robot, 5, checker);
 
   root->addNext(app1);
   root->addNext(app2);
@@ -254,7 +254,7 @@ int main(int argc, char **argv) {
       pub5.publish(toPoseArray(grasp_trajs,grasp1->features->getWorldFrame(),robot));
       pub6.publish(toPoseArray(release_trajs,app1->features->getWorldFrame(),robot));
       pub3.publish(toPoseArray(align_trajs,app1->features->getWorldFrame(),robot));
-      attached_pub.publish(toPoseArray(place_trajs,app1->features->getWorldFrame(),robot,align22->dmp_dist->getAttachedObjectFrame()));
+      attached_pub.publish(toPoseArray(align_trajs,app1->features->getWorldFrame(),robot,align22->dmp_dist->getAttachedObjectFrame()));
       pub4.publish(toPoseArray(place_trajs,app1->features->getWorldFrame(),robot));
     }
 

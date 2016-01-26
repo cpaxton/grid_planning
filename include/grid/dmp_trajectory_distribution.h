@@ -104,7 +104,7 @@ namespace grid {
     /**
      * set an attached object
      */
-    void attachObjectFrame(Pose &pose);
+    void attachObjectFrame(const Pose &pose);
 
     /*
      * remove object

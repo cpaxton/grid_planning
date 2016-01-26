@@ -98,6 +98,8 @@ namespace grid {
      */
     void printExtractedFeatures();
 
+    const std::vector<WorldConfiguration> &getData() const;
+
   protected:
 
     ros::Time min_t;

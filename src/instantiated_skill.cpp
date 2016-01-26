@@ -92,6 +92,7 @@ namespace grid {
         new DmpTrajectoryDistribution(robot->getDegreesOfFreedom(),
                                       nbasis,
                                       robot));
+    is->dmp_dist->attachObjectFrame(skill->getDefaultAttachedObjectPose());
     is->dmp_dist->initialize(*features,*skill);
 
     if(checker) {

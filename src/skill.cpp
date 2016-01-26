@@ -26,7 +26,7 @@ namespace grid {
   }
 
   /** return a default pose to plan motions with an attached object */
-  Pose Skill::getDefaultAttachedObjectPose() const {
+  const Pose &Skill::getDefaultAttachedObjectPose() const {
     return default_attached;
   }
 
@@ -143,6 +143,17 @@ namespace grid {
     if (data.hasAttachedObjectFrame()) {
       std::cout << __FILE__ << ":" << __LINE__ << "\n";
       std::cout << "Attached object:" << data.getAttachedObject() << "\n";
+      //default_attached = data.getPoseFrom(data.getAttachedObject(),*ex_data.begin());
+      //std::cout << default_attached << "\n";
+
+      //std::cout << "--------\n";
+
+      WorldConfiguration w = *data.getData().begin();
+      Pose obj = w.object_poses[data.getAttachedObject()];
+      //Pose ee = w.ee_tform;
+
+      //std::cout << obj << "\n" << ee << "\n" << obj.Inverse() * w.base_tform * w.ee_tform << "\n";
+      default_attached = obj.Inverse() * w.base_tform * w.ee_tform;
     }
   }
 

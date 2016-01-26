@@ -95,7 +95,7 @@ namespace grid {
   /**
    * set an attached object
    */
-  void DmpTrajectoryDistribution::attachObjectFrame(Pose &pose) {
+  void DmpTrajectoryDistribution::attachObjectFrame(const Pose &pose) {
     attachedObjectFrame = pose;
     attached = true;
   }
