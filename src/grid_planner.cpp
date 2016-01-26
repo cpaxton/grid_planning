@@ -396,9 +396,14 @@ namespace grid {
 
     /* Are we allowed to collide? */
     void GridPlanner::SetCollisions(const std::string obj, bool allowed) {
-      //for (std::string &entry: entry_names) {
+      //std::vector<std::string> tmp;
+      //scene->getAllowedCollisionMatrixNonConst().getAllEntryNames(tmp);
+      //for (std::string &entry: tmp) {
+      //  std::cout << entry << "\n";
       //}
       scene->getAllowedCollisionMatrixNonConst().setEntry(obj,allowed);
+      scene->getAllowedCollisionMatrixNonConst().setDefaultEntry(obj,allowed);
+      scene->getAllowedCollisionMatrixNonConst().print(std::cout);
     }
 
 
@@ -484,6 +489,7 @@ namespace grid {
 
         search_state->setVariablePositions(joint_names,pt.positions);
         search_state->update(true);
+
 
         drop_trajectory |= !scene->isStateValid(*search_state,"",verbose);
 
