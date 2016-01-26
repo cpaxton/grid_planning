@@ -23,7 +23,7 @@ using trajectory_msgs::JointTrajectoryPoint;
 
 namespace grid {
 
-  typedef std::shared_ptr<GridPlanner> TrajectoryCheckerPointer;
+  typedef std::shared_ptr<GridPlanner> TrajectoryCheckerPtr;
 
   /**
    * Ideally this class would inherit from the same parent as TrajectoryDistribution
@@ -40,7 +40,7 @@ namespace grid {
     /**
      * Initialize a trajectory distribution with given params
      */
-    DmpTrajectoryDistribution(unsigned int dim, unsigned int nbasis, RobotKinematicsPointer robot);
+    DmpTrajectoryDistribution(unsigned int dim, unsigned int nbasis, RobotKinematicsPtr robot);
 
     /**
      * initialize
@@ -129,7 +129,7 @@ namespace grid {
     double diagonal_sigma;
     double def_step_size;
 
-    RobotKinematicsPointer robot; // used to get the joint states for this dmp
+    RobotKinematicsPtr robot; // used to get the joint states for this dmp
 
     unsigned int nbasis; // number of basis functions
     unsigned int dim; // number of dimensions
@@ -156,7 +156,7 @@ namespace grid {
   };
 
 
-  typedef std::shared_ptr<DmpTrajectoryDistribution> DmpTrajectoryDistributionPointer;
+  typedef std::shared_ptr<DmpTrajectoryDistribution> DmpTrajectoryDistributionPtr;
 }
 
 #endif

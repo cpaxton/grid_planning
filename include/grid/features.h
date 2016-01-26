@@ -212,7 +212,7 @@ namespace grid {
     std::unordered_map<std::string,FeatureType> feature_types;
     std::unordered_map<std::string,unsigned int> feature_sizes;
 
-    RobotKinematicsPointer robot; // stores the robot itself
+    RobotKinematicsPtr robot; // stores the robot itself
     unsigned int n_dof;
   };
 }

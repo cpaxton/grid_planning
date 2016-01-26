@@ -31,8 +31,8 @@ namespace grid {
   class Skill {
 
   public:
-      typedef Eigen::Matrix<double, Eigen::Dynamic, 1> Vectornd;
-      typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> Matrixnd;
+    typedef Eigen::Matrix<double, Eigen::Dynamic, 1> Vectornd;
+    typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> Matrixnd;
 
     /**
      * return a pose associated with object frame for a given feature
@@ -174,56 +174,60 @@ namespace grid {
      */
     const std::string &attachedObjectFrame() const;
 
+    /** return a default pose to plan motions with an attached object */
+    Pose getDefaultAttachedObjectPose() const;
+
   protected:
 
-    /** does this skill mean the robot needs to move */
-    bool is_static;
+      /** does this skill mean the robot needs to move */
+      bool is_static;
 
-    /** number of clusters in gmm */
-    int k;
+      /** number of clusters in gmm */
+      int k;
 
-    /** stores feature expectations for the skill */
-    GmmPtr model;
+      /** stores feature expectations for the skill */
+      GmmPtr model;
 
-    /** stores attached object frame */
-    std::string attached_object;
+      /** stores attached object frame */
+      std::string attached_object;
 
-    /**
-     * Stores the list of feature names we will be querying.
-     */
-    std::vector<std::string> feature_names;
+      /**
+       * Stores the list of feature names we will be querying.
+       */
+      std::vector<std::string> feature_names;
 
-    /**
-     * Stored as a reference to compute initial starting trajectory guess
-     * This is the "most important" feature
-     */
-    std::string best_feature_name;
+      /**
+       * Stored as a reference to compute initial starting trajectory guess
+       * This is the "most important" feature
+       */
+      std::string best_feature_name;
 
-    /**
-     * set up the training data
-     */
-    std::vector<std::pair<FeatureVector, double> > training_data;
+      /**
+       * set up the training data
+       */
+      std::vector<std::pair<FeatureVector, double> > training_data;
 
-    /**
-     * set up the training data
-     * these are the normalized versions of all that data
-     */
-    std::vector<std::pair<FeatureVector, double> > normalized_training_data;
+      /**
+       * set up the training data
+       * these are the normalized versions of all that data
+       */
+      std::vector<std::pair<FeatureVector, double> > normalized_training_data;
 
-    /**
-     * skill name
-     */
-    std::string name;
+      /**
+       * skill name
+       */
+      std::string name;
 
-    Pose init_final; // final pose relative to best_feature_name
-    Pose init_start; // starting pose
+      Pose init_final; // final pose relative to best_feature_name
+      Pose init_start; // starting pose
+      Pose default_attached; // default attached object pose
 
-    std::vector<Matrixnd> P; // true P as per initialization
-    FeatureVector mean; // normalizer mean
-    FeatureVector std; // normalizer std dev
+      std::vector<Matrixnd> P; // true P as per initialization
+      FeatureVector mean; // normalizer mean
+      FeatureVector std; // normalizer std dev
   };
 
-  typedef std::shared_ptr<Skill> SkillPointer;
+  typedef std::shared_ptr<Skill> SkillPtr;
 }
 
 #endif

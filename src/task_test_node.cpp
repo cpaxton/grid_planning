@@ -26,13 +26,13 @@
 
 using namespace grid;
 
-void update_features(std::unordered_map<std::string, TestFeaturesPointer> &features) {
+void update_features(std::unordered_map<std::string, TestFeaturesPtr> &features) {
   for (auto &nf: features) {
     nf.second->updateWorldfromTF();
   }
 }
 
-void load_to_one_array(std::vector<InstantiatedSkillPointer> &is, std::vector<JointTrajectory> &trajs) {
+void load_to_one_array(std::vector<InstantiatedSkillPtr> &is, std::vector<JointTrajectory> &trajs) {
   trajs.resize(0);
   for (auto &ptr: is) {
     for (auto &traj: ptr->trajs) {
@@ -49,8 +49,8 @@ int main(int argc, char **argv) {
   actionlib::SimpleActionClient<grid_plan::CommandAction> ac("command", true);
 
   Params p = readRosParams();
-  RobotKinematicsPointer robot = RobotKinematicsPointer(new RobotKinematics("robot_description","wam/base_link","wam/wrist_palm_link"));
-  GridPlanner gp("robot_description","/gazebo/barrett_manager/wam/joint_states","/gazebo/planning_scene");
+  RobotKinematicsPtr robot = RobotKinematicsPtr(new RobotKinematics("robot_description","wam/base_link","wam/wrist_palm_link"));
+  GridPlanner gp("robot_description","/gazebo/barrett_manager/wam/joint_states","/gazebo/raw_planning_scene");
   gp.SetDof(robot->getDegreesOfFreedom());
 
     GridPlanner *checker = 0;
@@ -62,10 +62,10 @@ int main(int argc, char **argv) {
   std_srvs::Empty empty;
   client.call(empty);
 
-  std::unordered_map<std::string, SkillPointer> skills = loadWamSkills();
-  std::unordered_map<std::string, TestFeaturesPointer> features = setupTestFeaturesForTrials();
+  std::unordered_map<std::string, SkillPtr> skills = loadWamSkills();
+  std::unordered_map<std::string, TestFeaturesPtr> features = setupTestFeaturesForTrials();
 
-  InstantiatedSkillPointer root = InstantiatedSkill::Root();
+  InstantiatedSkillPtr root = InstantiatedSkill::Root();
 
   ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples",1000);
   ros::Publisher pub2 = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples_2",1000);
@@ -91,45 +91,45 @@ int main(int argc, char **argv) {
 
   /*************************************************************************/
 
-  InstantiatedSkillPointer app1 = InstantiatedSkill::DmpInstance(
+  InstantiatedSkillPtr app1 = InstantiatedSkill::DmpInstance(
       skills.at("approach"),
       features.at("node1,link1"),
       robot,
       5);
 
-  InstantiatedSkillPointer app2 = InstantiatedSkill::DmpInstance(
+  InstantiatedSkillPtr app2 = InstantiatedSkill::DmpInstance(
       skills["approach"],
       features["node2,link2"],
       robot,
       5);
   
   std::cout << "Initializing grasps..." << std::endl;
-  InstantiatedSkillPointer grasp1 = InstantiatedSkill::DmpInstance(skills["grasp"], features["node1,link1"], robot, 5, checker);
-  InstantiatedSkillPointer grasp2 = InstantiatedSkill::DmpInstance(skills["grasp"], features["node2,link2"], robot, 5, checker);
+  InstantiatedSkillPtr grasp1 = InstantiatedSkill::DmpInstance(skills["grasp"], features["node1,link1"], robot, 5, checker);
+  InstantiatedSkillPtr grasp2 = InstantiatedSkill::DmpInstance(skills["grasp"], features["node2,link2"], robot, 5, checker);
 
   std::cout << "Initializing aligns..." << std::endl;
-  InstantiatedSkillPointer align11 = InstantiatedSkill::DmpInstance(skills["align"], skills["grasp"], features["node1,link1"], robot, 5, checker);
-  InstantiatedSkillPointer align12 = InstantiatedSkill::DmpInstance(skills["align"], skills["grasp"], features["node2,link1"], robot, 5, checker);
-  InstantiatedSkillPointer align21 = InstantiatedSkill::DmpInstance(skills["align"], skills["grasp"], features["node1,link2"], robot, 5, checker);
-  InstantiatedSkillPointer align22 = InstantiatedSkill::DmpInstance(skills["align"], skills["grasp"], features["node2,link2"], robot, 5, checker);
+  InstantiatedSkillPtr align11 = InstantiatedSkill::DmpInstance(skills["align"], skills["grasp"], features["node1,link1"], robot, 5, checker);
+  InstantiatedSkillPtr align12 = InstantiatedSkill::DmpInstance(skills["align"], skills["grasp"], features["node2,link1"], robot, 5, checker);
+  InstantiatedSkillPtr align21 = InstantiatedSkill::DmpInstance(skills["align"], skills["grasp"], features["node1,link2"], robot, 5, checker);
+  InstantiatedSkillPtr align22 = InstantiatedSkill::DmpInstance(skills["align"], skills["grasp"], features["node2,link2"], robot, 5, checker);
 
   std::cout << "Initializing places..." << std::endl;
-  InstantiatedSkillPointer place11 = InstantiatedSkill::DmpInstance(skills["place"], skills["grasp"], features["node1,link1"], robot, 5, checker);
-  InstantiatedSkillPointer place12 = InstantiatedSkill::DmpInstance(skills["place"], skills["grasp"], features["node2,link1"], robot, 5, checker);
-  InstantiatedSkillPointer place21 = InstantiatedSkill::DmpInstance(skills["place"], skills["grasp"], features["node1,link2"], robot, 5, checker);
-  InstantiatedSkillPointer place22 = InstantiatedSkill::DmpInstance(skills["place"], skills["grasp"], features["node2,link2"], robot, 5, checker);
+  InstantiatedSkillPtr place11 = InstantiatedSkill::DmpInstance(skills["place"], skills["grasp"], features["node1,link1"], robot, 5, checker);
+  InstantiatedSkillPtr place12 = InstantiatedSkill::DmpInstance(skills["place"], skills["grasp"], features["node2,link1"], robot, 5, checker);
+  InstantiatedSkillPtr place21 = InstantiatedSkill::DmpInstance(skills["place"], skills["grasp"], features["node1,link2"], robot, 5, checker);
+  InstantiatedSkillPtr place22 = InstantiatedSkill::DmpInstance(skills["place"], skills["grasp"], features["node2,link2"], robot, 5, checker);
 
   std::cout << "Initializing releases..." << std::endl;
-  InstantiatedSkillPointer release11 = InstantiatedSkill::DmpInstance(skills["release"], skills["grasp"], features["node1,link1"], robot, 5, checker);
-  InstantiatedSkillPointer release12 = InstantiatedSkill::DmpInstance(skills["release"], skills["grasp"], features["node2,link1"], robot, 5, checker);
-  InstantiatedSkillPointer release21 = InstantiatedSkill::DmpInstance(skills["release"], skills["grasp"], features["node1,link2"], robot, 5, checker);
-  InstantiatedSkillPointer release22 = InstantiatedSkill::DmpInstance(skills["release"], skills["grasp"], features["node2,link2"], robot, 5, checker);
+  InstantiatedSkillPtr release11 = InstantiatedSkill::DmpInstance(skills["release"], skills["grasp"], features["node1,link1"], robot, 5, checker);
+  InstantiatedSkillPtr release12 = InstantiatedSkill::DmpInstance(skills["release"], skills["grasp"], features["node2,link1"], robot, 5, checker);
+  InstantiatedSkillPtr release21 = InstantiatedSkill::DmpInstance(skills["release"], skills["grasp"], features["node1,link2"], robot, 5, checker);
+  InstantiatedSkillPtr release22 = InstantiatedSkill::DmpInstance(skills["release"], skills["grasp"], features["node2,link2"], robot, 5, checker);
 
   std::cout << "Initializing disengages..." << std::endl;
-  InstantiatedSkillPointer disengage11 = InstantiatedSkill::DmpInstance(skills["disengage"], skills["grasp"], features["node1,link1"], robot, 5, checker);
-  InstantiatedSkillPointer disengage12 = InstantiatedSkill::DmpInstance(skills["disengage"], skills["grasp"], features["node2,link1"], robot, 5, checker);
-  InstantiatedSkillPointer disengage21 = InstantiatedSkill::DmpInstance(skills["disengage"], skills["grasp"], features["node1,link2"], robot, 5, checker);
-  InstantiatedSkillPointer disengage22 = InstantiatedSkill::DmpInstance(skills["disengage"], skills["grasp"], features["node2,link2"], robot, 5, checker);
+  InstantiatedSkillPtr disengage11 = InstantiatedSkill::DmpInstance(skills["disengage"], skills["grasp"], features["node1,link1"], robot, 5, checker);
+  InstantiatedSkillPtr disengage12 = InstantiatedSkill::DmpInstance(skills["disengage"], skills["grasp"], features["node2,link1"], robot, 5, checker);
+  InstantiatedSkillPtr disengage21 = InstantiatedSkill::DmpInstance(skills["disengage"], skills["grasp"], features["node1,link2"], robot, 5, checker);
+  InstantiatedSkillPtr disengage22 = InstantiatedSkill::DmpInstance(skills["disengage"], skills["grasp"], features["node2,link2"], robot, 5, checker);
 
   root->addNext(app1);
   root->addNext(app2);
@@ -169,28 +169,28 @@ int main(int argc, char **argv) {
   release21->addNext(disengage21);
   release22->addNext(disengage22);
 
-  std::vector<InstantiatedSkillPointer> approaches;
+  std::vector<InstantiatedSkillPtr> approaches;
   approaches.push_back(app1);
   approaches.push_back(app2);
-  std::vector<InstantiatedSkillPointer> aligns;
+  std::vector<InstantiatedSkillPtr> aligns;
   aligns.push_back(align11);
   aligns.push_back(align21);
   aligns.push_back(align12);
   aligns.push_back(align22);
-  std::vector<InstantiatedSkillPointer> releases;
+  std::vector<InstantiatedSkillPtr> releases;
   releases.push_back(release11);
   releases.push_back(release21);
   releases.push_back(release12);
   releases.push_back(release22);
-  std::vector<InstantiatedSkillPointer> places;
+  std::vector<InstantiatedSkillPtr> places;
   places.push_back(place11);
   places.push_back(place21);
   places.push_back(place12);
   places.push_back(place22);
-  std::vector<InstantiatedSkillPointer> grasps;
+  std::vector<InstantiatedSkillPtr> grasps;
   grasps.push_back(grasp1);
   grasps.push_back(grasp2);
-  std::vector<InstantiatedSkillPointer> disengages;
+  std::vector<InstantiatedSkillPtr> disengages;
   disengages.push_back(disengage11);
   disengages.push_back(disengage21);
   disengages.push_back(disengage12);

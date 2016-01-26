@@ -32,10 +32,10 @@ namespace grid {
 
     ros::NodeHandle nh;
 
-    RobotKinematicsPointer robot; // convert robot into whatever form we need
+    RobotKinematicsPtr robot; // convert robot into whatever form we need
     ros::Publisher js_pub; // publish joint states
     
-    SkillPointer currentSkill; // active skill
+    SkillPtr currentSkill; // active skill
 
 
   };

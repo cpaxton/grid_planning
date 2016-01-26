@@ -126,7 +126,7 @@ namespace grid {
 
   };
 
-  typedef std::shared_ptr<RobotKinematics> RobotKinematicsPointer;
+  typedef std::shared_ptr<RobotKinematics> RobotKinematicsPtr;
 }
 
 #endif

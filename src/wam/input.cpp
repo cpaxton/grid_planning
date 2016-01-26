@@ -5,7 +5,7 @@
 namespace grid {
 
 
-  void load_and_train_skill(Skill &skill, RobotKinematicsPointer &rk_ptr, const std::string filenames[]) {
+  void load_and_train_skill(Skill &skill, RobotKinematicsPtr &rk_ptr, const std::string filenames[]) {
     /* LOAD TRAINING DATA FOR GRASP*/
 
     std::vector<std::string> objects;

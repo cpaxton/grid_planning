@@ -65,7 +65,7 @@ namespace grid {
     for (double &d: iter_lls) {
       d = 0;
     }
-    for (InstantiatedSkillPointer ptr: next) {
+    for (InstantiatedSkillPtr ptr: next) {
       ptr->reset();
     }
   }
@@ -74,19 +74,19 @@ namespace grid {
   /**
    * create a new skill with dmps
    */
-  InstantiatedSkillPointer InstantiatedSkill::DmpInstance(SkillPointer skill,
-                                                          TestFeaturesPointer features,
-                                                          RobotKinematicsPointer robot,
+  InstantiatedSkillPtr InstantiatedSkill::DmpInstance(SkillPtr skill,
+                                                          TestFeaturesPtr features,
+                                                          RobotKinematicsPtr robot,
                                                           unsigned int nbasis,
                                                           GridPlanner *checker)
   {
 
     Params p = readRosParams();
-    InstantiatedSkillPointer is(new InstantiatedSkill(p));
+    InstantiatedSkillPtr is(new InstantiatedSkill(p));
     is->skill = skill;
     is->features = features;
     is->robot = robot;
-    is->dmp_dist = DmpTrajectoryDistributionPointer(
+    is->dmp_dist = DmpTrajectoryDistributionPtr(
         new DmpTrajectoryDistribution(robot->getDegreesOfFreedom(),
                                       nbasis,
                                       robot));
@@ -102,20 +102,20 @@ namespace grid {
   /**
    * create a new skill with dmps
    */
-  InstantiatedSkillPointer InstantiatedSkill::DmpInstance(SkillPointer skill,
-                                                          SkillPointer grasp,
-                                                          TestFeaturesPointer features,
-                                                          RobotKinematicsPointer robot,
+  InstantiatedSkillPtr InstantiatedSkill::DmpInstance(SkillPtr skill,
+                                                          SkillPtr grasp,
+                                                          TestFeaturesPtr features,
+                                                          RobotKinematicsPtr robot,
                                                           unsigned int nbasis,
                                                           GridPlanner *checker)
   {
 
     Params p = readRosParams();
-    InstantiatedSkillPointer is(new InstantiatedSkill(p));
+    InstantiatedSkillPtr is(new InstantiatedSkill(p));
     is->skill = skill;
     is->features = features;
     is->robot = robot;
-    is->dmp_dist = DmpTrajectoryDistributionPointer(
+    is->dmp_dist = DmpTrajectoryDistributionPtr(
         new DmpTrajectoryDistribution(robot->getDegreesOfFreedom(),
                                       nbasis,
                                       robot));
@@ -132,17 +132,17 @@ namespace grid {
   /**
    * create a new skill with spline and segments
    */
-  InstantiatedSkillPointer InstantiatedSkill::SplineInstance(SkillPointer skill,
-                                                             TestFeaturesPointer features,
-                                                             RobotKinematicsPointer robot,
+  InstantiatedSkillPtr InstantiatedSkill::SplineInstance(SkillPtr skill,
+                                                             TestFeaturesPtr features,
+                                                             RobotKinematicsPtr robot,
                                                              unsigned int nseg)
   {
 
-    InstantiatedSkillPointer is(new InstantiatedSkill());
+    InstantiatedSkillPtr is(new InstantiatedSkill());
     is->skill = skill;
     is->features = features;
     is->robot = robot;
-    is->spline_dist = TrajectoryDistributionPointer(new TrajectoryDistribution(nseg));
+    is->spline_dist = TrajectoryDistributionPtr(new TrajectoryDistribution(nseg));
     is->spline_dist->initialize(*features,*skill);
 
     return is;
@@ -151,15 +151,15 @@ namespace grid {
   /**
    * create an empty root node
    */
-  InstantiatedSkillPointer InstantiatedSkill::Root() {
+  InstantiatedSkillPtr InstantiatedSkill::Root() {
     Params p = readRosParams();
-    return InstantiatedSkillPointer (new InstantiatedSkill(p));
+    return InstantiatedSkillPtr (new InstantiatedSkill(p));
   }
 
   /**
    * define a possible child
    */
-  InstantiatedSkill &InstantiatedSkill::addNext(InstantiatedSkillPointer skill) {
+  InstantiatedSkill &InstantiatedSkill::addNext(InstantiatedSkillPtr skill) {
     next.push_back(skill);
     T.push_back(1);
     last_T.push_back(1);

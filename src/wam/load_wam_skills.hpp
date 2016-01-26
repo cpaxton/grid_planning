@@ -5,32 +5,32 @@
 
 namespace grid {
 
-  std::unordered_map<std::string, TestFeaturesPointer> setupTestFeaturesForTrials() {
+  std::unordered_map<std::string, TestFeaturesPtr> setupTestFeaturesForTrials() {
 
 
     /* Initialize Base Set of Features */
-    TestFeaturesPointer tf11(new TestFeatures());
+    TestFeaturesPtr tf11(new TestFeatures());
     tf11->setAgentFrame("wam/wrist_palm_link")
       .setWorldFrame("wam/base_link")
       .addFeature("node",POSE_FEATURE)
       .addFeature("link",POSE_FEATURE)
       .addFeature("time",TIME_FEATURE);
 
-    TestFeaturesPointer tf12(new TestFeatures());
+    TestFeaturesPtr tf12(new TestFeatures());
     tf12->setAgentFrame("wam/wrist_palm_link")
       .setWorldFrame("wam/base_link")
       .addFeature("node",POSE_FEATURE)
       .addFeature("link",POSE_FEATURE)
       .addFeature("time",TIME_FEATURE);
 
-    TestFeaturesPointer tf21(new TestFeatures());
+    TestFeaturesPtr tf21(new TestFeatures());
     tf21->setAgentFrame("wam/wrist_palm_link")
       .setWorldFrame("wam/base_link")
       .addFeature("node",POSE_FEATURE)
       .addFeature("link",POSE_FEATURE)
       .addFeature("time",TIME_FEATURE);
 
-    TestFeaturesPointer tf22(new TestFeatures());
+    TestFeaturesPtr tf22(new TestFeatures());
     tf22->setAgentFrame("wam/wrist_palm_link")
       .setWorldFrame("wam/base_link")
       .addFeature("node",POSE_FEATURE)
@@ -42,7 +42,7 @@ namespace grid {
     tf21->setFrame("gbeam_node_2/gbeam_node","node").setFrame("gbeam_link_1/gbeam_link","link");
     tf22->setFrame("gbeam_node_2/gbeam_node","node").setFrame("gbeam_link_2/gbeam_link","link");
 
-    std::unordered_map<std::string, TestFeaturesPointer> features;
+    std::unordered_map<std::string, TestFeaturesPtr> features;
 
     features["node1,link1"] = tf11;
     features["node1,link2"] = tf12;
@@ -53,14 +53,14 @@ namespace grid {
   }
 
 
-  std::unordered_map<std::string, SkillPointer> loadWamSkills() {
+  std::unordered_map<std::string, SkillPtr> loadWamSkills() {
 
-    SkillPointer approach(new Skill("approach"));
-    SkillPointer grasp(new Skill("grasp"));
-    SkillPointer align(new Skill("align"));
-    SkillPointer place(new Skill("place"));
-    SkillPointer release(new Skill("release"));
-    SkillPointer disengage(new Skill("disengage"));
+    SkillPtr approach(new Skill("approach"));
+    SkillPtr grasp(new Skill("grasp"));
+    SkillPtr align(new Skill("align"));
+    SkillPtr place(new Skill("place"));
+    SkillPtr release(new Skill("release"));
+    SkillPtr disengage(new Skill("disengage"));
 
     /* SET UP THE SKILLS */
     approach->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false);
@@ -71,7 +71,7 @@ namespace grid {
     disengage->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false);
 
     /* SET UP THE ROBOT KINEMATICS */
-    RobotKinematicsPointer rk_ptr = RobotKinematicsPointer(new RobotKinematics("robot_description","wam/base_link","wam/wrist_palm_link"));
+    RobotKinematicsPtr rk_ptr = RobotKinematicsPtr(new RobotKinematics("robot_description","wam/base_link","wam/wrist_palm_link"));
 
     /* LOAD TRAINING DATA FOR APPROACH */
     {
@@ -104,7 +104,7 @@ namespace grid {
       load_and_train_skill(*disengage, rk_ptr, filenames);
     }
 
-    std::unordered_map<std::string, SkillPointer> skills;
+    std::unordered_map<std::string, SkillPtr> skills;
     skills["approach"] = approach;
     skills["grasp"] = grasp;
     skills["align"] = align;

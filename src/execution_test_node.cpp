@@ -21,7 +21,7 @@ int main(int argc, char **argv) {
   ros::Publisher jpub = nh.advertise<trajectory_msgs::JointTrajectory>("trajectory",1000);
 
   /* SET UP THE ROBOT KINEMATICS */
-  RobotKinematicsPointer rk_ptr = RobotKinematicsPointer(new RobotKinematics("robot_description","wam/base_link","wam/wrist_palm_link"));
+  RobotKinematicsPtr rk_ptr = RobotKinematicsPtr(new RobotKinematics("robot_description","wam/base_link","wam/wrist_palm_link"));
 
   GridPlanner gp("robot_description","/gazebo/barrett_manager/wam/joint_states","/gazebo/planning_scene");
   gp.SetDof(7);

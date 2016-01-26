@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
   objects.push_back("node");
 
   RobotKinematics *rk = new RobotKinematics("robot_description","wam/base_link","wam/wrist_palm_link");
-  RobotKinematicsPointer rk_ptr = RobotKinematicsPointer(rk);
+  RobotKinematicsPtr rk_ptr = RobotKinematicsPtr(rk);
 
   std::vector<std::shared_ptr<WamTrainingFeatures> > wtf(3);
 

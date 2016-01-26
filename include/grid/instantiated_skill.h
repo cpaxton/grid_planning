@@ -18,7 +18,7 @@
 
 namespace grid {
 
-  typedef std::shared_ptr<TestFeatures> TestFeaturesPointer;
+  typedef std::shared_ptr<TestFeatures> TestFeaturesPtr;
 
   /**
    * creating predicates
@@ -27,11 +27,11 @@ namespace grid {
   struct PredicateEffect {
     std::string predicate;
     bool value;
-    SkillPointer skill; // this is where we actually need to learn the effects model
+    SkillPtr skill; // this is where we actually need to learn the effects model
   };
 
   class InstantiatedSkill;
-  typedef std::shared_ptr<InstantiatedSkill> InstantiatedSkillPointer;
+  typedef std::shared_ptr<InstantiatedSkill> InstantiatedSkillPtr;
 
   /**
    * Defines a particular instance of a skill
@@ -47,12 +47,12 @@ namespace grid {
     bool touched; // has anyone done anything with this skill yet
 
     std::unordered_map<std::string,std::string> assignment;
-    SkillPointer skill; // the skill itself
-    TrajectoryDistributionPointer spline_dist; // the path we end up taking for this skill
+    SkillPtr skill; // the skill itself
+    TrajectoryDistributionPtr spline_dist; // the path we end up taking for this skill
 
     std::vector<double> T; // probability of going to each of the possible next actions
     std::vector<double> last_T; // probability of going to each of the possible next actions
-    std::vector<InstantiatedSkillPointer> next;
+    std::vector<InstantiatedSkillPtr> next;
 
     // selected endpoints for this trajectory
     std::vector<JointTrajectoryPoint> end_pts;
@@ -68,7 +68,7 @@ namespace grid {
 
     std::vector<PredicateEffect> effects;
 
-    RobotKinematicsPointer robot;
+    RobotKinematicsPtr robot;
 
     Params p;
 
@@ -85,8 +85,8 @@ namespace grid {
 
   public:
 
-    TestFeaturesPointer features;
-    DmpTrajectoryDistributionPointer dmp_dist; // the path we end up taking for this skill
+    TestFeaturesPtr features;
+    DmpTrajectoryDistributionPtr dmp_dist; // the path we end up taking for this skill
 
     // data
     std::vector<FeatureVector> params;
@@ -123,19 +123,19 @@ namespace grid {
     /**
      * create a new skill with dmps
      */
-    static InstantiatedSkillPointer DmpInstance(SkillPointer skill,
-                                                TestFeaturesPointer features,
-                                                RobotKinematicsPointer robot,
+    static InstantiatedSkillPtr DmpInstance(SkillPtr skill,
+                                                TestFeaturesPtr features,
+                                                RobotKinematicsPtr robot,
                                                 unsigned int nbasis,
                                                 GridPlanner *checker = 0);
 
     /**
      * create a new skill with dmps
      */
-    static InstantiatedSkillPointer DmpInstance(SkillPointer skill,
-                                                SkillPointer grasp,
-                                                TestFeaturesPointer features,
-                                                RobotKinematicsPointer robot,
+    static InstantiatedSkillPtr DmpInstance(SkillPtr skill,
+                                                SkillPtr grasp,
+                                                TestFeaturesPtr features,
+                                                RobotKinematicsPtr robot,
                                                 unsigned int nbasis,
                                                 GridPlanner *checker = 0);
 
@@ -143,20 +143,20 @@ namespace grid {
     /**
      * create a new skill with spline and segments
      */
-    static InstantiatedSkillPointer SplineInstance(SkillPointer skill,
-                                                   TestFeaturesPointer features,
-                                                   RobotKinematicsPointer robot,
+    static InstantiatedSkillPtr SplineInstance(SkillPtr skill,
+                                                   TestFeaturesPtr features,
+                                                   RobotKinematicsPtr robot,
                                                    unsigned int nseg);
 
     /**
      * create an empty root node
      */
-    static InstantiatedSkillPointer Root();
+    static InstantiatedSkillPtr Root();
 
     /**
      * define a possible child
      */
-    InstantiatedSkill &addNext(InstantiatedSkillPointer skill);
+    InstantiatedSkill &addNext(InstantiatedSkillPtr skill);
 
     /**
      * run a single iteration of the loop. return a set of trajectories.

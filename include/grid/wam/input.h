@@ -7,7 +7,7 @@
 namespace grid {
 
   void load_and_train_skill(Skill &skill,
-                            RobotKinematicsPointer &rk_ptr,
+                            RobotKinematicsPtr &rk_ptr,
                             const std::string filenames[]);
 }
 

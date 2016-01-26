@@ -25,6 +25,11 @@ namespace grid {
     return init_final;
   }
 
+  /** return a default pose to plan motions with an attached object */
+  Pose Skill::getDefaultAttachedObjectPose() const {
+    return default_attached;
+  }
+
   /**
    * return a pose associated with object frame for a given feature
    */
@@ -134,6 +139,11 @@ namespace grid {
 
     init_final = data.getPoseFrom(best_feature_name,*ex_data.rbegin());
     init_start = data.getPoseFrom(best_feature_name,*ex_data.begin());
+
+    if (data.hasAttachedObjectFrame()) {
+      std::cout << __FILE__ << ":" << __LINE__ << "\n";
+      std::cout << "Attached object:" << data.getAttachedObject() << "\n";
+    }
   }
 
   /**

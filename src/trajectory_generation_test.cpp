@@ -12,7 +12,7 @@ int main(int argc, char **argv) {
   ros::NodeHandle nh;
   ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples",1000);
 
-  RobotKinematicsPointer rk_ptr = RobotKinematicsPointer(new RobotKinematics("robot_description","wam/base_link","wam/wrist_palm_link"));
+  RobotKinematicsPtr rk_ptr = RobotKinematicsPtr(new RobotKinematics("robot_description","wam/base_link","wam/wrist_palm_link"));
 
   TestFeatures test;
   test.addFeature("node",grid::POSE_FEATURE);

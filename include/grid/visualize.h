@@ -26,11 +26,11 @@ namespace grid {
   /*  create a pose array message from a joint trajectory */
   geometry_msgs::PoseArray toPoseArray(std::vector<trajectory_msgs::JointTrajectory> traj,
                                        const std::string &frame,
-                                       RobotKinematicsPointer robot);
+                                       RobotKinematicsPtr robot);
   /*  create a pose array message from a joint trajectory */
   geometry_msgs::PoseArray toPoseArray(std::vector<trajectory_msgs::JointTrajectory> traj,
                                        const std::string &frame,
-                                       RobotKinematicsPointer robot,
+                                       RobotKinematicsPtr robot,
                                        const Pose &attached);
 }
 

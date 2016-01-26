@@ -51,7 +51,7 @@ namespace grid {
   /*  create a pose array message from a joint trajectory */
   geometry_msgs::PoseArray toPoseArray(std::vector<trajectory_msgs::JointTrajectory> traj,
                                        const std::string &frame,
-                                       RobotKinematicsPointer robot)
+                                       RobotKinematicsPtr robot)
   {
     geometry_msgs::PoseArray msg;
     msg.header.frame_id = frame;
@@ -75,7 +75,7 @@ namespace grid {
   /*  create a pose array message from a joint trajectory */
   geometry_msgs::PoseArray toPoseArray(std::vector<trajectory_msgs::JointTrajectory> traj,
                                        const std::string &frame,
-                                       RobotKinematicsPointer robot, const Pose &attached)
+                                       RobotKinematicsPtr robot, const Pose &attached)
   {
     geometry_msgs::PoseArray msg;
     msg.header.frame_id = frame;
