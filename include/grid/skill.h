@@ -172,7 +172,7 @@ namespace grid {
     /** 
      * what object is attached?
      */
-    const std::string &attachedObjectFrame() const;
+    const std::string &getAttachedObject() const;
 
     /** return a default pose to plan motions with an attached object */
     const Pose &getDefaultAttachedObjectPose() const;

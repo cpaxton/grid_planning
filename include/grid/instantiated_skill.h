@@ -80,6 +80,8 @@ namespace grid {
     unsigned int cur_iter;
     unsigned int good_iter;
 
+    Pose currentAttachedObjectFrame;
+
     //static std::uniform_real_distribution<double> unif_rand(0.,1.);
     //static std::default_random_engine re;
 
@@ -87,6 +89,8 @@ namespace grid {
 
     TestFeaturesPtr features;
     DmpTrajectoryDistributionPtr dmp_dist; // the path we end up taking for this skill
+
+    ros::Publisher *pub;
 
     // data
     std::vector<FeatureVector> params;
@@ -99,7 +103,11 @@ namespace grid {
     
     double last_probability;
     unsigned int last_samples;
-    bool current;
+    bool useCurrentFeatures;
+
+
+    void updateCurrentAttachedObjectFrame();
+    const Pose &getAttachedObjectFrame() const;
 
     /**
      * normalize the transition probabilities
@@ -184,7 +192,10 @@ namespace grid {
      * execute as we reach nodes that require it
      * use gripper tool to send messages
      */
-    void execute(actionlib::SimpleActionClient<grid_plan::CommandAction> &ac, int horizon);
+    bool execute(GridPlanner &gp,
+                 actionlib::SimpleActionClient<grid_plan::CommandAction> &ac,
+                 int horizon,
+                 bool replan = false);
 
 
     // randomly sample an index from the probabilities

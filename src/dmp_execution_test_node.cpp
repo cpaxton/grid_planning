@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
     /* LOAD TRAINING DATA FOR ALIGN*/
     std::string filenames[] = {"data/sim/align1.bag", "data/sim/align2.bag", "data/sim/align3.bag"};
     load_and_train_skill(align, rk_ptr, filenames);
-    test.attachObjectFrame(align.attachedObjectFrame());
+    test.attachObjectFrame(align.getAttachedObject());
   }
 
 

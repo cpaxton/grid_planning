@@ -35,7 +35,7 @@ void update_features(std::unordered_map<std::string, TestFeaturesPtr> &features)
 void load_to_one_array(std::vector<InstantiatedSkillPtr> &is, std::vector<JointTrajectory> &trajs) {
   trajs.resize(0);
   for (auto &ptr: is) {
-    if (ptr->last_samples > 0 and ptr->last_probability > 1e-199) {
+    if (ptr->last_samples > 0) { // and ptr->last_probability > 1e-199) {
       for (auto &traj: ptr->trajs) {
         trajs.push_back(traj);
       }
@@ -57,6 +57,8 @@ int main(int argc, char **argv) {
   gp.SetCollisions("gbeam_soup",true);
   gp.SetCollisions("gbeam_soup.gbeam_link_1",true);
   gp.SetCollisions("gbeam_soup.gbeam_link_2",true);
+  gp.SetCollisions("gbeam_soup.gbeam_node_1",true);
+  gp.SetCollisions("gbeam_soup.gbeam_node_2",true);
 
   GridPlanner *checker = 0;
   if (p.detect_collisions) {
@@ -136,7 +138,7 @@ int main(int argc, char **argv) {
   InstantiatedSkillPtr disengage21 = InstantiatedSkill::DmpInstance(skills["disengage"], features["node1,link2"], robot, 5, checker);
   InstantiatedSkillPtr disengage22 = InstantiatedSkill::DmpInstance(skills["disengage"], features["node2,link2"], robot, 5, checker);
 
-  root->addNext(app1);
+  root->addNext(app1); 
   root->addNext(app2);
 
 #if 0
@@ -145,10 +147,10 @@ int main(int argc, char **argv) {
 #endif
 
 #if 1
-  app1->addNext(grasp1);
-  app2->addNext(grasp2);
+  app1->addNext(grasp1); app1->pub = &pub;
+  app2->addNext(grasp2); app2->pub = &pub;
 
-  grasp1->addNext(align11);
+  grasp1->addNext(align11); 
   grasp1->addNext(align12);
   grasp2->addNext(align21);
   grasp2->addNext(align22);
@@ -159,15 +161,15 @@ int main(int argc, char **argv) {
   app2->addNext(align22);
 #endif
 
-  align11->addNext(place11);
-  align12->addNext(place12);
-  align21->addNext(place21);
-  align22->addNext(place22);
+  align11->addNext(place11); align11->pub = &pub3;
+  align12->addNext(place12); align12->pub = &pub3;
+  align21->addNext(place21); align21->pub = &pub3;
+  align22->addNext(place22); align22->pub = &pub3;
 
-  place11->addNext(release11);
-  place12->addNext(release12);
-  place21->addNext(release21);
-  place22->addNext(release22);
+  place11->addNext(release11); place11->pub = &pub4;
+  place12->addNext(release12); place12->pub = &pub4;
+  place21->addNext(release21); place21->pub = &pub4;
+  place22->addNext(release22); place22->pub = &pub4;
 
   release11->addNext(disengage11);
   release12->addNext(disengage12);
@@ -237,8 +239,15 @@ int main(int argc, char **argv) {
     //ps[0] = 1.; // set prior
     ps_out[0] = 0.;
     ps[0] = 0.; // set prior
-    //checker->SetVerbose(true);
-    root->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
+    //root->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
+    align22->useCurrentFeatures = true;
+    align22->updateCurrentAttachedObjectFrame();
+    place22->useCurrentFeatures = true;
+    place22->updateCurrentAttachedObjectFrame();
+    release22->useCurrentFeatures = true;
+    release22->updateCurrentAttachedObjectFrame();
+    //place22->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
+    align22->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
 
     /* PUT EVERYTHING INTO SOME MESSAGES */
     {
@@ -254,7 +263,7 @@ int main(int argc, char **argv) {
       pub5.publish(toPoseArray(grasp_trajs,grasp1->features->getWorldFrame(),robot));
       pub6.publish(toPoseArray(release_trajs,app1->features->getWorldFrame(),robot));
       pub3.publish(toPoseArray(align_trajs,app1->features->getWorldFrame(),robot));
-      attached_pub.publish(toPoseArray(align_trajs,app1->features->getWorldFrame(),robot,align22->dmp_dist->getAttachedObjectFrame()));
+      attached_pub.publish(toPoseArray(place_trajs,app1->features->getWorldFrame(),robot,place22->getAttachedObjectFrame()));
       pub4.publish(toPoseArray(place_trajs,app1->features->getWorldFrame(),robot));
     }
 
@@ -263,8 +272,12 @@ int main(int argc, char **argv) {
     std::cout << "ITER " << i; // << std::endl;
     std::cout << ": " << iter_p[i] << " ... ";
     if (i > 1) {
+      std::cout << fabs(iter_p[i] - iter_p[i-1]) << " < " << (p.update_horizon * iter_p[i]);
+      std::cout << std::endl;
+
       if (fabs(iter_p[i] - iter_p[i-1]) < (p.update_horizon * iter_p[i])) {
         ++horizon;
+        std::cout << "horizon = " << horizon << "\n";
         if (horizon > p.max_horizon) {
           std::cout << std::endl;
           --horizon; // don't execute that last node
@@ -272,14 +285,15 @@ int main(int argc, char **argv) {
         }
         //root->refresh(horizon);
       }
+    } else {
+      std::cout << std::endl;
     }
-    std::cout << std::endl;
 
     ros::Duration(p.wait).sleep();
   }
 
-
   // execute here
-  root->execute(ac,horizon);
+  //root->execute(gp,ac,horizon,false);
+  place22->execute(gp,ac,horizon-1,false);
 
 }

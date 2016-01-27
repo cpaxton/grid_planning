@@ -1,4 +1,5 @@
 #include <grid/instantiated_skill.h>
+#include <grid/visualize.h>
 //#include <grid/utils/params.hpp>
 
 //#define LOW_PROBABILITY 0
@@ -18,9 +19,9 @@ namespace grid {
    * default constructor
    */
   InstantiatedSkill::InstantiatedSkill()
-    : id(next_id++), done(false), current(false),
+    : id(next_id++), done(false), useCurrentFeatures(false),
     touched(false), spline_dist(0), dmp_dist(0), skill(0),
-    trajs(), effects(), cur_iter(0), last_probability(0), last_samples(0u)
+    trajs(), effects(), cur_iter(0), last_probability(MAX_PROBABILITY), last_samples(1u), pub(0)
   {
   }
 
@@ -32,7 +33,7 @@ namespace grid {
     id(next_id++), done(false), touched(false), spline_dist(0), dmp_dist(0), skill(0),
     effects(),
     ps(p_.ntrajs), iter_lls(p_.iter),
-    current(false),
+    useCurrentFeatures(false),
     trajs(p_.ntrajs),
     next_ps(p_.ntrajs),
     params(p_.ntrajs), cur_iter(0), good_iter(0),
@@ -46,8 +47,8 @@ namespace grid {
     prev_counts(p_.ntrajs),
     transitions_step(p_.step_size),
     acc(p_.ntrajs),
-    last_probability(0),
-    last_samples(0u)
+    last_probability(MAX_PROBABILITY),
+    last_samples(1u), pub(0)
   {
     reset();
   }
@@ -77,10 +78,10 @@ namespace grid {
    * create a new skill with dmps
    */
   InstantiatedSkillPtr InstantiatedSkill::DmpInstance(SkillPtr skill,
-                                                          TestFeaturesPtr features,
-                                                          RobotKinematicsPtr robot,
-                                                          unsigned int nbasis,
-                                                          GridPlanner *checker)
+                                                      TestFeaturesPtr features,
+                                                      RobotKinematicsPtr robot,
+                                                      unsigned int nbasis,
+                                                      GridPlanner *checker)
   {
 
     Params p = readRosParams();
@@ -106,11 +107,11 @@ namespace grid {
    * create a new skill with dmps
    */
   InstantiatedSkillPtr InstantiatedSkill::DmpInstance(SkillPtr skill,
-                                                          SkillPtr grasp,
-                                                          TestFeaturesPtr features,
-                                                          RobotKinematicsPtr robot,
-                                                          unsigned int nbasis,
-                                                          GridPlanner *checker)
+                                                      SkillPtr grasp,
+                                                      TestFeaturesPtr features,
+                                                      RobotKinematicsPtr robot,
+                                                      unsigned int nbasis,
+                                                      GridPlanner *checker)
   {
 
     Params p = readRosParams();
@@ -136,9 +137,9 @@ namespace grid {
    * create a new skill with spline and segments
    */
   InstantiatedSkillPtr InstantiatedSkill::SplineInstance(SkillPtr skill,
-                                                             TestFeaturesPtr features,
-                                                             RobotKinematicsPtr robot,
-                                                             unsigned int nseg)
+                                                         TestFeaturesPtr features,
+                                                         RobotKinematicsPtr robot,
+                                                         unsigned int nseg)
   {
 
     InstantiatedSkillPtr is(new InstantiatedSkill());
@@ -180,12 +181,12 @@ namespace grid {
       last_tsum += d;
     }
     double tsum = 0;
-    std::cout << "new transitions: ";
-    for (double &d: T) {
-      std::cout << d << " ";
-      tsum += d;
-    }
-    std::cout << "\n";
+    //std::cout << "new transitions: ";
+    //for (double &d: T) {
+    //  std::cout << d << " ";
+    //  tsum += d;
+    //}
+    //std::cout << "\n";
 
     if (tsum < 1e-200) {
       for (unsigned int i = 0; i < T.size(); ++i) {
@@ -275,10 +276,18 @@ namespace grid {
   void InstantiatedSkill::refresh(int horizon) {
     std::cout << "refreshing\n";
     //model_norm = p.base_model_norm;
+    good_iter = 0;
     if (horizon > 0) {
       for (auto &child: next) {
         child->refresh(horizon-1);
       }
+    }
+  }
+
+  void InstantiatedSkill::updateCurrentAttachedObjectFrame() {
+    if (skill and skill->hasAttachedObject()) {
+      std::cout << "UPDATING: " << skill->getAttachedObject() << "\n";
+      currentAttachedObjectFrame = features->lookup(AGENT).Inverse() * features->lookup(skill->getAttachedObject());
     }
   }
 
@@ -362,12 +371,21 @@ namespace grid {
           skill->addModelNormalization(model_norm);
 
           // TODO: speed this up
-          std::vector<FeatureVector> obs = features->getFeaturesForTrajectory(
-              skill->getFeatures(),
-              poses,
-              dmp_dist->hasAttachedObject(),
-              dmp_dist->getAttachedObjectFrame()
-              );
+          std::vector<FeatureVector> obs;
+          if (useCurrentFeatures) {
+            //std::cout << currentAttachedObjectFrame << "\n";
+            obs = features->getFeaturesForTrajectory(
+                skill->getFeatures(),
+                poses,
+                skill->hasAttachedObject(),
+                currentAttachedObjectFrame);
+          } else {
+            obs = features->getFeaturesForTrajectory(
+                skill->getFeatures(),
+                poses,
+                dmp_dist->hasAttachedObject(),
+                dmp_dist->getAttachedObjectFrame());
+          }
           skill->normalizeData(obs);
           FeatureVector v = skill->logL(obs);
           my_ps[j] = log(v.array().exp().sum() / v.size()); // would add other terms first
@@ -502,7 +520,7 @@ namespace grid {
 
         if (nsamples > 1) {
           dmp_dist->update(params,ps,nsamples,p.noise,p.step_size);
-          dmp_dist->addNoise(pow(0.01,cur_iter+2));
+          dmp_dist->addNoise(pow(0.1,(good_iter/2)+4));
         }
       }
 
@@ -535,9 +553,40 @@ namespace grid {
      * execute as we reach nodes that require it
      * use gripper tool to send messages
      */
-    void InstantiatedSkill::execute(actionlib::SimpleActionClient<grid_plan::CommandAction> &ac,
-                                    int horizon)
+    bool InstantiatedSkill::execute(GridPlanner &gp, actionlib::SimpleActionClient<grid_plan::CommandAction> &ac,
+                                    int horizon, bool replan)
     {
+      useCurrentFeatures = true;
+
+      // replan if necessary
+      if (replan and skill and not skill->isStatic()) {
+
+        robot->updateHint(gp.currentPos());
+        robot->updateVelocityHint(gp.currentVel());
+        features->updateWorldfromTF();
+        updateCurrentAttachedObjectFrame();
+
+        std::vector<trajectory_msgs::JointTrajectoryPoint> starts(1);
+
+        start_ps.resize(1);
+        start_ps[0] = MAX_PROBABILITY;
+
+        for (auto &pt: starts) {
+          pt.positions = gp.currentPos();
+          pt.velocities = gp.currentVel();
+        }
+
+        double probability = MAX_PROBABILITY;
+        for (unsigned int i = 0; i < p.iter; ++i) {
+          step(start_ps,starts,next_ps,probability,1,horizon,p.ntrajs);
+          if (pub and skill) {
+            pub->publish(toPoseArray(trajs,features->getWorldFrame(),robot));
+          }
+        }
+
+        replan = false;
+      }
+
 
       // trigger action server
       CommandGoal cmd;
@@ -555,8 +604,8 @@ namespace grid {
       ac.waitForServer();
       std::cout << "sending command...\n";
       ac.sendGoal(cmd);
-        std::cout << "waiting for result\n";
-        ac.waitForResult();
+      std::cout << "waiting for result\n";
+      ac.waitForResult();
 
       // continue execution
       if (horizon > 0 && next.size() > 0) {
@@ -574,8 +623,16 @@ namespace grid {
           }
         }
 
-        next[idx]->execute(ac,horizon-1);
+        replan = replan or (skill and skill->isStatic());
+        return next[idx]->execute(gp,ac,horizon-1,replan);
+      } else {
+        return true;
       }
+    }
+
+  
+    const Pose &InstantiatedSkill::getAttachedObjectFrame() const {
+      return currentAttachedObjectFrame;
     }
 
   }

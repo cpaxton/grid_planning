@@ -50,6 +50,7 @@ namespace grid {
 
   void DmpTrajectoryDistribution::addNoise(double d) {
     for (int j = 0; j < nvars; ++j) {
+      //dist.ns[0].P(j,j) += d;
       if (j < POSE_RPY_SIZE) { 
         dist.ns[0].P(j,j) += d;
       }
@@ -229,6 +230,8 @@ namespace grid {
       Rotation r1 = Rotation::RPY(params[sample][POSE_FEATURE_ROLL],params[sample][POSE_FEATURE_PITCH],params[sample][POSE_FEATURE_YAW]);
       Pose p(r1,v1);
 
+      robot->updateHint(start_pts[sample].positions);
+      robot->updateVelocityHint(start_pts[sample].velocities);
       int ik_result = robot->IkPos(p,q);
 
       if (ik_result < 0) {

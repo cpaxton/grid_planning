@@ -19,8 +19,7 @@ namespace grid {
       wtf_ex->setRobotKinematics(rk_ptr);
       wtf_ex->read(filenames[i]);
       if (skill.hasAttachedObject()) {
-        //std::cout << "attaching object \"" << skill.attachedObjectFrame() << "\"\n";
-        wtf_ex->attachObjectFrame(skill.attachedObjectFrame());
+        wtf_ex->attachObjectFrame(skill.getAttachedObject());
       }
       wtf[i] = wtf_ex;
     }
@@ -37,8 +36,7 @@ namespace grid {
       wtf_ex->setRobotKinematics(rk_ptr);
       wtf_ex->read(filenames[i]);
       if (skill.hasAttachedObject()) {
-        //std::cout << "attaching object \"" << skill.attachedObjectFrame() << "\"\n";
-        wtf_ex->attachObjectFrame(skill.attachedObjectFrame());
+        wtf_ex->attachObjectFrame(skill.getAttachedObject());
       }
       std::vector<FeatureVector> data = wtf_ex->getFeatureValues(skill.getFeatures());
 

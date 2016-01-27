@@ -319,7 +319,7 @@ namespace grid {
   /** 
    * what object is attached?
    */
-  const std::string &Skill::attachedObjectFrame() const {
+  const std::string &Skill::getAttachedObject() const {
     return attached_object;
   }
 
