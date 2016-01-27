@@ -66,7 +66,7 @@ namespace grid {
     best_p = LOW_PROBABILITY;
     cur_iter = 0;
     if(dmp_dist) {
-      dmp_dist->addNoise(0.01);
+      dmp_dist->addNoise(0.002);
     }
     best_idx = 0;
     for (double &d: iter_lls) {
