@@ -228,7 +228,8 @@ int main(int argc, char **argv) {
 
   int horizon = p.starting_horizon;
   double prob = 0;
-  for (unsigned int i = 0; i < p.iter; ++i) {
+  for (unsigned int i = 0; i < p.iter; ++i) { 
+    assert(ros::ok());
     ros::spinOnce();
     robot->updateHint(gp.currentPos());
     robot->updateVelocityHint(gp.currentVel());
@@ -239,7 +240,9 @@ int main(int argc, char **argv) {
     //ps[0] = 1.; // set prior
     ps_out[0] = 0.;
     ps[0] = 0.; // set prior
-    //root->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
+    root->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
+
+#if 0
     align22->useCurrentFeatures = true;
     align22->updateCurrentAttachedObjectFrame();
     place22->useCurrentFeatures = true;
@@ -248,6 +251,7 @@ int main(int argc, char **argv) {
     release22->updateCurrentAttachedObjectFrame();
     //place22->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
     align22->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
+#endif
 
     /* PUT EVERYTHING INTO SOME MESSAGES */
     {
@@ -263,7 +267,8 @@ int main(int argc, char **argv) {
       pub5.publish(toPoseArray(grasp_trajs,grasp1->features->getWorldFrame(),robot));
       pub6.publish(toPoseArray(release_trajs,app1->features->getWorldFrame(),robot));
       pub3.publish(toPoseArray(align_trajs,app1->features->getWorldFrame(),robot));
-      attached_pub.publish(toPoseArray(place_trajs,app1->features->getWorldFrame(),robot,place22->getAttachedObjectFrame()));
+      attached_pub.publish(toPoseArray(place_trajs,app1->features->getWorldFrame(),robot,align11->features->getAttachedObjectFrame()));
+      //attached_pub.publish(toPoseArray(place_trajs,app1->features->getWorldFrame(),robot,place22->getAttachedObjectFrame()));
       pub4.publish(toPoseArray(place_trajs,app1->features->getWorldFrame(),robot));
     }
 
@@ -272,6 +277,7 @@ int main(int argc, char **argv) {
     std::cout << "ITER " << i; // << std::endl;
     std::cout << ": " << iter_p[i] << " ... ";
     if (i > 1) {
+
       std::cout << fabs(iter_p[i] - iter_p[i-1]) << " < " << (p.update_horizon * iter_p[i]);
       std::cout << std::endl;
 
@@ -293,7 +299,7 @@ int main(int argc, char **argv) {
   }
 
   // execute here
-  //root->execute(gp,ac,horizon,false);
-  place22->execute(gp,ac,horizon-1,false);
+  root->execute(gp,ac,horizon,false);
+  //align22->execute(gp,ac,horizon-1,true);
 
 }

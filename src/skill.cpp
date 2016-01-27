@@ -212,10 +212,11 @@ namespace grid {
       // save the original matrices
       P.resize(k);
       for (unsigned int i = 0; i < k; ++i) {
+        model->ns[i].P = 1*Matrixnd::Identity(dim,dim);
         P[i] = model->ns[i].P;
         //model->ns[i].P += 1*Matrixnd::Identity(dim,dim);
       }
-      //model->Update();
+      model->Update();
 
       //std::cout << "MODEL INFO >>>>>>>>" << std::endl;
       //std::cout << *model << std::endl;

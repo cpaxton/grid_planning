@@ -6,7 +6,7 @@
 using namespace Eigen;
 
 #define SHOW_SAMPLED_VALUES 0
-#define DEFAULT_SIGMA 0.01
+#define DEFAULT_SIGMA 0.005
 //#define DEFAULT_SIGMA 0.0000000001
 
 namespace grid {
@@ -25,7 +25,7 @@ namespace grid {
     dmp_goal(dim_),
     k_gain(100),
     d_gain(20),
-    tau(3.0),
+    tau(2.0),
     goal_threshold(dim_,0.01),
     dmp_velocity_multiplier(0.1),
     attached(false)
@@ -55,7 +55,7 @@ namespace grid {
         dist.ns[0].P(j,j) += d;
       }
       else {
-        dist.ns[0].P(j,j) += 10*d;
+        dist.ns[0].P(j,j) += 100*d;
       }
     }
     dist.Update();
@@ -73,7 +73,7 @@ namespace grid {
           dist.ns[0].P(j,j) = DEFAULT_SIGMA;
         }
         else {
-          dist.ns[0].P(j,j) = 10*DEFAULT_SIGMA;
+          dist.ns[0].P(j,j) = 100*DEFAULT_SIGMA;
         }
       }
 
@@ -269,6 +269,10 @@ namespace grid {
 
       //std::cout << sample << "\n" << start_pts.size() << "\n";
       //std::cout << "pos " << start_pts[0].positions.size() << "\n";
+      //for (const double &d: start_pts[0].positions) {
+      //  std::cout << d << " ";
+      //}
+      //std::cout << std::endl;
 
       dmp::generatePlan(dmp_list,
                         start_pts[sample].positions,

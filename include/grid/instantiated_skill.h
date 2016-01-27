@@ -97,6 +97,7 @@ namespace grid {
     std::vector<JointTrajectory> trajs;
     std::vector<double> ps;
     std::vector<double> my_ps;
+    std::vector<double> my_future_ps;
     std::vector<double> next_ps;
     std::vector<double> iter_lls;
     std::vector<unsigned int> next_skill;

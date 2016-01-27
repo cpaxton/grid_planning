@@ -167,7 +167,12 @@ namespace gcop {
       //  cout << "[W] Normal::L: not positive definite!" << endl;
       //}
       
+      //std::cout << "x = \n" << x << "\n";
+      //std::cout << "mu = \n" << mu << "\n";
       Vectornd d = x - mu;
+      //std::cout << "d = \n" << d << "\n";
+      //std::cout << d.dot(Pinv*d)/2 << "\n";
+      //std::cout << "NORM = " << norm << "\n";
       return -(d.dot(Pinv*d)/2) - (norm);
     }
 
@@ -190,8 +195,9 @@ namespace gcop {
       if (llt.info() == Eigen::Success) {
         A = llt.matrixL();
         Pinv = P.inverse();
+        //std::cout << "P INV = \n" << Pinv << "\n\n";
         det = P.determinant();
-        norm = sqrt(pow(2*M_PI, mu.size())*det);
+        norm = sqrt(det); //sqrt(pow(2*M_PI, mu.size())*det);
         pd = true;
       } else {
         cout << "[W] Normal::Update: cholesky failed: P=" << P << endl;

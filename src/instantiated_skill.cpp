@@ -43,6 +43,7 @@ namespace grid {
     start_pts(p_.ntrajs),
     start_ps(p_.ntrajs),
     my_ps(p_.ntrajs),
+    my_future_ps(p_.ntrajs),
     prev_p_sums(p_.ntrajs),
     prev_counts(p_.ntrajs),
     transitions_step(p_.step_size),
@@ -64,6 +65,9 @@ namespace grid {
     model_norm = p.base_model_norm;
     best_p = LOW_PROBABILITY;
     cur_iter = 0;
+    if(dmp_dist) {
+      dmp_dist->addNoise(0.01);
+    }
     best_idx = 0;
     for (double &d: iter_lls) {
       d = 0;
@@ -177,20 +181,15 @@ namespace grid {
   void InstantiatedSkill::updateTransitions() {
 
     double last_tsum = 0;
-    for (double &d: last_T) {
-      last_tsum += d;
-    }
     double tsum = 0;
-    //std::cout << "new transitions: ";
-    //for (double &d: T) {
-    //  std::cout << d << " ";
-    //  tsum += d;
-    //}
-    //std::cout << "\n";
+    for (unsigned int i = 0; i < T.size(); ++i) {
+      last_tsum += last_T[i];
+      tsum += T[i];
+    }
 
     if (tsum < 1e-200) {
       for (unsigned int i = 0; i < T.size(); ++i) {
-        T[i] = last_T[i];
+        T[i] = last_T[i]/last_tsum;
       }
       return;
     } else {
@@ -468,11 +467,8 @@ namespace grid {
           ++prev_counts[prev_idx[i]];
           probability += exp(my_ps[i]+next_ps[i]);
         }
-        //std::cout << "P =" << probability << " nsamples = " << nsamples <<"\n";
-        probability /= nsamples;
+        //probability /= nsamples;
         last_probability = probability;
-        //std::cout << "P =" << probability <<"\n";
-        //probability = log(probability);
 
         // update transitions based on these results
         for (unsigned int i = 0; i < len; ++i) {
@@ -481,7 +477,7 @@ namespace grid {
           } else {
             ps_out[i] += 0;
           }
-          if (p.verbosity > 0) {
+          if (p.verbosity > 1) {
             std::cout << " - future sum for " << i << " = " << ps_out[i]
               << " (" << prev_counts[i] << " chosen, sum = " << log(prev_p_sums[i]) << ")"
               << "\n";
@@ -490,20 +486,25 @@ namespace grid {
       }
 
       double sum = 0;
+      double sum2 = 0;
       // normalize everything
       {
         for (unsigned int i = 0; i < nsamples; ++i) {
           sum += exp(ps[i]);
+          sum2 += exp(my_ps[i] + next_ps[i]);
         }
         // normalize here
         for (unsigned int i = 0; i < nsamples; ++i) {
           ps[i] = exp(ps[i]) / sum;
+          my_future_ps[i] = exp(my_ps[i] + next_ps[i]) / sum2;
+          //std::cout << my_future_ps[i] << " ";
           //assert(not isnan(ps[i]));
         }
+        //std::cout << "\n";
       }
 
       bool skip = false;
-      if (log(sum) < LOW_PROBABILITY) {
+      if (log(sum2) < LOW_PROBABILITY) {
         skip = true;
         //std::cout << "nothing here \n";
       }
@@ -520,21 +521,25 @@ namespace grid {
 
         if (nsamples > 1) {
           dmp_dist->update(params,ps,nsamples,p.noise,p.step_size);
-          dmp_dist->addNoise(pow(0.1,(good_iter/2)+4));
+          dmp_dist->addNoise(pow(0.1,(good_iter/2)+5));
         }
       }
 
       // compute ll for this iteration
-      iter_lls[cur_iter] = sum / p.ntrajs;
+      iter_lls[cur_iter] = sum2 / p.ntrajs;
 
       if (cur_iter > 0 and fabs(iter_lls[cur_iter]-iter_lls[cur_iter]) < 1e-2*iter_lls[cur_iter]) {
         done = true;
       }
 
       // decrease normalization
-      if (cur_iter > 0 && iter_lls[cur_iter] > iter_lls[cur_iter-1]) {
+      if (cur_iter > 0 and 
+          iter_lls[cur_iter] > 1e-20 and
+          iter_lls[cur_iter] > iter_lls[cur_iter-1])
+      {
         model_norm *= p.model_norm_step;
         ++good_iter;
+        //std::cout << "THAT WAS GOOD\n";
       }
 
       if (p.verbosity >= 0) {
@@ -556,10 +561,30 @@ namespace grid {
     bool InstantiatedSkill::execute(GridPlanner &gp, actionlib::SimpleActionClient<grid_plan::CommandAction> &ac,
                                     int horizon, bool replan)
     {
-      useCurrentFeatures = true;
+
+
+      assert(ros::ok());
+      ros::spinOnce();
+
+      std::cout << "EXECUTING: ";
+      if (skill) {
+        std::cout << skill->getName() << "\n";
+      } else {
+        std::cout << "n/a\n";
+      }
+      std::cout << "Replanning? " << replan << "\n";
+
+      if (not touched) {
+        replan = true;
+      }
 
       // replan if necessary
       if (replan and skill and not skill->isStatic()) {
+
+        std::cout << "In main replan loop.\n";
+
+        useCurrentFeatures = true;
+        updateCurrentAttachedObjectFrame();
 
         robot->updateHint(gp.currentPos());
         robot->updateVelocityHint(gp.currentVel());
@@ -576,15 +601,39 @@ namespace grid {
           pt.velocities = gp.currentVel();
         }
 
+        reset();
         double probability = MAX_PROBABILITY;
         for (unsigned int i = 0; i < p.iter; ++i) {
+
+          assert(ros::ok());
+          ros::spinOnce();
+          features->updateWorldfromTF();
+
+          //step(start_ps,starts,next_ps,probability,1,horizon,p.ntrajs);
           step(start_ps,starts,next_ps,probability,1,horizon,p.ntrajs);
           if (pub and skill) {
             pub->publish(toPoseArray(trajs,features->getWorldFrame(),robot));
           }
+
+          {
+            double best_t_p = 0;
+            unsigned int idx = 0;
+            for (unsigned int i = 0; i < T.size(); ++i) {
+              if (T[i] > best_t_p) {
+                idx = i;
+                best_t_p = T[i];
+              }
+            }
+
+            if (next[idx]->pub) {
+              next[idx]->pub->publish(toPoseArray(next[idx]->trajs,features->getWorldFrame(),robot));
+            }
+          }
+
         }
 
         replan = false;
+        //replan = true;
       }
 
 
@@ -630,7 +679,7 @@ namespace grid {
       }
     }
 
-  
+
     const Pose &InstantiatedSkill::getAttachedObjectFrame() const {
       return currentAttachedObjectFrame;
     }

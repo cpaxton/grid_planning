@@ -46,7 +46,7 @@ class CommandActionExecutor(object):
         self._reg.configure(config)
         self._reg.set_active_skill(goal.name)
 
-        wait = rospy.Duration(len(goal.traj.points)*0.1)
+        wait = rospy.Duration(len(goal.traj.points)*2.0/30)
         rospy.sleep(wait)
         self._reg.regress(0.025,0.2)
       
