@@ -52,7 +52,7 @@ namespace grid {
     for (int j = 0; j < nvars; ++j) {
       //dist.ns[0].P(j,j) += d;
       if (j < POSE_RPY_SIZE) { 
-        dist.ns[0].P(j,j) += d;
+        dist.ns[0].P(j,j) += 10*d;
       }
       else {
         dist.ns[0].P(j,j) += 100*d;
