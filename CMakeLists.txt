@@ -171,6 +171,7 @@ add_executable(training_test src/training_test_node.cpp)
 add_executable(execution_test src/execution_test_node.cpp)
 add_executable(dmp_execution_test src/dmp_execution_test_node.cpp)
 add_executable(task_test src/task_test_node.cpp)
+add_executable(align_test src/align_test_node.cpp)
 
 ## Add cmake target dependencies of the executable/libname,rary
 ## as an example, message headers may need to be generated before nodes
@@ -201,3 +202,4 @@ target_link_libraries(training_test ${ALL_LIBRARIES})
 target_link_libraries(execution_test ${ALL_LIBRARIES})
 target_link_libraries(dmp_execution_test ${ALL_LIBRARIES})
 target_link_libraries(task_test ${ALL_LIBRARIES})
+target_link_libraries(align_test ${ALL_LIBRARIES})

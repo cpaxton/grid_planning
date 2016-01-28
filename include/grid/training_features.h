@@ -75,13 +75,24 @@ namespace grid {
     FeatureVector worldToFeatures(const WorldConfiguration &w, const std::vector<std::string> &features) const;
 
     /**
+     * helper
+     * convert a world into a set of features
+     */
+    FeatureVector worldToFeatures(const WorldConfiguration &w, FeatureVector &prev) const;
+
+    /**
+     * helper
+     * convert a world into a set of features
+     */
+    FeatureVector worldToFeatures(const WorldConfiguration &w, const std::vector<std::string> &features, FeatureVector &prev) const;
+    /**
      * read
      * Open a rosbag containing the demonstrations.
      * We make some assumptions as to how these are stored.
      * This function will read in the poses and other information associated with the robot.
      * This information all gets stored and can be used to compute features or retrieve world configurations.
      */
-    void read(const std::string &bagfile);
+    void read(const std::string &bagfile, int downsample = 0);
 
     /**
      * initialize training features with the necessary world objects to find

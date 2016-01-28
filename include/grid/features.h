@@ -60,20 +60,17 @@ namespace grid {
   static const unsigned int POSE_FEATURE_PITCH(4);
   static const unsigned int POSE_FEATURE_YAW(5);
 
-#ifdef USE_ROTATION_RPY
-  static const unsigned int POSE_FEATURES_SIZE(7);
-  //static const unsigned int POSE_FEATURE_ROLL(3);
-  //static const unsigned int POSE_FEATURE_PITCH(4);
-  //static const unsigned int POSE_FEATURE_YAW(5);
-  static const unsigned int POSE_FEATURE_DIST(6);
-#else
-  static const unsigned int POSE_FEATURES_SIZE(8);
+  //static const unsigned int POSE_FEATURES_SIZE(8);
+  static const unsigned int POSE_FEATURES_SIZE(12);
   static const unsigned int POSE_FEATURE_WX(3);
   static const unsigned int POSE_FEATURE_WY(4);
   static const unsigned int POSE_FEATURE_WZ(5);
   static const unsigned int POSE_FEATURE_WW(6);
   static const unsigned int POSE_FEATURE_DIST(7);
-#endif
+  static const unsigned int POSE_FEATURE_DX(8);
+  static const unsigned int POSE_FEATURE_DY(9);
+  static const unsigned int POSE_FEATURE_DZ(10);
+  static const unsigned int POSE_FEATURE_DDIST(11);
 
   //static const Pose rotationHack(KDL::Rotation::RotY(M_PI/2));
   static const Pose rotationHack(KDL::Rotation::RotY(0));
@@ -158,6 +155,12 @@ namespace grid {
      * Load pose data at index
      */
     static void getPoseFeatures(const Pose &pose, FeatureVector &f, unsigned int idx);
+
+    /**
+     * getPoseFeatures
+     * Load pose data at index
+     */
+    static void getPoseFeatures(const Pose &pose, FeatureVector &f, unsigned int idx, FeatureVector &prev);
 
     /**
      * featuresToPose

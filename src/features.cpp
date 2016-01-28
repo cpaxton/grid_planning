@@ -154,6 +154,10 @@ namespace grid {
     f(idx+POSE_FEATURE_X) = pose.p.x();
     f(idx+POSE_FEATURE_Y) = pose.p.y();
     f(idx+POSE_FEATURE_Z) = pose.p.z();
+    f(idx+POSE_FEATURE_DX) = 0;
+    f(idx+POSE_FEATURE_DY) = 0;
+    f(idx+POSE_FEATURE_DZ) = 0;
+    f(idx+POSE_FEATURE_DDIST) = 0;
 #ifdef USE_ROTATION_RPY
     pose.M.GetRPY(f(idx+POSE_FEATURE_ROLL), f(idx+POSE_FEATURE_PITCH), f(idx+POSE_FEATURE_YAW));
 #else
@@ -161,6 +165,32 @@ namespace grid {
 #endif
     f(idx+POSE_FEATURE_DIST)  = pose.p.Norm();
   }
+
+  void Features::getPoseFeatures(const Pose &pose, FeatureVector &f, unsigned int idx, FeatureVector &prev) {
+
+#if 0
+    f[idx+POSE_FEATURE_X] = pose.p.x();
+    f[idx+POSE_FEATURE_Y] = pose.p.y();
+    f[idx+POSE_FEATURE_Z] = pose.p.z();
+    pose.M.GetRPY(f[idx+POSE_FEATURE_ROLL], f[idx+POSE_FEATURE_PITCH], f[idx+POSE_FEATURE_YAW]);
+#endif
+
+    f(idx+POSE_FEATURE_X) = pose.p.x();
+    f(idx+POSE_FEATURE_Y) = pose.p.y();
+    f(idx+POSE_FEATURE_Z) = pose.p.z();
+    f(idx+POSE_FEATURE_DX) = pose.p.x() - prev(idx+POSE_FEATURE_X);
+    f(idx+POSE_FEATURE_DY) = pose.p.y() - prev(idx+POSE_FEATURE_Y);
+    f(idx+POSE_FEATURE_DZ) = pose.p.z() - prev(idx+POSE_FEATURE_Z);
+    f(idx+POSE_FEATURE_DDIST) = pose.p.Norm() - prev(idx+POSE_FEATURE_DIST);
+#ifdef USE_ROTATION_RPY
+    pose.M.GetRPY(f(idx+POSE_FEATURE_ROLL), f(idx+POSE_FEATURE_PITCH), f(idx+POSE_FEATURE_YAW));
+#else
+    pose.M.GetQuaternion(f(idx+POSE_FEATURE_WX),f(idx+POSE_FEATURE_WY),f(idx+POSE_FEATURE_WZ),f(idx+POSE_FEATURE_WW));
+#endif
+    f(idx+POSE_FEATURE_DIST)  = pose.p.Norm();
+  }
+
+
 
   /**
    * featuresToPose

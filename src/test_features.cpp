@@ -175,7 +175,11 @@ namespace grid {
           //  <<std::endl;
 
           //std::cout << __LINE__ << ": " << dim << ", " << idt << std::endl;
-          getPoseFeatures(offset,f,idx);
+          if (next_idx == 0) {
+            getPoseFeatures(offset,f,idx);
+          } else {
+            getPoseFeatures(offset,f,idx,features[next_idx-1]);
+          }
 
           idx+= POSE_FEATURES_SIZE;
 
@@ -235,7 +239,11 @@ namespace grid {
           //  <<", z=" << offset.p.z()
           //  <<std::endl;
 
-          getPoseFeatures(offset,f,idx);
+          if (next_idx==0) {
+            getPoseFeatures(offset,f,idx);
+          } else {
+            getPoseFeatures(offset,f,idx,features[next_idx-1]);
+          }
           idx+= POSE_FEATURES_SIZE;
 
         } else if (feature_types[name] == TIME_FEATURE) {

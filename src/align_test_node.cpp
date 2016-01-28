@@ -96,24 +96,6 @@ int main(int argc, char **argv) {
 
   update_features(features);
 
-  /*************************************************************************/
-
-  InstantiatedSkillPtr app1 = InstantiatedSkill::DmpInstance(
-      skills.at("approach"),
-      features.at("node1,link1"),
-      robot,
-      5);
-
-  InstantiatedSkillPtr app2 = InstantiatedSkill::DmpInstance(
-      skills["approach"],
-      features["node2,link2"],
-      robot,
-      5);
-
-  std::cout << "Initializing grasps..." << std::endl;
-  InstantiatedSkillPtr grasp1 = InstantiatedSkill::DmpInstance(skills["grasp"], features["node1,link1"], robot, 5, checker);
-  InstantiatedSkillPtr grasp2 = InstantiatedSkill::DmpInstance(skills["grasp"], features["node2,link2"], robot, 5, checker);
-
   std::cout << "Initializing aligns..." << std::endl;
   InstantiatedSkillPtr align11 = InstantiatedSkill::DmpInstance(skills["align"], features["node1,link1"], robot, 5, checker);
   InstantiatedSkillPtr align12 = InstantiatedSkill::DmpInstance(skills["align"], features["node2,link1"], robot, 5, checker);
@@ -138,28 +120,6 @@ int main(int argc, char **argv) {
   InstantiatedSkillPtr disengage21 = InstantiatedSkill::DmpInstance(skills["disengage"], features["node1,link2"], robot, 5, checker);
   InstantiatedSkillPtr disengage22 = InstantiatedSkill::DmpInstance(skills["disengage"], features["node2,link2"], robot, 5, checker);
 
-  root->addNext(app1); 
-  root->addNext(app2);
-
-#if 0
-  app1->addNext(disengage1);
-  app2->addNext(disengage2);
-#endif
-
-#if 1
-  app1->addNext(grasp1); app1->pub = &pub;
-  app2->addNext(grasp2); app2->pub = &pub;
-
-  grasp1->addNext(align11); 
-  grasp1->addNext(align12);
-  grasp2->addNext(align21);
-  grasp2->addNext(align22);
-#else
-  app1->addNext(align11);
-  app1->addNext(align12);
-  app2->addNext(align21);
-  app2->addNext(align22);
-#endif
 
   align11->addNext(place11); align11->pub = &pub3;
   align12->addNext(place12); align12->pub = &pub3;
@@ -176,9 +136,7 @@ int main(int argc, char **argv) {
   release21->addNext(disengage21);
   release22->addNext(disengage22);
 
-  std::vector<InstantiatedSkillPtr> approaches;
-  approaches.push_back(app1);
-  approaches.push_back(app2);
+
   std::vector<InstantiatedSkillPtr> aligns;
   aligns.push_back(align11);
   aligns.push_back(align21);
@@ -194,9 +152,7 @@ int main(int argc, char **argv) {
   places.push_back(place21);
   places.push_back(place12);
   places.push_back(place22);
-  std::vector<InstantiatedSkillPtr> grasps;
-  grasps.push_back(grasp1);
-  grasps.push_back(grasp2);
+
   std::vector<InstantiatedSkillPtr> disengages;
   disengages.push_back(disengage11);
   disengages.push_back(disengage21);
@@ -240,9 +196,8 @@ int main(int argc, char **argv) {
     //ps[0] = 1.; // set prior
     ps_out[0] = 0.;
     ps[0] = 0.; // set prior
-    root->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
 
-#if 0
+#if 1
     align22->useCurrentFeatures = true;
     align22->updateCurrentAttachedObjectFrame();
     place22->useCurrentFeatures = true;
@@ -250,26 +205,22 @@ int main(int argc, char **argv) {
     release22->useCurrentFeatures = true;
     release22->updateCurrentAttachedObjectFrame();
     //place22->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
-    align22->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
 #endif
+    align22->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
 
     /* PUT EVERYTHING INTO SOME MESSAGES */
     {
-      load_to_one_array(approaches,approach_trajs);
       load_to_one_array(aligns,align_trajs);
       load_to_one_array(places,place_trajs);
-      load_to_one_array(grasps,grasp_trajs);
       load_to_one_array(disengages,disengage_trajs);
       load_to_one_array(releases,release_trajs);
       std::cout << "pub len = " << approach_trajs.size() << "\n";
-      pub.publish(toPoseArray(approach_trajs,app1->features->getWorldFrame(),robot));
-      pub2.publish(toPoseArray(disengage_trajs,app1->features->getWorldFrame(),robot));
-      pub5.publish(toPoseArray(grasp_trajs,grasp1->features->getWorldFrame(),robot));
-      pub6.publish(toPoseArray(release_trajs,app1->features->getWorldFrame(),robot));
-      pub3.publish(toPoseArray(align_trajs,app1->features->getWorldFrame(),robot));
-      attached_pub.publish(toPoseArray(place_trajs,app1->features->getWorldFrame(),robot,align11->features->getAttachedObjectFrame()));
-      //attached_pub.publish(toPoseArray(place_trajs,app1->features->getWorldFrame(),robot,place22->getAttachedObjectFrame()));
-      pub4.publish(toPoseArray(place_trajs,app1->features->getWorldFrame(),robot));
+      pub2.publish(toPoseArray(disengage_trajs,align22->features->getWorldFrame(),robot));
+      pub6.publish(toPoseArray(release_trajs,align22->features->getWorldFrame(),robot));
+      pub3.publish(toPoseArray(align_trajs,align22->features->getWorldFrame(),robot));
+      //attached_pub.publish(toPoseArray(place_trajs,app1->features->getWorldFrame(),robot,align11->features->getAttachedObjectFrame()));
+      attached_pub.publish(toPoseArray(place_trajs,align22->features->getWorldFrame(),robot,place22->getAttachedObjectFrame()));
+      pub4.publish(toPoseArray(place_trajs,align22->features->getWorldFrame(),robot));
     }
 
     iter_p[i] = exp(ps_out[0]);
@@ -288,8 +239,6 @@ int main(int argc, char **argv) {
           std::cout << std::endl;
           --horizon; // don't execute that last node
           break;
-        } else {
-          root->refresh(horizon-1);
         }
         //root->refresh(horizon);
       }
@@ -301,7 +250,6 @@ int main(int argc, char **argv) {
   }
 
   // execute here
-  root->execute(gp,ac,p.max_horizon,false);
-  //align22->execute(gp,ac,horizon-1,true);
+  align22->execute(gp,ac,horizon,true);
 
 }

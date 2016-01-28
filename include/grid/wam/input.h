@@ -8,7 +8,8 @@ namespace grid {
 
   void load_and_train_skill(Skill &skill,
                             RobotKinematicsPtr &rk_ptr,
-                            const std::string filenames[]);
+                            const std::string filenames[],
+                            unsigned int len = 0);
 }
 
 #endif

@@ -18,17 +18,22 @@ int main(int argc, char **argv) {
   RobotKinematics *rk = new RobotKinematics("robot_description","wam/base_link","wam/wrist_palm_link");
   RobotKinematicsPtr rk_ptr = RobotKinematicsPtr(rk);
 
-  std::vector<std::shared_ptr<WamTrainingFeatures> > wtf(3);
 
+  unsigned int ntraining = 3u; //9u;
+  std::vector<std::shared_ptr<WamTrainingFeatures> > wtf(ntraining);
   //std::string filenames[] = {"data/sim/app1.bag", "data/sim/app2.bag", "data/sim/app3.bag"};
-  std::string filenames[] = {"data/sim/align1.bag", "data/sim/align2.bag", "data/sim/align3.bag"};
+  //std::string filenames[] = {"data/sim/align1.bag", "data/sim/align2.bag", "data/sim/align3.bag"};
+  //std::string filenames[] = {"data/sim/release1b.bag", "data/sim/release2b.bag", "data/sim/release3b.bag"};
+  std::string filenames[] = {"data/sim/release1.bag", "data/sim/release2.bag", "data/sim/release3.bag"};
+  //std::string filenames[] = {"data/sim/release1.bag", "data/sim/release2.bag", "data/sim/release3.bag",
+  //  "data/sim/release1b.bag", "data/sim/release2b.bag", "data/sim/release3b.bag","data/sim/release1c.bag", "data/sim/release2c.bag", "data/sim/release3c.bag"};
   //std::string filenames[] = {"data/sim/grasp1.bag", "data/sim/grasp2.bag", "data/sim/grasp3.bag"};
 
-  for (unsigned int i = 0; i < 3; ++i) {
+  for (unsigned int i = 0; i < ntraining; ++i) {
     std::shared_ptr<WamTrainingFeatures> wtf_ex(new WamTrainingFeatures(objects));
     wtf_ex->addFeature("time",TIME_FEATURE);
     wtf_ex->setRobotKinematics(rk_ptr);
-    wtf_ex->read(filenames[i]);
+    wtf_ex->read(filenames[i],10);
     wtf_ex->attachObjectFrame("link");
     wtf[i] = wtf_ex;
   }
@@ -46,7 +51,7 @@ int main(int argc, char **argv) {
     features.push_back("time");
 
     clock_t begin = clock();
-    for (unsigned int i = 0; i < 3; ++i) {
+    for (unsigned int i = 0; i < ntraining; ++i) {
       std::vector<FeatureVector> ex_data = wtf[i]->getFeatureValues(features);
       //std::cout << "... preparing example " << (i+1) << " with " << ex_data.size() << " observations." << std::endl;
       data.insert(data.end(),ex_data.begin(),ex_data.end());
@@ -67,6 +72,7 @@ int main(int argc, char **argv) {
     //std::cout << std::endl;
     if (size != vec.size()) {
       std::cout << "ERROR: " << size << " != " << vec.size() << "!" << std::endl;
+      break;
     }
     training_data.push_back(obs);
   }
@@ -91,10 +97,12 @@ int main(int argc, char **argv) {
 
   std::cout << "Running skill test:" << std::endl;
 
-  Skill test("approach",1);
-  test.appendFeature("link").appendFeature("time");
+  Skill test("align",1);
+  //test.appendFeature("link").appendFeature("time");
+  //test.attachObject("link");
+  test.appendFeature("node").appendFeature("time");
   test.attachObject("link");
-  for (unsigned int i = 0; i < 3; ++i) {
+  for (unsigned int i = 0; i < ntraining; ++i) {
     test.addTrainingData(*wtf[i]);
   }
   test.trainSkillModel();
@@ -107,13 +115,22 @@ int main(int argc, char **argv) {
 
   // get ready
   geometry_msgs::PoseArray msg;
-  msg.header.frame_id = "gbeam_link_1/gbeam_link"; //"wam/wrist_palm_link";
-  for (unsigned int i = 0; i < 3; ++i) {
+  msg.header.frame_id = "gbeam_node_1/gbeam_node";//"gbeam_link_1/gbeam_link"; //"wam/wrist_palm_link";
+  //msg.header.frame_id = "wam/wrist_palm_link";
+  for (unsigned int i = 0; i < ntraining; ++i) {
 
     //std::vector<Pose> poses = wtf[i]->getPose("link");
     std::vector<Pose> poses = wtf[i]->getPose("node");
 
-    for (Pose &pose: poses) {
+    std::vector<FeatureVector> v = wtf[i]->getFeatureValues(test.getFeatures());
+
+    //for (Pose &pose: poses) {
+    for (FeatureVector &vec: v) {
+      Pose pose = wtf[i]->getPoseFrom("node",vec);
+      for (unsigned int i = 0; i < vec.size(); ++ i) {
+        std::cout << vec(i) << " ";
+      }
+      std::cout << "\n";
       tf::Pose tfp;
       geometry_msgs::Pose p;
       tf::poseKDLToTF(pose,tfp);
@@ -121,7 +138,8 @@ int main(int argc, char **argv) {
       msg.poses.push_back(p);
     }
 
-    std::vector<FeatureVector> v = wtf[i]->getFeatureValues(test.getFeatures());
+
+
     test.normalizeData(v);
     FeatureVector p = test.logL(v);
     std::cout << "[" << i << "] avg = " << p.sum() / p.size() << std::endl;

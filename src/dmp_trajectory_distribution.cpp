@@ -243,7 +243,7 @@ namespace grid {
           }
           std::cout << std::endl;
           std::cout << p << std::endl;
-          assert(ik_tries < 10*nsamples);
+          std::cout << "Max tries reached: " << 10*nsamples << "\n";
           break;
         }
         continue;
@@ -367,14 +367,20 @@ namespace grid {
   void DmpTrajectoryDistribution::update(
       std::vector<EigenVectornd> &params,
       std::vector<double> &ps,
-      unsigned int nsamples,
+      unsigned int full_nsamples,
       double diagonal_noise,
       double step_size)
   {
 
+    unsigned int nsamples = full_nsamples;
     double psum = 0;
-    for (unsigned int i = 0; i < nsamples; ++i) {
+    for (unsigned int i = 0; i < full_nsamples; ++i) {
       assert(not isnan(ps[i]));
+      if (params[i].size() == 0) {
+        std::cout << __FILE__ << ":" << __LINE__ << ": Not enough params; skipping the rest.\n";
+        nsamples = i;
+        break;
+      }
       psum += ps[i];
     }
 
@@ -410,7 +416,7 @@ namespace grid {
         // set up weighted data
         // and then fit GMM again
 
-        std::vector<std::pair<EigenVectornd,double> > data(ps.size());
+        std::vector<std::pair<EigenVectornd,double> > data(nsamples);//ps.size());
         for (unsigned int i = 0; i < nsamples; ++i) { //i < ps.size(); ++i) {
           data[0].first = params[i];
           data[0].second = ps[i] / psum;

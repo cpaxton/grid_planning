@@ -51,7 +51,15 @@ namespace grid {
     last_probability(MAX_PROBABILITY),
     last_samples(1u), pub(0)
   {
-    reset();
+    //reset();
+    done = false;
+    touched = false;
+    model_norm = p.base_model_norm;
+    best_p = LOW_PROBABILITY;
+    cur_iter = 0;
+    good_iter = 0;
+    good_iter = 0;
+    best_idx = 0;
   }
 
 
@@ -65,8 +73,10 @@ namespace grid {
     model_norm = p.base_model_norm;
     best_p = LOW_PROBABILITY;
     cur_iter = 0;
+    good_iter = 0;
+    good_iter = 0;
     if(dmp_dist) {
-      dmp_dist->addNoise(0.002);
+      dmp_dist->addNoise(0.0001);
     }
     best_idx = 0;
     for (double &d: iter_lls) {
@@ -273,9 +283,13 @@ namespace grid {
    * add some noise and refresh norm terms
    */
   void InstantiatedSkill::refresh(int horizon) {
-    std::cout << "refreshing\n";
+    //std::cout << "refreshing\n";
     //model_norm = p.base_model_norm;
     good_iter = 0;
+    if(dmp_dist) {
+      dmp_dist->addNoise(0.0001);
+    }
+    model_norm = p.base_model_norm;
     if (horizon > 0) {
       for (auto &child: next) {
         child->refresh(horizon-1);
@@ -286,7 +300,11 @@ namespace grid {
   void InstantiatedSkill::updateCurrentAttachedObjectFrame() {
     if (skill and skill->hasAttachedObject()) {
       std::cout << "UPDATING: " << skill->getAttachedObject() << "\n";
+      useCurrentFeatures = true;
       currentAttachedObjectFrame = features->lookup(AGENT).Inverse() * features->lookup(skill->getAttachedObject());
+    }
+    for (auto &child: next) {
+      child->updateCurrentAttachedObjectFrame();
     }
   }
 
@@ -350,7 +368,10 @@ namespace grid {
         for (unsigned int i = 0; i < nsamples; ++i) {
           trajs[i].points.resize(1);
           trajs[i].points[0].positions = start_pts[i].positions;
-          trajs[i].points[0].velocities = start_pts[i].velocities;
+          trajs[i].points[0].velocities.resize(start_pts[i].positions.size());
+          for (double &v : trajs[i].points[0].velocities) {
+            v = 0.;
+          }
         }
       }
 
@@ -603,6 +624,7 @@ namespace grid {
 
         reset();
         double probability = MAX_PROBABILITY;
+        int my_horizon = horizon;
         for (unsigned int i = 0; i < p.iter; ++i) {
 
           assert(ros::ok());
@@ -610,7 +632,7 @@ namespace grid {
           features->updateWorldfromTF();
 
           //step(start_ps,starts,next_ps,probability,1,horizon,p.ntrajs);
-          step(start_ps,starts,next_ps,probability,1,horizon,p.ntrajs);
+          step(start_ps,starts,next_ps,probability,1,my_horizon,p.ntrajs);
           if (pub and skill) {
             pub->publish(toPoseArray(trajs,features->getWorldFrame(),robot));
           }
@@ -630,10 +652,17 @@ namespace grid {
             }
           }
 
-        }
+          replan = false;
 
-        replan = false;
-        //replan = true;
+          if (i > 0 and fabs(iter_lls[i] - iter_lls[i-1]) < (p.update_horizon * iter_lls[i])) {
+            if (my_horizon < horizon) {
+              my_horizon++;
+              refresh(my_horizon);
+            } else {
+              break;
+            }
+          }
+        }
       }
 
 

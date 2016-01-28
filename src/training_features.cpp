@@ -10,9 +10,9 @@ namespace grid {
 
 
 
-    const std::vector<WorldConfiguration> &TrainingFeatures::getData() const {
-      return data;
-    }
+  const std::vector<WorldConfiguration> &TrainingFeatures::getData() const {
+    return data;
+  }
 
   /**
    * get last pose
@@ -82,7 +82,7 @@ namespace grid {
           <<", z=" << obj.second.p.z()
           <<std::endl;
 
-                Pose pose = obj.second.Inverse() * conf.base_tform * conf.ee_tform;
+        Pose pose = obj.second.Inverse() * conf.base_tform * conf.ee_tform;
         std::cout << "\tComputed at x=" << pose.p.x()
           <<", y=" << pose.p.y()
           <<", z=" << pose.p.z()
@@ -130,18 +130,25 @@ namespace grid {
    * Returns a list of features converted into a format we can use.
    */
   std::vector<FeatureVector> TrainingFeatures::getFeatureValues(const std::string &name,
-                                                                       double mintime,
-                                                                       double maxtime) {
+                                                                double mintime,
+                                                                double maxtime) {
     //std::vector<std::vector<double> > values;
-    std::vector<FeatureVector> values;
+    std::vector<FeatureVector> values(data.size());
 
+    unsigned int i = 0;
     for (WorldConfiguration &w: data) {
       if ((mintime == maxtime && maxtime == 0)
           or (w.t.toSec() > mintime && w.t.toSec() < maxtime))
       {
         // add this timestep to the data
-        FeatureVector f = worldToFeatures(w); // not quite right since this gets everything
-        values.push_back(f);
+        if (i < 1) {
+          FeatureVector f = worldToFeatures(w); // not quite right since this gets everything
+          values[i] = f;
+        } else {
+          FeatureVector f = worldToFeatures(w,values[i-1]); // not quite right since this gets everything
+          values[i] = f;
+        }
+        ++i;
       }
     }
 
@@ -155,11 +162,18 @@ namespace grid {
    * get all available features from provided set
    */
   std::vector<FeatureVector> TrainingFeatures::getFeatureValues(const std::vector<std::string> &features) {
-    std::vector<FeatureVector> values;
+    std::vector<FeatureVector> values(data.size());
 
+    unsigned int i = 0;
     for (WorldConfiguration &w: data) {
-      FeatureVector f = worldToFeatures(w,features);
-      values.push_back(f);
+      if (i < 1) {
+        FeatureVector f = worldToFeatures(w,features);
+        values[i] = f;
+      } else {
+        FeatureVector f = worldToFeatures(w,features,values[i-1]); // not quite right since this gets everything
+        values[i] = f;
+      }
+      ++i;
     }
 
     return values;
@@ -170,15 +184,94 @@ namespace grid {
    * for testing, at least for now
    */
   std::vector<FeatureVector> TrainingFeatures::getAllFeatureValues() {
-    std::vector<FeatureVector> values;
+    std::vector<FeatureVector> values(data.size());
 
+    unsigned int i = 0;
     for (WorldConfiguration &w: data) {
-      FeatureVector f = worldToFeatures(w);
-      values.push_back(f);
+      if (i < 1) {
+        FeatureVector f = worldToFeatures(w); // not quite right since this gets everything
+        values[i] = f;
+      } else {
+        FeatureVector f = worldToFeatures(w,values[i-1]); // not quite right since this gets everything
+        values[i] = f;
+      }
+      ++i;
     }
 
     return values;
   }
+
+
+  /**
+   * helper
+   * convert a world into a set of features
+   */
+  FeatureVector TrainingFeatures::worldToFeatures(const WorldConfiguration &w, const std::vector<std::string> &features, FeatureVector &prev) const {
+    FeatureVector f(getFeaturesSize(features));
+    unsigned int next_idx = 0;
+
+    for (const std::string &feature: features) {
+      if (feature_types.find(feature) != feature_types.end()) {
+        if (feature_types.at(feature) == POSE_FEATURE) {
+
+          Pose pose;
+          if (not attached) {
+            pose = w.object_poses.at(feature).Inverse() * w.base_tform * w.ee_tform;
+          } else {
+            //std::cout << "attached object: " << attachedObject << "\n";
+            pose = w.object_poses.at(feature).Inverse() * w.object_poses.at(attachedObject); //w.ee_tform;
+          }
+
+          getPoseFeatures(pose,f,next_idx,prev);
+          next_idx += POSE_FEATURES_SIZE;
+
+        } else if(feature_types.at(feature) == TIME_FEATURE) {
+          f(next_idx) = (w.t - min_t).toSec() / (max_t - min_t).toSec();
+
+        } else {
+          next_idx += feature_sizes.at(feature);
+        }
+      } else {
+        std::cerr << __FILE__ << ":" << __LINE__ << ": missing feature: " << feature << std::endl;
+      }
+    }
+
+    return f;
+  }
+
+  /**
+   * helper
+   * convert a world into a set of features
+   */
+  FeatureVector TrainingFeatures::worldToFeatures(const WorldConfiguration &w,FeatureVector &prev) const {
+
+    using KDL::Rotation;
+
+    //std::vector<double> f(getFeaturesSize());
+    FeatureVector f(getFeaturesSize());
+    unsigned int next_idx = 0;
+
+    for (std::pair<const std::string, FeatureType> pair: feature_types) {
+      if (pair.second == POSE_FEATURE) {
+
+        Pose pose = w.object_poses.at(pair.first).Inverse() * w.base_tform * w.ee_tform;
+        std::cout << pair.first << " " << next_idx << "/" << getFeaturesSize()<< "\n";
+        getPoseFeatures(pose,f,next_idx,prev);
+        next_idx += POSE_FEATURES_SIZE;
+
+      } else if(feature_types.at(pair.first) == TIME_FEATURE) {
+        f(next_idx) = (w.t.toSec() - min_t.toSec()) / (max_t.toSec() - min_t.toSec());
+        //std::cout << __LINE__ << ": t=" << f(next_idx) << "; " << max_t.toSec() << "; " << min_t.toSec() << std::endl;
+
+      } else {
+        next_idx += feature_sizes.at(pair.first);
+      }
+    }
+
+    return f;
+  }
+
+
 
   /**
    * helper
@@ -255,7 +348,7 @@ namespace grid {
    * This function will read in the poses and other information associated with the robot.
    * This information all gets stored and can be used to compute features or retrieve world configurations.
    */
-  void TrainingFeatures::read(const std::string &bagfile) {
+  void TrainingFeatures::read(const std::string &bagfile, int downsample) {
     using rosbag::View;
     using rosbag::MessageInstance;
     typedef geometry_msgs::Pose PoseMsg;
@@ -267,6 +360,7 @@ namespace grid {
     WorldConfiguration conf;
     conf.t = ros::Time(0);
 
+    int count = 0;
     // loop over all messages
     for(const MessageInstance &m: view) {
 
@@ -275,7 +369,11 @@ namespace grid {
       if (conf.t == ros::Time(0)) {
         conf.t = m.getTime();
       } else if (conf.t != m.getTime()) {
-        data.push_back(conf);
+
+        ++count;
+        if (not (downsample and count % downsample != 0)) { 
+          data.push_back(conf);
+        }
         conf = WorldConfiguration();
         conf.t = m.getTime();
       }

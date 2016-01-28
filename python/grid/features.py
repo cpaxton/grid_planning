@@ -271,12 +271,12 @@ class RobotFeatures:
 
     def js_cb(self,msg):
 
-	updated = self.TfUpdateWorld()
-	if updated and not self.sync_gripper:
+        updated = self.TfUpdateWorld()
+        if updated and not self.sync_gripper:
             # record joints
             self.times.append(rospy.Time.now())
             self.joint_states.append(msg)
-	    print msg.position
+            print msg.position
             self.world_states.append(copy.deepcopy(self.world))
         elif updated and (rospy.Time.now() - self.last_gripper_msg).to_sec() < self.gripper_t_threshold:
             # record joints
@@ -284,8 +284,8 @@ class RobotFeatures:
             self.joint_states.append(msg)
             self.gripper_cmds.append(self.gripper_cmd)
             self.world_states.append(copy.deepcopy(self.world))
-	else:
-            print "[JOINTS] Waiting for TF (updated=%d) and gripper..."%(updated)
+        else:
+                print "[JOINTS] Waiting for TF (updated=%d) and gripper..."%(updated)
 
     def gripper_cb(self,msg):
 

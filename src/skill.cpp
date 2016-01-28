@@ -188,6 +188,7 @@ namespace grid {
       }
 
       // finish computing std dev
+      std += EigenVectornd::Constant(std.size(),1,0.01);
       std /= training_data.size();
       std = std.cwiseSqrt();
       std = std.cwiseInverse();

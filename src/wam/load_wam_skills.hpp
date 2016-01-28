@@ -76,32 +76,33 @@ namespace grid {
     /* LOAD TRAINING DATA FOR APPROACH */
     {
       std::string filenames[] = {"data/sim/app1.bag", "data/sim/app2.bag", "data/sim/app3.bag"};
-      load_and_train_skill(*approach, rk_ptr, filenames);
+      load_and_train_skill(*approach, rk_ptr, filenames, 3);
     }
     /* LOAD TRAINING DATA FOR GRASP */
     {
       std::string filenames[] = {"data/sim/grasp1.bag", "data/sim/grasp2.bag", "data/sim/grasp3.bag"};
-      load_and_train_skill(*grasp, rk_ptr, filenames);
+      load_and_train_skill(*grasp, rk_ptr, filenames, 3);
     }
     /* LOAD TRAINING DATA FOR ALIGN */
     {
       std::string filenames[] = {"data/sim/align1.bag", "data/sim/align2.bag", "data/sim/align3.bag"};
-      load_and_train_skill(*align, rk_ptr, filenames);
+      load_and_train_skill(*align, rk_ptr, filenames, 3);
     }
     /* LOAD TRAINING DATA FOR PLACE */
     {
       std::string filenames[] = {"data/sim/place1.bag", "data/sim/place3.bag", "data/sim/place3.bag"};
-      load_and_train_skill(*place, rk_ptr, filenames);
+      load_and_train_skill(*place, rk_ptr, filenames, 3);
     }
     /* LOAD TRAINING DATA FOR RELEASE */
     {
-      std::string filenames[] = {"data/sim/release1.bag", "data/sim/release2.bag", "data/sim/release3.bag"};
-      load_and_train_skill(*release, rk_ptr, filenames);
+      //std::string filenames[] = {"data/sim/release1.bag", "data/sim/release2.bag", "data/sim/release3.bag"};
+      std::string filenames[] = {"data/sim/release1b.bag", "data/sim/release2b.bag", "data/sim/release3b.bag"};
+      load_and_train_skill(*release, rk_ptr, filenames, 3);
     }
     /* LOAD TRAINING DATA FOR DISENGAGE */
     {
       std::string filenames[] = {"data/sim/disengage1.bag", "data/sim/disengage2.bag", "data/sim/disengage3.bag"};
-      load_and_train_skill(*disengage, rk_ptr, filenames);
+      load_and_train_skill(*disengage, rk_ptr, filenames, 3);
     }
 
     std::unordered_map<std::string, SkillPtr> skills;
