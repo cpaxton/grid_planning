@@ -149,7 +149,12 @@ namespace grid {
 
     const std::vector<double> &currentVel() const;
 
-  protected:
+    /* reset all entries in the collision map */
+    void ResetCollisionMap();
+
+  private:
+    CollisionMap cm;
+
     //std::unordered_map<std::string, std::string> object_lookup;
     robot_model::RobotModelPtr model;
     //planning_scene_monitor::PlanningSceneMonitorPtr monitor;
@@ -192,7 +197,6 @@ namespace grid {
     /* keep scene up to date */
     void PlanningSceneCallback(const moveit_msgs::PlanningScene::ConstPtr &msg);
   };
-
 }
 
 #endif

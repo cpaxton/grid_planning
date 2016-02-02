@@ -415,10 +415,6 @@ namespace grid {
 
       for (boost::python::list &pt: tmp) {
         traj.push_back(to_std_vector<double>(pt));
-        //for (double d: *traj.rbegin()) {
-        //  std::cout << d << " ";
-        //}
-        //std::cout << std::endl;
       }
 
       return TryTrajectory(traj);
@@ -487,12 +483,20 @@ namespace grid {
           }
         }
 
-        search_state->setVariablePositions(joint_names,pt.positions);
-        search_state->update(true);
+        int check_result = cm.check(pt.positions);
+        if (check_result > -1) {
+
+          drop_trajectory |= (check_result == 1);
+
+        } else {
+
+          search_state->setVariablePositions(joint_names,pt.positions);
+          search_state->update(true);
 
 
-        drop_trajectory |= !scene->isStateValid(*search_state,"",verbose);
+          drop_trajectory |= !scene->isStateValid(*search_state,"",verbose);
 
+        }
         if (verbose) {
           std::cout << " = dropped? " << drop_trajectory << std::endl;
         }
@@ -504,6 +508,12 @@ namespace grid {
       }
 
       return !drop_trajectory;
+    }
+
+
+    /* reset all entries in the collision map */
+    void GridPlanner::ResetCollisionMap() {
+      cm.reset();
     }
   }
 

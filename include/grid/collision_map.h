@@ -24,16 +24,26 @@ namespace grid {
    *
    */
   class CollisionMap {
-    protected:
+    private:
       std::unordered_map<Position_t,bool,CollisionMapHash> map; // store hashed collisions
+      bool verbose;
+      double factor;
 
     public:
+
+      CollisionMap();
+
+      void setVerbose(bool set);
+
       /**
        * reset()
        * This function clears the current map.
        */
       void reset();
 
+      int check(Position_t const& pos) const;
+
+      void update(Position_t const& pos, bool collision);
   };
 }
 
