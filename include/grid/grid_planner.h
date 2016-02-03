@@ -156,7 +156,8 @@ namespace grid {
     CollisionMap cm;
 
     //std::unordered_map<std::string, std::string> object_lookup;
-    robot_model::RobotModelPtr model;
+    //robot_model::RobotModelPtr model;
+    //robot_model::RobotModelPtr model;
     //planning_scene_monitor::PlanningSceneMonitorPtr monitor;
 
     unsigned int dof;
@@ -166,8 +167,12 @@ namespace grid {
     double tau;
     double threshold;
 
-    std::shared_ptr<robot_state::RobotState> search_state;
-    //robot_state::RobotStatePtr search_state;
+    //boost::shared_ptr<robot_state::RobotState> search_state;
+    //boost::shared_ptr<robot_state::RobotState> state;
+    //boost::shared_ptr<planning_scene::PlanningScene> scene;
+    robot_state::RobotState *search_state;
+    robot_state::RobotState *state;
+    planning_scene::PlanningScene *scene;
 
     std::vector<double> goal;
     std::vector<double> goal_threshold;
@@ -179,14 +184,10 @@ namespace grid {
 
     bool verbose;
 
-    std::shared_ptr<boost::mutex> ps_mutex;
-    std::shared_ptr<boost::mutex> js_mutex;
+    boost::shared_ptr<boost::mutex> ps_mutex;
+    boost::shared_ptr<boost::mutex> js_mutex;
 
-  private:
     ros::NodeHandle nh;
-
-    std::shared_ptr<robot_state::RobotState> state;
-    std::shared_ptr<planning_scene::PlanningScene> scene;
 
     ros::Subscriber js_sub;
     ros::Subscriber ps_sub;

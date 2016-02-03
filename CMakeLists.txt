@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(grid_plan)
 
-add_definitions(-g -std=c++0x -pthread)
+add_definitions(-g -std=c++0x -pthread -pg)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -90,6 +90,7 @@ include_directories( include ${orocos_kdl_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS} $
 
 set(PY_SOURCES
   src/grid_planner.cpp
+  src/collision_map.cpp
 )
 
 set(SOURCES 
@@ -118,6 +119,7 @@ set(SOURCES
 
 set(PY_HEADERS
   include/grid/grid_planner.h
+  include/grid/collision_map.h
 )
 
 set(HEADERS
@@ -172,6 +174,7 @@ add_executable(execution_test src/execution_test_node.cpp)
 add_executable(dmp_execution_test src/dmp_execution_test_node.cpp)
 add_executable(task_test src/task_test_node.cpp)
 add_executable(align_test src/align_test_node.cpp)
+add_executable(moveit_robot_model_test src/moveit_robot_test.cpp)
 
 ## Add cmake target dependencies of the executable/libname,rary
 ## as an example, message headers may need to be generated before nodes
@@ -203,3 +206,4 @@ target_link_libraries(execution_test ${ALL_LIBRARIES})
 target_link_libraries(dmp_execution_test ${ALL_LIBRARIES})
 target_link_libraries(task_test ${ALL_LIBRARIES})
 target_link_libraries(align_test ${ALL_LIBRARIES})
+target_link_libraries(moveit_robot_model_test ${ALL_LIBRARIES})

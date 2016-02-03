@@ -6,6 +6,7 @@ using namespace grid;
 int main(int argc, char **argv) {
   ros::init(argc,argv,"grid_plan_node");
   GridPlanner gp("robot_description","/gazebo/barrett_manager/wam/joint_states","/gazebo/planning_scene");
+#if 0
   gp.SetDof(7);
   gp.SetNumBasisFunctions(5);
   gp.SetK(100);
@@ -13,7 +14,9 @@ int main(int argc, char **argv) {
   gp.SetTau(1.0);
   gp.SetGoalThreshold(0.1);
   gp.SetVerbose(true);
+#endif
 
+#if 0
   ros::Duration(0.5).sleep();
 
   std::vector<double> in;
@@ -44,6 +47,7 @@ int main(int argc, char **argv) {
 
     rate.sleep();
   }
+#endif
 
   return 0;
 }

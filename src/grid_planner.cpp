@@ -78,8 +78,8 @@ namespace grid {
     : nh(), dof(7), num_basis(5), goal(7), x0(7), x0_dot(7), goal_threshold(7,0.1), threshold(0.1), verbose(false),
     entry_names(), joint_names(7)
     {
-      ps_mutex = std::shared_ptr<boost::mutex>(new boost::mutex);
-      js_mutex = std::shared_ptr<boost::mutex>(new boost::mutex);
+      ps_mutex = boost::shared_ptr<boost::mutex>(new boost::mutex);
+      js_mutex = boost::shared_ptr<boost::mutex>(new boost::mutex);
 
       js_sub = nh.subscribe(js_topic.c_str(),1000,&GridPlanner::JointStateCallback,this);
 
@@ -89,32 +89,29 @@ namespace grid {
         robot_model_loader::RobotModelLoader robot_model_loader(robot_description_);
         ROS_INFO("Loaded model from \"%s\"!",robot_description_.c_str());
 
-        model = robot_model_loader.getModel();
+        //model = (robot_model_loader.getModel());
+
+        std::vector<std::string> tmp_entry_names;
+
+        //scene = boost::shared_ptr<PlanningScene>(new PlanningScene(robot_model_loader.getModel()));
+        scene = new PlanningScene(robot_model_loader.getModel());
+        scene->getAllowedCollisionMatrix().getAllEntryNames(tmp_entry_names);
+        scene->getCollisionRobotNonConst()->setPadding(padding);
+        scene->propogateRobotPadding();
+
+        //state = boost::shared_ptr<RobotState>(new RobotState(robot_model_loader.getModel()));
+        //search_state = boost::shared_ptr<RobotState>(new RobotState(robot_model_loader.getModel()));
+        state = (new RobotState(robot_model_loader.getModel()));
+        search_state = new RobotState(robot_model_loader.getModel());
+
+        for (const std::string &entry: tmp_entry_names) {
+          entry_names.push_back(std::string(entry));
+        }
 
       } catch (std::exception ex) {
         std::cerr << ex.what() << std::endl;
       }
 
-      std::vector<std::string> tmp_entry_names;
-
-      scene = std::shared_ptr<PlanningScene>(new PlanningScene(model));
-      scene->getAllowedCollisionMatrix().getAllEntryNames(tmp_entry_names);
-      scene->getCollisionRobotNonConst()->setPadding(padding);
-      scene->propogateRobotPadding();
-      state = std::shared_ptr<RobotState>(new RobotState(model));
-      search_state = std::shared_ptr<RobotState>(new RobotState(model));
-
-      for (const std::string &entry: tmp_entry_names) {
-        entry_names.push_back(std::string(entry));
-      }
-
-      //scene = PlanningScenePtr(new PlanningScene(model));
-      //state = RobotStatePtr(new RobotState(model));
-      //search_state = RobotStatePtr(new RobotState(model));
-
-      //boost::shared_ptr<tf::TransformListener> tf(new tf::TransformListener(ros::Duration(2.0)));
-
-      //monitor->startPublishingPlanningScene(PlanningSceneMonitor::SceneUpdateType::UPDATE_SCENE,PS_TOPIC);
       ps_sub = nh.subscribe(scene_topic.c_str(),1000,&GridPlanner::PlanningSceneCallback,this);
     }
 
@@ -132,17 +129,7 @@ namespace grid {
     state.~shared_ptr<RobotState>();
     scene.~shared_ptr<PlanningScene>();
     search_state.~shared_ptr<RobotState>();
-    model.~RobotModelPtr();
-#endif
-
-#if 0
-    goal.~vector<double>();
-    goal_threshold.~vector<double>();
-    x0.~vector<double>();
-    x0_dot.~vector<double>();
-
-    joint_names.~vector<std::string>();
-    entry_names.~vector<std::string>();
+    //model.~RobotModelPtr();
 #endif
   }
 
