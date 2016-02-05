@@ -4,17 +4,11 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /Global Options1
-        - /Status1
-        - /PointCloud21
-        - /END EFFECTOR1
-        - /TF1
-        - /TF1/Frames1
         - /TF1/Tree1
-        - /VISE FRAME1
         - /InteractiveMarkers1/Status1
-        - /LINK 11
-        - /calibration marker1
+        - /DBG EE1
+        - /DBG EE LINK1
+        - /DBG EE NODE1
       Splitter Ratio: 0.531496
     Tree Height: 853
   - Class: rviz/Selection
@@ -87,12 +81,12 @@ Visualization Manager:
       Use rainbow: true
       Value: true
     - Class: rviz/Axes
-      Enabled: true
+      Enabled: false
       Length: 0.05
       Name: END EFFECTOR
       Radius: 0.01
       Reference Frame: ee_link
-      Value: true
+      Value: false
     - Class: rviz/TF
       Enabled: true
       Frame Timeout: 1
@@ -152,6 +146,8 @@ Visualization Manager:
           Value: false
         camera_2/ar_marker_242:
           Value: false
+        camera_2/ar_marker_243:
+          Value: true
         camera_2/ar_marker_244:
           Value: false
         camera_2/ar_marker_246:
@@ -263,17 +259,35 @@ Visualization Manager:
                       {}
                     Obj::link_uniform::2:
                       {}
+                    Obj::link_uniform::3:
+                      {}
+                    Obj::link_uniform::4:
+                      {}
+                    Obj::link_uniform::5:
+                      {}
                     Obj::node_uniform::1:
                       {}
                     Obj::node_uniform::2:
                       {}
                     Obj::node_uniform::3:
                       {}
+                    Obj::node_uniform::4:
+                      {}
+                    Obj::node_uniform::5:
+                      {}
+                    Obj::node_uniform::6:
+                      {}
+                    Obj::node_uniform::7:
+                      {}
                     camera_2/ar_marker_0:
                       {}
                     camera_2/ar_marker_2:
                       {}
+                    camera_2/ar_marker_243:
+                      {}
                     camera_2/ar_marker_244:
+                      {}
+                    camera_2/ar_marker_255:
                       {}
               endpoint:
                 endpoint_marker:
@@ -397,19 +411,19 @@ Visualization Manager:
       Value: true
       Visual Enabled: true
     - Class: rviz/Axes
-      Enabled: true
+      Enabled: false
       Length: 0.05
       Name: RAW TOOL FRAME
       Radius: 0.01
       Reference Frame: camera_2/ar_marker_1
-      Value: true
+      Value: false
     - Class: rviz/Axes
-      Enabled: true
+      Enabled: false
       Length: 0.05
       Name: RAW VISE FRAME
       Radius: 0.01
       Reference Frame: camera_2/ar_marker_2
-      Value: true
+      Value: false
     - Class: rviz/Axes
       Enabled: false
       Length: 0.05
@@ -426,13 +440,13 @@ Visualization Manager:
       Value: false
     - Class: rviz/InteractiveMarkers
       Enable Transparency: true
-      Enabled: true
+      Enabled: false
       Name: InteractiveMarkers
       Show Axes: true
       Show Descriptions: false
       Show Visual Aids: false
       Update Topic: /interactive_transform_publisher/endpoint_interact/update
-      Value: true
+      Value: false
     - Arrow Length: 0.3
       Class: rviz/PoseArray
       Color: 170; 0; 255
@@ -454,6 +468,27 @@ Visualization Manager:
       Radius: 0.005
       Reference Frame: camera_2/ar_marker_0
       Value: false
+    - Arrow Length: 0.05
+      Class: rviz/PoseArray
+      Color: 255; 25; 0
+      Enabled: true
+      Name: DBG EE
+      Topic: /dbg_ee
+      Value: true
+    - Arrow Length: 0.05
+      Class: rviz/PoseArray
+      Color: 0; 170; 0
+      Enabled: true
+      Name: DBG EE LINK
+      Topic: /dbg_ee_link
+      Value: true
+    - Arrow Length: 0.05
+      Class: rviz/PoseArray
+      Color: 0; 0; 255
+      Enabled: true
+      Name: DBG EE NODE
+      Topic: /dbg_ee_node
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -478,22 +513,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 1.33766
+      Distance: 2.64308
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.832854
-        Y: -0.0313249
-        Z: -0.177535
+        X: 0.726855
+        Y: -0.263986
+        Z: -0.115291
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.274796
+      Pitch: 0.314796
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 3.6854
+      Yaw: 2.43541
     Saved: ~
 Window Geometry:
   Displays:
