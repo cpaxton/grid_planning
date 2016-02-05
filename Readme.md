@@ -13,7 +13,10 @@ This code requires:
   * ROS (tested on Indigo)
   * Orocos KDL (download a new version)
   * ``scikit-learn`` for different mixture models (python only!)
-  * ``pyhsmm`` for HDP-HMM learning (used in some experiments; may not be necessray for most things!)
+  * ``pyhsmm`` for HDP-HMM learning (used in some sexperiments; may not be necessray for most things!)
+  * Dynamic Movement Primitives ROS package
+  * Gazebo
+  * The ``lcsr_assembly`` stack
 
 To run the experiments, you'll need my ```grid_experiments``` ROS packages, as well as a working version of the ```lcsr_barrett``` simulation.
 
