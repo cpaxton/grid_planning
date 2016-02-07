@@ -89,18 +89,19 @@ class RobotFeatures:
             filename=None
             ):
 
-	self.sync_gripper = True
-	if preset == 'wam7_sim':
-		base_link='wam/base_link'
-		end_link='wam/wrist_palm_link'
-		js_topic='/gazebo/barrett_manager/wam/joint_states'
-		gripper_topic='/gazebo/barrett_manager/hand/cmd'
-	elif preset == 'ur5':
-		base_link='base_link'
-		end_link='ee_link'
-		js_topic='/joint_states'
-		gripper_topic='/robotiq_c_model_gripper/gripper_command'
-		self.sync_gripper = False
+        self.sync_gripper = True
+        self.is_recording = False
+        if preset == 'wam7_sim':
+            base_link='wam/base_link'
+            end_link='wam/wrist_palm_link'
+            js_topic='/gazebo/barrett_manager/wam/joint_states'
+            gripper_topic='/gazebo/barrett_manager/hand/cmd'
+        elif preset == 'ur5':
+            base_link='base_link'
+            end_link='ee_link'
+            js_topic='/joint_states'
+            gripper_topic='/robotiq_c_model_gripper/gripper_command'
+            self.sync_gripper = False
 
         self.dof = dof;
         self.world_frame = world_frame
@@ -222,12 +223,25 @@ class RobotFeatures:
             return self.goal_model.score(X)
 
     def StartRecording(self):
+        self.is_recording = True
         if self.recorded:
             return
 
         self.recorded = True
         self.js_sub = rospy.Subscriber(self.js_topic,sensor_msgs.msg.JointState,self.js_cb)
         self.gripper_sub = rospy.Subscriber(self.gripper_topic,GripperCmd,self.gripper_cb)
+
+    def StopRecording(self):
+
+        self.is_recording = False
+        self.recorded = False
+        #self.js_sub = None #rospy.Subscriber(self.js_topic,sensor_msgs.msg.JointState,self.js_cb)
+        #self.gripper_sub = None #rospy.Subscriber(self.gripper_topic,GripperCmd,self.gripper_cb)
+
+        self.world_states = []
+        self.joint_states = []
+        self.gripper_cmds = []
+
 
     def save(self,filename):
 
@@ -271,6 +285,10 @@ class RobotFeatures:
 
     def js_cb(self,msg):
 
+        if not self.is_recording:
+            #print "[JOINTS] Not currently recording!"
+            return
+
         updated = self.TfUpdateWorld()
         if updated and not self.sync_gripper:
             # record joints
@@ -285,7 +303,7 @@ class RobotFeatures:
             self.gripper_cmds.append(self.gripper_cmd)
             self.world_states.append(copy.deepcopy(self.world))
         else:
-                print "[JOINTS] Waiting for TF (updated=%d) and gripper..."%(updated)
+            print "[JOINTS] Waiting for TF (updated=%d) and gripper..."%(updated)
 
     def gripper_cb(self,msg):
 

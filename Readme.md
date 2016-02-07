@@ -81,6 +81,16 @@ Collision detection is disabled by default for now, but you can enable it in any
 rosrun grid_plan dmp_execution_test _step_size:=0.75 _iter:=10 _ntrajs:=20 _noise:=1e-10 trajectory:=/gazebo/traj_rml/joint_traj_cmd _skill:=approach _wait:=0.25 _detect_collisions:=1
 ```
 
+### Other Notes
+
+The model normalization term is really important to getting strong results. Setting it to a nonzero value is one of the several ways we prevent the distribution over trajectories from converging too quickly: "bad" examples in early iterations may still be helpful for guiding the distribution towards an optimal goal.
+
+For example, here's a set of parameters that seems to work pretty well as of 2016-02-07 for the assembly task:
+
+```
+rosrun grid_plan task_test _step_size:=0.75 _iter:=50 _ntrajs:=50 _verbosity:=0 _starting_horizon:=5 _max_horizon:=5 _update_horizon:=0.001 _detect_collisions:=true _wait:=0 _base_model_norm:=0.1
+```
+
 ## Guide to Files
 
 ### Executables

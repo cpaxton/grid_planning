@@ -25,17 +25,30 @@ class CommandActionExecutor(object):
     self._as.start()
     self._reg = GripperRegressor(robot,gripper_topic,None,None)
 
+    self._robot = robot;
+    self._robot.TfUpdateWorld()
+    self._robot.sync_gripper = False # it does not make sense to record this at all
+
     for skill in skills:
       self._reg.addSkill(skill)
 
     self._traj_pub = rospy.Publisher("/gazebo/traj_rml/joint_traj_cmd", JointTrajectory, queue_size=100)
     
   def execute_cb(self, goal):
-    # helper variables
-    success = True
     
+    self._robot.TfUpdateWorld()
+    if self._robot is None:
+        print "[EXECUTE] Error: no robot!"
+
     print goal
     self._traj_pub.publish(goal.traj)
+
+    for i in range(len(goal.keys)):
+        self._robot.AddObject(goal.keys[i],goal.values[i])
+        print " ... adding %s with frame=%s"%(goal.keys[i],goal.values[i])
+
+    print self._robot
+    self._robot.StartRecording()
 
     config = []
     for i in range(len(goal.keys)):
@@ -49,10 +62,14 @@ class CommandActionExecutor(object):
         wait = rospy.Duration(len(goal.traj.points)*2.0/30)
         rospy.sleep(wait)
         self._reg.regress(0.025,0.2)
+
+    self._robot.save(goal.name + ".yml")
+    self._robot.StopRecording()
       
+    success = True
     if success:
       #self._result.sequence = self._feedback.sequence
-      rospy.loginfo('%s: Succeeded' % self._action_name)
+      rospy.loginfo('%s: Succeeded for \"%s\"' % (self._action_name,goal.name))
       self._as.set_succeeded(self._result)
       
 if __name__ == '__main__':
