@@ -245,6 +245,8 @@ class RobotFeatures:
 
     def save(self,filename):
 
+        self.is_recording = False
+
         if self.recorded:
             stream = file(filename,'w')
 

@@ -49,6 +49,8 @@ class CommandActionExecutor(object):
     #self._traj_pub.publish(goal.traj)
     self._client.wait_for_server()
     rospy.loginfo("Server ready!")
+    #for pt in goal.traj.points:
+    #    pt.velocities = []
     actionlib_goal = control_msgs.msg.FollowJointTrajectoryGoal(trajectory=goal.traj)
     self._client.send_goal(actionlib_goal)
 
@@ -60,6 +62,11 @@ class CommandActionExecutor(object):
     self._robot.StartRecording()
 
     self._client.wait_for_result()
+    rospy.loginfo("Server done executing trajectory!")
+    self._robot.save(goal.name + ".yml")
+    rospy.loginfo(("Saving now as %s")%(goal.name + ".yml"));
+    self._robot.StopRecording()
+    rospy.loginfo("Recording stopped!")
 
     config = []
     for i in range(len(goal.keys)):
@@ -68,14 +75,12 @@ class CommandActionExecutor(object):
     #print config
     if len(config) > 0:
         self._reg.configure(config)
-        self._reg.set_active_skill(goal.name)
+        if self._reg.set_active_skill(goal.name):
+            rospy.logwarn("Regression!")
+            self._reg.regress(0.025,0.2)
 
-        wait = rospy.Duration(len(goal.traj.points)*2.0/30)
-        rospy.sleep(wait)
-        self._reg.regress(0.025,0.2)
-
-    self._robot.save(goal.name + ".yml")
-    self._robot.StopRecording()
+        #wait = rospy.Duration(len(goal.traj.points)*2.0/30)
+        #rospy.sleep(wait)
       
     success = True
     if success:

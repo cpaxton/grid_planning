@@ -54,6 +54,8 @@ class GripperRegressor:
     def set_active_skill(self,skill):
         self.active_skill = skill
     
+        success = False
+
         if self.active_skill in self.skills:
             skill = self.skills[self.active_skill]
             self.robot.indices = {}
@@ -64,6 +66,7 @@ class GripperRegressor:
             self.weights = skill.gripper_model.weights_
             self.objs = skill.objs
             self.robot.SetActionNormalizer(skill)
+            success = True
         self.robot.AddObject('gripper')
 
         self.ndims = self.robot.max_index
@@ -72,6 +75,7 @@ class GripperRegressor:
             self.world = self.robot.TfCreateWorld()
         self.skill_is_active = True
 
+        return success
 
     '''
     tick for a while
