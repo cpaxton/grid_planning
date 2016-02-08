@@ -12,12 +12,16 @@ from grid_plan import TrajectoryCommander
 
 from trajectory_msgs.msg import JointTrajectory
 
+import actionlib
+import control_msgs
+
 class CommandActionExecutor(object):
   # create messages that are used to publish feedback/result
   _feedback = CommandFeedback()
   _result   = CommandResult()
   _reg = None
   _traj_pub = rospy.Publisher("/gazebo/traj_rml/joint_traj_cmd", JointTrajectory, queue_size=100)
+  _client = actionlib.SimpleActionClient("/gazebo/traj_rml/action",control_msgs.msg.FollowJointTrajectoryAction)
 
   def __init__(self, name, robot, skills, gripper_topic):
     self._action_name = name
@@ -33,6 +37,7 @@ class CommandActionExecutor(object):
       self._reg.addSkill(skill)
 
     self._traj_pub = rospy.Publisher("/gazebo/traj_rml/joint_traj_cmd", JointTrajectory, queue_size=100)
+    self._client = actionlib.SimpleActionClient("/gazebo/traj_rml/action",control_msgs.msg.FollowJointTrajectoryAction)
     
   def execute_cb(self, goal):
     
@@ -41,7 +46,11 @@ class CommandActionExecutor(object):
         print "[EXECUTE] Error: no robot!"
 
     print goal
-    self._traj_pub.publish(goal.traj)
+    #self._traj_pub.publish(goal.traj)
+    self._client.wait_for_server()
+    rospy.loginfo("Server ready!")
+    actionlib_goal = control_msgs.msg.FollowJointTrajectoryGoal(trajectory=goal.traj)
+    self._client.send_goal(actionlib_goal)
 
     for i in range(len(goal.keys)):
         self._robot.AddObject(goal.keys[i],goal.values[i])
@@ -49,6 +58,8 @@ class CommandActionExecutor(object):
 
     print self._robot
     self._robot.StartRecording()
+
+    self._client.wait_for_result()
 
     config = []
     for i in range(len(goal.keys)):
