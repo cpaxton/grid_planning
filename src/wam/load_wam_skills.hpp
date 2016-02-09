@@ -55,9 +55,11 @@ namespace grid {
 
   std::unordered_map<std::string, SkillPtr> loadWamSkills() {
 
-    SkillPtr approach(new Skill("approach",1));
+    std::unordered_map<std::string, SkillPtr> skills;
+
+    SkillPtr approach(new Skill("approach",3));
     SkillPtr grasp(new Skill("grasp",1));
-    SkillPtr align(new Skill("align",1));
+    SkillPtr align(new Skill("align",3));
     SkillPtr place(new Skill("place",1));
     SkillPtr release(new Skill("release",1));
     SkillPtr disengage(new Skill("disengage",1));
@@ -105,7 +107,6 @@ namespace grid {
       load_and_train_skill(*disengage, rk_ptr, filenames, 3);
     }
 
-    std::unordered_map<std::string, SkillPtr> skills;
     skills["approach"] = approach;
     skills["grasp"] = grasp;
     skills["align"] = align;

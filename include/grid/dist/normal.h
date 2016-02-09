@@ -184,6 +184,11 @@ namespace gcop {
       //}
       
       Vectornd d = x - mu;
+      //std::cout << "d = \n";
+      //std::cout << d << "\n";
+      //std::cout << "Pinv = \n";
+      //std::cout << Pinv << "\n";
+      //std::cout << d.dot(Pinv*d) << "\n";
       return exp(-d.dot(Pinv*d)/2)/norm;
     }
   
@@ -197,7 +202,8 @@ namespace gcop {
         Pinv = P.inverse();
         //std::cout << "P INV = \n" << Pinv << "\n\n";
         det = P.determinant();
-        norm = sqrt(det); //sqrt(pow(2*M_PI, mu.size())*det);
+        //norm = sqrt(det); //sqrt(pow(2*M_PI, mu.size())*det);
+        norm = sqrt(pow(2*M_PI, mu.size())*det);
         pd = true;
       } else {
         cout << "[W] Normal::Update: cholesky failed: P=" << P << endl;
@@ -287,6 +293,7 @@ namespace gcop {
       os << mu(i) << ",";
     }
     os << std::endl;
+    std::cout <<"P=\n"<<P<<"\n";
   }
 
   template<int _n>

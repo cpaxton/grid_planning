@@ -167,7 +167,7 @@ namespace grid {
       }
       for (int j = 0; j < nvars; ++j) {
         if (j < POSE_RPY_SIZE) { 
-          dist.ns[0].P(j,j) = DEFAULT_SIGMA;
+          dist.ns[0].P(j,j) = 0.1*DEFAULT_SIGMA;
         }
         else {
           dist.ns[0].P(j,j) = 10*DEFAULT_SIGMA;

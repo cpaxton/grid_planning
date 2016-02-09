@@ -59,6 +59,8 @@ namespace grid {
       double p = v.array().exp().sum() / v.size();
       std::cout << "[" << skill.getName() << "] training example " << i << " with " << data.size() << " examples: p = " << p << std::endl;
     }
+
+    skill.printGmm();
   }
 
 

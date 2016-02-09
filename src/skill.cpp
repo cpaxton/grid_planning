@@ -135,6 +135,9 @@ namespace grid {
     for (FeatureVector &ex: ex_data) {
       std::pair<FeatureVector,double> obs(ex,1.0);
       training_data.push_back(obs);
+      if (isStatic()) {
+        break;
+      }
     }
 
     init_final = data.getPoseFrom(best_feature_name,*ex_data.rbegin());
@@ -175,6 +178,7 @@ namespace grid {
 
       // loop to compute mean
       double num_examples = (double)training_data.size();
+      std::cout << "training from " << num_examples << " examples.\n";
       for (auto &pair: training_data) {
         mean += pair.first;
         pair.second = 1.0/num_examples;
@@ -187,6 +191,8 @@ namespace grid {
         std = std.array() + (v.array() * v.array());
       }
 
+      //std::cout << "Mean = " << mean.transpose() << "\n";
+
       // finish computing std dev
       std += EigenVectornd::Constant(std.size(),1,0.01);
       std /= training_data.size();
@@ -198,12 +204,16 @@ namespace grid {
         FeatureVector v = pair.first - mean;
         std::pair<FeatureVector,double> norm_pair(v.array()*std.array(),pair.second);
         normalized_training_data.push_back(norm_pair); // this could be more efficient
+        //std::cout << norm_pair.first.transpose() << "\nwt="<<norm_pair.second<<"-----\n";
       }
 
       model = GmmPtr(new Gmm(dim,k));
 
-      model->Init(normalized_training_data.begin()->first,normalized_training_data.rbegin()->first);
+      //model->Init(normalized_training_data.begin()->first,normalized_training_data.rbegin()->first);
+      model->Init(EigenVectornd::Constant(dim,-1),EigenVectornd::Constant(dim,1));
+      //std::cout <<  *model << "\n";
       model->Fit(normalized_training_data);
+      //std::cout <<  *model << "\n";
       model->Update();
 
 
@@ -213,9 +223,9 @@ namespace grid {
       // save the original matrices
       P.resize(k);
       for (unsigned int i = 0; i < k; ++i) {
-        model->ns[i].P = 1*Matrixnd::Identity(dim,dim);
+        //model->ns[i].P = 1*Matrixnd::Identity(dim,dim);
+        model->ns[i].P += 1e-10*Matrixnd::Identity(dim,dim);
         P[i] = model->ns[i].P;
-        //model->ns[i].P += 1*Matrixnd::Identity(dim,dim);
       }
       model->Update();
 
@@ -250,7 +260,6 @@ namespace grid {
 
     for (unsigned int i = 0; i < data.size(); ++i) {
       vec(i) = model->logL(data[i]);
-      //std::cout << "-- x --\n" << data[i] << "\n== MU ==\n" << model->ns[0].mu << "\n--" << std::endl;
     }
 
     return vec;

@@ -134,7 +134,12 @@ namespace gcop {
         // No need to call update since it is called after EM
 
         bool ok = true;
+        double wt_norm = 0;
         for (int i = 0; i < k; ++i) {
+          wt_norm += ws[i];
+        }
+        for (int i = 0; i < k; ++i) {
+          ws[i] /= wt_norm;
           cdf[i] = (i ? cdf[i - 1] + ws[i] : ws[i]); 
           ok = ok && ns[i].pd;
         }
@@ -151,7 +156,7 @@ namespace gcop {
 
         double l = 0;
         for (int i = 0; i < k; ++i)
-          l += ws[i]*ns[i].L(x);    
+          l += ws[i]*ns[i].L(x);
         return l;
       }
     }
@@ -192,7 +197,7 @@ namespace gcop {
     void Gmm<_n>::Init(const Vectornd &xlb, const Vectornd &xub)
     {
       Vectornd dx = xub - xlb;   // range
-      Vectornd r = dx/pow(k, 1.0/dx.size())/2;     // radius
+      Vectornd r = dx/pow(k, 1.0/dx.size());///2;     // radius
       Matrixnd P = (r.cwiseProduct(r)).asDiagonal();
       for (int i = 0; i < k; ++i) {    
         ns[i].mu = xlb + dx.cwiseProduct(VectorXd::Random(xlb.size()));
@@ -248,8 +253,10 @@ namespace gcop {
             norm += psj[i];
           }
 
+          if (not norm == 0) {
 #ifdef DEBUG
           //assert(norm > 1e-10);
+          cout << norm << ":";
           cout << "    normalized: ps[" << j << "]=";
 #endif
           for (int i = 0; i < k; ++i) {
@@ -261,7 +268,13 @@ namespace gcop {
 #ifdef DEBUG
           cout << endl;
 #endif
+          } else {
+            for (int i = 0; i < k; ++i) {
+              psj[i] = 1.0 / k;
+            }
+          }
         }  
+
 
 
         // M-step
@@ -294,6 +307,7 @@ namespace gcop {
           if (S)
             ns[i].P += *S;
 
+          //std::cout << "i=" << i << ":" << ns[i].mu.transpose() << "\n";
 
           if (!ns[i].Update()) // set Pinv, det, norm
             return;
