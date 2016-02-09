@@ -392,6 +392,9 @@ namespace grid {
 
       // one cluster only
       // compute mean
+      
+      //std::cout << "BEFORE:\n";
+      //std::cout << dist.ns[0].P << "\n";
 
       dist.ns[0].mu *= (1 - step_size); //setZero();
       dist.ns[0].P *= (1 - step_size); //setZero();
@@ -407,29 +410,32 @@ namespace grid {
       for (unsigned int i = 0; i < nsamples; ++i) { //i < params.size(); ++i) {
         double wt = step_size * ps[i] / psum;
         //std::cout << wt << ", " << ps[i] << ", " << psum << std::endl;
-        dist.ns[0].P += wt * (params[i] - dist.ns[0].mu) * (params[i] - dist.ns[0].mu).transpose();
+        //dist.ns[0].P += wt * (params[i] - dist.ns[0].mu) * (params[i] - dist.ns[0].mu).transpose();
+        dist.ns[0].P += wt * (params[i] - dist.ns[0].mu).array().square().matrix().asDiagonal();// * (params[i] - dist.ns[0].mu);
       }
 
+      //std::cout << "AFTER:\n";
+      //std::cout << dist.ns[0].P << "\n";
 
-      } else {
+    } else {
 
-        // set up weighted data
-        // and then fit GMM again
+      // set up weighted data
+      // and then fit GMM again
 
-        std::vector<std::pair<EigenVectornd,double> > data(nsamples);//ps.size());
-        for (unsigned int i = 0; i < nsamples; ++i) { //i < ps.size(); ++i) {
-          data[0].first = params[i];
-          data[0].second = ps[i] / psum;
-        }
-
-        dist.Fit(data);
-
-        }
-
-        for (unsigned int i = 0; i < dist.k; ++i) {
-          dist.ns[0].P += diagonal_noise * Matrix<double,Dynamic,Dynamic>::Identity(nvars,nvars);
-        }
-
-        dist.Update();
+      std::vector<std::pair<EigenVectornd,double> > data(nsamples);//ps.size());
+      for (unsigned int i = 0; i < nsamples; ++i) { //i < ps.size(); ++i) {
+        data[0].first = params[i];
+        data[0].second = ps[i] / psum;
       }
+
+      dist.Fit(data);
+
       }
+
+      for (unsigned int i = 0; i < dist.k; ++i) {
+        dist.ns[0].P += diagonal_noise * Matrix<double,Dynamic,Dynamic>::Identity(nvars,nvars);
+      }
+
+      dist.Update();
+    }
+  }

@@ -51,6 +51,7 @@ class CommandActionExecutor(object):
     rospy.loginfo("Server ready!")
     #for pt in goal.traj.points:
     #    pt.velocities = []
+    goal.traj.points[-1].velocities = []
     actionlib_goal = control_msgs.msg.FollowJointTrajectoryGoal(trajectory=goal.traj)
     self._client.send_goal(actionlib_goal)
 

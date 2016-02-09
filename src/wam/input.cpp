@@ -5,7 +5,7 @@
 namespace grid {
 
 
-  void load_and_train_skill(Skill &skill, RobotKinematicsPtr &rk_ptr, const std::string filenames[], unsigned int len) {
+  void load_and_train_skill(Skill &skill, RobotKinematicsPtr &rk_ptr, const std::string filenames[], unsigned int len, unsigned int k) {
     /* LOAD TRAINING DATA FOR GRASP*/
 
     if (len == 0) {
