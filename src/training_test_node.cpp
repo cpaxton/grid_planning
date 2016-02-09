@@ -19,12 +19,12 @@ int main(int argc, char **argv) {
   RobotKinematicsPtr rk_ptr = RobotKinematicsPtr(rk);
 
 
-  unsigned int ntraining = 3u; //9u;
+  unsigned int ntraining = 4u; //9u;
   std::vector<std::shared_ptr<WamTrainingFeatures> > wtf(ntraining);
-  //std::string filenames[] = {"data/sim/app1.bag", "data/sim/app2.bag", "data/sim/app3.bag"};
+  std::string filenames[] = {"data/sim/app1.bag", "data/sim/app2.bag", "data/sim/app3.bag", "data/sim_auto/approach1.bag"};
   //std::string filenames[] = {"data/sim/align1.bag", "data/sim/align2.bag", "data/sim/align3.bag"};
   //std::string filenames[] = {"data/sim/release1b.bag", "data/sim/release2b.bag", "data/sim/release3b.bag"};
-  std::string filenames[] = {"data/sim/release1.bag", "data/sim/release2.bag", "data/sim/release3.bag"};
+  //std::string filenames[] = {"data/sim/release1.bag", "data/sim/release2.bag", "data/sim/release3.bag"};
   //std::string filenames[] = {"data/sim/release1.bag", "data/sim/release2.bag", "data/sim/release3.bag",
   //  "data/sim/release1b.bag", "data/sim/release2b.bag", "data/sim/release3b.bag","data/sim/release1c.bag", "data/sim/release2c.bag", "data/sim/release3c.bag"};
   //std::string filenames[] = {"data/sim/grasp1.bag", "data/sim/grasp2.bag", "data/sim/grasp3.bag"};
@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
     wtf_ex->addFeature("time",TIME_FEATURE);
     wtf_ex->setRobotKinematics(rk_ptr);
     wtf_ex->read(filenames[i],10);
-    wtf_ex->attachObjectFrame("link");
+    //wtf_ex->attachObjectFrame("link");
     wtf[i] = wtf_ex;
   }
 
@@ -46,8 +46,8 @@ int main(int argc, char **argv) {
   {
 
     std::vector<std::string> features;
-    //features.push_back("link");
-    features.push_back("node");
+    features.push_back("link");
+    //features.push_back("node");
     features.push_back("time");
 
     clock_t begin = clock();
@@ -97,12 +97,13 @@ int main(int argc, char **argv) {
 
   std::cout << "Running skill test:" << std::endl;
 
-  Skill test("align",1);
-  //test.appendFeature("link").appendFeature("time");
+  Skill test("approach",1);
+  //test.appendFeature("node").appendFeature("time");
   //test.attachObject("link");
-  test.appendFeature("node").appendFeature("time");
-  test.attachObject("link");
+  test.appendFeature("link").appendFeature("time");
+  //test.attachObject("link");
   for (unsigned int i = 0; i < ntraining; ++i) {
+    std::cout << " ... " << i << "\n";
     test.addTrainingData(*wtf[i]);
   }
   test.trainSkillModel();
@@ -115,18 +116,19 @@ int main(int argc, char **argv) {
 
   // get ready
   geometry_msgs::PoseArray msg;
-  msg.header.frame_id = "gbeam_node_1/gbeam_node";//"gbeam_link_1/gbeam_link"; //"wam/wrist_palm_link";
+  //msg.header.frame_id = "gbeam_node_1/gbeam_node";//"gbeam_link_1/gbeam_link"; //"wam/wrist_palm_link";
+  msg.header.frame_id = "gbeam_link_1/gbeam_link"; //"wam/wrist_palm_link";
   //msg.header.frame_id = "wam/wrist_palm_link";
   for (unsigned int i = 0; i < ntraining; ++i) {
 
-    //std::vector<Pose> poses = wtf[i]->getPose("link");
-    std::vector<Pose> poses = wtf[i]->getPose("node");
+    std::vector<Pose> poses = wtf[i]->getPose("link");
+    //std::vector<Pose> poses = wtf[i]->getPose("node");
 
     std::vector<FeatureVector> v = wtf[i]->getFeatureValues(test.getFeatures());
 
     //for (Pose &pose: poses) {
     for (FeatureVector &vec: v) {
-      Pose pose = wtf[i]->getPoseFrom("node",vec);
+      Pose pose = wtf[i]->getPoseFrom("link",vec);
       for (unsigned int i = 0; i < vec.size(); ++ i) {
         std::cout << vec(i) << " ";
       }

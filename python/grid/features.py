@@ -241,6 +241,7 @@ class RobotFeatures:
         self.world_states = []
         self.joint_states = []
         self.gripper_cmds = []
+        self.times = []
 
 
     def save(self,filename):
@@ -275,11 +276,13 @@ class RobotFeatures:
         with rosbag.Bag(filename,'w') as outbag:
             try:
                 for i in range(len(self.times)):
+                    #print "%d / %d / %d"%(i, len(self.joint_states), len(self.times))
                     outbag.write('joint_states',self.joint_states[i],self.times[i])
                     for frame in self.world_states[0].keys():
                         outbag.write('world/%s'%frame,pm.toMsg(self.world_states[i][frame]),self.times[i])
                     outbag.write('base_tform',pm.toMsg(self.base_tform),self.times[i])
-                    outbag.write('gripper_msg',self.gripper_cmds[i],self.times[i])
+                    if len(self.gripper_cmds) > 0:
+                        outbag.write('gripper_msg',self.gripper_cmds[i],self.times[i])
 
             finally:
                 outbag.close()
