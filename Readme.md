@@ -19,6 +19,24 @@ To run the experiments, you'll need my ```grid_experiments``` ROS packages, as w
 
 ## Experiments
 
+### Collecting Data
+
+Data collection requires a proper configuration of the environment. You're grounding all of the different actions for particular objects, right?
+
+Examples are configured to collect gripper data for the Barrett WAM arms. So just start with ``hydra:=true`` and then run:
+```
+rosrun grid_plan demonstrate.py myaction1.yml
+```
+
+You can then either use the python (prototype) code or the C++ code.
+The C++ code is an attempt to build a more fully integrated version of the pipeline, faster and with more features. Jury is out on whether that worked, but it seems ideal because of the large numbers of loops and such. The C++ code reads in rosbag files, which you can create from these demonstration YAML files with:
+
+```
+rosrun grid_plan convert_yml_to_rosbag.py /path/to/training/data/
+```
+
+Of course you replace ``/path/to/training/data/`` with a path to your examples.
+
 ### Running Tests
 
 There are a lot of ways you can run the different experiments provided.
