@@ -19,9 +19,9 @@ int main(int argc, char **argv) {
   RobotKinematicsPtr rk_ptr = RobotKinematicsPtr(rk);
 
 
-  unsigned int ntraining = 4u; //9u;
+  unsigned int ntraining = 5u; //9u;
   std::vector<std::shared_ptr<WamTrainingFeatures> > wtf(ntraining);
-  std::string filenames[] = {"data/sim/app1.bag", "data/sim/app2.bag", "data/sim/app3.bag", "data/sim_auto/approach1.bag"};
+  std::string filenames[] = {"data/sim/app1.bag", "data/sim/app2.bag", "data/sim/app3.bag", "data/sim_auto/approach1.bag", "data/sim_auto/approach2.bag"};
   //std::string filenames[] = {"data/sim/align1.bag", "data/sim/align2.bag", "data/sim/align3.bag"};
   //std::string filenames[] = {"data/sim/release1b.bag", "data/sim/release2b.bag", "data/sim/release3b.bag"};
   //std::string filenames[] = {"data/sim/release1.bag", "data/sim/release2.bag", "data/sim/release3.bag"};
