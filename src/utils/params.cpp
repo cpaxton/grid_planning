@@ -54,6 +54,9 @@ namespace grid {
       if (not nh_tilde.getParam("max_horizon",p.max_horizon)) {
         p.max_horizon = 5;
       }
+      if (not nh_tilde.getParam("collisions_verbose",p.collisions_verbose)) {
+        p.collisions_verbose = true;
+      }
 
       return p;
     }

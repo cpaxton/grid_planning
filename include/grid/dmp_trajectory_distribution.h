@@ -54,7 +54,7 @@ namespace grid {
      * Convert it into a KDL trajectory
      * NON-CONST becuse Gmm::sample is likewise non-const
      */
-    void sample(
+    unsigned int sample(
         const std::vector<JointTrajectoryPoint> &start_pts,
         std::vector<EigenVectornd> &params,
         std::vector<JointTrajectory> &trajs,

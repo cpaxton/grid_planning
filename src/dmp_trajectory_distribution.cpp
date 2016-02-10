@@ -152,7 +152,7 @@ namespace grid {
     dist.ns[0].mu[POSE_FEATURE_ROLL] = roll;
 
     for (int j = POSE_RPY_SIZE; j < nvars; ++j) {
-      dist.ns[0].mu[j] = 0;
+      dist.ns[0].mu[j] = 0;//(double)(j % nbasis) / (double)nbasis;
     }
 
     /*for (unsigned int j = 0; j < dist.ns[0].mu.size(); ++j) {
@@ -190,7 +190,7 @@ namespace grid {
    * Convert it into a KDL trajectory
    * NON-CONST becuse Gmm::sample is likewise non-const
    */
-  void DmpTrajectoryDistribution::sample(
+  unsigned int DmpTrajectoryDistribution::sample(
       const std::vector<JointTrajectoryPoint> &start_pts,
       std::vector<EigenVectornd> &params,
       std::vector<JointTrajectory> &trajs, unsigned int nsamples) {
@@ -305,12 +305,21 @@ namespace grid {
 
         if (collision) {
           std::cout << "COLLISION DETECTED!\n";
-          continue;
+          ++ik_tries;
+          if (ik_tries > 10*nsamples) {
+            std::cerr << __FILE__ << ":" << __LINE__ << ": We are really having trouble with collisions!\n";
+            break;
+          } else {
+            continue;
+          }
         }
       }
 
       ++sample;
     }
+
+    std::cout << "sampled " << sample << "\n";
+    return sample;
   }
 
 

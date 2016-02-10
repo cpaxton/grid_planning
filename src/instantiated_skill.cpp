@@ -316,15 +316,15 @@ namespace grid {
    */
   void InstantiatedSkill::updateBest(unsigned int nsamples) {
     best_p = 0;
-    if (skill) std::cout << skill->getName() << " ";
+    //if (skill) std::cout << skill->getName() << " ";
     for (unsigned int i = 0; i < nsamples; ++i) {
-      std::cout << ps[i] << " ";
+      //std::cout << ps[i] << " ";
       if (ps[i] > best_p) {
         best_p = ps[i];
         best_idx = i;
       }
     }
-    std::cout << "\n";
+    //std::cout << "\n";
   }
 
   /**
@@ -378,7 +378,7 @@ namespace grid {
 
       if (!skill->isStatic()) {
         // sample trajectories
-        dmp_dist->sample(start_pts,params,trajs,nsamples);
+        next_len = dmp_dist->sample(start_pts,params,trajs,nsamples);
       } else {
         // just stay put
         for (unsigned int i = 0; i < nsamples; ++i) {
@@ -427,6 +427,12 @@ namespace grid {
 
         if (p.verbosity > 1) {
           std::cout << "[" << id << "] " << j << ": " << skill->getName() << ": "<< my_ps[j]<<" + "<< start_ps[j]<<"\n";
+        }
+
+
+        if (trajs[j].points.size() < 1) {
+          my_ps[j] = LOW_PROBABILITY;
+          continue;
         }
 
         // set up all the end points!
@@ -518,17 +524,17 @@ namespace grid {
     }
 
     double sum = 0;
-    double sum2 = 0;
+    //double sum2 = 0;
     // normalize everything
     {
       for (unsigned int i = 0; i < nsamples; ++i) {
         sum += exp(ps[i]);
-        sum2 += exp(my_ps[i] + next_ps[i]);
+        //sum2 += exp(my_ps[i] + next_ps[i]);
       }
       // normalize here
       for (unsigned int i = 0; i < nsamples; ++i) {
         ps[i] = exp(ps[i]) / sum;
-        my_future_ps[i] = exp(my_ps[i] + next_ps[i]) / sum2;
+        //my_future_ps[i] = exp(my_ps[i] + next_ps[i]) / sum2;
         //std::cout << my_future_ps[i] << " ";
         //assert(not isnan(ps[i]));
       }
@@ -539,7 +545,7 @@ namespace grid {
     updateTransitions();
 
     bool skip = false;
-    if (log(sum2) < LOW_PROBABILITY) {
+    if (log(sum) < LOW_PROBABILITY) {
       skip = true;
       //std::cout << "nothing here \n";
     }
@@ -561,7 +567,7 @@ namespace grid {
     }
 
     // compute ll for this iteration
-    iter_lls[cur_iter] = sum2 / p.ntrajs;
+    iter_lls[cur_iter] = sum / p.ntrajs;
 
     if (cur_iter > 0 and fabs(iter_lls[cur_iter]-iter_lls[cur_iter]) < 1e-2*iter_lls[cur_iter]) {
       done = true;
