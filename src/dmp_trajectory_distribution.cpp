@@ -304,7 +304,7 @@ namespace grid {
         bool collision = !checker->TryTrajectory(trajs[sample]);
 
         if (collision) {
-          std::cout << "COLLISION DETECTED!\n";
+          //std::cout << "COLLISION DETECTED!\n";
           ++ik_tries;
           if (ik_tries > 10*nsamples) {
             std::cerr << __FILE__ << ":" << __LINE__ << ": We are really having trouble with collisions!\n";

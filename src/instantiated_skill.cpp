@@ -76,7 +76,7 @@ namespace grid {
     good_iter = 0;
     good_iter = 0;
     if(dmp_dist) {
-      dmp_dist->addNoise(0.0001);
+      dmp_dist->addNoise(0.005);
     }
     best_idx = 0;
     for (double &d: iter_lls) {
