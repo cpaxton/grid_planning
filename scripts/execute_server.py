@@ -22,10 +22,23 @@ class CommandActionExecutor(object):
   _reg = None
   _traj_pub = rospy.Publisher("/gazebo/traj_rml/joint_traj_cmd", JointTrajectory, queue_size=100)
   _client = actionlib.SimpleActionClient("/gazebo/traj_rml/action",control_msgs.msg.FollowJointTrajectoryAction)
-  #_record = False
-  _record = True
+  _record = False
+  #_record = True
 
   def __init__(self, name, robot, skills, gripper_topic):
+
+    try:
+        _record = rospy.get_param("~record")
+        if not _record is None:
+            self._record = bool(_record)
+        else:
+            self._record = False
+    except KeyError, e:
+        print "KeyError: " + str(e)
+        self._record = False
+
+    rospy.loginfo("Record set to: %s"%(str(self._record)))
+
     self._action_name = name
     self._as = actionlib.SimpleActionServer(self._action_name, CommandAction, execute_cb=self.execute_cb, auto_start = False)
     self._as.start()
@@ -97,6 +110,10 @@ if __name__ == '__main__':
 
   skills = []
   for i in range(1,len(sys.argv)):
+
+    if sys.argv[i][0] == '_':
+        continue
+
 	skill_filename = 'skills/sim/%s_skill.yml'%(sys.argv[i])
 	skills.append(grid.RobotSkill(filename=skill_filename))
 	print "Loaded skill '%s'"%(skills[-1].name)
@@ -135,6 +152,8 @@ if __name__ == '__main__':
         gripper_topic=gripper_topic,
         dof=dof,
         preset=preset)
+
+  print "... created RobotFeatures\n"
 
 
   CommandActionExecutor('command',robot,skills,gripper_topic)
