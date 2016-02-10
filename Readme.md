@@ -109,6 +109,12 @@ For example, here's a set of parameters that seems to work pretty well as of 201
 rosrun grid_plan task_test _step_size:=0.75 _iter:=50 _ntrajs:=50 _verbosity:=0 _starting_horizon:=5 _max_horizon:=5 _update_horizon:=0.001 _detect_collisions:=true _wait:=0 _base_model_norm:=0.1
 ```
 
+As of 2016-02-09, I have been removing/testing the removal of a lot of the random noise parameters I have included in this file. These were things like the "base model norm" and "model norm step." Go ahead and remove those in future executions of the task test:
+
+```
+rosrun grid_plan task_test _step_size:=0.5 _iter:=20 _ntrajs:=100  _starting_horizon:=5 _max_horizon:=5 _update_horizon:=0.01 _detect_collisions:=true _base_model_norm:=0.01 _model_norm_step:=1
+```
+
 ## Guide to Files
 
 ### Executables
