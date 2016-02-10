@@ -145,15 +145,18 @@ int main(int argc, char **argv) {
       bool res = rk_ptr->toJointTrajectory(trajs[j],joint_trajs[j],0.1);
       if (skill_name == "disengage") {
 
-        std::vector<FeatureVector> features = test.getFeaturesForTrajectory(disengage.getFeatures(),trajs[j]);
+        std::vector<FeatureVector> features;
+        test.getFeaturesForTrajectory(features,disengage.getFeatures(),trajs[j]);
         disengage.normalizeData(features);
 
         FeatureVector v = disengage.logL(features);
         ps[j] = (double)res * (v.array().exp().sum() / v.size()); // would add other terms first
       } else {
 
-        std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),trajs[j]);
-        std::vector<FeatureVector> grasp_features = test.getFeaturesForTrajectory(grasp.getFeatures(),trajs[j]);
+        std::vector<FeatureVector> features;
+        test.getFeaturesForTrajectory(features,approach.getFeatures(),trajs[j]);
+        std::vector<FeatureVector> grasp_features;
+        test.getFeaturesForTrajectory(grasp_features,grasp.getFeatures(),trajs[j]);
 
         test.setAll(grasp_features,grasp.getFeatures(),"time",0);
 

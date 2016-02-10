@@ -49,6 +49,12 @@ namespace grid {
     void initialize(TestFeatures &features, const Skill &skill, bool initBegin = false, std::vector<double> sigma = std::vector<double>());
 
     /**
+     * initialize pose
+     * set up the distribution based on a skill and an environment
+     */
+    void initializePose(TestFeatures &features, const Skill &skill, bool initBegin = false);
+
+    /**
      * sample
      * Pull a random trajectory from the gmm
      * Convert it into a KDL trajectory

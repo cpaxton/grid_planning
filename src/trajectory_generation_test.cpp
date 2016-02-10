@@ -109,10 +109,11 @@ int main(int argc, char **argv) {
       {
         using namespace std;
 
+        std::vector<FeatureVector> features;
         clock_t begin = clock();
         for (unsigned int i = 0; i < trajs.size(); ++i) {
 
-          std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),trajs[i]);
+          test.getFeaturesForTrajectory(features,approach.getFeatures(),trajs[i]);
           approach.normalizeData(features);
           FeatureVector v = approach.logL(features);
 

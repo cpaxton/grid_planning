@@ -108,6 +108,7 @@ set(SOURCES
   src/robot_kinematics.cpp
   src/task_model.cpp
   src/instantiated_skill.cpp
+  src/instantiated_skill_init.cpp
 
   src/utils/commander.cpp
   src/utils/params.cpp

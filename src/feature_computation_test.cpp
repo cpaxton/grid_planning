@@ -105,7 +105,7 @@ int main (int argc, char **argv) {
         //test_set.push_back("link");
         test_set.push_back("node");
         clock_t begin = clock();
-        features = test.getFeaturesForTrajectory(test_set,frames);
+        test.getFeaturesForTrajectory(features,test_set,frames);
         clock_t end = clock();
         double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
         std::cout << "Computing features for " << features.size() << " positions took " << elapsed_secs << " seconds." << std::endl;

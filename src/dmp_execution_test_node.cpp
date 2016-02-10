@@ -161,7 +161,8 @@ int main(int argc, char **argv) {
         disengage.resetModel();
         disengage.addModelNormalization(model_norm);
 
-        std::vector<FeatureVector> features = test.getFeaturesForTrajectory(disengage.getFeatures(),poses);
+        std::vector<FeatureVector> features;
+        test.getFeaturesForTrajectory(features, disengage.getFeatures(),poses);
         disengage.normalizeData(features);
         FeatureVector v = disengage.logL(features);
         ps[j] = (v.array().exp().sum() / v.size()); // would add other terms first
@@ -171,7 +172,8 @@ int main(int argc, char **argv) {
         align.resetModel();
         align.addModelNormalization(model_norm);
 
-        std::vector<FeatureVector> features = test.getFeaturesForTrajectory(align.getFeatures(),poses);
+        std::vector<FeatureVector> features;
+        test.getFeaturesForTrajectory(features,align.getFeatures(),poses);
         align.normalizeData(features);
         FeatureVector v = align.logL(features);
         ps[j] = (v.array().exp().sum() / v.size()); // would add other terms first
@@ -182,7 +184,8 @@ int main(int argc, char **argv) {
         approach.resetModel();
         approach.addModelNormalization(model_norm);
 
-        std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),poses);
+        std::vector<FeatureVector> features;
+        test.getFeaturesForTrajectory(features,approach.getFeatures(),poses);
 
         test.setAll(features,approach.getFeatures(),"time",0);
 
@@ -199,8 +202,10 @@ int main(int argc, char **argv) {
         grasp.resetModel();
         grasp.addModelNormalization(model_norm);
 
-        std::vector<FeatureVector> features = test.getFeaturesForTrajectory(approach.getFeatures(),poses);
-        std::vector<FeatureVector> grasp_features = test.getFeaturesForTrajectory(grasp.getFeatures(),poses);
+        std::vector<FeatureVector> features;
+        test.getFeaturesForTrajectory(features,approach.getFeatures(),poses);
+        std::vector<FeatureVector> grasp_features;
+        test.getFeaturesForTrajectory(grasp_features,grasp.getFeatures(),poses);
 
         test.setAll(grasp_features,grasp.getFeatures(),"time",0);
 

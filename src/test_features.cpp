@@ -148,13 +148,14 @@ namespace grid {
    * Get information for a single feature over the whole trajectory given in traj.
    * Traj is KDL::Trajectory
    */
-  std::vector<FeatureVector> TestFeatures::getFeaturesForTrajectory(const std::vector<std::string> &names,
-                                                                    Trajectory *traj, double dt)
+  void TestFeatures::getFeaturesForTrajectory(std::vector<FeatureVector> &features,
+                                              const std::vector<std::string> &names,
+                                              Trajectory *traj, double dt)
   {
 
     using KDL::Rotation;
 
-    std::vector<FeatureVector> features((unsigned int)1+floor(traj->Duration() / dt));
+    features.resize((unsigned int)1+floor(traj->Duration() / dt));
     unsigned int next_idx = 0;
     unsigned int dim = getFeaturesSize(names);
     for (double t = 0; t < traj->Duration(); t += dt) {
@@ -200,8 +201,6 @@ namespace grid {
       assert(idx == dim);
     }
     assert(next_idx == features.size());
-
-    return features;
   }
 
   /* getFeaturesForTrajectory
@@ -209,13 +208,14 @@ namespace grid {
    * Traj is a set of frames
    * Uses an attached object frame
    */
-  std::vector<FeatureVector> TestFeatures::getFeaturesForTrajectory(const std::vector<std::string> &names,
-                                                                    const TrajectoryFrames &traj,
-                                                                    const bool useAttachedObjectFrame,
-                                                                    const Pose &attachedObjectFrame)
+  void TestFeatures::getFeaturesForTrajectory(std::vector<FeatureVector> &features,
+                                              const std::vector<std::string> &names,
+                                              const TrajectoryFrames &traj,
+                                              const bool useAttachedObjectFrame,
+                                              const Pose &attachedObjectFrame)
   {
 
-    std::vector<FeatureVector> features(traj.size());
+    features.resize(traj.size());
 
     unsigned int next_idx = 0;
     unsigned int dim = getFeaturesSize(names);
@@ -255,8 +255,6 @@ namespace grid {
       features[next_idx++] = f;
 
     }
-    return features;
-
   }
 
 
@@ -265,10 +263,11 @@ namespace grid {
    * Get information for a single feature over the whole trajectory given in traj.
    * Traj is a set of frames
    */
-  std::vector<FeatureVector> TestFeatures::getFeaturesForTrajectory(const std::vector<std::string> &names,
-                                                                    const TrajectoryFrames &traj)
+  void TestFeatures::getFeaturesForTrajectory(std::vector<FeatureVector> &features,
+                                              const std::vector<std::string> &names,
+                                              const TrajectoryFrames &traj)
   {
-    return getFeaturesForTrajectory(names, traj, attached, attachedObjectFrame);
+    getFeaturesForTrajectory(features, names, traj, attached, attachedObjectFrame);
   }
 
 

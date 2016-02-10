@@ -29,23 +29,29 @@ namespace grid {
      * Get information for a single feature over the whole trajectory given in traj.
      * Traj is KDL::Trajectory
      */
-    std::vector<FeatureVector> getFeaturesForTrajectory(const std::vector<std::string> &names, Trajectory *traj, double dt = 0.05);
+    void getFeaturesForTrajectory(std::vector<FeatureVector> &features,
+                                                        const std::vector<std::string> &names,
+                                                        Trajectory *traj,
+                                                        double dt = 0.05);
 
     /* getFeaturesForTrajectory
      * Get information for a single feature over the whole trajectory given in traj.
      * Traj is a set of frames
      */
-    std::vector<FeatureVector> getFeaturesForTrajectory(const std::vector<std::string> &name, const TrajectoryFrames &traj);
+    void getFeaturesForTrajectory(std::vector<FeatureVector> &features,
+        const std::vector<std::string> &name,
+        const TrajectoryFrames &traj);
 
     /* getFeaturesForTrajectory
      * Get information for a single feature over the whole trajectory given in traj.
      * Traj is a set of frames
      * Uses an attached object frame
      */
-    std::vector<FeatureVector> getFeaturesForTrajectory(const std::vector<std::string> &name,
-                                                        const TrajectoryFrames &traj,
-                                                        const bool useAttachedObjectFrame,
-                                                        const Pose &attachedObjectFrame);
+    void getFeaturesForTrajectory(std::vector<FeatureVector> &features,
+                                  const std::vector<std::string> &name,
+                                  const TrajectoryFrames &traj,
+                                  const bool useAttachedObjectFrame,
+                                  const Pose &attachedObjectFrame);
 
     /* addFrame
      * Adds a frame of reference as a feature

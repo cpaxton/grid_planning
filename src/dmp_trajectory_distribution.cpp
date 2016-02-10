@@ -108,13 +108,7 @@ namespace grid {
     attached = false;
   }
 
-  /**
-   * initialize
-   * set up the distribution based on a skill and an environment
-   */
-  void DmpTrajectoryDistribution::initialize(TestFeatures &features, const Skill &skill, bool initBegin, std::vector<double> sigma) {
-    //Pose p0 = features.lookup(AGENT);
-    //std::cout << skill.getInitializationFeature() << std::endl;
+  void DmpTrajectoryDistribution::initializePose(TestFeatures &features, const Skill &skill, bool initBegin) {
     Pose p1 = features.lookup(skill.getInitializationFeature());
     //std::cout << p1 << std::endl;
     if (not initBegin) {
@@ -126,11 +120,11 @@ namespace grid {
     if (skill.hasAttachedObject()) {
       if (attached) {
         std::cout << "Attached frame loaded from DISTRIBUTION\n";
-        std::cout << attachedObjectFrame << "\n";
+        //std::cout << attachedObjectFrame << "\n";
         p1 = p1 * attachedObjectFrame.Inverse();
       } else if (features.hasAttachedObjectFrame()) {
         std::cout << "Attached frame loaded from FEATURES\n";
-        std::cout << features.getAttachedObjectFrame() << "\n";
+        //std::cout << features.getAttachedObjectFrame() << "\n";
         p1 = p1 * features.getAttachedObjectFrame().Inverse();
       } else {
         std::cerr << __FILE__ << ":" << __LINE__ << ": This skill requires an attached object and none was provided!\n";
@@ -150,6 +144,15 @@ namespace grid {
     dist.ns[0].mu[POSE_FEATURE_YAW] = yaw;
     dist.ns[0].mu[POSE_FEATURE_PITCH] = pitch;
     dist.ns[0].mu[POSE_FEATURE_ROLL] = roll;
+  }
+
+  /**
+   * initialize
+   * set up the distribution based on a skill and an environment
+   */
+  void DmpTrajectoryDistribution::initialize(TestFeatures &features, const Skill &skill, bool initBegin, std::vector<double> sigma) {
+
+    initializePose(features,skill,initBegin);
 
     for (int j = POSE_RPY_SIZE; j < nvars; ++j) {
       dist.ns[0].mu[j] = 0;//(double)(j % nbasis) / (double)nbasis;

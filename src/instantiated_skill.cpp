@@ -51,7 +51,6 @@ namespace grid {
     last_probability(MAX_PROBABILITY),
     last_samples(1u), pub(0)
   {
-    //reset();
     done = false;
     touched = false;
     model_norm = p.base_model_norm;
@@ -76,7 +75,8 @@ namespace grid {
     good_iter = 0;
     good_iter = 0;
     if(dmp_dist) {
-      dmp_dist->addNoise(0.005);
+      //dmp_dist->initializePose(*features,*skill);
+      dmp_dist->addNoise(0.0005);
     }
     best_idx = 0;
     for (double &d: iter_lls) {
@@ -85,104 +85,10 @@ namespace grid {
     for (InstantiatedSkillPtr ptr: next) {
       ptr->reset();
     }
-  }
-
-
-  /**
-   * create a new skill with dmps
-   */
-  InstantiatedSkillPtr InstantiatedSkill::DmpInstance(SkillPtr skill,
-                                                      TestFeaturesPtr features,
-                                                      RobotKinematicsPtr robot,
-                                                      unsigned int nbasis,
-                                                      GridPlanner *checker)
-  {
-
-    Params p = readRosParams();
-    InstantiatedSkillPtr is(new InstantiatedSkill(p));
-    is->skill = skill;
-    is->features = features;
-    is->robot = robot;
-    is->dmp_dist = DmpTrajectoryDistributionPtr(
-        new DmpTrajectoryDistribution(robot->getDegreesOfFreedom(),
-                                      nbasis,
-                                      robot));
-    is->dmp_dist->attachObjectFrame(skill->getDefaultAttachedObjectPose());
-    is->dmp_dist->initialize(*features,*skill);
-
-    if(checker) {
-      is->dmp_dist->setCollisionChecker(checker);
-    }
-
-    return is;
-  }
-
-  /**
-   * create a new skill with dmps
-   */
-  InstantiatedSkillPtr InstantiatedSkill::DmpInstance(SkillPtr skill,
-                                                      SkillPtr grasp,
-                                                      TestFeaturesPtr features,
-                                                      RobotKinematicsPtr robot,
-                                                      unsigned int nbasis,
-                                                      GridPlanner *checker)
-  {
-
-    Params p = readRosParams();
-    InstantiatedSkillPtr is(new InstantiatedSkill(p));
-    is->skill = skill;
-    is->features = features;
-    is->robot = robot;
-    is->dmp_dist = DmpTrajectoryDistributionPtr(
-        new DmpTrajectoryDistribution(robot->getDegreesOfFreedom(),
-                                      nbasis,
-                                      robot));
-    is->dmp_dist->attachObjectFromSkill(*grasp);
-    is->dmp_dist->initialize(*features,*skill);
-
-    if(checker) {
-      is->dmp_dist->setCollisionChecker(checker);
-    }
-
-    return is;
-  }
-
-  /**
-   * create a new skill with spline and segments
-   */
-  InstantiatedSkillPtr InstantiatedSkill::SplineInstance(SkillPtr skill,
-                                                         TestFeaturesPtr features,
-                                                         RobotKinematicsPtr robot,
-                                                         unsigned int nseg)
-  {
-
-    InstantiatedSkillPtr is(new InstantiatedSkill());
-    is->skill = skill;
-    is->features = features;
-    is->robot = robot;
-    is->spline_dist = TrajectoryDistributionPtr(new TrajectoryDistribution(nseg));
-    is->spline_dist->initialize(*features,*skill);
-
-    return is;
-  }
-
-  /**
-   * create an empty root node
-   */
-  InstantiatedSkillPtr InstantiatedSkill::Root() {
-    Params p = readRosParams();
-    return InstantiatedSkillPtr (new InstantiatedSkill(p));
-  }
-
-  /**
-   * define a possible child
-   */
-  InstantiatedSkill &InstantiatedSkill::addNext(InstantiatedSkillPtr skill) {
-    next.push_back(skill);
-    T.push_back(1);
-    last_T.push_back(1);
-
-    updateTransitions();
+    //for (unsigned int i = 0; i < T.size(); ++i) {
+    //  last_T[i] = 1.0 / T.size();
+    //  T[i] = 1.0 / T.size();
+    //}
   }
 
   /**
@@ -406,23 +312,24 @@ namespace grid {
         skill->addModelNormalization(model_norm);
 
         // TODO: speed this up
-        std::vector<FeatureVector> obs;
         if (useCurrentFeatures) {
           //std::cout << currentAttachedObjectFrame << "\n";
-          obs = features->getFeaturesForTrajectory(
+          features->getFeaturesForTrajectory(
+              traj_features,
               skill->getFeatures(),
               poses,
               skill->hasAttachedObject(),
               currentAttachedObjectFrame);
         } else {
-          obs = features->getFeaturesForTrajectory(
+          features->getFeaturesForTrajectory(
+              traj_features,
               skill->getFeatures(),
               poses,
               dmp_dist->hasAttachedObject(),
               dmp_dist->getAttachedObjectFrame());
         }
-        skill->normalizeData(obs);
-        FeatureVector v = skill->logL(obs);
+        skill->normalizeData(traj_features);
+        FeatureVector v = skill->logL(traj_features);
         my_ps[j] = log(v.array().exp().sum() / v.size()); // would add other terms first
 
         if (p.verbosity > 1) {
@@ -483,10 +390,12 @@ namespace grid {
           }
         }
         ps[i] = start_ps[i] + my_ps[i] + next_ps[i];
+        my_future_ps[i] = my_ps[i] + next_ps[i];
       }
     } else if (horizon == 0) {
       for (unsigned int i = 0; i < nsamples; ++i) {
         ps[i] = start_ps[i] + my_ps[i];
+        my_future_ps[i] = my_ps[i] + next_ps[i];
       }
     }
 
@@ -524,14 +433,17 @@ namespace grid {
     }
 
     double sum = 0;
+    double future_sum = 0;
     // normalize everything
     {
       for (unsigned int i = 0; i < nsamples; ++i) {
         sum += exp(ps[i]);
+        future_sum += exp(my_future_ps[i]);
       }
       // normalize here
       for (unsigned int i = 0; i < nsamples; ++i) {
         ps[i] = exp(ps[i]) / sum;
+        my_future_ps[i] = exp(my_future_ps[i]) / future_sum;
       }
     }
 
@@ -555,8 +467,8 @@ namespace grid {
       }
 
       if (nsamples > 1) {
-        dmp_dist->update(params,ps,nsamples,p.noise,p.step_size);
-        //dmp_dist->addNoise(pow(0.1,(10*good_iter)+5));
+        dmp_dist->update(params,my_future_ps,nsamples,p.noise,p.step_size);
+        dmp_dist->addNoise(1e-6); //pow(0.1,(good_iter/2)+5));
       }
     }
 
@@ -615,73 +527,6 @@ namespace grid {
       replan = true;
     }
 
-    // replan if necessary
-    if (replan and skill and not skill->isStatic()) {
-
-      std::cout << "In main replan loop.\n";
-
-      useCurrentFeatures = true;
-      updateCurrentAttachedObjectFrame();
-
-      robot->updateHint(gp.currentPos());
-      robot->updateVelocityHint(gp.currentVel());
-      features->updateWorldfromTF();
-      updateCurrentAttachedObjectFrame();
-
-      std::vector<trajectory_msgs::JointTrajectoryPoint> starts(1);
-
-      start_ps.resize(1);
-      start_ps[0] = MAX_PROBABILITY;
-
-      for (auto &pt: starts) {
-        pt.positions = gp.currentPos();
-        pt.velocities = gp.currentVel();
-      }
-
-      reset();
-      double probability = MAX_PROBABILITY;
-      int my_horizon = horizon;
-      for (unsigned int i = 0; i < p.iter; ++i) {
-
-        assert(ros::ok());
-        ros::spinOnce();
-        features->updateWorldfromTF();
-
-        //step(start_ps,starts,next_ps,probability,1,horizon,p.ntrajs);
-        step(start_ps,starts,next_ps,probability,1,my_horizon,p.ntrajs);
-        if (pub and skill) {
-          pub->publish(toPoseArray(trajs,features->getWorldFrame(),robot));
-        }
-
-        {
-          double best_t_p = 0;
-          unsigned int idx = 0;
-          for (unsigned int i = 0; i < T.size(); ++i) {
-            if (T[i] > best_t_p) {
-              idx = i;
-              best_t_p = T[i];
-            }
-          }
-
-          if (next[idx]->pub) {
-            next[idx]->pub->publish(toPoseArray(next[idx]->trajs,features->getWorldFrame(),robot));
-          }
-        }
-
-        replan = false;
-
-        if (i > 0 and fabs(iter_lls[i] - iter_lls[i-1]) < (p.update_horizon * iter_lls[i])) {
-          if (my_horizon < horizon) {
-            my_horizon++;
-            refresh(my_horizon);
-          } else {
-            break;
-          }
-        }
-      }
-    }
-
-
     // trigger action server
     CommandGoal cmd;
     if (skill) {
@@ -701,13 +546,56 @@ namespace grid {
     std::cout << "waiting for result\n";
     ac.waitForResult();
 
-    // continue execution
     if (horizon > 0 && next.size() > 0) {
-      if (skill && skill->isStatic()) {
-        // replan from here
+      // replan if necessary
+      if (replan or (skill and skill->isStatic())) {
+
+        std::cout << "In main replan loop.\n";
+
+        useCurrentFeatures = true;
+        updateCurrentAttachedObjectFrame();
+
+        robot->updateHint(gp.currentPos());
+        robot->updateVelocityHint(gp.currentVel());
+        features->updateWorldfromTF();
+        updateCurrentAttachedObjectFrame();
+
+        std::vector<trajectory_msgs::JointTrajectoryPoint> starts(1);
+
+        start_ps.resize(1);
+        start_ps[0] = MAX_PROBABILITY;
+
+        for (auto &pt: starts) {
+          pt.positions = gp.currentPos();
+          pt.velocities = gp.currentVel();
+        }
+
+        reset();
+        double probability = MAX_PROBABILITY;
+        int my_horizon = horizon;
+        for (unsigned int i = 0; i < p.iter; ++i) {
+
+          assert(ros::ok());
+          ros::spinOnce();
+          features->updateWorldfromTF();
+
+          //step(start_ps,starts,next_ps,probability,1,horizon,p.ntrajs);
+          step(start_ps,starts,next_ps,probability,1,my_horizon,p.ntrajs);
+          publish();
+
+          //replan = false;
+          if (i > 0 and fabs(iter_lls[i] - iter_lls[i-1]) < (p.update_horizon * iter_lls[i])) {
+            if (my_horizon < horizon) {
+              my_horizon++;
+              refresh(my_horizon);
+            } else {
+              break;
+            }
+          }
+        }
       }
 
-
+      // continue execution
       double best_t_p = 0;
       unsigned int idx = 0;
       for (unsigned int i = 0; i < T.size(); ++i) {
@@ -717,10 +605,29 @@ namespace grid {
         }
       }
 
-      replan = replan or (skill and skill->isStatic());
-      return next[idx]->execute(gp,ac,horizon-1,replan);
+      //replan = replan or (skill and skill->isStatic());
+      return next[idx]->execute(gp,ac,horizon-1,false);
     } else {
       return true;
+    }
+  }
+
+  void InstantiatedSkill::publish() {
+    if (not touched) {
+      return;
+    } else if (pub and skill) {
+      pub->publish(toPoseArray(trajs,features->getWorldFrame(),robot));
+    }
+    double best_t_p = 0;
+    unsigned int idx = 0;
+    if (next.size() > 0) {
+      for (unsigned int i = 0; i < T.size(); ++i) {
+        if (T[i] > best_t_p) {
+          idx = i;
+          best_t_p = T[i];
+        }
+      }
+      next[idx]->publish();
     }
   }
 

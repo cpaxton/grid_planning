@@ -80,6 +80,8 @@ namespace grid {
     unsigned int cur_iter;
     unsigned int good_iter;
 
+    std::vector<FeatureVector> traj_features;
+
     Pose currentAttachedObjectFrame;
 
     //static std::uniform_real_distribution<double> unif_rand(0.,1.);
@@ -212,6 +214,8 @@ namespace grid {
     void accumulateProbs(const std::vector<double> &prev_ps, unsigned int len);
     void copyEndPoints(const std::vector<JointTrajectoryPoint> &prev_end_pts,
                        const std::vector<double> &prev_ps, unsigned int len);
+
+    void publish();
 
   };
 
