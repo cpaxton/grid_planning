@@ -271,7 +271,6 @@ namespace grid {
   {
     for (unsigned int i = 0; i < len; ++ i) {
       start_ps[i] = prev_ps.at(i);
-      my_ps[i] = 0;
       end_pts[i].positions = prev_end_pts.at(i).positions;
       end_pts[i].velocities = prev_end_pts.at(i).velocities;
     }
@@ -342,7 +341,10 @@ namespace grid {
     accumulateProbs(prev_ps,len);
 
     /************* SAMPLE TRAJECTORIES IF NECESSARY *************/
-    if (skill) {
+    if (not skill) {
+      copyEndPoints(prev_end_pts, prev_ps, len);
+      next_len = len;
+    } else {
 
       // sample start points
       for (unsigned int i = 0; i < nsamples; ++i) {
@@ -376,339 +378,336 @@ namespace grid {
       // compute probabilities
       for (unsigned int j = 0; j < nsamples; ++j) {
 
-        if (trajs[j].points.size() == 0) {
+        /*if (trajs[j].points.size() == 0) {
           my_ps[j] = LOW_PROBABILITY;
           continue;
-        }
+          }*/
 
         // TODO: speed this up
         std::vector<Pose> poses = robot->FkPos(trajs[j]);
 
-        if (skill) { // and not done) {
-          skill->resetModel();
-          skill->addModelNormalization(model_norm);
+        skill->resetModel();
+        skill->addModelNormalization(model_norm);
 
-          // TODO: speed this up
-          std::vector<FeatureVector> obs;
-          if (useCurrentFeatures) {
-            //std::cout << currentAttachedObjectFrame << "\n";
-            obs = features->getFeaturesForTrajectory(
-                skill->getFeatures(),
-                poses,
-                skill->hasAttachedObject(),
-                currentAttachedObjectFrame);
-          } else {
-            obs = features->getFeaturesForTrajectory(
-                skill->getFeatures(),
-                poses,
-                dmp_dist->hasAttachedObject(),
-                dmp_dist->getAttachedObjectFrame());
-          }
-          skill->normalizeData(obs);
-          FeatureVector v = skill->logL(obs);
-          my_ps[j] = log(v.array().exp().sum() / v.size()); // would add other terms first
+        // TODO: speed this up
+        std::vector<FeatureVector> obs;
+        if (useCurrentFeatures) {
+          //std::cout << currentAttachedObjectFrame << "\n";
+          obs = features->getFeaturesForTrajectory(
+              skill->getFeatures(),
+              poses,
+              skill->hasAttachedObject(),
+              currentAttachedObjectFrame);
+        } else {
+          obs = features->getFeaturesForTrajectory(
+              skill->getFeatures(),
+              poses,
+              dmp_dist->hasAttachedObject(),
+              dmp_dist->getAttachedObjectFrame());
         }
+        skill->normalizeData(obs);
+        FeatureVector v = skill->logL(obs);
+        my_ps[j] = log(v.array().exp().sum() / v.size()); // would add other terms first
+
         if (p.verbosity > 1) {
           std::cout << "[" << id << "] " << j << ": " << skill->getName() << ": "<< my_ps[j]<<" + "<< start_ps[j]<<"\n";
         }
 
         // set up all the end points!
-        end_pts[j].positions = trajs[j].points.rbegin()->positions;
-        end_pts[j].velocities = trajs[j].points.rbegin()->velocities;
-        }
-      } else {
-        copyEndPoints(prev_end_pts, prev_ps, len);
-        next_len = len;
-      }
-
-      // check to make sure this is a valid path to explore
-      double sum_so_far = 0;
-      for (unsigned int j = 0; j < nsamples; ++j) {
-        //std::cout << start_ps[j] << " " << my_ps[j] << "\n";
-        ps[j] = my_ps[j] + start_ps[j];
-        sum_so_far += exp(my_ps[j]);
-      }
-
-      // do we want to continue?
-      // if so descend through the tree
-      // descent through the tree
-      if (horizon > 0 && log(sum_so_far) > LOW_PROBABILITY) {
-
-        unsigned int next_skill_idx = 0;
-        for (auto &ns: next) {
-          unsigned int next_nsamples = floor((T[next_skill_idx]*nsamples) + 0.5);
-          //std::cout << "samples: " << next_nsamples << ", " << T[next_skill_idx] << "\n";
-          ns->step(my_ps, end_pts,
-                   next_ps, T[next_skill_idx], // outputs
-                   next_len, horizon-1, next_nsamples); // params
-
-          if (p.verbosity > 0) {
-            std::cout << " >>> probability of " << ns->skill->getName()
-              << " " << ns->id << " = " << T[next_skill_idx]
-              << std::endl;
-          }
-
-          ++next_skill_idx;
-        }
-
-        for (unsigned int i = 0; i < nsamples; ++i) {
-          if (p.verbosity > 1) {
-            if (skill) {
-              std::cout << "[" << id << "] " << skill->getName()
-                << ": "<<my_ps[i]<<" + "<< next_ps[i]<<"\n";
-            } else {
-              std::cout << "[" << id << "] [no skill]"
-                << ": "<<my_ps[i]<<" + "<< next_ps[i] <<"\n";
-            }
-          }
-          ps[i] = start_ps[i] + my_ps[i] + next_ps[i];
-          if (ps[i] > best_p) {
-            best_p = my_ps[i];
-            best_idx = i;
-          }
+        for (unsigned int ii = 0; ii < robot->getDegreesOfFreedom(); ++ii) {
+          end_pts[j].positions = trajs[j].points.rbegin()->positions;
+          end_pts[j].velocities = trajs[j].points.rbegin()->velocities;
         }
       }
+    }
 
-      updateTransitions();
+    // check to make sure this is a valid path to explore
+    double sum_so_far = 0;
+    for (unsigned int j = 0; j < nsamples; ++j) {
+      ps[j] = my_ps[j] + start_ps[j];
+      sum_so_far += exp(my_ps[j]);
+    }
 
-      // update probabilities for all
-      {
-        // now loop over all the stuff!
-        // go over probabilities and make sure they work
-        // use the start_idx field to match start_idx to 
-        double prev_psum_sum = 0;
-        probability = 0;
-        for (unsigned int i = 0; i < nsamples; ++i) {
-          if (p.verbosity > 2) {
-            std::cout << " - propogating p(" << i << ") = " << my_ps[i] + next_ps[i] << " back to " << prev_idx[i] << " ... " << log(probability) << "\n";
-          }
-          prev_p_sums[prev_idx[i]] += exp(my_ps[i]+next_ps[i]);
-          ++prev_counts[prev_idx[i]];
-          probability += exp(my_ps[i]+next_ps[i]);
+    // do we want to continue?
+    // if so descend through the tree
+    // descent through the tree
+    if (horizon > 0 && log(sum_so_far) > LOW_PROBABILITY) {
+
+      unsigned int next_skill_idx = 0;
+      for (auto &ns: next) {
+        unsigned int next_nsamples = floor((T[next_skill_idx]*nsamples) + 0.5);
+        //std::cout << "samples: " << next_nsamples << ", " << T[next_skill_idx] << "\n";
+        ns->step(my_ps, end_pts,
+                 next_ps, T[next_skill_idx], // outputs
+                 next_len, horizon-1, next_nsamples); // params
+
+        if (p.verbosity > 0) {
+          std::cout << " >>> probability of " << ns->skill->getName()
+            << " " << ns->id << " = " << T[next_skill_idx]
+            << std::endl;
         }
-        //probability /= nsamples;
-        last_probability = probability;
 
-        // update transitions based on these results
-        for (unsigned int i = 0; i < len; ++i) {
-          if (prev_counts[i] > 0) {
-            ps_out[i] += log(prev_p_sums[i] / prev_counts[i]);
+        ++next_skill_idx;
+      }
+
+      for (unsigned int i = 0; i < nsamples; ++i) {
+        if (p.verbosity > 1) {
+          if (skill) {
+            std::cout << "[" << id << "] " << skill->getName()
+              << ": "<<my_ps[i]<<" + "<< next_ps[i]<<"\n";
           } else {
-            ps_out[i] += 0;
-          }
-          if (p.verbosity > 1) {
-            std::cout << " - future sum for " << i << " = " << ps_out[i]
-              << " (" << prev_counts[i] << " chosen, sum = " << log(prev_p_sums[i]) << ")"
-              << "\n";
+            std::cout << "[" << id << "] [no skill]"
+              << ": "<<my_ps[i]<<" + "<< next_ps[i] <<"\n";
           }
         }
-      }
-
-      double sum = 0;
-      double sum2 = 0;
-      // normalize everything
-      {
-        for (unsigned int i = 0; i < nsamples; ++i) {
-          sum += exp(ps[i]);
-          sum2 += exp(my_ps[i] + next_ps[i]);
-        }
-        // normalize here
-        for (unsigned int i = 0; i < nsamples; ++i) {
-          ps[i] = exp(ps[i]) / sum;
-          my_future_ps[i] = exp(my_ps[i] + next_ps[i]) / sum2;
-          //std::cout << my_future_ps[i] << " ";
-          //assert(not isnan(ps[i]));
-        }
-        //std::cout << "\n";
-      }
-
-      bool skip = false;
-      if (log(sum2) < LOW_PROBABILITY) {
-        skip = true;
-        //std::cout << "nothing here \n";
-      }
-
-      if(skill and not skill->isStatic() and not skip) {
-
-        if (p.verbosity > 4) {
-          std::cout << skill->getName() << " probabilities: ";
-          for (double &p: ps) {
-            std::cout << p << " ";
-          }
-          std::cout << std::endl;
-        }
-
-        if (nsamples > 1) {
-          dmp_dist->update(params,ps,nsamples,p.noise,p.step_size);
-          dmp_dist->addNoise(pow(0.1,(good_iter)+5));
+        ps[i] = start_ps[i] + my_ps[i] + next_ps[i];
+        if (ps[i] > best_p) {
+          best_p = my_ps[i];
+          best_idx = i;
         }
       }
-
-      // compute ll for this iteration
-      iter_lls[cur_iter] = sum2 / p.ntrajs;
-
-      if (cur_iter > 0 and fabs(iter_lls[cur_iter]-iter_lls[cur_iter]) < 1e-2*iter_lls[cur_iter]) {
-        done = true;
-      }
-
-      // decrease normalization
-      if (cur_iter > 0 and 
-          iter_lls[cur_iter] > 1e-20 and
-          iter_lls[cur_iter] > iter_lls[cur_iter-1])
-      {
-        model_norm *= p.model_norm_step;
-        ++good_iter;
-        //std::cout << "THAT WAS GOOD\n";
-      }
-
-      if (p.verbosity >= 0) {
-        if (skill) {
-          std::cout << "[" << id << "] " << skill->getName() << " >>>> AVG P = " << (sum / len) << std::endl;
-        } else {
-          std::cout << "[" << id << "] [no skill] >>>> AVG P = " << (sum / len) << std::endl;
-        }
-      }
-
-      ++cur_iter;
     }
 
-    /**
-     * descend through the tree
-     * execute as we reach nodes that require it
-     * use gripper tool to send messages
-     */
-    bool InstantiatedSkill::execute(GridPlanner &gp, actionlib::SimpleActionClient<grid_plan::CommandAction> &ac,
-                                    int horizon, bool replan)
+    updateTransitions();
+
+    // update probabilities for all
     {
-
-
-      assert(ros::ok());
-      ros::spinOnce();
-
-      std::cout << "EXECUTING: ";
-      if (skill) {
-        std::cout << skill->getName() << "\n";
-      } else {
-        std::cout << "n/a\n";
-      }
-      std::cout << "Replanning? " << replan << "\n";
-
-      if (not touched) {
-        replan = true;
-      }
-
-      // replan if necessary
-      if (replan and skill and not skill->isStatic()) {
-
-        std::cout << "In main replan loop.\n";
-
-        useCurrentFeatures = true;
-        updateCurrentAttachedObjectFrame();
-
-        robot->updateHint(gp.currentPos());
-        robot->updateVelocityHint(gp.currentVel());
-        features->updateWorldfromTF();
-        updateCurrentAttachedObjectFrame();
-
-        std::vector<trajectory_msgs::JointTrajectoryPoint> starts(1);
-
-        start_ps.resize(1);
-        start_ps[0] = MAX_PROBABILITY;
-
-        for (auto &pt: starts) {
-          pt.positions = gp.currentPos();
-          pt.velocities = gp.currentVel();
+      // now loop over all the stuff!
+      // go over probabilities and make sure they work
+      // use the start_idx field to match start_idx to 
+      double prev_psum_sum = 0;
+      probability = 0;
+      for (unsigned int i = 0; i < nsamples; ++i) {
+        if (p.verbosity > 2) {
+          std::cout << " - propogating p(" << i << ") = " << my_ps[i] + next_ps[i] << " back to " << prev_idx[i] << " ... " << log(probability) << "\n";
         }
-
-        reset();
-        double probability = MAX_PROBABILITY;
-        int my_horizon = horizon;
-        for (unsigned int i = 0; i < p.iter; ++i) {
-
-          assert(ros::ok());
-          ros::spinOnce();
-          features->updateWorldfromTF();
-
-          //step(start_ps,starts,next_ps,probability,1,horizon,p.ntrajs);
-          step(start_ps,starts,next_ps,probability,1,my_horizon,p.ntrajs);
-          if (pub and skill) {
-            pub->publish(toPoseArray(trajs,features->getWorldFrame(),robot));
-          }
-
-          {
-            double best_t_p = 0;
-            unsigned int idx = 0;
-            for (unsigned int i = 0; i < T.size(); ++i) {
-              if (T[i] > best_t_p) {
-                idx = i;
-                best_t_p = T[i];
-              }
-            }
-
-            if (next[idx]->pub) {
-              next[idx]->pub->publish(toPoseArray(next[idx]->trajs,features->getWorldFrame(),robot));
-            }
-          }
-
-          replan = false;
-
-          if (i > 0 and fabs(iter_lls[i] - iter_lls[i-1]) < (p.update_horizon * iter_lls[i])) {
-            if (my_horizon < horizon) {
-              my_horizon++;
-              refresh(my_horizon);
-            } else {
-              break;
-            }
-          }
-        }
+        prev_p_sums[prev_idx[i]] += exp(my_ps[i]+next_ps[i]);
+        ++prev_counts[prev_idx[i]];
+        probability += exp(my_ps[i]+next_ps[i]);
       }
+      //probability /= nsamples;
+      last_probability = probability;
 
-
-      // trigger action server
-      CommandGoal cmd;
-      if (skill) {
-        cmd.name = skill->getName();
-        cmd.traj = trajs[best_idx];
-      }
-      if (features) {
-        cmd.keys = features->getClasses();
-        cmd.values = features->getIds();
-      }
-
-
-      std::cout << "waiting for server... (" << horizon << ")\n";
-      ac.waitForServer();
-      std::cout << "sending command...\n";
-      ac.sendGoal(cmd);
-      std::cout << "waiting for result\n";
-      ac.waitForResult();
-
-      // continue execution
-      if (horizon > 0 && next.size() > 0) {
-        if (skill && skill->isStatic()) {
-          // replan from here
+      // update transitions based on these results
+      for (unsigned int i = 0; i < len; ++i) {
+        if (prev_counts[i] > 0) {
+          ps_out[i] += log(prev_p_sums[i] / prev_counts[i]);
+        } else {
+          ps_out[i] += 0;
         }
-
-
-        double best_t_p = 0;
-        unsigned int idx = 0;
-        for (unsigned int i = 0; i < T.size(); ++i) {
-          if (T[i] > best_t_p) {
-            idx = i;
-            best_t_p = T[i];
-          }
+        if (p.verbosity > 1) {
+          std::cout << " - future sum for " << i << " = " << ps_out[i]
+            << " (" << prev_counts[i] << " chosen, sum = " << log(prev_p_sums[i]) << ")"
+            << "\n";
         }
-
-        replan = replan or (skill and skill->isStatic());
-        return next[idx]->execute(gp,ac,horizon-1,replan);
-      } else {
-        return true;
       }
     }
 
-
-    const Pose &InstantiatedSkill::getAttachedObjectFrame() const {
-      return currentAttachedObjectFrame;
+    double sum = 0;
+    double sum2 = 0;
+    // normalize everything
+    {
+      for (unsigned int i = 0; i < nsamples; ++i) {
+        sum += exp(ps[i]);
+        sum2 += exp(my_ps[i] + next_ps[i]);
+      }
+      // normalize here
+      for (unsigned int i = 0; i < nsamples; ++i) {
+        ps[i] = exp(ps[i]) / sum;
+        my_future_ps[i] = exp(my_ps[i] + next_ps[i]) / sum2;
+        //std::cout << my_future_ps[i] << " ";
+        //assert(not isnan(ps[i]));
+      }
+      //std::cout << "\n";
     }
 
+    bool skip = false;
+    if (log(sum2) < LOW_PROBABILITY) {
+      skip = true;
+      //std::cout << "nothing here \n";
+    }
+
+    if(skill and not skill->isStatic() and not skip) {
+
+      if (p.verbosity > 4) {
+        std::cout << skill->getName() << " probabilities: ";
+        for (double &p: ps) {
+          std::cout << p << " ";
+        }
+        std::cout << std::endl;
+      }
+
+      if (nsamples > 1) {
+        dmp_dist->update(params,ps,nsamples,p.noise,p.step_size);
+        dmp_dist->addNoise(pow(0.1,(good_iter)+5));
+      }
+    }
+
+    // compute ll for this iteration
+    iter_lls[cur_iter] = sum2 / p.ntrajs;
+
+    if (cur_iter > 0 and fabs(iter_lls[cur_iter]-iter_lls[cur_iter]) < 1e-2*iter_lls[cur_iter]) {
+      done = true;
+    }
+
+    // decrease normalization
+    if (cur_iter > 0 and 
+        iter_lls[cur_iter] > 1e-20 and
+        iter_lls[cur_iter] > iter_lls[cur_iter-1])
+    {
+      model_norm *= p.model_norm_step;
+      ++good_iter;
+      //std::cout << "THAT WAS GOOD\n";
+    }
+
+    if (p.verbosity >= 0) {
+      if (skill) {
+        std::cout << "[" << id << "] " << skill->getName() << " >>>> AVG P = " << (sum / len) << std::endl;
+      } else {
+        std::cout << "[" << id << "] [no skill] >>>> AVG P = " << (sum / len) << std::endl;
+      }
+    }
+
+    ++cur_iter;
   }
+
+  /**
+   * descend through the tree
+   * execute as we reach nodes that require it
+   * use gripper tool to send messages
+   */
+  bool InstantiatedSkill::execute(GridPlanner &gp, actionlib::SimpleActionClient<grid_plan::CommandAction> &ac,
+                                  int horizon, bool replan)
+  {
+
+
+    assert(ros::ok());
+    ros::spinOnce();
+
+    std::cout << "EXECUTING: ";
+    if (skill) {
+      std::cout << skill->getName() << "\n";
+    } else {
+      std::cout << "n/a\n";
+    }
+    std::cout << "Replanning? " << replan << "\n";
+
+    if (not touched) {
+      replan = true;
+    }
+
+    // replan if necessary
+    if (replan and skill and not skill->isStatic()) {
+
+      std::cout << "In main replan loop.\n";
+
+      useCurrentFeatures = true;
+      updateCurrentAttachedObjectFrame();
+
+      robot->updateHint(gp.currentPos());
+      robot->updateVelocityHint(gp.currentVel());
+      features->updateWorldfromTF();
+      updateCurrentAttachedObjectFrame();
+
+      std::vector<trajectory_msgs::JointTrajectoryPoint> starts(1);
+
+      start_ps.resize(1);
+      start_ps[0] = MAX_PROBABILITY;
+
+      for (auto &pt: starts) {
+        pt.positions = gp.currentPos();
+        pt.velocities = gp.currentVel();
+      }
+
+      reset();
+      double probability = MAX_PROBABILITY;
+      int my_horizon = horizon;
+      for (unsigned int i = 0; i < p.iter; ++i) {
+
+        assert(ros::ok());
+        ros::spinOnce();
+        features->updateWorldfromTF();
+
+        //step(start_ps,starts,next_ps,probability,1,horizon,p.ntrajs);
+        step(start_ps,starts,next_ps,probability,1,my_horizon,p.ntrajs);
+        if (pub and skill) {
+          pub->publish(toPoseArray(trajs,features->getWorldFrame(),robot));
+        }
+
+        {
+          double best_t_p = 0;
+          unsigned int idx = 0;
+          for (unsigned int i = 0; i < T.size(); ++i) {
+            if (T[i] > best_t_p) {
+              idx = i;
+              best_t_p = T[i];
+            }
+          }
+
+          if (next[idx]->pub) {
+            next[idx]->pub->publish(toPoseArray(next[idx]->trajs,features->getWorldFrame(),robot));
+          }
+        }
+
+        replan = false;
+
+        if (i > 0 and fabs(iter_lls[i] - iter_lls[i-1]) < (p.update_horizon * iter_lls[i])) {
+          if (my_horizon < horizon) {
+            my_horizon++;
+            refresh(my_horizon);
+          } else {
+            break;
+          }
+        }
+      }
+    }
+
+
+    // trigger action server
+    CommandGoal cmd;
+    if (skill) {
+      cmd.name = skill->getName();
+      cmd.traj = trajs[best_idx];
+    }
+    if (features) {
+      cmd.keys = features->getClasses();
+      cmd.values = features->getIds();
+    }
+
+
+    std::cout << "waiting for server... (" << horizon << ")\n";
+    ac.waitForServer();
+    std::cout << "sending command...\n";
+    ac.sendGoal(cmd);
+    std::cout << "waiting for result\n";
+    ac.waitForResult();
+
+    // continue execution
+    if (horizon > 0 && next.size() > 0) {
+      if (skill && skill->isStatic()) {
+        // replan from here
+      }
+
+
+      double best_t_p = 0;
+      unsigned int idx = 0;
+      for (unsigned int i = 0; i < T.size(); ++i) {
+        if (T[i] > best_t_p) {
+          idx = i;
+          best_t_p = T[i];
+        }
+      }
+
+      replan = replan or (skill and skill->isStatic());
+      return next[idx]->execute(gp,ac,horizon-1,replan);
+    } else {
+      return true;
+    }
+  }
+
+
+  const Pose &InstantiatedSkill::getAttachedObjectFrame() const {
+    return currentAttachedObjectFrame;
+  }
+
+}

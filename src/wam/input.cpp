@@ -60,7 +60,7 @@ namespace grid {
       std::cout << "[" << skill.getName() << "] training example " << i << " with " << data.size() << " examples: p = " << p << std::endl;
     }
 
-    skill.printGmm();
+    //skill.printGmm();
   }
 
 

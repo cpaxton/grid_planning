@@ -22,6 +22,7 @@ class CommandActionExecutor(object):
   _reg = None
   _traj_pub = rospy.Publisher("/gazebo/traj_rml/joint_traj_cmd", JointTrajectory, queue_size=100)
   _client = actionlib.SimpleActionClient("/gazebo/traj_rml/action",control_msgs.msg.FollowJointTrajectoryAction)
+  _record = False
 
   def __init__(self, name, robot, skills, gripper_topic):
     self._action_name = name
@@ -46,12 +47,10 @@ class CommandActionExecutor(object):
         print "[EXECUTE] Error: no robot!"
 
     print goal
-    #self._traj_pub.publish(goal.traj)
     self._client.wait_for_server()
     rospy.loginfo("Server ready!")
-    #for pt in goal.traj.points:
-    #    pt.velocities = []
-    goal.traj.points[-1].velocities = []
+
+    goal.traj.points[-1].velocities = [0]*len(goal.traj.points[-1].positions)
     actionlib_goal = control_msgs.msg.FollowJointTrajectoryGoal(trajectory=goal.traj)
     self._client.send_goal(actionlib_goal)
 
@@ -60,14 +59,17 @@ class CommandActionExecutor(object):
         print " ... adding %s with frame=%s"%(goal.keys[i],goal.values[i])
 
     print self._robot
-    self._robot.StartRecording()
+
+    if self._record:
+        self._robot.StartRecording()
 
     self._client.wait_for_result()
     rospy.loginfo("Server done executing trajectory!")
-    self._robot.save(goal.name + ".yml")
-    rospy.loginfo(("Saving now as %s")%(goal.name + ".yml"));
-    self._robot.StopRecording()
-    rospy.loginfo("Recording stopped!")
+    if self._record:
+        self._robot.save(goal.name + ".yml")
+        rospy.loginfo(("Saving now as %s")%(goal.name + ".yml"));
+        self._robot.StopRecording()
+        rospy.loginfo("Recording stopped!")
 
     config = []
     for i in range(len(goal.keys)):
