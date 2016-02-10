@@ -524,21 +524,15 @@ namespace grid {
     }
 
     double sum = 0;
-    //double sum2 = 0;
     // normalize everything
     {
       for (unsigned int i = 0; i < nsamples; ++i) {
         sum += exp(ps[i]);
-        //sum2 += exp(my_ps[i] + next_ps[i]);
       }
       // normalize here
       for (unsigned int i = 0; i < nsamples; ++i) {
         ps[i] = exp(ps[i]) / sum;
-        //my_future_ps[i] = exp(my_ps[i] + next_ps[i]) / sum2;
-        //std::cout << my_future_ps[i] << " ";
-        //assert(not isnan(ps[i]));
       }
-      //std::cout << "\n";
     }
 
     updateBest(nsamples);

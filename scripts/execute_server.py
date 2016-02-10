@@ -112,11 +112,11 @@ if __name__ == '__main__':
   for i in range(1,len(sys.argv)):
 
     if sys.argv[i][0] == '_':
-        continue
-
-	skill_filename = 'skills/sim/%s_skill.yml'%(sys.argv[i])
-	skills.append(grid.RobotSkill(filename=skill_filename))
-	print "Loaded skill '%s'"%(skills[-1].name)
+        print "Skipping %s"%(sys.argv[i])
+    else:
+	    skill_filename = 'skills/sim/%s_skill.yml'%(sys.argv[i])
+	    skills.append(grid.RobotSkill(filename=skill_filename))
+	    print "Loaded skill '%s'"%(skills[-1].name)
 
 
   skill_topic = "current_skill"

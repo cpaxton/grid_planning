@@ -6,10 +6,14 @@
 
 #include <fstream>
 
+#include <grid/utils/params.h>
+
 using namespace grid;
 
 int main(int argc, char **argv) {
   ros::init(argc,argv,"training_test_node");
+
+  Params p = readRosParams();
 
   std::vector<std::string> objects;
   objects.push_back("link");
@@ -18,23 +22,56 @@ int main(int argc, char **argv) {
   RobotKinematics *rk = new RobotKinematics("robot_description","wam/base_link","wam/wrist_palm_link");
   RobotKinematicsPtr rk_ptr = RobotKinematicsPtr(rk);
 
+  std::vector<std::string> filenames;
 
-  unsigned int ntraining = 5u; //9u;
-  std::vector<std::shared_ptr<WamTrainingFeatures> > wtf(ntraining);
-  std::string filenames[] = {"data/sim/app1.bag", "data/sim/app2.bag", "data/sim/app3.bag", "data/sim_auto/approach1.bag", "data/sim_auto/approach2.bag"};
-  //std::string filenames[] = {"data/sim/align1.bag", "data/sim/align2.bag", "data/sim/align3.bag"};
+  unsigned int ntraining = 8u; //9u;
+  if (p.skill_name == "approach") {
+    ROS_INFO("Configuring for approach...");
+    std::string _filenames[] = {"data/sim/app1.bag", "data/sim/app2.bag", "data/sim/app3.bag",
+      "data/sim_auto/approach1.bag", "data/sim_auto/approach2.bag",
+      "data/sim_auto/approach3.bag",
+      "data/sim_auto/approach4.bag",
+      "data/sim_auto/approach5.bag"
+    };
+    ntraining = 8u;
+    filenames.insert(filenames.begin(),&_filenames[0],&_filenames[ntraining]);
+  } else if (p.skill_name == "align") {
+    ROS_INFO("Configuring for align...");
+    std::string _filenames[] = {"data/sim/align1.bag", "data/sim/align2.bag", "data/sim/align3.bag",
+      "data/sim_auto/align3.bag",
+      "data/sim_auto/align4.bag",
+      "data/sim_auto/align5.bag"
+    };
+    ntraining = 6u;
+    filenames.insert(filenames.begin(),&_filenames[0],&_filenames[ntraining]);
+  } else {
+    ROS_INFO("Configuring for place...");
+    std::string _filenames[] = {"data/sim/place1.bag", //"data/sim/place2.bag",
+      "data/sim/place3.bag",
+      "data/sim_auto/place3.bag",
+      "data/sim_auto/place4.bag",
+      "data/sim_auto/place5.bag"
+    };
+    ntraining = 5u;
+    filenames.insert(filenames.begin(),&_filenames[0],&_filenames[ntraining]);
+  }
   //std::string filenames[] = {"data/sim/release1b.bag", "data/sim/release2b.bag", "data/sim/release3b.bag"};
   //std::string filenames[] = {"data/sim/release1.bag", "data/sim/release2.bag", "data/sim/release3.bag"};
   //std::string filenames[] = {"data/sim/release1.bag", "data/sim/release2.bag", "data/sim/release3.bag",
   //  "data/sim/release1b.bag", "data/sim/release2b.bag", "data/sim/release3b.bag","data/sim/release1c.bag", "data/sim/release2c.bag", "data/sim/release3c.bag"};
   //std::string filenames[] = {"data/sim/grasp1.bag", "data/sim/grasp2.bag", "data/sim/grasp3.bag"};
 
+  std::vector<std::shared_ptr<WamTrainingFeatures> > wtf(ntraining);
+
   for (unsigned int i = 0; i < ntraining; ++i) {
     std::shared_ptr<WamTrainingFeatures> wtf_ex(new WamTrainingFeatures(objects));
     wtf_ex->addFeature("time",TIME_FEATURE);
     wtf_ex->setRobotKinematics(rk_ptr);
     wtf_ex->read(filenames[i],10);
-    //wtf_ex->attachObjectFrame("link");
+    if (p.skill_name != "approach") {
+      ROS_INFO("attaching link object");
+      wtf_ex->attachObjectFrame("link");
+    }
     wtf[i] = wtf_ex;
   }
 
@@ -46,8 +83,13 @@ int main(int argc, char **argv) {
   {
 
     std::vector<std::string> features;
-    features.push_back("link");
-    //features.push_back("node");
+    if (p.skill_name == "approach") {
+      ROS_INFO("Using link features");
+      features.push_back("link");
+    } else {
+      ROS_INFO("Using node features");
+      features.push_back("node");
+    }
     features.push_back("time");
 
     clock_t begin = clock();
@@ -97,11 +139,18 @@ int main(int argc, char **argv) {
 
   std::cout << "Running skill test:" << std::endl;
 
-  Skill test("approach",1);
-  //test.appendFeature("node").appendFeature("time");
-  //test.attachObject("link");
-  test.appendFeature("link").appendFeature("time");
-  //test.attachObject("link");
+  geometry_msgs::PoseArray msg;
+  Skill test(p.skill_name,1);
+  if (p.skill_name == "approach") {
+    ROS_INFO("Using link features");
+    msg.header.frame_id = "gbeam_link_1/gbeam_link"; //"wam/wrist_palm_link";
+    test.appendFeature("link").appendFeature("time");
+  } else {
+    ROS_INFO("Using node features");
+    test.appendFeature("node").appendFeature("time");
+    msg.header.frame_id = "gbeam_node_1/gbeam_node";//"gbeam_link_1/gbeam_link"; //"wam/wrist_palm_link";
+  }
+
   for (unsigned int i = 0; i < ntraining; ++i) {
     std::cout << " ... " << i << "\n";
     test.addTrainingData(*wtf[i]);
@@ -115,15 +164,16 @@ int main(int argc, char **argv) {
   ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples",1000);
 
   // get ready
-  geometry_msgs::PoseArray msg;
   //msg.header.frame_id = "gbeam_node_1/gbeam_node";//"gbeam_link_1/gbeam_link"; //"wam/wrist_palm_link";
-  msg.header.frame_id = "gbeam_link_1/gbeam_link"; //"wam/wrist_palm_link";
   //msg.header.frame_id = "wam/wrist_palm_link";
   for (unsigned int i = 0; i < ntraining; ++i) {
 
-    std::vector<Pose> poses = wtf[i]->getPose("link");
-    //std::vector<Pose> poses = wtf[i]->getPose("node");
-
+    std::vector<Pose> poses;
+    if (p.skill_name == "approach") {
+      poses = wtf[i]->getPose("link");
+    } else {
+      poses = wtf[i]->getPose("node");
+    }
     std::vector<FeatureVector> v = wtf[i]->getFeatureValues(test.getFeatures());
 
     //for (Pose &pose: poses) {

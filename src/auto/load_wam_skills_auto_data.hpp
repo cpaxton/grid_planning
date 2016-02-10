@@ -55,12 +55,12 @@ namespace grid {
 
   std::unordered_map<std::string, SkillPtr> loadWamSkills() {
 
-    SkillPtr approach(new Skill("approach"));
-    SkillPtr grasp(new Skill("grasp"));
-    SkillPtr align(new Skill("align"));
-    SkillPtr place(new Skill("place"));
-    SkillPtr release(new Skill("release"));
-    SkillPtr disengage(new Skill("disengage"));
+    SkillPtr approach(new Skill("approach",3));
+    SkillPtr grasp(new Skill("grasp",1));
+    SkillPtr align(new Skill("align",3));
+    SkillPtr place(new Skill("place",3));
+    SkillPtr release(new Skill("release",1));
+    SkillPtr disengage(new Skill("disengage",1));
 
     /* SET UP THE SKILLS */
     approach->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false);
@@ -78,10 +78,11 @@ namespace grid {
       std::string filenames[] = {"data/sim/app1.bag",
         "data/sim/app2.bag",
         "data/sim/app3.bag",
-        "data/sim_auto/approach1.bag",
-        "data/sim_auto/approach2.bag"
+        "data/sim_auto/approach3.bag",
+        "data/sim_auto/approach4.bag",
+        "data/sim_auto/approach5.bag"
       };
-      load_and_train_skill(*approach, rk_ptr, filenames, 5);
+      load_and_train_skill(*approach, rk_ptr, filenames, 6);
     }
     /* LOAD TRAINING DATA FOR GRASP */
     {
@@ -90,13 +91,24 @@ namespace grid {
     }
     /* LOAD TRAINING DATA FOR ALIGN */
     {
-      std::string filenames[] = {"data/sim/align1.bag", "data/sim/align2.bag", "data/sim/align3.bag"};
-      load_and_train_skill(*align, rk_ptr, filenames, 3);
+      std::string filenames[] = {"data/sim/align1.bag",
+        "data/sim/align2.bag",
+        "data/sim/align3.bag",
+        "data/sim_auto/align3.bag",
+        "data/sim_auto/align4.bag",
+        "data/sim_auto/align5.bag"
+      };
+      load_and_train_skill(*align, rk_ptr, filenames, 6);
     }
     /* LOAD TRAINING DATA FOR PLACE */
     {
-      std::string filenames[] = {"data/sim/place1.bag", "data/sim/place3.bag", "data/sim/place3.bag"};
-      load_and_train_skill(*place, rk_ptr, filenames, 3);
+      std::string filenames[] = {"data/sim/place1.bag",
+        "data/sim/place3.bag",
+        "data/sim_auto/place3.bag",
+        "data/sim_auto/place4.bag",
+        "data/sim_auto/place5.bag"
+      };
+      load_and_train_skill(*place, rk_ptr, filenames, 5);
     }
     /* LOAD TRAINING DATA FOR RELEASE */
     {
