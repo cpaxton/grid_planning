@@ -311,6 +311,22 @@ namespace grid {
     }
   }
 
+  /** 
+   * find best entries
+   */
+  void InstantiatedSkill::updateBest(unsigned int nsamples) {
+    best_p = 0;
+    if (skill) std::cout << skill->getName() << " ";
+    for (unsigned int i = 0; i < nsamples; ++i) {
+      std::cout << ps[i] << " ";
+      if (ps[i] > best_p) {
+        best_p = ps[i];
+        best_idx = i;
+      }
+    }
+    std::cout << "\n";
+  }
+
   /**
    * run a single iteration of the loop. return a set of trajectories.
    * this is very similar to code in the demo
@@ -461,14 +477,12 @@ namespace grid {
           }
         }
         ps[i] = start_ps[i] + my_ps[i] + next_ps[i];
-        if (ps[i] > best_p) {
-          best_p = my_ps[i];
-          best_idx = i;
-        }
+      }
+    } else if (horizon == 0) {
+      for (unsigned int i = 0; i < nsamples; ++i) {
+        ps[i] = start_ps[i] + my_ps[i];
       }
     }
-
-    updateTransitions();
 
     // update probabilities for all
     {
@@ -520,6 +534,9 @@ namespace grid {
       }
       //std::cout << "\n";
     }
+
+    updateBest(nsamples);
+    updateTransitions();
 
     bool skip = false;
     if (log(sum2) < LOW_PROBABILITY) {
@@ -591,6 +608,8 @@ namespace grid {
       std::cout << "n/a\n";
     }
     std::cout << "Replanning? " << replan << "\n";
+    std::cout << "best idx = " << best_idx << "\n";
+    std::cout << "best p = " << best_p << "\n";
 
     if (not touched) {
       replan = true;

@@ -116,6 +116,11 @@ namespace grid {
     void updateTransitions();
 
     /** 
+     * find best entries
+     */
+    void updateBest(unsigned int nsamples);
+
+    /** 
      * default constructor
      */
     InstantiatedSkill();
