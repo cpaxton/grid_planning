@@ -22,7 +22,8 @@ class CommandActionExecutor(object):
   _reg = None
   _traj_pub = rospy.Publisher("/gazebo/traj_rml/joint_traj_cmd", JointTrajectory, queue_size=100)
   _client = actionlib.SimpleActionClient("/gazebo/traj_rml/action",control_msgs.msg.FollowJointTrajectoryAction)
-  _record = False
+  #_record = False
+  _record = True
 
   def __init__(self, name, robot, skills, gripper_topic):
     self._action_name = name
