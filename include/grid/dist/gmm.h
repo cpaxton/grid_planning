@@ -79,7 +79,7 @@ namespace gcop {
 
   template<int _n>
     Gmm<_n>::Gmm(int n, int k) :
-      k(k), ns(k, Normal<_n>(n)), ws(k), cdf(k)
+      k(k), ns(k, Normal<_n>(n)), ws(k), cdf(k), tol(0.01)
   {
     assert(n > 0);
     assert(k > 0);
@@ -92,8 +92,6 @@ namespace gcop {
       ns[i].mu.setZero();
       ns[i].P = VectorXd::Constant(n, 1).asDiagonal();
     }
-
-    tol = .01;
 
     if (_n == Dynamic) {
       t2.resize(n);
@@ -217,11 +215,11 @@ namespace gcop {
 
       // sanity check
       {
-        double weight_sum;
+        double weight_sum = 0;
         for (auto &pair: xps) {
           weight_sum += pair.second;
         }
-        //std::cout << "weights added up to " << weight_sum << std::endl;
+        std::cout << "Weights added up to " << weight_sum << "... " << fabs(weight_sum - 1) << std::endl;
         assert(fabs(weight_sum - 1) < tol);
       }
 

@@ -144,13 +144,6 @@ namespace grid {
    */
   void Features::getPoseFeatures(const Pose &pose, FeatureVector &f, unsigned int idx) {
 
-#if 0
-    f[idx+POSE_FEATURE_X] = pose.p.x();
-    f[idx+POSE_FEATURE_Y] = pose.p.y();
-    f[idx+POSE_FEATURE_Z] = pose.p.z();
-    pose.M.GetRPY(f[idx+POSE_FEATURE_ROLL], f[idx+POSE_FEATURE_PITCH], f[idx+POSE_FEATURE_YAW]);
-#endif
-
     f(idx+POSE_FEATURE_X) = pose.p.x();
     f(idx+POSE_FEATURE_Y) = pose.p.y();
     f(idx+POSE_FEATURE_Z) = pose.p.z();
@@ -168,13 +161,6 @@ namespace grid {
 
   void Features::getPoseFeatures(const Pose &pose, FeatureVector &f, unsigned int idx, FeatureVector &prev) {
 
-#if 0
-    f[idx+POSE_FEATURE_X] = pose.p.x();
-    f[idx+POSE_FEATURE_Y] = pose.p.y();
-    f[idx+POSE_FEATURE_Z] = pose.p.z();
-    pose.M.GetRPY(f[idx+POSE_FEATURE_ROLL], f[idx+POSE_FEATURE_PITCH], f[idx+POSE_FEATURE_YAW]);
-#endif
-
     f(idx+POSE_FEATURE_X) = pose.p.x();
     f(idx+POSE_FEATURE_Y) = pose.p.y();
     f(idx+POSE_FEATURE_Z) = pose.p.z();
@@ -189,8 +175,6 @@ namespace grid {
 #endif
     f(idx+POSE_FEATURE_DIST)  = pose.p.Norm();
   }
-
-
 
   /**
    * featuresToPose

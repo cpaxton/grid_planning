@@ -242,7 +242,9 @@ namespace grid {
 
     // apply normalization to each entry
     for (FeatureVector &vec: data) {
-      vec = (vec - mean).array() * std.array();
+      //vec = (vec - mean).array() * std.array();
+      vec -= mean;
+      vec.array() *= std.array();
     }
   }
 

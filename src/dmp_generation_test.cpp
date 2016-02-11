@@ -150,7 +150,7 @@ int main(int argc, char **argv) {
           FeatureVector v = approach.logL(features);
 
           double p = v.sum() / v.size();
-          std::cout << " - traj " << i << ": avg p = " << p << std::endl;
+          //std::cout << " - traj " << i << ": avg p = " << p << std::endl;
         }
         clock_t end = clock();
         double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
