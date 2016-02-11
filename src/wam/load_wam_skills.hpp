@@ -57,11 +57,11 @@ namespace grid {
 
     std::unordered_map<std::string, SkillPtr> skills;
 
-    SkillPtr approach(new Skill("approach",3));
+    SkillPtr approach(new Skill("approach",1));
     SkillPtr grasp(new Skill("grasp",1));
-    SkillPtr align(new Skill("align",3));
-    SkillPtr place(new Skill("place",3));
-    SkillPtr release(new Skill("release",2));
+    SkillPtr align(new Skill("align",1));
+    SkillPtr place(new Skill("place",1));
+    SkillPtr release(new Skill("release",1));
     SkillPtr disengage(new Skill("disengage",1));
 
     /* SET UP THE SKILLS */

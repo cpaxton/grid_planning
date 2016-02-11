@@ -204,7 +204,6 @@ namespace grid {
         FeatureVector v = pair.first - mean;
         std::pair<FeatureVector,double> norm_pair(v.array()*std.array(),pair.second);
         normalized_training_data.push_back(norm_pair); // this could be more efficient
-        //std::cout << norm_pair.first.transpose() << "\nwt="<<norm_pair.second<<"-----\n";
       }
 
       model = GmmPtr(new Gmm(dim,k));
@@ -215,10 +214,6 @@ namespace grid {
       model->Fit(normalized_training_data);
       //std::cout <<  *model << "\n";
       model->Update();
-
-
-      //std::cout << ">>> MEAN =\n" << mean << std::endl;
-      //std::cout << ">>> 1/VAR =\n" << std << std::endl;
 
       // save the original matrices
       P.resize(k);
