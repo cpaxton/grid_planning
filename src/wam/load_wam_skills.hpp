@@ -23,6 +23,20 @@ namespace grid {
       .addFeature("link",POSE_FEATURE)
       .addFeature("time",TIME_FEATURE);
 
+    TestFeaturesPtr tf13(new TestFeatures());
+    tf13->setAgentFrame("wam/wrist_palm_link")
+      .setWorldFrame("wam/base_link")
+      .addFeature("node",POSE_FEATURE)
+      .addFeature("link",POSE_FEATURE)
+      .addFeature("time",TIME_FEATURE);
+
+    TestFeaturesPtr tf14(new TestFeatures());
+    tf14->setAgentFrame("wam/wrist_palm_link")
+      .setWorldFrame("wam/base_link")
+      .addFeature("node",POSE_FEATURE)
+      .addFeature("link",POSE_FEATURE)
+      .addFeature("time",TIME_FEATURE);
+
     TestFeaturesPtr tf21(new TestFeatures());
     tf21->setAgentFrame("wam/wrist_palm_link")
       .setWorldFrame("wam/base_link")
@@ -37,17 +51,39 @@ namespace grid {
       .addFeature("link",POSE_FEATURE)
       .addFeature("time",TIME_FEATURE);
 
+    TestFeaturesPtr tf23(new TestFeatures());
+    tf23->setAgentFrame("wam/wrist_palm_link")
+      .setWorldFrame("wam/base_link")
+      .addFeature("node",POSE_FEATURE)
+      .addFeature("link",POSE_FEATURE)
+      .addFeature("time",TIME_FEATURE);
+
+    TestFeaturesPtr tf24(new TestFeatures());
+    tf24->setAgentFrame("wam/wrist_palm_link")
+      .setWorldFrame("wam/base_link")
+      .addFeature("node",POSE_FEATURE)
+      .addFeature("link",POSE_FEATURE)
+      .addFeature("time",TIME_FEATURE);
+
     tf11->setFrame("gbeam_node_1/gbeam_node","node").setFrame("gbeam_link_1/gbeam_link","link");
-    tf12->setFrame("gbeam_node_1/gbeam_node","node").setFrame("gbeam_link_2/gbeam_link","link");
+    tf12->setFrame("gbeam_node_1/gbeam_node","node").setFrame("gbeam_link_1/gbeam_right","link");
+    tf13->setFrame("gbeam_node_1/gbeam_node","node").setFrame("gbeam_link_1/gbeam_left","link");
+    tf14->setFrame("gbeam_node_1/gbeam_node","node").setFrame("gbeam_link_1/gbeam_back","link");
     tf21->setFrame("gbeam_node_2/gbeam_node","node").setFrame("gbeam_link_1/gbeam_link","link");
-    tf22->setFrame("gbeam_node_2/gbeam_node","node").setFrame("gbeam_link_2/gbeam_link","link");
+    tf22->setFrame("gbeam_node_2/gbeam_node","node").setFrame("gbeam_link_1/gbeam_right","link");
+    tf23->setFrame("gbeam_node_2/gbeam_node","node").setFrame("gbeam_link_1/gbeam_left","link");
+    tf24->setFrame("gbeam_node_2/gbeam_node","node").setFrame("gbeam_link_1/gbeam_back","link");
 
     std::unordered_map<std::string, TestFeaturesPtr> features;
 
     features["node1,link1"] = tf11;
     features["node1,link2"] = tf12;
+    features["node1,link3"] = tf13;
+    features["node1,link4"] = tf14;
     features["node2,link1"] = tf21;
     features["node2,link2"] = tf22;
+    features["node2,link3"] = tf23;
+    features["node2,link4"] = tf24;
 
     return features;
   }
