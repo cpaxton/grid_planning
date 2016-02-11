@@ -129,6 +129,7 @@ namespace grid {
       if(feature.second == POSE_FEATURE) {
         //std::cout << feature.first << std::endl;
         currentPose[feature.first] = lookup(feature.first);
+        currentPoseInv[feature.first] = currentPose[feature.first].Inverse();
       }
 
     }
@@ -162,10 +163,9 @@ namespace grid {
       unsigned int idx = 0;
       FeatureVector f(dim);
       for (const std::string &name: names) {
-        if (feature_types[name] == POSE_FEATURE) {
-          //Pose offset = currentPose[name].Inverse() * currentPose[AGENT];// * traj->Pos(t);
 
-          Pose offset = currentPose[name].Inverse() * traj->Pos(t);
+        if (feature_types[name] == POSE_FEATURE) {
+          Pose offset = currentPoseInv[name] * traj->Pos(t);
           if (attached) {
             offset = offset * attachedObjectFrame;
           }
@@ -222,37 +222,33 @@ namespace grid {
 
     for (const Pose &p: traj) {
       unsigned int idx = 0;
-      FeatureVector f(dim);
+      features[next_idx].resize(dim);
+      //FeatureVector f(dim);
 
       for (const std::string &name: names) {
 
         if (feature_types[name] == POSE_FEATURE) {
 
-          Pose offset = currentPose[name].Inverse() * p;
+          Pose offset = currentPoseInv[name] * p;
           if (useAttachedObjectFrame) {
-            //std::cout << "attaching\n";
-            //std::cout << attachedObjectFrame << "\n";
             offset = offset * attachedObjectFrame;
           }
-          //std::cout << "\tComputed at x=" << offset.p.x()
-          //  <<", y=" << offset.p.y()
-          //  <<", z=" << offset.p.z()
-          //  <<std::endl;
 
           if (next_idx==0) {
-            getPoseFeatures(offset,f,idx);
+            getPoseFeatures(offset,features[next_idx],idx);
           } else {
-            getPoseFeatures(offset,f,idx,features[next_idx-1]);
+            getPoseFeatures(offset,features[next_idx],idx,features[next_idx-1]);
           }
           idx+= POSE_FEATURES_SIZE;
 
         } else if (feature_types[name] == TIME_FEATURE) {
-          f(idx) = (double)next_idx / (double)traj.size();
+          features[next_idx](idx) = (double)next_idx / (double)traj.size();
           idx += TIME_FEATURES_SIZE;
         }
 
       }
-      features[next_idx++] = f;
+      //features[next_idx++] = f;
+      next_idx++;
 
     }
   }

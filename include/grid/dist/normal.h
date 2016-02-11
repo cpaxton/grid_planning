@@ -167,16 +167,11 @@ namespace gcop {
       //  cout << "[W] Normal::L: not positive definite!" << endl;
       //}
       
-      //std::cout << "x = \n" << x << "\n";
-      //std::cout << "mu = \n" << mu << "\n";
       Vectornd d = x - mu;
-      //std::cout << "d = \n" << d << "\n";
-      //std::cout << d.dot(Pinv*d)/2 << "\n";
-      //std::cout << "NORM = " << norm << "\n";
       return -(d.dot(Pinv*d)/2) - (norm);
     }
 
-  template<int _n>
+  template<int _n> inline
     double Normal<_n>::L(const Vectornd &x) const
     {
       //if (!pd) {
@@ -184,11 +179,6 @@ namespace gcop {
       //}
       
       Vectornd d = x - mu;
-      //std::cout << "d = \n";
-      //std::cout << d << "\n";
-      //std::cout << "Pinv = \n";
-      //std::cout << Pinv << "\n";
-      //std::cout << d.dot(Pinv*d) << "\n";
       return exp(-d.dot(Pinv*d)/2)/norm;
     }
   

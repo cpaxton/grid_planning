@@ -160,7 +160,7 @@ namespace gcop {
         return l;
       }
     }
-  template<int _n>
+  template<int _n> inline
     double Gmm<_n>::logL(const Vectornd &x) const
     {
       if (k == 1) {

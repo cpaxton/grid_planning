@@ -112,6 +112,7 @@ namespace grid {
   private:
     std::unordered_map<std::string, std::string> objectClassToID;
     std::unordered_map<std::string, Pose> currentPose; // used for fast lookup
+    std::unordered_map<std::string, Pose> currentPoseInv; // used for fast lookup
 
     // name of the frame representing the end effector, i.e. what are we planning from?
     std::string agentFrame;

@@ -127,16 +127,24 @@ int main(int argc, char **argv) {
         std::cout << "Sampling " << ntrajs << " trajectories took " << elapsed_secs << " seconds." << std::endl;
       }
 
+      std::vector<FeatureVector> features;
       // generate the features
       // see how long that takes
       {
         using namespace std;
 
-        std::vector<FeatureVector> features;
         clock_t begin = clock();
         for (unsigned int i = 0; i < trajs.size(); ++i) {
 
           std::vector<Pose> poses = rk_ptr->FkPos(trajs[i]);
+          {
+            //clock_t begin = clock();
+            //poses = rk_ptr->FkPos(trajs[i]);
+            //clock_t end = clock();
+            //double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+            //std::cout << " - fwd kinematics took " << elapsed_secs << " seconds." << std::endl;
+          }
+
           test.getFeaturesForTrajectory(features,approach.getFeatures(),poses);
           approach.normalizeData(features);
           FeatureVector v = approach.logL(features);

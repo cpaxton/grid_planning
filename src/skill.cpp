@@ -253,8 +253,14 @@ namespace grid {
   FeatureVector Skill::logL(std::vector<FeatureVector> &data) {
     FeatureVector vec(data.size());
 
-    for (unsigned int i = 0; i < data.size(); ++i) {
-      vec(i) = model->logL(data[i]);
+    if (model->k == 1) {
+      for (unsigned int i = 0; i < data.size(); ++i) {
+        vec(i) = model->ns[0].logL(data[i]);
+      }
+    } else {
+      for (unsigned int i = 0; i < data.size(); ++i) {
+        vec(i) = model->logL(data[i]);
+      }
     }
 
     return vec;
