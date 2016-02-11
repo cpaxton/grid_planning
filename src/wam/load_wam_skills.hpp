@@ -97,10 +97,10 @@ namespace grid {
     }
     /* LOAD TRAINING DATA FOR RELEASE */
     {
-      std::string filenames[] = {"data/sim/release1.bag", "data/sim/release2.bag", "data/sim/release3.bag",
+      std::string filenames[] = {//"data/sim/release1.bag", "data/sim/release2.bag", "data/sim/release3.bag",
         "data/sim/release1b.bag", "data/sim/release2b.bag", "data/sim/release3b.bag"
       };
-      load_and_train_skill(*release, rk_ptr, filenames, 6);
+      load_and_train_skill(*release, rk_ptr, filenames, 3);
     }
     /* LOAD TRAINING DATA FOR DISENGAGE */
     {

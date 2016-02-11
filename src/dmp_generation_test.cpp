@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
   ros::Duration(1.0).sleep();
 
   ros::Rate rate(1);
-  unsigned int ntrajs = 5;
+  unsigned int ntrajs = 200;
 
   std::vector<JointTrajectory> trajs;
   trajs.resize(ntrajs);

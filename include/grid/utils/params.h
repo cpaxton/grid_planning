@@ -24,6 +24,7 @@ namespace grid {
     std::string goal_name;
     double update_horizon;
     bool collisions_verbose;
+    int test;
   };
 
   Params readRosParams();

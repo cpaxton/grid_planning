@@ -16,6 +16,7 @@
 #include <grid/wam/input.h>
 
 #include "wam/load_wam_skills.hpp"
+#include "auto/load_wam_skills_auto_data.hpp"
 
 #include <ros/ros.h>
 #include <std_srvs/Empty.h>
@@ -70,7 +71,12 @@ int main(int argc, char **argv) {
   std_srvs::Empty empty;
   client.call(empty);
 
-  std::unordered_map<std::string, SkillPtr> skills = loadWamSkills();
+  std::unordered_map<std::string, SkillPtr> skills;
+  if (p.test == 0) {
+    skills = loadWamSkills();
+  } else if (p.test == 1) {
+    skills = loadWamSkillsAuto();
+  }
   std::unordered_map<std::string, TestFeaturesPtr> features = setupTestFeaturesForTrials();
 
   InstantiatedSkillPtr root = InstantiatedSkill::Root();

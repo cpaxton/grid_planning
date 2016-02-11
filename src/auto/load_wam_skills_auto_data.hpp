@@ -1,64 +1,16 @@
-#ifndef _GRID_LOAD_WAM_SKILLS
-#define _GRID_LOAD_WAM_SKILLS
+#ifndef _GRID_LOAD_WAM_SKILLS_AUTO
+#define _GRID_LOAD_WAM_SKILLS_AUTO
 
 #include <grid/skill.h>
 
 namespace grid {
 
-  std::unordered_map<std::string, TestFeaturesPtr> setupTestFeaturesForTrials() {
+  std::unordered_map<std::string, SkillPtr> loadWamSkillsAuto() {
 
-
-    /* Initialize Base Set of Features */
-    TestFeaturesPtr tf11(new TestFeatures());
-    tf11->setAgentFrame("wam/wrist_palm_link")
-      .setWorldFrame("wam/base_link")
-      .addFeature("node",POSE_FEATURE)
-      .addFeature("link",POSE_FEATURE)
-      .addFeature("time",TIME_FEATURE);
-
-    TestFeaturesPtr tf12(new TestFeatures());
-    tf12->setAgentFrame("wam/wrist_palm_link")
-      .setWorldFrame("wam/base_link")
-      .addFeature("node",POSE_FEATURE)
-      .addFeature("link",POSE_FEATURE)
-      .addFeature("time",TIME_FEATURE);
-
-    TestFeaturesPtr tf21(new TestFeatures());
-    tf21->setAgentFrame("wam/wrist_palm_link")
-      .setWorldFrame("wam/base_link")
-      .addFeature("node",POSE_FEATURE)
-      .addFeature("link",POSE_FEATURE)
-      .addFeature("time",TIME_FEATURE);
-
-    TestFeaturesPtr tf22(new TestFeatures());
-    tf22->setAgentFrame("wam/wrist_palm_link")
-      .setWorldFrame("wam/base_link")
-      .addFeature("node",POSE_FEATURE)
-      .addFeature("link",POSE_FEATURE)
-      .addFeature("time",TIME_FEATURE);
-
-    tf11->setFrame("gbeam_node_1/gbeam_node","node").setFrame("gbeam_link_1/gbeam_link","link");
-    tf12->setFrame("gbeam_node_1/gbeam_node","node").setFrame("gbeam_link_2/gbeam_link","link");
-    tf21->setFrame("gbeam_node_2/gbeam_node","node").setFrame("gbeam_link_1/gbeam_link","link");
-    tf22->setFrame("gbeam_node_2/gbeam_node","node").setFrame("gbeam_link_2/gbeam_link","link");
-
-    std::unordered_map<std::string, TestFeaturesPtr> features;
-
-    features["node1,link1"] = tf11;
-    features["node1,link2"] = tf12;
-    features["node2,link1"] = tf21;
-    features["node2,link2"] = tf22;
-
-    return features;
-  }
-
-
-  std::unordered_map<std::string, SkillPtr> loadWamSkills() {
-
-    SkillPtr approach(new Skill("approach",3));
+    SkillPtr approach(new Skill("approach",1));
     SkillPtr grasp(new Skill("grasp",1));
-    SkillPtr align(new Skill("align",3));
-    SkillPtr place(new Skill("place",3));
+    SkillPtr align(new Skill("align",1));
+    SkillPtr place(new Skill("place",1));
     SkillPtr release(new Skill("release",1));
     SkillPtr disengage(new Skill("disengage",1));
 

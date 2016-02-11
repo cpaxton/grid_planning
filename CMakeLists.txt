@@ -103,7 +103,6 @@ set(SOURCES
   src/visualize.cpp
   src/trajectory_distribution.cpp
   src/dmp_trajectory_distribution.cpp
-  src/predicate.cpp
   src/wam_training_features.cpp
   src/robot_kinematics.cpp
   src/task_model.cpp
@@ -133,7 +132,6 @@ set(HEADERS
   include/grid/visualize.h
   include/grid/trajectory_distribution.h
   include/grid/dmp_trajectory_distribution.h
-  include/grid/predicate.h
   include/grid/wam_training_features.h
   include/grid/robot_kinematics.h
   include/grid/task_model.h
@@ -174,7 +172,6 @@ add_executable(training_test src/training_test_node.cpp)
 add_executable(execution_test src/execution_test_node.cpp)
 add_executable(dmp_execution_test src/dmp_execution_test_node.cpp)
 add_executable(task_test src/task_test_node.cpp)
-add_executable(auto_task_test src/auto/task_test_auto_data.cpp)
 add_executable(align_test src/align_test_node.cpp)
 add_executable(moveit_robot_model_test src/moveit_robot_test.cpp)
 
@@ -207,6 +204,5 @@ target_link_libraries(training_test ${ALL_LIBRARIES})
 target_link_libraries(execution_test ${ALL_LIBRARIES})
 target_link_libraries(dmp_execution_test ${ALL_LIBRARIES})
 target_link_libraries(task_test ${ALL_LIBRARIES})
-target_link_libraries(auto_task_test ${ALL_LIBRARIES})
 target_link_libraries(align_test ${ALL_LIBRARIES})
 target_link_libraries(moveit_robot_model_test ${ALL_LIBRARIES})
