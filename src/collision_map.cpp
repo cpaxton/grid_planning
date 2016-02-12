@@ -6,7 +6,7 @@ namespace grid {
   std::size_t CollisionMapHash::operator()(Position_t const& pos) const {
     std::size_t hash = 0;
     for (unsigned int i = 0; i < pos.size(); ++i) {
-      hash ^= (int)(100*pos[i]) << 2*i;
+      hash ^= (int)(20*pos[i]) << 2*i;
     }
 
     return hash;

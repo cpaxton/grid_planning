@@ -115,6 +115,16 @@ As of 2016-02-09, I have been removing/testing the removal of a lot of the rando
 rosrun grid_plan task_test _step_size:=0.5 _iter:=20 _ntrajs:=100  _starting_horizon:=5 _max_horizon:=5 _update_horizon:=0.01 _detect_collisions:=true _base_model_norm:=0.01 _model_norm_step:=1
 ```
 
+As of 2016-02-11, more changes have made the configuration slightly different. We have options to enable things like verbosity for the collision checker.
+
+One thing that makes a big difference is the model normalization. See here:
+
+```
+rosrun grid_plan task_test _step_size:=0.5 _iter:=25 _ntrajs:=200 _starting_horizon:=5 _max_horizon:=5 _detect_collisions:=false _wait:=0 _collisions_verbose:=false _base_model_norm:=0.1 _model_norm_step=1 _update_horizon:=0.01
+```
+
+Setting the normalization higher makes convergence harder; setting it lower makes convergence easier (if you find examples). This is actually bad, though: fast convergence means you have a higher chance to end up in a local minimum.
+
 ## Guide to Files
 
 ### Executables

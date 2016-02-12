@@ -61,6 +61,9 @@ int main(int argc, char **argv) {
   gp.SetCollisions("gbeam_soup.gbeam_node_1",false);
   gp.SetCollisions("gbeam_soup.gbeam_node_2",false);
   gp.SetVerbose(p.collisions_verbose);
+  if (p.collisions_verbose) {
+    gp.PrintInfo();
+  }
 
   GridPlanner *checker = 0;
   if (p.detect_collisions) {
@@ -106,17 +109,8 @@ int main(int argc, char **argv) {
   /*************************************************************************/
 
   unsigned int nbasis = 5;
-  InstantiatedSkillPtr app1 = InstantiatedSkill::DmpInstance(
-      skills.at("approach"),
-      features.at("node1,link1"),
-      robot,
-      nbasis);
-
-  InstantiatedSkillPtr app2 = InstantiatedSkill::DmpInstance(
-      skills["approach"],
-      features["node2,link2"],
-      robot,
-      nbasis);
+  InstantiatedSkillPtr app1 = InstantiatedSkill::DmpInstance(skills.at("approach"), features.at("node1,link1"), robot, nbasis, checker);
+  InstantiatedSkillPtr app2 = InstantiatedSkill::DmpInstance(skills["approach"], features["node2,link2"], robot, nbasis, checker);
 
   std::cout << "Initializing grasps..." << std::endl;
   InstantiatedSkillPtr grasp1 = InstantiatedSkill::DmpInstance(skills["grasp"], features["node1,link1"], robot, nbasis, checker);
