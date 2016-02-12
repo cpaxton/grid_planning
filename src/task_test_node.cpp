@@ -60,7 +60,23 @@ int main(int argc, char **argv) {
   gp.SetCollisions("gbeam_soup.gbeam_link_2",true);
   gp.SetCollisions("gbeam_soup.gbeam_node_1",false);
   gp.SetCollisions("gbeam_soup.gbeam_node_2",false);
+
+  // disable a bunch of collisions
+  gp.SetDefaultCollisions("wam/hand/finger_1/dist_link",true);
+  gp.SetDefaultCollisions("wam/hand/finger_2/dist_link",true);
+  gp.SetDefaultCollisions("wam/hand/finger_3/dist_link",true);
+  gp.SetDefaultCollisions("wam/hand/finger_1/prox_link",true);
+  gp.SetDefaultCollisions("wam/hand/finger_2/prox_link",true);
+  gp.SetDefaultCollisions("wam/hand/finger_3/prox_link",true);
+  gp.SetDefaultCollisions("wam/shoulder_yaw_link",true);
+  gp.SetDefaultCollisions("wam/upper_arm_link",true);
+  gp.SetDefaultCollisions("wam/base_link",true);
+  gp.SetDefaultCollisions("wam/shoulder_pitch_link",true);
+  gp.SetDefaultCollisions("wam/forearm_link",true);
+  gp.SetDefaultCollisions("wam/wrist_pitch_link",true);
+
   gp.SetVerbose(p.collisions_verbose);
+
   if (p.collisions_verbose) {
     gp.PrintInfo();
   }

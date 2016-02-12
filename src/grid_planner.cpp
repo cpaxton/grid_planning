@@ -393,6 +393,10 @@ namespace grid {
       //scene->getAllowedCollisionMatrixNonConst().print(std::cout);
     }
 
+    /* Robot object default entry */
+    void GridPlanner::SetDefaultCollisions(const std::string link, bool ignore) {
+      scene->getAllowedCollisionMatrixNonConst().setDefaultEntry(link, ignore);
+    }
 
     /* try a single trajectory and see if it works.
      * this is aimed at the python version of the code. */

@@ -104,6 +104,7 @@ namespace grid {
     std::vector<double> iter_lls;
     std::vector<unsigned int> next_skill;
     
+    double prior;
     double last_probability;
     unsigned int last_samples;
     bool useCurrentFeatures;
@@ -165,6 +166,12 @@ namespace grid {
                                                    TestFeaturesPtr features,
                                                    RobotKinematicsPtr robot,
                                                    unsigned int nseg);
+
+
+    /*
+     * set prior
+     */
+    InstantiatedSkill &setPrior(const double &prior);
 
     /**
      * create an empty root node

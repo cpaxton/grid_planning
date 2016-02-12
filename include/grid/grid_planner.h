@@ -141,6 +141,9 @@ namespace grid {
     /* Are we allowed to collide? */
     void SetCollisions(const std::string obj, bool allowed);
 
+    /* Robot object default entry */
+    void SetDefaultCollisions(const std::string link, bool ignore);
+
     void SetVerbose(const bool verbose);
 
     void PrintInfo() const;

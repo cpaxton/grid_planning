@@ -21,7 +21,7 @@ namespace grid {
   InstantiatedSkill::InstantiatedSkill()
     : id(next_id++), done(false), useCurrentFeatures(false),
     touched(false), spline_dist(0), dmp_dist(0), skill(0),
-    trajs(), effects(), cur_iter(0), last_probability(MAX_PROBABILITY), last_samples(1u), pub(0)
+    trajs(), effects(), cur_iter(0), last_probability(MAX_PROBABILITY), last_samples(1u), pub(0), prior(0)
   {
   }
 
@@ -49,7 +49,7 @@ namespace grid {
     transitions_step(p_.step_size),
     acc(p_.ntrajs),
     last_probability(MAX_PROBABILITY),
-    last_samples(1u), pub(0)
+    last_samples(1u), pub(0), prior(0)
   {
     done = false;
     touched = false;
@@ -125,6 +125,13 @@ namespace grid {
     }
   }
 
+
+  /*
+   * set prior
+   */
+  InstantiatedSkill &InstantiatedSkill::setPrior(const double &prior_) {
+    prior = prior_;
+  }
 
   // randomly sample an index from the probabilities
   unsigned int InstantiatedSkill::sampleIndex(unsigned int nsamples) const {
