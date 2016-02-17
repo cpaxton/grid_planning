@@ -158,7 +158,12 @@ namespace grid {
 
     features.resize((unsigned int)1+floor(traj->Duration() / dt));
     unsigned int next_idx = 0;
-    unsigned int dim = getFeaturesSize(names);
+    unsigned int dim = getFeaturesSize(names,use_diff);
+    unsigned int pose_size = POSE_FEATURES_SIZE;
+    if (not use_diff) {
+      pose_size = POSE_FEATURES_SIZE_ND;
+    }
+
     for (double t = 0; t < traj->Duration(); t += dt) {
       unsigned int idx = 0;
       FeatureVector f(dim);
@@ -177,12 +182,12 @@ namespace grid {
 
           //std::cout << __LINE__ << ": " << dim << ", " << idt << std::endl;
           if (next_idx == 0) {
-            getPoseFeatures(offset,f,idx);
+            getPoseFeatures(offset,f,idx,use_diff);
           } else {
-            getPoseFeatures(offset,f,idx,features[next_idx-1]);
+            getPoseFeatures(offset,f,idx,features[next_idx-1],use_diff);
           }
 
-          idx+= POSE_FEATURES_SIZE;
+          idx+= pose_size;//POSE_FEATURES_SIZE;
 
         } else if (feature_types[name] == TIME_FEATURE) {
           f(idx) = t / traj->Duration();
@@ -218,7 +223,11 @@ namespace grid {
     features.resize(traj.size());
 
     unsigned int next_idx = 0;
-    unsigned int dim = getFeaturesSize(names);
+    unsigned int dim = getFeaturesSize(names,use_diff);
+    unsigned int pose_size = POSE_FEATURES_SIZE;
+    if (not use_diff) {
+      pose_size = POSE_FEATURES_SIZE_ND;
+    }
 
     for (const Pose &p: traj) {
       unsigned int idx = 0;
@@ -235,11 +244,11 @@ namespace grid {
           }
 
           if (next_idx==0) {
-            getPoseFeatures(offset,features[next_idx],idx);
+            getPoseFeatures(offset,features[next_idx],idx,use_diff);
           } else {
-            getPoseFeatures(offset,features[next_idx],idx,features[next_idx-1]);
+            getPoseFeatures(offset,features[next_idx],idx,features[next_idx-1],use_diff);
           }
-          idx+= POSE_FEATURES_SIZE;
+          idx+= pose_size;
 
         } else if (feature_types[name] == TIME_FEATURE) {
           features[next_idx](idx) = (double)next_idx / (double)traj.size();

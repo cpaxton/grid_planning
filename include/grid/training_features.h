@@ -28,6 +28,7 @@ namespace grid {
 
   public:
 
+
     /**
      * get last pose
      * use this TrainingFeatures to lookup the object you need

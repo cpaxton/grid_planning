@@ -9,7 +9,6 @@
 namespace grid {
 
 
-
   const std::vector<WorldConfiguration> &TrainingFeatures::getData() const {
     return data;
   }
@@ -207,8 +206,12 @@ namespace grid {
    * convert a world into a set of features
    */
   FeatureVector TrainingFeatures::worldToFeatures(const WorldConfiguration &w, const std::vector<std::string> &features, FeatureVector &prev) const {
-    FeatureVector f(getFeaturesSize(features));
+    FeatureVector f(getFeaturesSize(features,use_diff));
     unsigned int next_idx = 0;
+    unsigned int pose_size = POSE_FEATURES_SIZE;
+    if (not use_diff) {
+      pose_size = POSE_FEATURES_SIZE_ND;
+    }
 
     for (const std::string &feature: features) {
       if (feature_types.find(feature) != feature_types.end()) {
@@ -222,8 +225,8 @@ namespace grid {
             pose = w.object_poses.at(feature).Inverse() * w.object_poses.at(attachedObject); //w.ee_tform;
           }
 
-          getPoseFeatures(pose,f,next_idx,prev);
-          next_idx += POSE_FEATURES_SIZE;
+          getPoseFeatures(pose,f,next_idx,prev,use_diff);
+          next_idx += pose_size;
 
         } else if(feature_types.at(feature) == TIME_FEATURE) {
           f(next_idx) = (w.t - min_t).toSec() / (max_t - min_t).toSec();
@@ -247,8 +250,7 @@ namespace grid {
 
     using KDL::Rotation;
 
-    //std::vector<double> f(getFeaturesSize());
-    FeatureVector f(getFeaturesSize());
+    FeatureVector f(getFeaturesSize(),use_diff);
     unsigned int next_idx = 0;
 
     for (std::pair<const std::string, FeatureType> pair: feature_types) {
@@ -256,7 +258,7 @@ namespace grid {
 
         Pose pose = w.object_poses.at(pair.first).Inverse() * w.base_tform * w.ee_tform;
         std::cout << pair.first << " " << next_idx << "/" << getFeaturesSize()<< "\n";
-        getPoseFeatures(pose,f,next_idx,prev);
+        getPoseFeatures(pose,f,next_idx,prev,use_diff);
         next_idx += POSE_FEATURES_SIZE;
 
       } else if(feature_types.at(pair.first) == TIME_FEATURE) {
@@ -272,14 +274,17 @@ namespace grid {
   }
 
 
-
   /**
    * helper
    * convert a world into a set of features
    */
   FeatureVector TrainingFeatures::worldToFeatures(const WorldConfiguration &w, const std::vector<std::string> &features) const {
-    FeatureVector f(getFeaturesSize(features));
+    FeatureVector f(getFeaturesSize(features,use_diff));
     unsigned int next_idx = 0;
+    unsigned int pose_size = POSE_FEATURES_SIZE;
+    if (not use_diff) {
+      pose_size = POSE_FEATURES_SIZE_ND;
+    }
 
     for (const std::string &feature: features) {
       if (feature_types.find(feature) != feature_types.end()) {
@@ -293,8 +298,8 @@ namespace grid {
             pose = w.object_poses.at(feature).Inverse() * w.object_poses.at(attachedObject); //w.ee_tform;
           }
 
-          getPoseFeatures(pose,f,next_idx);
-          next_idx += POSE_FEATURES_SIZE;
+          getPoseFeatures(pose,f,next_idx,use_diff);
+          next_idx += pose_size;
 
         } else if(feature_types.at(feature) == TIME_FEATURE) {
           f(next_idx) = (w.t - min_t).toSec() / (max_t - min_t).toSec();
@@ -318,15 +323,14 @@ namespace grid {
 
     using KDL::Rotation;
 
-    //std::vector<double> f(getFeaturesSize());
-    FeatureVector f(getFeaturesSize());
+    FeatureVector f(getFeaturesSize(),use_diff);
     unsigned int next_idx = 0;
 
     for (std::pair<const std::string, FeatureType> pair: feature_types) {
       if (pair.second == POSE_FEATURE) {
 
         Pose pose = w.object_poses.at(pair.first).Inverse() * w.base_tform * w.ee_tform;
-        getPoseFeatures(pose,f,next_idx);
+        getPoseFeatures(pose,f,next_idx,use_diff);
         next_idx += POSE_FEATURES_SIZE;
 
       } else if(feature_types.at(pair.first) == TIME_FEATURE) {

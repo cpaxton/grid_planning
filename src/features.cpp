@@ -2,11 +2,17 @@
 
 namespace grid {
 
+  /**
+   * Do we need to use diff features to train this?
+   */
+  void Features::setUseDiff(const bool _use_diff) {
+    use_diff = _use_diff;
+  }
 
   /** 
    * initializers
    */
-  Features::Features() : attached(false), attachedObjectFrame(), attachedObject("")
+  Features::Features() : attached(false), attachedObjectFrame(), attachedObject(""), use_diff(true)
   {
 
   }
@@ -28,10 +34,13 @@ namespace grid {
     feature_types[name] = type;
     if (type == POSE_FEATURE) {
       feature_sizes[name] = POSE_FEATURES_SIZE;
+      feature_sizes_nd[name] = POSE_FEATURES_SIZE_ND;
     } else if (type == TIME_FEATURE) {
       feature_sizes[name] = TIME_FEATURES_SIZE;
+      feature_sizes_nd[name] = TIME_FEATURES_SIZE;
     } else {
       feature_sizes[name] = size;
+      feature_sizes_nd[name] = size;
     }
     updateFeaturesSize();
 
@@ -87,8 +96,12 @@ namespace grid {
    */
   void Features::updateFeaturesSize() {
     features_size = 0;
+    features_size_nd = 0;
     for (std::pair<const std::string,unsigned int> &pair: feature_sizes) {
       features_size += pair.second;
+    }
+    for (std::pair<const std::string,unsigned int> &pair: feature_sizes_nd) {
+      features_size_nd += pair.second;
     }
   }
 
@@ -129,6 +142,36 @@ namespace grid {
     return size;
   }
 
+  /**
+   * getFeaturesSize
+   * Compute number of features we expect to see
+   */
+  unsigned int Features::getFeaturesSize(const std::vector<std::string> &names,
+                                         bool use_diff) const
+  {
+    if (use_diff) {
+      return getFeaturesSize(names);
+    } else {
+      return getFeaturesSizeNoDiff(names);
+    }
+  }
+
+
+  /**
+   * getFeaturesSizeNoDiff
+   */
+  unsigned int Features::getFeaturesSizeNoDiff(const std::vector<std::string> &names) const {
+    unsigned int size = 0;
+    for (const std::string &name: names) {
+      if (feature_sizes_nd.find(name) != feature_sizes_nd.end()) {
+        size += feature_sizes_nd.at(name);
+      } else {
+        std::cerr << __FILE__ << ":" << __LINE__ << ": Unrecognized feature: " << name << std::endl;
+      }
+    }
+    return size;
+  }
+
   /** 
    * setRobotKinematics
    * sets the thing that will actually compute forward and inverse kinematics for our robot
@@ -142,15 +185,17 @@ namespace grid {
    * getPoseFeatures
    * Load pose data at index
    */
-  void Features::getPoseFeatures(const Pose &pose, FeatureVector &f, unsigned int idx) {
+  void Features::getPoseFeatures(const Pose &pose, FeatureVector &f, unsigned int idx, bool use_diff) {
 
     f(idx+POSE_FEATURE_X) = pose.p.x();
     f(idx+POSE_FEATURE_Y) = pose.p.y();
     f(idx+POSE_FEATURE_Z) = pose.p.z();
-    f(idx+POSE_FEATURE_DX) = 0;
-    f(idx+POSE_FEATURE_DY) = 0;
-    f(idx+POSE_FEATURE_DZ) = 0;
-    f(idx+POSE_FEATURE_DDIST) = 0;
+    if (use_diff) {
+      f(idx+POSE_FEATURE_DX) = 0;
+      f(idx+POSE_FEATURE_DY) = 0;
+      f(idx+POSE_FEATURE_DZ) = 0;
+      f(idx+POSE_FEATURE_DDIST) = 0;
+    }
 #ifdef USE_ROTATION_RPY
     pose.M.GetRPY(f(idx+POSE_FEATURE_ROLL), f(idx+POSE_FEATURE_PITCH), f(idx+POSE_FEATURE_YAW));
 #else
@@ -159,15 +204,17 @@ namespace grid {
     f(idx+POSE_FEATURE_DIST)  = pose.p.Norm();
   }
 
-  void Features::getPoseFeatures(const Pose &pose, FeatureVector &f, unsigned int idx, FeatureVector &prev) {
+  void Features::getPoseFeatures(const Pose &pose, FeatureVector &f, unsigned int idx, FeatureVector &prev, bool use_diff) {
 
     f(idx+POSE_FEATURE_X) = pose.p.x();
     f(idx+POSE_FEATURE_Y) = pose.p.y();
     f(idx+POSE_FEATURE_Z) = pose.p.z();
-    f(idx+POSE_FEATURE_DX) = pose.p.x() - prev(idx+POSE_FEATURE_X);
-    f(idx+POSE_FEATURE_DY) = pose.p.y() - prev(idx+POSE_FEATURE_Y);
-    f(idx+POSE_FEATURE_DZ) = pose.p.z() - prev(idx+POSE_FEATURE_Z);
-    f(idx+POSE_FEATURE_DDIST) = pose.p.Norm() - prev(idx+POSE_FEATURE_DIST);
+    if (use_diff) {
+      f(idx+POSE_FEATURE_DX) = pose.p.x() - prev(idx+POSE_FEATURE_X);
+      f(idx+POSE_FEATURE_DY) = pose.p.y() - prev(idx+POSE_FEATURE_Y);
+      f(idx+POSE_FEATURE_DZ) = pose.p.z() - prev(idx+POSE_FEATURE_Z);
+      f(idx+POSE_FEATURE_DDIST) = pose.p.Norm() - prev(idx+POSE_FEATURE_DIST);
+    }
 #ifdef USE_ROTATION_RPY
     pose.M.GetRPY(f(idx+POSE_FEATURE_ROLL), f(idx+POSE_FEATURE_PITCH), f(idx+POSE_FEATURE_YAW));
 #else

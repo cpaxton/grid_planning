@@ -49,6 +49,11 @@ namespace grid {
    */
   Skill &Skill::setStatic(bool set_static) {
     is_static = set_static;
+
+    if (is_static) {
+      
+    }
+
     return *this;
   }
 
@@ -130,6 +135,7 @@ namespace grid {
    */
   void Skill::addTrainingData(TrainingFeatures &data) {
 
+    data.setUseDiff(not isStatic());
     std::vector<FeatureVector> ex_data = data.getFeatureValues(feature_names);
 
     for (FeatureVector &ex: ex_data) {
@@ -170,6 +176,7 @@ namespace grid {
       normalized_training_data.clear();
 
       unsigned int dim = training_data[0].first.size();
+      std::cout << "DIM = " << dim << "\n";
       mean = FeatureVector(dim);
       std = FeatureVector(dim);
 
@@ -191,7 +198,7 @@ namespace grid {
         std = std.array() + (v.array() * v.array());
       }
 
-      //std::cout << "Mean = " << mean.transpose() << "\n";
+      std::cout << "Mean = " << mean.transpose() << "\n";
 
       // finish computing std dev
       std += EigenVectornd::Constant(std.size(),1,0.01);

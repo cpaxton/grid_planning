@@ -291,8 +291,10 @@ namespace grid {
 
       if (!skill->isStatic()) {
         // sample trajectories
+        features->setUseDiff(true);
         next_len = dmp_dist->sample(start_pts,params,trajs,nsamples);
       } else {
+        features->setUseDiff(false);
         // just stay put
         for (unsigned int i = 0; i < nsamples; ++i) {
           trajs[i].points.resize(1);

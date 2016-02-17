@@ -19,6 +19,7 @@ namespace grid {
     std::vector<std::shared_ptr<WamTrainingFeatures> > wtf(len);
     for (unsigned int i = 0; i < len; ++i) {
       std::shared_ptr<WamTrainingFeatures> wtf_ex(new WamTrainingFeatures(objects));
+      wtf_ex->setUseDiff(not skill.isStatic());
       wtf_ex->addFeature("time",TIME_FEATURE);
       wtf_ex->setRobotKinematics(rk_ptr);
       wtf_ex->read(filenames[i],10);
@@ -36,6 +37,7 @@ namespace grid {
 
     for (unsigned int i = 0; i < len; ++i) {
       std::shared_ptr<WamTrainingFeatures> wtf_ex(new WamTrainingFeatures(objects));
+      wtf_ex->setUseDiff(not skill.isStatic());
       wtf_ex->addFeature("time",TIME_FEATURE);
       wtf_ex->setRobotKinematics(rk_ptr);
       wtf_ex->read(filenames[i],10);

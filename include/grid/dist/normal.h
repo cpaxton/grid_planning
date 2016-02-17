@@ -196,7 +196,7 @@ namespace gcop {
         norm = sqrt(pow(2*M_PI, mu.size())*det);
         pd = true;
       } else {
-        cout << "[W] Normal::Update: cholesky failed: P=" << P << endl;
+        cout << "[W] Normal::Update: cholesky failed: P=\n" << P << endl;
         pd = false;    
       }
       

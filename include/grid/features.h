@@ -60,7 +60,7 @@ namespace grid {
   static const unsigned int POSE_FEATURE_PITCH(4);
   static const unsigned int POSE_FEATURE_YAW(5);
 
-  //static const unsigned int POSE_FEATURES_SIZE(8);
+  static const unsigned int POSE_FEATURES_SIZE_ND(8);
   static const unsigned int POSE_FEATURES_SIZE(12);
   static const unsigned int POSE_FEATURE_WX(3);
   static const unsigned int POSE_FEATURE_WY(4);
@@ -85,6 +85,11 @@ namespace grid {
 
   class Features {
   public:
+
+    /**
+     * Do we need to use diff features to train this?
+     */
+    void setUseDiff(const bool use_diff);
 
     /**
      * set all values in the vector to something
@@ -151,16 +156,28 @@ namespace grid {
     unsigned int getFeaturesSize(const std::vector<std::string> &names) const;
 
     /**
-     * getPoseFeatures
-     * Load pose data at index
+     * getFeaturesSize
+     * Compute number of features we expect to see
      */
-    static void getPoseFeatures(const Pose &pose, FeatureVector &f, unsigned int idx);
+    unsigned int getFeaturesSize(const std::vector<std::string> &names, bool use_diff) const;
+
+
+    /**
+     * getFeaturesSizeNoDiff
+     */
+    unsigned int getFeaturesSizeNoDiff(const std::vector<std::string> &names) const;
 
     /**
      * getPoseFeatures
      * Load pose data at index
      */
-    static void getPoseFeatures(const Pose &pose, FeatureVector &f, unsigned int idx, FeatureVector &prev);
+    static void getPoseFeatures(const Pose &pose, FeatureVector &f, unsigned int idx, bool use_diff = true);
+
+    /**
+     * getPoseFeatures
+     * Load pose data at index
+     */
+    static void getPoseFeatures(const Pose &pose, FeatureVector &f, unsigned int idx, FeatureVector &prev, bool use_diff = true);
 
     /**
      * featuresToPose
@@ -207,13 +224,17 @@ namespace grid {
 
   protected:
 
+    bool use_diff;
+
     bool attached;
     Pose attachedObjectFrame;
     std::string attachedObject;
 
     unsigned int features_size;
+    unsigned int features_size_nd;
     std::unordered_map<std::string,FeatureType> feature_types;
     std::unordered_map<std::string,unsigned int> feature_sizes;
+    std::unordered_map<std::string,unsigned int> feature_sizes_nd;
 
     RobotKinematicsPtr robot; // stores the robot itself
     unsigned int n_dof;
