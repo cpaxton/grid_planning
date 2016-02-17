@@ -119,7 +119,7 @@ namespace grid {
      * try a single trajectory and see if it works.
      * this is the joint trajectory version (so we can use a consistent message type)
      * */
-    bool TryTrajectory(const Traj_t &traj);
+    bool TryTrajectory(const Traj_t &traj, unsigned int step = 1);
 
     /* update planning scene topic */
     void  SetPlanningSceneTopic(const std::string &topic);

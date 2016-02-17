@@ -126,6 +126,11 @@ namespace grid {
     /** check for collisions */
     void setCollisionChecker(GridPlanner *);
 
+    /**
+     * set the skip between calling collision detection
+     */
+    unsigned int setCollisionDetectionStep(unsigned int step);
+
   protected:
     gcop::Gmm<> dist; // stores distributions
     GridPlanner *checker;
@@ -141,6 +146,7 @@ namespace grid {
     unsigned int dim; // number of dimensions
 
     unsigned int nvars;
+    unsigned int collision_detection_step;
 
     std::vector<dmp::DMPData> dmp_list;
     std::vector<double> dmp_goal;

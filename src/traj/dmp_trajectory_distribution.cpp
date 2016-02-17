@@ -28,7 +28,8 @@ namespace grid {
     tau(2.0),
     goal_threshold(dim_,0.01),
     dmp_velocity_multiplier(0.1),
-    attached(false)
+    attached(false),
+    collision_detection_step(4)
   {
 
     assert(dim == robot->getDegreesOfFreedom());
@@ -211,7 +212,6 @@ namespace grid {
     trajs.resize(nsamples);
 
     int sample = 0;
-    //for (int sample = 0; sample < nsamples; ++sample) {
     while (sample < nsamples) {
 
       //EigenVectornd vec(nvars);
@@ -304,7 +304,7 @@ namespace grid {
       }
 
       if (checker) {
-        bool collision = !checker->TryTrajectory(trajs[sample]);
+        bool collision = !checker->TryTrajectory(trajs[sample],collision_detection_step);
 
         if (collision) {
           //std::cout << "COLLISION DETECTED!\n";
@@ -404,14 +404,14 @@ namespace grid {
 
       // one cluster only
       // compute mean
-      
+
       //std::cout << "BEFORE:\n";
       //std::cout << dist.ns[0].P << "\n";
 
       dist.ns[0].mu *= (1 - step_size); //setZero();
       dist.ns[0].P *= (1 - step_size); //setZero();
 
-      for (unsigned int i = 0; i < nsamples; ++i) {//i < params.size(); ++i) {
+      for (unsigned int i = 0; i < nsamples; ++i) {
         //std::cout << "mu rows = " << dist.ns[0].mu.rows() << ", vec rows = " << vec.rows() << std::endl;
         //std::cout << "mu cols = " << dist.ns[0].mu.cols() << ", vec cols = " << vec.cols() << std::endl;
         double wt = step_size * ps[i] / psum;
@@ -419,7 +419,7 @@ namespace grid {
         dist.ns[0].mu += params[i] * wt;
       }
 
-      for (unsigned int i = 0; i < nsamples; ++i) { //i < params.size(); ++i) {
+      for (unsigned int i = 0; i < nsamples; ++i) {
         double wt = step_size * ps[i] / psum;
         //std::cout << wt << ", " << ps[i] << ", " << psum << std::endl;
         //dist.ns[0].P += wt * (params[i] - dist.ns[0].mu) * (params[i] - dist.ns[0].mu).transpose();
@@ -435,19 +435,27 @@ namespace grid {
       // and then fit GMM again
 
       std::vector<std::pair<EigenVectornd,double> > data(nsamples);//ps.size());
-      for (unsigned int i = 0; i < nsamples; ++i) { //i < ps.size(); ++i) {
+      for (unsigned int i = 0; i < nsamples; ++i) {
         data[0].first = params[i];
         data[0].second = ps[i] / psum;
       }
 
       dist.Fit(data);
 
-      }
-
-      for (unsigned int i = 0; i < dist.k; ++i) {
-        dist.ns[0].P += diagonal_noise * Matrix<double,Dynamic,Dynamic>::Identity(nvars,nvars);
-      }
-
-      dist.Update();
     }
+
+    for (unsigned int i = 0; i < dist.k; ++i) {
+      dist.ns[0].P += diagonal_noise * Matrix<double,Dynamic,Dynamic>::Identity(nvars,nvars);
+    }
+
+    dist.Update();
   }
+
+  /**
+   * set the skip between calling collision detection
+   */
+  unsigned int DmpTrajectoryDistribution::setCollisionDetectionStep(unsigned int step) {
+    collision_detection_step = step;
+  }
+
+}
