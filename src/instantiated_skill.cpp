@@ -541,7 +541,9 @@ namespace grid {
     CommandGoal cmd;
     if (skill) {
       cmd.name = skill->getName();
-      cmd.traj = trajs[best_idx];
+      if (not skill->isStatic()) {
+        cmd.traj = trajs[best_idx];
+      }
     }
     if (features) {
       cmd.keys = features->getClasses();
