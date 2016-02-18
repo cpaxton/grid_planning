@@ -125,14 +125,22 @@ rosrun grid_plan task_test _step_size:=0.5 _iter:=25 _ntrajs:=200 _starting_hori
 
 Setting the normalization higher makes convergence harder; setting it lower makes convergence easier (if you find examples). This is actually bad, though: fast convergence means you have a higher chance to end up in a local minimum.
 
-### Current Commands
-
-Good places to start experiments:
+As of 2016-02-17, this was the best set of commands with the 1-Gaussian code:
 
 ```
 rosrun grid_plan task_test _step_size:=0.5 _iter:=25 _ntrajs:=200 _starting_horizon:=5 _max_horizon:=5 _detect_collisions:=false _wait:=0 _collisions_verbose:=false _base_model_norm:=0.1 _model_norm_step=1 _update_horizon:=0.01
 rosrun grid_plan task_test _step_size:=0.5 _iter:=25 _ntrajs:=200 _starting_horizon:=5 _max_horizon:=5 _detect_collisions:=true _wait:=0 _collisions_verbose:=false _base_model_norm:=0.1 _model_norm_step=1 _update_horizon:=0.01
 ```
+
+### Current Commands
+
+Good places to start experiments:
+
+```
+rosrun grid_plan task_test _step_size:=0.5 _iter:=25 _ntrajs:=200 _starting_horizon:=5 _max_horizon:=5 _detect_collisions:=true _wait:=0 _collisions_verbose:=false _base_model_norm:=0.001 _model_norm_step=1 _update_horizon:=0.01
+```
+
+Note the decreased model norm from the previous version.
 
 ## Guide to Files
 
