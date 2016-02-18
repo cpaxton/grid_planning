@@ -27,16 +27,19 @@ int main(int argc, char **argv) {
   unsigned int ntraining = 8u; //9u;
   if (p.skill_name == "approach") {
     ROS_INFO("Configuring for approach...");
-    std::string _filenames[] = {"data/sim/app1.bag", "data/sim/app2.bag", "data/sim/app3.bag",
-      "data/sim_auto/approach1.bag", "data/sim_auto/approach2.bag",
-      "data/sim_auto/approach3.bag",
-      "data/sim_auto/approach4.bag",
-      "data/sim_auto/approach5.bag",
+    std::string _filenames[] = {"data/sim/approach01.bag", "data/sim/approach02.bag", "data/sim/approach03.bag",
+      //"data/sim_auto/approach1.bag", "data/sim_auto/approach2.bag",
+      //"data/sim_auto/approach3.bag",
+      //"data/sim_auto/approach4.bag",
+      //"data/sim_auto/approach5.bag",
       "data/sim/approach_left01.bag",
+      "data/sim/approach_left02.bag",
+      "data/sim/approach_left03.bag",
       "data/sim/approach_right01.bag",
-      "data/sim/approach_right02.bag"
+      "data/sim/approach_right02.bag",
+      "data/sim/approach_right03.bag"
     };
-    ntraining = 11u;
+    ntraining = 9u;
     filenames.insert(filenames.begin(),&_filenames[0],&_filenames[ntraining]);
   } else if (p.skill_name == "align") {
     ROS_INFO("Configuring for align...");

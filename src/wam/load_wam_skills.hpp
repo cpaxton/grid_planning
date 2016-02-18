@@ -96,10 +96,10 @@ namespace grid {
     SkillPtr approach(new Skill("approach",2));
     SkillPtr approach_right(new Skill("approach_right",2));
     SkillPtr approach_left(new Skill("approach_left",2));
-    SkillPtr grasp(new Skill("grasp",2));
+    SkillPtr grasp(new Skill("grasp",1));
     SkillPtr align(new Skill("align",2));
     SkillPtr place(new Skill("place",2));
-    SkillPtr release(new Skill("release",2));
+    SkillPtr release(new Skill("release",1));
     SkillPtr disengage(new Skill("disengage",2));
 
     /* SET UP THE SKILLS */
@@ -117,7 +117,7 @@ namespace grid {
 
     /* LOAD TRAINING DATA FOR APPROACH */
     {
-      std::string filenames[] = {"data/sim/app1.bag", "data/sim/app2.bag", "data/sim/app3.bag"};
+      std::string filenames[] = {"data/sim/approach01.bag", "data/sim/approach02.bag", "data/sim/approach03.bag"};
       load_and_train_skill(*approach, rk_ptr, filenames, 3);
     }
     /* LOAD TRAINING DATA FOR APPROACH RIGHT */
@@ -132,7 +132,7 @@ namespace grid {
     }
     /* LOAD TRAINING DATA FOR GRASP */
     {
-      std::string filenames[] = {"data/sim/grasp1.bag", "data/sim/grasp2.bag", "data/sim/grasp3.bag"};
+      std::string filenames[] = {"data/sim/grasp01.bag", "data/sim/grasp02.bag", "data/sim/grasp03.bag"};
       load_and_train_skill(*grasp, rk_ptr, filenames, 3);
     }
     /* LOAD TRAINING DATA FOR ALIGN */
