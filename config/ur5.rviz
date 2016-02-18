@@ -9,6 +9,8 @@ Panels:
         - /DBG EE1
         - /DBG EE LINK1
         - /DBG EE NODE1
+        - /PlanningScene1
+        - /PlanningScene1/Scene Geometry1
       Splitter Ratio: 0.531496
     Tree Height: 853
   - Class: rviz/Selection
@@ -138,12 +140,18 @@ Visualization Manager:
           Value: false
         camera_2/ar_marker_0:
           Value: false
+        camera_2/ar_marker_137:
+          Value: true
         camera_2/ar_marker_153:
           Value: false
         camera_2/ar_marker_159:
           Value: false
         camera_2/ar_marker_2:
           Value: false
+        camera_2/ar_marker_23:
+          Value: true
+        camera_2/ar_marker_241:
+          Value: true
         camera_2/ar_marker_242:
           Value: false
         camera_2/ar_marker_243:
@@ -158,10 +166,14 @@ Visualization Manager:
           Value: false
         camera_2/ar_marker_249:
           Value: false
+        camera_2/ar_marker_250:
+          Value: true
         camera_2/ar_marker_254:
           Value: false
         camera_2/ar_marker_255:
           Value: false
+        camera_2/ar_marker_96:
+          Value: true
         camera_2_depth_frame:
           Value: false
         camera_2_depth_optical_frame:
@@ -279,15 +291,37 @@ Visualization Manager:
                       {}
                     Obj::node_uniform::7:
                       {}
+                    Obj::node_uniform::8:
+                      {}
                     camera_2/ar_marker_0:
                       {}
+                    camera_2/ar_marker_137:
+                      {}
                     camera_2/ar_marker_2:
+                      {}
+                    camera_2/ar_marker_23:
+                      {}
+                    camera_2/ar_marker_241:
                       {}
                     camera_2/ar_marker_243:
                       {}
                     camera_2/ar_marker_244:
                       {}
+                    camera_2/ar_marker_246:
+                      {}
+                    camera_2/ar_marker_247:
+                      {}
+                    camera_2/ar_marker_248:
+                      {}
+                    camera_2/ar_marker_249:
+                      {}
+                    camera_2/ar_marker_250:
+                      {}
+                    camera_2/ar_marker_254:
+                      {}
                     camera_2/ar_marker_255:
+                      {}
+                    camera_2/ar_marker_96:
                       {}
               endpoint:
                 endpoint_marker:
@@ -432,12 +466,12 @@ Visualization Manager:
       Reference Frame: endpoint_marker
       Value: false
     - Class: rviz/Axes
-      Enabled: false
+      Enabled: true
       Length: 0.05
       Name: endpoint
       Radius: 0.01
       Reference Frame: endpoint
-      Value: false
+      Value: true
     - Class: rviz/InteractiveMarkers
       Enable Transparency: true
       Enabled: false
@@ -489,6 +523,70 @@ Visualization Manager:
       Name: DBG EE NODE
       Topic: /dbg_ee_node
       Value: true
+    - Class: moveit_rviz_plugin/PlanningScene
+      Enabled: false
+      Move Group Namespace: ""
+      Name: PlanningScene
+      Planning Scene Topic: planning_scene
+      Robot Description: robot_description
+      Scene Geometry:
+        Scene Alpha: 0.9
+        Scene Color: 50; 230; 50
+        Scene Display Time: 0.01
+        Show Scene Geometry: true
+        Voxel Coloring: Z-Axis
+        Voxel Rendering: Occupied Voxels
+      Scene Robot:
+        Attached Body Color: 150; 50; 150
+        Links:
+          All Links Enabled: true
+          Expand Joint Details: false
+          Expand Link Details: false
+          Expand Tree: false
+          Link Tree Style: Links in Alphabetic Order
+          base_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          ee_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          forearm_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          shoulder_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          upper_arm_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          wrist_1_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          wrist_2_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          wrist_3_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+        Robot Alpha: 0.5
+        Show Robot Collision: false
+        Show Robot Visual: false
+      Value: false
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -513,22 +611,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 2.64308
+      Distance: 6.33864
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.726855
-        Y: -0.263986
-        Z: -0.115291
+        X: 0.60915
+        Y: -0.0516534
+        Z: -0.352408
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.314796
+      Pitch: 0.544796
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 2.43541
+      Yaw: 2.11544
     Saved: ~
 Window Geometry:
   Displays:

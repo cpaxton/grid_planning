@@ -423,7 +423,7 @@ namespace grid {
         double wt = step_size * ps[i] / psum;
         //std::cout << wt << ", " << ps[i] << ", " << psum << std::endl;
         //dist.ns[0].P += wt * (params[i] - dist.ns[0].mu) * (params[i] - dist.ns[0].mu).transpose();
-        dist.ns[0].P += wt * (params[i] - dist.ns[0].mu).array().square().matrix().asDiagonal();// * (params[i] - dist.ns[0].mu);
+        dist.ns[0].P += (wt * (params[i] - dist.ns[0].mu)).array().square().matrix().asDiagonal();// * (params[i] - dist.ns[0].mu);
       }
 
       //std::cout << "AFTER:\n";
