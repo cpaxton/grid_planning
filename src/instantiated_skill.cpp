@@ -157,12 +157,12 @@ namespace grid {
   void InstantiatedSkill::accumulateProbs(const std::vector<double> &prev_ps, unsigned int len) {
     /************* ACCUMULATE PROBABILITIES *************/
     for (unsigned int i = 0; i < len; ++i) {
-      //if (i > 0) {
-      //  acc[i] = exp(prev_ps[i]) + acc[i-1];
-      //} else {
-      //  acc[i] = exp(prev_ps[i]);
-      //}
-      acc[i] = i+1;
+      if (i > 0) {
+        acc[i] = exp(prev_ps[i]) + acc[i-1] + 0.01;
+      } else {
+        acc[i] = exp(prev_ps[i]) + 0.01;
+      }
+      //acc[i] = i+1;
     }
     for (double &d: acc) {
       d /= acc[len-1];
@@ -478,7 +478,7 @@ namespace grid {
       if (nsamples > 1) {
         dmp_dist->update(params,ps,nsamples,p.noise,p.step_size);
         dmp_dist->addNoise(1e-10); 
-        //dmp_dist->addNoise(pow(0.1,(good_iter/2)+5));
+        //dmp_dist->addNoise(pow(0.1,(good_iter)+5));
       }
     }
 

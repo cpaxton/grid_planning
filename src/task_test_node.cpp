@@ -80,13 +80,31 @@ int main(int argc, char **argv) {
 
   gp.SetVerbose(p.collisions_verbose);
 
+  GridPlanner gp2("robot_description","/gazebo/barrett_manager/wam/joint_states","/gazebo/raw_planning_scene",0.02);
+  gp2.SetDof(robot->getDegreesOfFreedom());
+  gp2.SetCollisions("gbeam_soup",true);
+
+  // disable a bunch of collisions
+  gp2.SetDefaultCollisions("wam/hand/finger_1/prox_link",true);
+  gp2.SetDefaultCollisions("wam/hand/finger_2/prox_link",true);
+  gp2.SetDefaultCollisions("wam/hand/finger_3/prox_link",true);
+  gp2.SetDefaultCollisions("wam/shoulder_yaw_link",true);
+  gp2.SetDefaultCollisions("wam/upper_arm_link",true);
+  gp2.SetDefaultCollisions("wam/base_link",true);
+  gp2.SetDefaultCollisions("wam/shoulder_pitch_link",true);
+  gp2.SetDefaultCollisions("wam/forearm_link",true);
+  gp2.SetDefaultCollisions("wam/wrist_pitch_link",true);
+  gp2.SetDefaultCollisions("wam/wrist_yaw_link",true);
+
   if (p.collisions_verbose) {
     gp.PrintInfo();
   }
 
   GridPlanner *checker = 0;
+  GridPlanner *checker2 = 0;
   if (p.detect_collisions) {
     checker = &gp;
+    checker2 = &gp2;
   }
 
   ros::ServiceClient client = nh.serviceClient<std_srvs::Empty>("/gazebo/publish_planning_scene");
@@ -128,13 +146,13 @@ int main(int argc, char **argv) {
   /*************************************************************************/
 
   unsigned int nbasis = 5;
-  InstantiatedSkillPtr app1 = InstantiatedSkill::DmpInstance(skills.at("approach"), features.at("node1,link1"), robot, nbasis, checker);
-  InstantiatedSkillPtr app2 = InstantiatedSkill::DmpInstance(skills["approach_right"], features["node2,link2"], robot, nbasis, checker);
-  InstantiatedSkillPtr app3 = InstantiatedSkill::DmpInstance(skills["approach_left"], features["node1,link3"], robot, nbasis, checker);
+  InstantiatedSkillPtr app1 = InstantiatedSkill::DmpInstance(skills.at("approach"), features.at("node1,link1"), robot, nbasis, checker2);
+  InstantiatedSkillPtr app2 = InstantiatedSkill::DmpInstance(skills["approach_right"], features["node2,link2"], robot, nbasis, checker2);
+  InstantiatedSkillPtr app3 = InstantiatedSkill::DmpInstance(skills["approach_left"], features["node1,link3"], robot, nbasis, checker2);
 
   std::cout << "Initializing grasps..." << std::endl;
   InstantiatedSkillPtr grasp1 = InstantiatedSkill::DmpInstance(skills["grasp"], features["node1,link1"], robot, nbasis, checker);
-  InstantiatedSkillPtr grasp2 = InstantiatedSkill::DmpInstance(skills["grasp"], features["node2,link2"], robot, nbasis, checker);
+  InstantiatedSkillPtr grasp2 = InstantiatedSkill::DmpInstance(skills["grasp"], features["node1,link2"], robot, nbasis, checker);
   InstantiatedSkillPtr grasp3 = InstantiatedSkill::DmpInstance(skills["grasp"], features["node1,link3"], robot, nbasis, checker);
 
   std::cout << "Initializing aligns..." << std::endl;
