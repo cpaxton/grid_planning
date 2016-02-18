@@ -92,9 +92,9 @@ int main(int argc, char **argv) {
   gp2.SetDefaultCollisions("wam/upper_arm_link",true);
   gp2.SetDefaultCollisions("wam/base_link",true);
   gp2.SetDefaultCollisions("wam/shoulder_pitch_link",true);
-  gp2.SetDefaultCollisions("wam/forearm_link",true);
-  gp2.SetDefaultCollisions("wam/wrist_pitch_link",true);
-  gp2.SetDefaultCollisions("wam/wrist_yaw_link",true);
+  //gp2.SetDefaultCollisions("wam/forearm_link",true);
+  //gp2.SetDefaultCollisions("wam/wrist_pitch_link",true);
+  //gp2.SetDefaultCollisions("wam/wrist_yaw_link",true);
 
   if (p.collisions_verbose) {
     gp.PrintInfo();
