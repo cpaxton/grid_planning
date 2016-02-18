@@ -129,29 +129,37 @@ int main(int argc, char **argv) {
 
   unsigned int nbasis = 5;
   InstantiatedSkillPtr app1 = InstantiatedSkill::DmpInstance(skills.at("approach"), features.at("node1,link1"), robot, nbasis, checker);
-  InstantiatedSkillPtr app2 = InstantiatedSkill::DmpInstance(skills["approach"], features["node2,link2"], robot, nbasis, checker);
+  InstantiatedSkillPtr app2 = InstantiatedSkill::DmpInstance(skills["approach_right"], features["node2,link2"], robot, nbasis, checker);
+  InstantiatedSkillPtr app3 = InstantiatedSkill::DmpInstance(skills["approach_left"], features["node1,link3"], robot, nbasis, checker);
 
   std::cout << "Initializing grasps..." << std::endl;
   InstantiatedSkillPtr grasp1 = InstantiatedSkill::DmpInstance(skills["grasp"], features["node1,link1"], robot, nbasis, checker);
   InstantiatedSkillPtr grasp2 = InstantiatedSkill::DmpInstance(skills["grasp"], features["node2,link2"], robot, nbasis, checker);
+  InstantiatedSkillPtr grasp3 = InstantiatedSkill::DmpInstance(skills["grasp"], features["node1,link3"], robot, nbasis, checker);
 
   std::cout << "Initializing aligns..." << std::endl;
   InstantiatedSkillPtr align11 = InstantiatedSkill::DmpInstance(skills["align"], features["node1,link1"], robot, nbasis, checker);
   InstantiatedSkillPtr align12 = InstantiatedSkill::DmpInstance(skills["align"], features["node2,link1"], robot, nbasis, checker);
   InstantiatedSkillPtr align21 = InstantiatedSkill::DmpInstance(skills["align"], features["node1,link2"], robot, nbasis, checker);
   InstantiatedSkillPtr align22 = InstantiatedSkill::DmpInstance(skills["align"], features["node2,link2"], robot, nbasis, checker);
+  InstantiatedSkillPtr align31 = InstantiatedSkill::DmpInstance(skills["align"], features["node1,link3"], robot, nbasis, checker);
+  InstantiatedSkillPtr align32 = InstantiatedSkill::DmpInstance(skills["align"], features["node2,link3"], robot, nbasis, checker);
 
   std::cout << "Initializing places..." << std::endl;
   InstantiatedSkillPtr place11 = InstantiatedSkill::DmpInstance(skills["place"], features["node1,link1"], robot, nbasis, checker);
   InstantiatedSkillPtr place12 = InstantiatedSkill::DmpInstance(skills["place"], features["node2,link1"], robot, nbasis, checker);
   InstantiatedSkillPtr place21 = InstantiatedSkill::DmpInstance(skills["place"], features["node1,link2"], robot, nbasis, checker);
   InstantiatedSkillPtr place22 = InstantiatedSkill::DmpInstance(skills["place"], features["node2,link2"], robot, nbasis, checker);
+  InstantiatedSkillPtr place31 = InstantiatedSkill::DmpInstance(skills["place"], features["node1,link3"], robot, nbasis, checker);
+  InstantiatedSkillPtr place32 = InstantiatedSkill::DmpInstance(skills["place"], features["node2,link3"], robot, nbasis, checker);
 
   std::cout << "Initializing releases..." << std::endl;
   InstantiatedSkillPtr release11 = InstantiatedSkill::DmpInstance(skills["release"], features["node1,link1"], robot, nbasis, checker);
   InstantiatedSkillPtr release12 = InstantiatedSkill::DmpInstance(skills["release"], features["node2,link1"], robot, nbasis, checker);
   InstantiatedSkillPtr release21 = InstantiatedSkill::DmpInstance(skills["release"], features["node1,link2"], robot, nbasis, checker);
   InstantiatedSkillPtr release22 = InstantiatedSkill::DmpInstance(skills["release"], features["node2,link2"], robot, nbasis, checker);
+  InstantiatedSkillPtr release31 = InstantiatedSkill::DmpInstance(skills["release"], features["node1,link3"], robot, nbasis, checker);
+  InstantiatedSkillPtr release32 = InstantiatedSkill::DmpInstance(skills["release"], features["node2,link3"], robot, nbasis, checker);
 
   std::cout << "Initializing disengages..." << std::endl;
   InstantiatedSkillPtr disengage11 = InstantiatedSkill::DmpInstance(skills["disengage"], features["node1,link1"], robot, nbasis, checker);
@@ -161,41 +169,37 @@ int main(int argc, char **argv) {
 
   root->addNext(app1); 
   root->addNext(app2);
+  root->addNext(app3);
 
 #if 0
   app1->addNext(disengage1);
   app2->addNext(disengage2);
 #endif
 
-#if 1
   app1->addNext(grasp1); app1->pub = &pub;
   app2->addNext(grasp2); app2->pub = &pub;
+  app3->addNext(grasp3); app3->pub = &pub;
 
   grasp1->addNext(align11); 
   grasp1->addNext(align12);
   grasp2->addNext(align21);
   grasp2->addNext(align22);
-#else
-  app1->addNext(align11);
-  app1->addNext(align12);
-  app2->addNext(align21);
-  app2->addNext(align22);
-#endif
+  grasp3->addNext(align31);
+  grasp3->addNext(align32);
 
   align11->addNext(place11); align11->pub = &pub3;
   align12->addNext(place12); align12->pub = &pub3;
   align21->addNext(place21); align21->pub = &pub3;
   align22->addNext(place22); align22->pub = &pub3;
+  align31->addNext(place31); align31->pub = &pub3;
+  align32->addNext(place32); align32->pub = &pub3;
 
   place11->addNext(release11); place11->pub = &pub4;
   place12->addNext(release12); place12->pub = &pub4;
   place21->addNext(release21); place21->pub = &pub4;
   place22->addNext(release22); place22->pub = &pub4;
-
-  release11->addNext(disengage11);
-  release12->addNext(disengage12);
-  release21->addNext(disengage21);
-  release22->addNext(disengage22);
+  place31->addNext(release31); place31->pub = &pub4;
+  place32->addNext(release32); place32->pub = &pub4;
 
   std::vector<InstantiatedSkillPtr> approaches;
   approaches.push_back(app1);
@@ -205,19 +209,25 @@ int main(int argc, char **argv) {
   aligns.push_back(align21);
   aligns.push_back(align12);
   aligns.push_back(align22);
+  aligns.push_back(align31);
+  aligns.push_back(align32);
   std::vector<InstantiatedSkillPtr> releases;
   releases.push_back(release11);
   releases.push_back(release21);
+  releases.push_back(release31);
   releases.push_back(release12);
-  releases.push_back(release22);
+  releases.push_back(release32);
   std::vector<InstantiatedSkillPtr> places;
   places.push_back(place11);
   places.push_back(place21);
+  places.push_back(place31);
   places.push_back(place12);
   places.push_back(place22);
+  places.push_back(place32);
   std::vector<InstantiatedSkillPtr> grasps;
   grasps.push_back(grasp1);
   grasps.push_back(grasp2);
+  grasps.push_back(grasp3);
   std::vector<InstantiatedSkillPtr> disengages;
   disengages.push_back(disengage11);
   disengages.push_back(disengage21);

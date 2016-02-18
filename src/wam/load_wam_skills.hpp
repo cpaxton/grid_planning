@@ -94,6 +94,8 @@ namespace grid {
     std::unordered_map<std::string, SkillPtr> skills;
 
     SkillPtr approach(new Skill("approach",2));
+    SkillPtr approach_right(new Skill("approach_right",2));
+    SkillPtr approach_left(new Skill("approach_left",2));
     SkillPtr grasp(new Skill("grasp",2));
     SkillPtr align(new Skill("align",2));
     SkillPtr place(new Skill("place",2));
@@ -101,7 +103,9 @@ namespace grid {
     SkillPtr disengage(new Skill("disengage",2));
 
     /* SET UP THE SKILLS */
-    approach->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false);
+    approach->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false).setPrior(3.0 / 6.0);
+    approach_left->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false).setPrior(1.0 / 6.0);
+    approach_right->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false).setPrior(2.0 / 6.0);
     grasp->appendFeature("link").setInitializationFeature("link").setStatic(true);
     align->appendFeature("node").appendFeature("time").setInitializationFeature("node").attachObject("link").setStatic(false);
     place->appendFeature("node").appendFeature("time").setInitializationFeature("node").attachObject("link").setStatic(false);
@@ -115,6 +119,16 @@ namespace grid {
     {
       std::string filenames[] = {"data/sim/app1.bag", "data/sim/app2.bag", "data/sim/app3.bag"};
       load_and_train_skill(*approach, rk_ptr, filenames, 3);
+    }
+    /* LOAD TRAINING DATA FOR APPROACH RIGHT */
+    {
+      std::string filenames[] = {"data/sim/approach_right01.bag", "data/sim/approach_right02.bag"};
+      load_and_train_skill(*approach_right, rk_ptr, filenames, 2);
+    }
+    /* LOAD TRAINING DATA FOR APPROACH LEFT */
+    {
+      std::string filenames[] = {"data/sim/approach_left01.bag"};
+      load_and_train_skill(*approach_left, rk_ptr, filenames, 1);
     }
     /* LOAD TRAINING DATA FOR GRASP */
     {
@@ -145,6 +159,8 @@ namespace grid {
     }
 
     skills["approach"] = approach;
+    skills["approach_right"] = approach_right;
+    skills["approach_left"] = approach_left;
     skills["grasp"] = grasp;
     skills["align"] = align;
     skills["place"] = place;

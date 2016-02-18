@@ -51,7 +51,7 @@ namespace grid {
     is_static = set_static;
 
     if (is_static) {
-      
+
     }
 
     return *this;
@@ -93,10 +93,19 @@ namespace grid {
   }
 
   /**
+   * set the probability of seeing this skill at all
+   */
+  Skill &Skill::setPrior(const double &_prior) {
+    prior = _prior;
+    log_prior = log(_prior);
+    return *this;
+  }
+
+  /**
    * create a skill based on a set of features and a number of clusters
    */
   Skill::Skill(int k, std::vector<std::string> &feature_names_, Features &features) :
-    feature_names(feature_names_), attached_object(""), is_static(false)
+    feature_names(feature_names_), attached_object(""), is_static(false), prior(1), log_prior(0)
   {
     unsigned int dim = features.getFeaturesSize();
     model = GmmPtr(new Gmm(dim,k));
@@ -105,7 +114,7 @@ namespace grid {
   /**
    * create a skill based on k and d
    */
-  Skill::Skill(const std::string &name_, int k_) : name(name_), k(k_), attached_object(""), is_static(false) {
+  Skill::Skill(const std::string &name_, int k_) : name(name_), k(k_), attached_object(""), is_static(false), prior(1), log_prior(0) {
     // do nothing for now
   }
 
@@ -264,11 +273,11 @@ namespace grid {
 
     if (model->k == 1) {
       for (unsigned int i = 0; i < data.size(); ++i) {
-        vec(i) = model->ns[0].logL(data[i]);
+        vec(i) = log_prior + model->ns[0].logL(data[i]);
       }
     } else {
       for (unsigned int i = 0; i < data.size(); ++i) {
-        vec(i) = model->logL(data[i]);
+        vec(i) = log_prior + model->logL(data[i]);
       }
     }
 
