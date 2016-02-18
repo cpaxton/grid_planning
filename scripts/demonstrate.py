@@ -41,8 +41,11 @@ Joint space:
 if __name__ == '__main__':
 
     filename = 'demo.yml'
+    link = 'link'
     if len(sys.argv) > 1:
         filename = sys.argv[1]
+    if len(sys.argv) > 2:
+        link = sys.argv[2]
 
     rospy.init_node('demonstration_observer')
     demo = grid.RobotFeatures()
@@ -50,7 +53,7 @@ if __name__ == '__main__':
     # set up parameters
     world='/world'
     frame='/wam/hand/bhand_palm_link'
-    obj1='/gbeam_link_1/gbeam_link'
+    obj1='/gbeam_link_1/gbeam_' + link
     obj2='/gbeam_node_1/gbeam_node'
 
     # set up ros things

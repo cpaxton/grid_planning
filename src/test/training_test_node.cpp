@@ -31,9 +31,12 @@ int main(int argc, char **argv) {
       "data/sim_auto/approach1.bag", "data/sim_auto/approach2.bag",
       "data/sim_auto/approach3.bag",
       "data/sim_auto/approach4.bag",
-      "data/sim_auto/approach5.bag"
+      "data/sim_auto/approach5.bag",
+      "data/sim/approach_left01.bag",
+      "data/sim/approach_right01.bag",
+      "data/sim/approach_right02.bag"
     };
-    ntraining = 8u;
+    ntraining = 11u;
     filenames.insert(filenames.begin(),&_filenames[0],&_filenames[ntraining]);
   } else if (p.skill_name == "align") {
     ROS_INFO("Configuring for align...");
