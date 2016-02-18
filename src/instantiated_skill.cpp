@@ -476,7 +476,7 @@ namespace grid {
       }
 
       if (nsamples > 1) {
-        dmp_dist->update(params,my_future_ps,nsamples,p.noise,p.step_size);
+        dmp_dist->update(params,ps,nsamples,p.noise,p.step_size);
         dmp_dist->addNoise(1e-10); 
         //dmp_dist->addNoise(pow(0.1,(good_iter/2)+5));
       }

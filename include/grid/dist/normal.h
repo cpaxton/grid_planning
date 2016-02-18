@@ -197,6 +197,7 @@ namespace gcop {
         pd = true;
       } else {
         cout << "[W] Normal::Update: cholesky failed: P=\n" << P << endl;
+        cout << "mu=\n" << mu.transpose();
         pd = false;    
       }
       

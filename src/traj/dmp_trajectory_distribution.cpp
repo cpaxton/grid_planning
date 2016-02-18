@@ -321,7 +321,7 @@ namespace grid {
       ++sample;
     }
 
-    std::cout << "sampled " << sample << "\n";
+    //std::cout << "sampled " << sample << "\n";
     return sample;
   }
 

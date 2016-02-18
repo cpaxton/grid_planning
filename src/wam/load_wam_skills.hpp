@@ -93,19 +93,19 @@ namespace grid {
 
     std::unordered_map<std::string, SkillPtr> skills;
 
-    SkillPtr approach(new Skill("approach",1));
-    SkillPtr grasp(new Skill("grasp",1));
-    SkillPtr align(new Skill("align",1));
-    SkillPtr place(new Skill("place",1));
-    SkillPtr release(new Skill("release",1));
-    SkillPtr disengage(new Skill("disengage",1));
+    SkillPtr approach(new Skill("approach",2));
+    SkillPtr grasp(new Skill("grasp",2));
+    SkillPtr align(new Skill("align",2));
+    SkillPtr place(new Skill("place",2));
+    SkillPtr release(new Skill("release",2));
+    SkillPtr disengage(new Skill("disengage",2));
 
     /* SET UP THE SKILLS */
     approach->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false);
-    grasp->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(true);
+    grasp->appendFeature("link").setInitializationFeature("link").setStatic(true);
     align->appendFeature("node").appendFeature("time").setInitializationFeature("node").attachObject("link").setStatic(false);
     place->appendFeature("node").appendFeature("time").setInitializationFeature("node").attachObject("link").setStatic(false);
-    release->appendFeature("node").appendFeature("time").setInitializationFeature("node").attachObject("link").setStatic(true);
+    release->appendFeature("node").setInitializationFeature("node").attachObject("link").setStatic(true);
     disengage->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false);
 
     /* SET UP THE ROBOT KINEMATICS */
@@ -128,8 +128,8 @@ namespace grid {
     }
     /* LOAD TRAINING DATA FOR PLACE */
     {
-      std::string filenames[] = {"data/sim/place1.bag", "data/sim/place3.bag", "data/sim/place3.bag"};
-      load_and_train_skill(*place, rk_ptr, filenames, 3);
+      std::string filenames[] = {"data/sim/place1.bag", "data/sim/place3.bag"};
+      load_and_train_skill(*place, rk_ptr, filenames, 2);
     }
     /* LOAD TRAINING DATA FOR RELEASE */
     {

@@ -16,10 +16,10 @@ namespace grid {
 
     /* SET UP THE SKILLS */
     approach->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false);
-    grasp->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(true);
+    grasp->appendFeature("link").setInitializationFeature("link").setStatic(true);
     align->appendFeature("node").appendFeature("time").setInitializationFeature("node").attachObject("link").setStatic(false);
     place->appendFeature("node").appendFeature("time").setInitializationFeature("node").attachObject("link").setStatic(false);
-    release->appendFeature("node").appendFeature("time").setInitializationFeature("node").attachObject("link").setStatic(true);
+    release->appendFeature("node").setInitializationFeature("node").attachObject("link").setStatic(true);
     disengage->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false);
 
     /* SET UP THE ROBOT KINEMATICS */
