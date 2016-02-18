@@ -204,6 +204,7 @@ int main(int argc, char **argv) {
   std::vector<InstantiatedSkillPtr> approaches;
   approaches.push_back(app1);
   approaches.push_back(app2);
+  approaches.push_back(app3);
   std::vector<InstantiatedSkillPtr> aligns;
   aligns.push_back(align11);
   aligns.push_back(align21);

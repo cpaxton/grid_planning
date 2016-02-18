@@ -122,13 +122,13 @@ namespace grid {
     }
     /* LOAD TRAINING DATA FOR APPROACH RIGHT */
     {
-      std::string filenames[] = {"data/sim/approach_right01.bag", "data/sim/approach_right02.bag"};
-      load_and_train_skill(*approach_right, rk_ptr, filenames, 2);
+      std::string filenames[] = {"data/sim/approach_right01.bag", "data/sim/approach_right02.bag", "data/sim/approach_right03.bag"};
+      load_and_train_skill(*approach_right, rk_ptr, filenames, 3);
     }
     /* LOAD TRAINING DATA FOR APPROACH LEFT */
     {
-      std::string filenames[] = {"data/sim/approach_left01.bag"};
-      load_and_train_skill(*approach_left, rk_ptr, filenames, 1);
+      std::string filenames[] = {"data/sim/approach_left01.bag", "data/sim/approach_left02.bag", "data/sim/approach_left03.bag"};
+      load_and_train_skill(*approach_left, rk_ptr, filenames, 3);
     }
     /* LOAD TRAINING DATA FOR GRASP */
     {
