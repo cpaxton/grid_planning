@@ -158,7 +158,7 @@ namespace grid {
     /************* ACCUMULATE PROBABILITIES *************/
     for (unsigned int i = 0; i < len; ++i) {
       if (i > 0) {
-        acc[i] = exp(prev_ps[i]) + acc[i-1] + 0.01;
+        acc[i] = exp(prev_ps[i]) + acc[i-1] + 0.1;
       } else {
         acc[i] = exp(prev_ps[i]) + 0.01;
       }
