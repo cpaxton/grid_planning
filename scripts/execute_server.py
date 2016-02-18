@@ -12,30 +12,80 @@ from grid_plan import TrajectoryCommander
 
 from trajectory_msgs.msg import JointTrajectory
 
+import actionlib
+import control_msgs
+
 class CommandActionExecutor(object):
   # create messages that are used to publish feedback/result
   _feedback = CommandFeedback()
   _result   = CommandResult()
   _reg = None
   _traj_pub = rospy.Publisher("/gazebo/traj_rml/joint_traj_cmd", JointTrajectory, queue_size=100)
+  _client = actionlib.SimpleActionClient("/gazebo/traj_rml/action",control_msgs.msg.FollowJointTrajectoryAction)
+  _record = False
+  #_record = True
 
   def __init__(self, name, robot, skills, gripper_topic):
+
+    try:
+        _record = rospy.get_param("~record")
+        if not _record is None:
+            self._record = bool(_record)
+        else:
+            self._record = False
+    except KeyError, e:
+        print "KeyError: " + str(e)
+        self._record = False
+
+    rospy.loginfo("Record set to: %s"%(str(self._record)))
+
     self._action_name = name
     self._as = actionlib.SimpleActionServer(self._action_name, CommandAction, execute_cb=self.execute_cb, auto_start = False)
     self._as.start()
     self._reg = GripperRegressor(robot,gripper_topic,None,None)
 
+    self._robot = robot;
+    self._robot.TfUpdateWorld()
+    self._robot.sync_gripper = False # it does not make sense to record this at all
+
     for skill in skills:
       self._reg.addSkill(skill)
 
     self._traj_pub = rospy.Publisher("/gazebo/traj_rml/joint_traj_cmd", JointTrajectory, queue_size=100)
+    self._client = actionlib.SimpleActionClient("/gazebo/traj_rml/action",control_msgs.msg.FollowJointTrajectoryAction)
     
   def execute_cb(self, goal):
-    # helper variables
-    success = True
     
+    self._robot.TfUpdateWorld()
+    if self._robot is None:
+        print "[EXECUTE] Error: no robot!"
+
     print goal
-    self._traj_pub.publish(goal.traj)
+    self._client.wait_for_server()
+    rospy.loginfo("Server ready!")
+
+    #goal.traj.points[-1].velocities = [0]*len(goal.traj.points[-1].positions)
+    #for i in range(len(goal.traj.points)):
+    #    goal.traj.points[i].velocities = []
+    actionlib_goal = control_msgs.msg.FollowJointTrajectoryGoal(trajectory=goal.traj)
+    self._client.send_goal(actionlib_goal)
+
+    for i in range(len(goal.keys)):
+        self._robot.AddObject(goal.keys[i],goal.values[i])
+        print " ... adding %s with frame=%s"%(goal.keys[i],goal.values[i])
+
+    print self._robot
+
+    if self._record:
+        self._robot.StartRecording()
+
+    self._client.wait_for_result()
+    rospy.loginfo("Server done executing trajectory!")
+    if self._record:
+        self._robot.save(goal.name + ".yml")
+        rospy.loginfo(("Saving now as %s")%(goal.name + ".yml"));
+        self._robot.StopRecording()
+        rospy.loginfo("Recording stopped!")
 
     config = []
     for i in range(len(goal.keys)):
@@ -44,15 +94,17 @@ class CommandActionExecutor(object):
     #print config
     if len(config) > 0:
         self._reg.configure(config)
-        self._reg.set_active_skill(goal.name)
+        if self._reg.set_active_skill(goal.name):
+            rospy.logwarn("Regression!")
+            self._reg.regress(0.025,0.2)
 
-        wait = rospy.Duration(len(goal.traj.points)*2.0/30)
-        rospy.sleep(wait)
-        self._reg.regress(0.025,0.2)
+        #wait = rospy.Duration(len(goal.traj.points)*2.0/30)
+        #rospy.sleep(wait)
       
+    success = True
     if success:
       #self._result.sequence = self._feedback.sequence
-      rospy.loginfo('%s: Succeeded' % self._action_name)
+      rospy.loginfo('%s: Succeeded for \"%s\"' % (self._action_name,goal.name))
       self._as.set_succeeded(self._result)
       
 if __name__ == '__main__':
@@ -60,9 +112,13 @@ if __name__ == '__main__':
 
   skills = []
   for i in range(1,len(sys.argv)):
-	skill_filename = 'skills/sim/%s_skill.yml'%(sys.argv[i])
-	skills.append(grid.RobotSkill(filename=skill_filename))
-	print "Loaded skill '%s'"%(skills[-1].name)
+
+    if sys.argv[i][0] == '_':
+        print "Skipping %s"%(sys.argv[i])
+    else:
+	    skill_filename = 'skills/sim/%s_skill.yml'%(sys.argv[i])
+	    skills.append(grid.RobotSkill(filename=skill_filename))
+	    print "Loaded skill '%s'"%(skills[-1].name)
 
 
   skill_topic = "current_skill"
@@ -98,6 +154,8 @@ if __name__ == '__main__':
         gripper_topic=gripper_topic,
         dof=dof,
         preset=preset)
+
+  print "... created RobotFeatures\n"
 
 
   CommandActionExecutor('command',robot,skills,gripper_topic)

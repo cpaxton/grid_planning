@@ -177,7 +177,15 @@ namespace grid {
     /** return a default pose to plan motions with an attached object */
     const Pose &getDefaultAttachedObjectPose() const;
 
+    /**
+     * set the probability of seeing this skill at all
+     */
+    Skill &setPrior(const double &prior);
+
   protected:
+
+      double prior;
+      double log_prior;
 
       /** does this skill mean the robot needs to move */
       bool is_static;

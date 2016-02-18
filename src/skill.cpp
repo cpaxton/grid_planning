@@ -49,6 +49,11 @@ namespace grid {
    */
   Skill &Skill::setStatic(bool set_static) {
     is_static = set_static;
+
+    if (is_static) {
+
+    }
+
     return *this;
   }
 
@@ -88,10 +93,19 @@ namespace grid {
   }
 
   /**
+   * set the probability of seeing this skill at all
+   */
+  Skill &Skill::setPrior(const double &_prior) {
+    prior = _prior;
+    log_prior = log(_prior);
+    return *this;
+  }
+
+  /**
    * create a skill based on a set of features and a number of clusters
    */
   Skill::Skill(int k, std::vector<std::string> &feature_names_, Features &features) :
-    feature_names(feature_names_), attached_object(""), is_static(false)
+    feature_names(feature_names_), attached_object(""), is_static(false), prior(1), log_prior(0)
   {
     unsigned int dim = features.getFeaturesSize();
     model = GmmPtr(new Gmm(dim,k));
@@ -100,7 +114,7 @@ namespace grid {
   /**
    * create a skill based on k and d
    */
-  Skill::Skill(const std::string &name_, int k_) : name(name_), k(k_), attached_object(""), is_static(false) {
+  Skill::Skill(const std::string &name_, int k_) : name(name_), k(k_), attached_object(""), is_static(false), prior(1), log_prior(0) {
     // do nothing for now
   }
 
@@ -130,11 +144,15 @@ namespace grid {
    */
   void Skill::addTrainingData(TrainingFeatures &data) {
 
+    data.setUseDiff(not isStatic());
     std::vector<FeatureVector> ex_data = data.getFeatureValues(feature_names);
 
     for (FeatureVector &ex: ex_data) {
       std::pair<FeatureVector,double> obs(ex,1.0);
       training_data.push_back(obs);
+      if (isStatic()) {
+        break;
+      }
     }
 
     init_final = data.getPoseFrom(best_feature_name,*ex_data.rbegin());
@@ -167,6 +185,7 @@ namespace grid {
       normalized_training_data.clear();
 
       unsigned int dim = training_data[0].first.size();
+      std::cout << "DIM = " << dim << "\n";
       mean = FeatureVector(dim);
       std = FeatureVector(dim);
 
@@ -175,6 +194,7 @@ namespace grid {
 
       // loop to compute mean
       double num_examples = (double)training_data.size();
+      std::cout << "training from " << num_examples << " examples.\n";
       for (auto &pair: training_data) {
         mean += pair.first;
         pair.second = 1.0/num_examples;
@@ -187,8 +207,10 @@ namespace grid {
         std = std.array() + (v.array() * v.array());
       }
 
+      std::cout << "Mean = " << mean.transpose() << "\n";
+
       // finish computing std dev
-      std += EigenVectornd::Constant(std.size(),1,0.01);
+      //std += EigenVectornd::Constant(std.size(),1,1);
       std /= training_data.size();
       std = std.cwiseSqrt();
       std = std.cwiseInverse();
@@ -202,20 +224,19 @@ namespace grid {
 
       model = GmmPtr(new Gmm(dim,k));
 
-      model->Init(normalized_training_data.begin()->first,normalized_training_data.rbegin()->first);
+      //model->Init(normalized_training_data.begin()->first,normalized_training_data.rbegin()->first);
+      model->Init(EigenVectornd::Constant(dim,-1),EigenVectornd::Constant(dim,1));
+      //std::cout <<  *model << "\n";
       model->Fit(normalized_training_data);
+      //std::cout <<  *model << "\n";
       model->Update();
-
-
-      //std::cout << ">>> MEAN =\n" << mean << std::endl;
-      //std::cout << ">>> 1/VAR =\n" << std << std::endl;
 
       // save the original matrices
       P.resize(k);
       for (unsigned int i = 0; i < k; ++i) {
-        model->ns[i].P = 1*Matrixnd::Identity(dim,dim);
+        //model->ns[i].P = 1*Matrixnd::Identity(dim,dim);
+        model->ns[i].P += 1e-10*Matrixnd::Identity(dim,dim);
         P[i] = model->ns[i].P;
-        //model->ns[i].P += 1*Matrixnd::Identity(dim,dim);
       }
       model->Update();
 
@@ -237,7 +258,9 @@ namespace grid {
 
     // apply normalization to each entry
     for (FeatureVector &vec: data) {
-      vec = (vec - mean).array() * std.array();
+      //vec = (vec - mean).array() * std.array();
+      vec -= mean;
+      vec.array() *= std.array();
     }
   }
 
@@ -248,9 +271,14 @@ namespace grid {
   FeatureVector Skill::logL(std::vector<FeatureVector> &data) {
     FeatureVector vec(data.size());
 
-    for (unsigned int i = 0; i < data.size(); ++i) {
-      vec(i) = model->logL(data[i]);
-      //std::cout << "-- x --\n" << data[i] << "\n== MU ==\n" << model->ns[0].mu << "\n--" << std::endl;
+    if (model->k == 1) {
+      for (unsigned int i = 0; i < data.size(); ++i) {
+        vec(i) = log_prior + model->ns[0].logL(data[i]);
+      }
+    } else {
+      for (unsigned int i = 0; i < data.size(); ++i) {
+        vec(i) = log_prior + model->logL(data[i]);
+      }
     }
 
     return vec;

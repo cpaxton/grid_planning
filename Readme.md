@@ -22,6 +22,24 @@ To run the experiments, you'll need my ```grid_experiments``` ROS packages, as w
 
 ## Experiments
 
+### Collecting Data
+
+Data collection requires a proper configuration of the environment. You're grounding all of the different actions for particular objects, right?
+
+Examples are configured to collect gripper data for the Barrett WAM arms. So just start with ``hydra:=true`` and then run:
+```
+rosrun grid_plan demonstrate.py myaction1.yml
+```
+
+You can then either use the python (prototype) code or the C++ code.
+The C++ code is an attempt to build a more fully integrated version of the pipeline, faster and with more features. Jury is out on whether that worked, but it seems ideal because of the large numbers of loops and such. The C++ code reads in rosbag files, which you can create from these demonstration YAML files with:
+
+```
+rosrun grid_plan convert_yml_to_rosbag.py /path/to/training/data/
+```
+
+Of course you replace ``/path/to/training/data/`` with a path to your examples.
+
 ### Running Tests
 
 There are a lot of ways you can run the different experiments provided.
@@ -83,6 +101,49 @@ Collision detection is disabled by default for now, but you can enable it in any
 ```
 rosrun grid_plan dmp_execution_test _step_size:=0.75 _iter:=10 _ntrajs:=20 _noise:=1e-10 trajectory:=/gazebo/traj_rml/joint_traj_cmd _skill:=approach _wait:=0.25 _detect_collisions:=1
 ```
+
+### Other Notes
+
+The model normalization term is really important to getting strong results. Setting it to a nonzero value is one of the several ways we prevent the distribution over trajectories from converging too quickly: "bad" examples in early iterations may still be helpful for guiding the distribution towards an optimal goal.
+
+For example, here's a set of parameters that seems to work pretty well as of 2016-02-07 for the assembly task:
+
+```
+rosrun grid_plan task_test _step_size:=0.75 _iter:=50 _ntrajs:=50 _verbosity:=0 _starting_horizon:=5 _max_horizon:=5 _update_horizon:=0.001 _detect_collisions:=true _wait:=0 _base_model_norm:=0.1
+```
+
+As of 2016-02-09, I have been removing/testing the removal of a lot of the random noise parameters I have included in this file. These were things like the "base model norm" and "model norm step." Go ahead and remove those in future executions of the task test:
+
+```
+rosrun grid_plan task_test _step_size:=0.5 _iter:=20 _ntrajs:=100  _starting_horizon:=5 _max_horizon:=5 _update_horizon:=0.01 _detect_collisions:=true _base_model_norm:=0.01 _model_norm_step:=1
+```
+
+As of 2016-02-11, more changes have made the configuration slightly different. We have options to enable things like verbosity for the collision checker.
+
+One thing that makes a big difference is the model normalization. See here:
+
+```
+rosrun grid_plan task_test _step_size:=0.5 _iter:=25 _ntrajs:=200 _starting_horizon:=5 _max_horizon:=5 _detect_collisions:=false _wait:=0 _collisions_verbose:=false _base_model_norm:=0.1 _model_norm_step=1 _update_horizon:=0.01
+```
+
+Setting the normalization higher makes convergence harder; setting it lower makes convergence easier (if you find examples). This is actually bad, though: fast convergence means you have a higher chance to end up in a local minimum.
+
+As of 2016-02-17, this was the best set of commands with the 1-Gaussian code:
+
+```
+rosrun grid_plan task_test _step_size:=0.5 _iter:=25 _ntrajs:=200 _starting_horizon:=5 _max_horizon:=5 _detect_collisions:=false _wait:=0 _collisions_verbose:=false _base_model_norm:=0.1 _model_norm_step=1 _update_horizon:=0.01
+rosrun grid_plan task_test _step_size:=0.5 _iter:=25 _ntrajs:=200 _starting_horizon:=5 _max_horizon:=5 _detect_collisions:=true _wait:=0 _collisions_verbose:=false _base_model_norm:=0.1 _model_norm_step=1 _update_horizon:=0.01
+```
+
+### Current Commands
+
+Good places to start experiments:
+
+```
+rosrun grid_plan task_test _step_size:=0.5 _iter:=25 _ntrajs:=200 _starting_horizon:=5 _max_horizon:=5 _detect_collisions:=true _wait:=0 _collisions_verbose:=false _base_model_norm:=0.001 _model_norm_step=1 _update_horizon:=0.01
+```
+
+Note the decreased model norm from the previous version.
 
 ## Guide to Files
 

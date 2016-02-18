@@ -23,6 +23,20 @@ namespace grid {
       .addFeature("link",POSE_FEATURE)
       .addFeature("time",TIME_FEATURE);
 
+    TestFeaturesPtr tf13(new TestFeatures());
+    tf13->setAgentFrame("wam/wrist_palm_link")
+      .setWorldFrame("wam/base_link")
+      .addFeature("node",POSE_FEATURE)
+      .addFeature("link",POSE_FEATURE)
+      .addFeature("time",TIME_FEATURE);
+
+    TestFeaturesPtr tf14(new TestFeatures());
+    tf14->setAgentFrame("wam/wrist_palm_link")
+      .setWorldFrame("wam/base_link")
+      .addFeature("node",POSE_FEATURE)
+      .addFeature("link",POSE_FEATURE)
+      .addFeature("time",TIME_FEATURE);
+
     TestFeaturesPtr tf21(new TestFeatures());
     tf21->setAgentFrame("wam/wrist_palm_link")
       .setWorldFrame("wam/base_link")
@@ -37,17 +51,39 @@ namespace grid {
       .addFeature("link",POSE_FEATURE)
       .addFeature("time",TIME_FEATURE);
 
+    TestFeaturesPtr tf23(new TestFeatures());
+    tf23->setAgentFrame("wam/wrist_palm_link")
+      .setWorldFrame("wam/base_link")
+      .addFeature("node",POSE_FEATURE)
+      .addFeature("link",POSE_FEATURE)
+      .addFeature("time",TIME_FEATURE);
+
+    TestFeaturesPtr tf24(new TestFeatures());
+    tf24->setAgentFrame("wam/wrist_palm_link")
+      .setWorldFrame("wam/base_link")
+      .addFeature("node",POSE_FEATURE)
+      .addFeature("link",POSE_FEATURE)
+      .addFeature("time",TIME_FEATURE);
+
     tf11->setFrame("gbeam_node_1/gbeam_node","node").setFrame("gbeam_link_1/gbeam_link","link");
-    tf12->setFrame("gbeam_node_1/gbeam_node","node").setFrame("gbeam_link_2/gbeam_link","link");
+    tf12->setFrame("gbeam_node_1/gbeam_node","node").setFrame("gbeam_link_1/gbeam_right","link");
+    tf13->setFrame("gbeam_node_1/gbeam_node","node").setFrame("gbeam_link_1/gbeam_left","link");
+    tf14->setFrame("gbeam_node_1/gbeam_node","node").setFrame("gbeam_link_1/gbeam_back","link");
     tf21->setFrame("gbeam_node_2/gbeam_node","node").setFrame("gbeam_link_1/gbeam_link","link");
-    tf22->setFrame("gbeam_node_2/gbeam_node","node").setFrame("gbeam_link_2/gbeam_link","link");
+    tf22->setFrame("gbeam_node_2/gbeam_node","node").setFrame("gbeam_link_1/gbeam_right","link");
+    tf23->setFrame("gbeam_node_2/gbeam_node","node").setFrame("gbeam_link_1/gbeam_left","link");
+    tf24->setFrame("gbeam_node_2/gbeam_node","node").setFrame("gbeam_link_1/gbeam_back","link");
 
     std::unordered_map<std::string, TestFeaturesPtr> features;
 
     features["node1,link1"] = tf11;
     features["node1,link2"] = tf12;
+    features["node1,link3"] = tf13;
+    features["node1,link4"] = tf14;
     features["node2,link1"] = tf21;
     features["node2,link2"] = tf22;
+    features["node2,link3"] = tf23;
+    features["node2,link4"] = tf24;
 
     return features;
   }
@@ -55,19 +91,25 @@ namespace grid {
 
   std::unordered_map<std::string, SkillPtr> loadWamSkills() {
 
-    SkillPtr approach(new Skill("approach"));
-    SkillPtr grasp(new Skill("grasp"));
-    SkillPtr align(new Skill("align"));
-    SkillPtr place(new Skill("place"));
-    SkillPtr release(new Skill("release"));
-    SkillPtr disengage(new Skill("disengage"));
+    std::unordered_map<std::string, SkillPtr> skills;
+
+    SkillPtr approach(new Skill("approach",2));
+    SkillPtr approach_right(new Skill("approach_right",2));
+    SkillPtr approach_left(new Skill("approach_left",2));
+    SkillPtr grasp(new Skill("grasp",2));
+    SkillPtr align(new Skill("align",2));
+    SkillPtr place(new Skill("place",2));
+    SkillPtr release(new Skill("release",2));
+    SkillPtr disengage(new Skill("disengage",2));
 
     /* SET UP THE SKILLS */
-    approach->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false);
-    grasp->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(true);
+    approach->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false).setPrior(3.0 / 6.0);
+    approach_left->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false).setPrior(1.0 / 6.0);
+    approach_right->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false).setPrior(2.0 / 6.0);
+    grasp->appendFeature("link").setInitializationFeature("link").setStatic(true);
     align->appendFeature("node").appendFeature("time").setInitializationFeature("node").attachObject("link").setStatic(false);
     place->appendFeature("node").appendFeature("time").setInitializationFeature("node").attachObject("link").setStatic(false);
-    release->appendFeature("node").appendFeature("time").setInitializationFeature("node").attachObject("link").setStatic(true);
+    release->appendFeature("node").setInitializationFeature("node").attachObject("link").setStatic(true);
     disengage->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false);
 
     /* SET UP THE ROBOT KINEMATICS */
@@ -77,6 +119,16 @@ namespace grid {
     {
       std::string filenames[] = {"data/sim/app1.bag", "data/sim/app2.bag", "data/sim/app3.bag"};
       load_and_train_skill(*approach, rk_ptr, filenames, 3);
+    }
+    /* LOAD TRAINING DATA FOR APPROACH RIGHT */
+    {
+      std::string filenames[] = {"data/sim/approach_right01.bag", "data/sim/approach_right02.bag", "data/sim/approach_right03.bag"};
+      load_and_train_skill(*approach_right, rk_ptr, filenames, 3);
+    }
+    /* LOAD TRAINING DATA FOR APPROACH LEFT */
+    {
+      std::string filenames[] = {"data/sim/approach_left01.bag", "data/sim/approach_left02.bag", "data/sim/approach_left03.bag"};
+      load_and_train_skill(*approach_left, rk_ptr, filenames, 3);
     }
     /* LOAD TRAINING DATA FOR GRASP */
     {
@@ -90,13 +142,14 @@ namespace grid {
     }
     /* LOAD TRAINING DATA FOR PLACE */
     {
-      std::string filenames[] = {"data/sim/place1.bag", "data/sim/place3.bag", "data/sim/place3.bag"};
-      load_and_train_skill(*place, rk_ptr, filenames, 3);
+      std::string filenames[] = {"data/sim/place1.bag", "data/sim/place3.bag"};
+      load_and_train_skill(*place, rk_ptr, filenames, 2);
     }
     /* LOAD TRAINING DATA FOR RELEASE */
     {
-      //std::string filenames[] = {"data/sim/release1.bag", "data/sim/release2.bag", "data/sim/release3.bag"};
-      std::string filenames[] = {"data/sim/release1b.bag", "data/sim/release2b.bag", "data/sim/release3b.bag"};
+      std::string filenames[] = {"data/sim/release1.bag", "data/sim/release2.bag", "data/sim/release3.bag",
+        //"data/sim/release1b.bag", "data/sim/release2b.bag", "data/sim/release3b.bag"
+      };
       load_and_train_skill(*release, rk_ptr, filenames, 3);
     }
     /* LOAD TRAINING DATA FOR DISENGAGE */
@@ -105,8 +158,9 @@ namespace grid {
       load_and_train_skill(*disengage, rk_ptr, filenames, 3);
     }
 
-    std::unordered_map<std::string, SkillPtr> skills;
     skills["approach"] = approach;
+    skills["approach_right"] = approach_right;
+    skills["approach_left"] = approach_left;
     skills["grasp"] = grasp;
     skills["align"] = align;
     skills["place"] = place;

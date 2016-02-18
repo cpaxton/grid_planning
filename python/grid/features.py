@@ -89,18 +89,19 @@ class RobotFeatures:
             filename=None
             ):
 
-	self.sync_gripper = True
-	if preset == 'wam7_sim':
-		base_link='wam/base_link'
-		end_link='wam/wrist_palm_link'
-		js_topic='/gazebo/barrett_manager/wam/joint_states'
-		gripper_topic='/gazebo/barrett_manager/hand/cmd'
-	elif preset == 'ur5':
-		base_link='base_link'
-		end_link='ee_link'
-		js_topic='/joint_states'
-		gripper_topic='/robotiq_c_model_gripper/gripper_command'
-		self.sync_gripper = False
+        self.sync_gripper = True
+        self.is_recording = False
+        if preset == 'wam7_sim':
+            base_link='wam/base_link'
+            end_link='wam/wrist_palm_link'
+            js_topic='/gazebo/barrett_manager/wam/joint_states'
+            gripper_topic='/gazebo/barrett_manager/hand/cmd'
+        elif preset == 'ur5':
+            base_link='base_link'
+            end_link='ee_link'
+            js_topic='/joint_states'
+            gripper_topic='/robotiq_c_model_gripper/gripper_command'
+            self.sync_gripper = False
 
         self.dof = dof;
         self.world_frame = world_frame
@@ -222,6 +223,7 @@ class RobotFeatures:
             return self.goal_model.score(X)
 
     def StartRecording(self):
+        self.is_recording = True
         if self.recorded:
             return
 
@@ -229,7 +231,22 @@ class RobotFeatures:
         self.js_sub = rospy.Subscriber(self.js_topic,sensor_msgs.msg.JointState,self.js_cb)
         self.gripper_sub = rospy.Subscriber(self.gripper_topic,GripperCmd,self.gripper_cb)
 
+    def StopRecording(self):
+
+        self.is_recording = False
+        self.recorded = False
+        #self.js_sub = None #rospy.Subscriber(self.js_topic,sensor_msgs.msg.JointState,self.js_cb)
+        #self.gripper_sub = None #rospy.Subscriber(self.gripper_topic,GripperCmd,self.gripper_cb)
+
+        self.world_states = []
+        self.joint_states = []
+        self.gripper_cmds = []
+        self.times = []
+
+
     def save(self,filename):
+
+        self.is_recording = False
 
         if self.recorded:
             stream = file(filename,'w')
@@ -259,17 +276,23 @@ class RobotFeatures:
         with rosbag.Bag(filename,'w') as outbag:
             try:
                 for i in range(len(self.times)):
+                    #print "%d / %d / %d"%(i, len(self.joint_states), len(self.times))
                     outbag.write('joint_states',self.joint_states[i],self.times[i])
                     for frame in self.world_states[0].keys():
                         outbag.write('world/%s'%frame,pm.toMsg(self.world_states[i][frame]),self.times[i])
                     outbag.write('base_tform',pm.toMsg(self.base_tform),self.times[i])
-                    outbag.write('gripper_msg',self.gripper_cmds[i],self.times[i])
+                    if len(self.gripper_cmds) > 0:
+                        outbag.write('gripper_msg',self.gripper_cmds[i],self.times[i])
 
             finally:
                 outbag.close()
 
 
     def js_cb(self,msg):
+
+        if not self.is_recording:
+            #print "[JOINTS] Not currently recording!"
+            return
 
         updated = self.TfUpdateWorld()
         if updated and not self.sync_gripper:
@@ -285,7 +308,7 @@ class RobotFeatures:
             self.gripper_cmds.append(self.gripper_cmd)
             self.world_states.append(copy.deepcopy(self.world))
         else:
-                print "[JOINTS] Waiting for TF (updated=%d) and gripper..."%(updated)
+            print "[JOINTS] Waiting for TF (updated=%d) and gripper..."%(updated)
 
     def gripper_cb(self,msg):
 

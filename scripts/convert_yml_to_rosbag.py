@@ -19,10 +19,14 @@ def convert_dir(cur_dir):
             convert_dir(new_dir)
 
     else:
-        data = grid.LoadRobotFeatures(cur_dir)
-        filename = cur_dir.rsplit('.',1)[0] + ".bag"
-        print 'Saving to "%s"'%(filename)
-        data.ToRosBag(filename)
+        tokens = cur_dir.rsplit('.',1)
+        if tokens[1] == "yml" or tokens[1] == "yaml":
+            data = grid.LoadRobotFeatures(cur_dir)
+            filename = tokens[0] + ".bag"
+            print 'Saving to "%s"'%(filename)
+            data.ToRosBag(filename)
+        else:
+            print 'Skipping %s: not a ".yml" or ".yaml" file!'%cur_dir
 
 if __name__ == '__main__':
     rospy.init_node('converter_node')

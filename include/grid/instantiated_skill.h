@@ -80,6 +80,8 @@ namespace grid {
     unsigned int cur_iter;
     unsigned int good_iter;
 
+    std::vector<FeatureVector> traj_features;
+
     Pose currentAttachedObjectFrame;
 
     //static std::uniform_real_distribution<double> unif_rand(0.,1.);
@@ -102,6 +104,7 @@ namespace grid {
     std::vector<double> iter_lls;
     std::vector<unsigned int> next_skill;
     
+    double prior;
     double last_probability;
     unsigned int last_samples;
     bool useCurrentFeatures;
@@ -114,6 +117,11 @@ namespace grid {
      * normalize the transition probabilities
      */
     void updateTransitions();
+
+    /** 
+     * find best entries
+     */
+    void updateBest(unsigned int nsamples);
 
     /** 
      * default constructor
@@ -158,6 +166,12 @@ namespace grid {
                                                    TestFeaturesPtr features,
                                                    RobotKinematicsPtr robot,
                                                    unsigned int nseg);
+
+
+    /*
+     * set prior
+     */
+    InstantiatedSkill &setPrior(const double &prior);
 
     /**
      * create an empty root node
@@ -207,6 +221,8 @@ namespace grid {
     void accumulateProbs(const std::vector<double> &prev_ps, unsigned int len);
     void copyEndPoints(const std::vector<JointTrajectoryPoint> &prev_end_pts,
                        const std::vector<double> &prev_ps, unsigned int len);
+
+    void publish();
 
   };
 

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(grid_plan)
 
-add_definitions(-g -std=c++0x -pthread -pg)
+add_definitions(-g -std=c++0x -pthread -O1)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -101,13 +101,14 @@ set(SOURCES
   src/training_features.cpp
   src/skill.cpp
   src/visualize.cpp
-  src/trajectory_distribution.cpp
-  src/dmp_trajectory_distribution.cpp
-  src/predicate.cpp
   src/wam_training_features.cpp
   src/robot_kinematics.cpp
   src/task_model.cpp
   src/instantiated_skill.cpp
+  src/instantiated_skill_init.cpp
+
+  src/traj/trajectory_distribution.cpp
+  src/traj/dmp_trajectory_distribution.cpp
 
   src/utils/commander.cpp
   src/utils/params.cpp
@@ -132,7 +133,6 @@ set(HEADERS
   include/grid/visualize.h
   include/grid/trajectory_distribution.h
   include/grid/dmp_trajectory_distribution.h
-  include/grid/predicate.h
   include/grid/wam_training_features.h
   include/grid/robot_kinematics.h
   include/grid/task_model.h
@@ -165,16 +165,17 @@ set_target_properties(pygrid_planner
 #)
 
 ## Declare a cpp executable
-add_executable(grid_plan_node src/grid_plan_node.cpp)
-add_executable(features_test src/feature_computation_test.cpp)
-add_executable(trajectory_test src/trajectory_generation_test.cpp)
-add_executable(dmp_test src/dmp_generation_test.cpp)
-add_executable(training_test src/training_test_node.cpp)
-add_executable(execution_test src/execution_test_node.cpp)
-add_executable(dmp_execution_test src/dmp_execution_test_node.cpp)
+add_executable(grid_plan_node src/test/grid_plan_node.cpp)
+add_executable(features_test src/test/feature_computation_test.cpp)
+add_executable(trajectory_test src/test/trajectory_generation_test.cpp)
+add_executable(dmp_test src/test/dmp_generation_test.cpp)
+add_executable(training_test src/test/training_test_node.cpp)
+add_executable(execution_test src/test/execution_test_node.cpp)
+add_executable(dmp_execution_test src/test/dmp_execution_test_node.cpp)
+add_executable(moveit_robot_model_test src/test/moveit_robot_test.cpp)
+
 add_executable(task_test src/task_test_node.cpp)
 add_executable(align_test src/align_test_node.cpp)
-add_executable(moveit_robot_model_test src/moveit_robot_test.cpp)
 
 ## Add cmake target dependencies of the executable/libname,rary
 ## as an example, message headers may need to be generated before nodes

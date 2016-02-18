@@ -167,16 +167,11 @@ namespace gcop {
       //  cout << "[W] Normal::L: not positive definite!" << endl;
       //}
       
-      //std::cout << "x = \n" << x << "\n";
-      //std::cout << "mu = \n" << mu << "\n";
       Vectornd d = x - mu;
-      //std::cout << "d = \n" << d << "\n";
-      //std::cout << d.dot(Pinv*d)/2 << "\n";
-      //std::cout << "NORM = " << norm << "\n";
       return -(d.dot(Pinv*d)/2) - (norm);
     }
 
-  template<int _n>
+  template<int _n> inline
     double Normal<_n>::L(const Vectornd &x) const
     {
       //if (!pd) {
@@ -197,10 +192,12 @@ namespace gcop {
         Pinv = P.inverse();
         //std::cout << "P INV = \n" << Pinv << "\n\n";
         det = P.determinant();
-        norm = sqrt(det); //sqrt(pow(2*M_PI, mu.size())*det);
+        //norm = sqrt(det); //sqrt(pow(2*M_PI, mu.size())*det);
+        norm = sqrt(pow(2*M_PI, mu.size())*det);
         pd = true;
       } else {
-        cout << "[W] Normal::Update: cholesky failed: P=" << P << endl;
+        cout << "[W] Normal::Update: cholesky failed: P=\n" << P << endl;
+        cout << "mu=\n" << mu.transpose();
         pd = false;    
       }
       
@@ -287,6 +284,7 @@ namespace gcop {
       os << mu(i) << ",";
     }
     os << std::endl;
+    std::cout <<"P=\n"<<P<<"\n";
   }
 
   template<int _n>

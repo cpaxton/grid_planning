@@ -27,7 +27,8 @@ namespace grid {
         p.base_model_norm = 0.01;
       }
       if (not nh_tilde.getParam("model_norm_step",p.model_norm_step)) {
-        p.model_norm_step = 0.1;
+        //p.model_norm_step = 0.1;
+        p.model_norm_step = 1.0;
       }
       if (not nh_tilde.getParam("base_sampling_noise",p.base_sampling_noise)) {
         p.base_sampling_noise = 0.01;
@@ -52,6 +53,12 @@ namespace grid {
       }
       if (not nh_tilde.getParam("max_horizon",p.max_horizon)) {
         p.max_horizon = 5;
+      }
+      if (not nh_tilde.getParam("collisions_verbose",p.collisions_verbose)) {
+        p.collisions_verbose = false;
+      }
+      if (not nh_tilde.getParam("test",p.test)) {
+        p.test = 0;
       }
 
       return p;

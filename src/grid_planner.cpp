@@ -393,6 +393,10 @@ namespace grid {
       //scene->getAllowedCollisionMatrixNonConst().print(std::cout);
     }
 
+    /* Robot object default entry */
+    void GridPlanner::SetDefaultCollisions(const std::string link, bool ignore) {
+      scene->getAllowedCollisionMatrixNonConst().setDefaultEntry(link, ignore);
+    }
 
     /* try a single trajectory and see if it works.
      * this is aimed at the python version of the code. */
@@ -450,7 +454,7 @@ namespace grid {
      * try a single trajectory and see if it works.
      * this is the joint trajectory version (so we can use a consistent message type)
      * */
-    bool GridPlanner::TryTrajectory(const Traj_t &traj) {
+    bool GridPlanner::TryTrajectory(const Traj_t &traj, unsigned int step) {
       boost::mutex::scoped_lock lock(*ps_mutex);
       scene->getCurrentStateNonConst().update(); 
 
@@ -462,7 +466,10 @@ namespace grid {
       state->update();
 
       bool drop_trajectory = false;
-      for (const auto &pt: traj.points) {
+      //for (const auto &pt: traj.points) {
+      //for (const auto pt = traj.points.begin(); pt < traj.points.end(); pt += step) {
+      for (unsigned int i = 0; i < traj.points.size(); i += step) {
+        const auto &pt = traj.points.at(i);
         if (verbose) {
           std::cout << "pt: ";
           for (double q: pt.positions) {

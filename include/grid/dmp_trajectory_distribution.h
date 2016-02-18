@@ -49,12 +49,18 @@ namespace grid {
     void initialize(TestFeatures &features, const Skill &skill, bool initBegin = false, std::vector<double> sigma = std::vector<double>());
 
     /**
+     * initialize pose
+     * set up the distribution based on a skill and an environment
+     */
+    void initializePose(TestFeatures &features, const Skill &skill, bool initBegin = false);
+
+    /**
      * sample
      * Pull a random trajectory from the gmm
      * Convert it into a KDL trajectory
      * NON-CONST becuse Gmm::sample is likewise non-const
      */
-    void sample(
+    unsigned int sample(
         const std::vector<JointTrajectoryPoint> &start_pts,
         std::vector<EigenVectornd> &params,
         std::vector<JointTrajectory> &trajs,
@@ -120,6 +126,11 @@ namespace grid {
     /** check for collisions */
     void setCollisionChecker(GridPlanner *);
 
+    /**
+     * set the skip between calling collision detection
+     */
+    unsigned int setCollisionDetectionStep(unsigned int step);
+
   protected:
     gcop::Gmm<> dist; // stores distributions
     GridPlanner *checker;
@@ -135,6 +146,7 @@ namespace grid {
     unsigned int dim; // number of dimensions
 
     unsigned int nvars;
+    unsigned int collision_detection_step;
 
     std::vector<dmp::DMPData> dmp_list;
     std::vector<double> dmp_goal;

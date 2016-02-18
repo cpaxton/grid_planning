@@ -129,6 +129,7 @@ namespace grid {
       if(feature.second == POSE_FEATURE) {
         //std::cout << feature.first << std::endl;
         currentPose[feature.first] = lookup(feature.first);
+        currentPoseInv[feature.first] = currentPose[feature.first].Inverse();
       }
 
     }
@@ -148,23 +149,28 @@ namespace grid {
    * Get information for a single feature over the whole trajectory given in traj.
    * Traj is KDL::Trajectory
    */
-  std::vector<FeatureVector> TestFeatures::getFeaturesForTrajectory(const std::vector<std::string> &names,
-                                                                    Trajectory *traj, double dt)
+  void TestFeatures::getFeaturesForTrajectory(std::vector<FeatureVector> &features,
+                                              const std::vector<std::string> &names,
+                                              Trajectory *traj, double dt)
   {
 
     using KDL::Rotation;
 
-    std::vector<FeatureVector> features((unsigned int)1+floor(traj->Duration() / dt));
+    features.resize((unsigned int)1+floor(traj->Duration() / dt));
     unsigned int next_idx = 0;
-    unsigned int dim = getFeaturesSize(names);
+    unsigned int dim = getFeaturesSize(names,use_diff);
+    unsigned int pose_size = POSE_FEATURES_SIZE;
+    if (not use_diff) {
+      pose_size = POSE_FEATURES_SIZE_ND;
+    }
+
     for (double t = 0; t < traj->Duration(); t += dt) {
       unsigned int idx = 0;
       FeatureVector f(dim);
       for (const std::string &name: names) {
-        if (feature_types[name] == POSE_FEATURE) {
-          //Pose offset = currentPose[name].Inverse() * currentPose[AGENT];// * traj->Pos(t);
 
-          Pose offset = currentPose[name].Inverse() * traj->Pos(t);
+        if (feature_types[name] == POSE_FEATURE) {
+          Pose offset = currentPoseInv[name] * traj->Pos(t);
           if (attached) {
             offset = offset * attachedObjectFrame;
           }
@@ -176,12 +182,12 @@ namespace grid {
 
           //std::cout << __LINE__ << ": " << dim << ", " << idt << std::endl;
           if (next_idx == 0) {
-            getPoseFeatures(offset,f,idx);
+            getPoseFeatures(offset,f,idx,use_diff);
           } else {
-            getPoseFeatures(offset,f,idx,features[next_idx-1]);
+            getPoseFeatures(offset,f,idx,features[next_idx-1],use_diff);
           }
 
-          idx+= POSE_FEATURES_SIZE;
+          idx+= pose_size;//POSE_FEATURES_SIZE;
 
         } else if (feature_types[name] == TIME_FEATURE) {
           f(idx) = t / traj->Duration();
@@ -200,8 +206,6 @@ namespace grid {
       assert(idx == dim);
     }
     assert(next_idx == features.size());
-
-    return features;
   }
 
   /* getFeaturesForTrajectory
@@ -209,54 +213,53 @@ namespace grid {
    * Traj is a set of frames
    * Uses an attached object frame
    */
-  std::vector<FeatureVector> TestFeatures::getFeaturesForTrajectory(const std::vector<std::string> &names,
-                                                                    const TrajectoryFrames &traj,
-                                                                    const bool useAttachedObjectFrame,
-                                                                    const Pose &attachedObjectFrame)
+  void TestFeatures::getFeaturesForTrajectory(std::vector<FeatureVector> &features,
+                                              const std::vector<std::string> &names,
+                                              const TrajectoryFrames &traj,
+                                              const bool useAttachedObjectFrame,
+                                              const Pose &attachedObjectFrame)
   {
 
-    std::vector<FeatureVector> features(traj.size());
+    features.resize(traj.size());
 
     unsigned int next_idx = 0;
-    unsigned int dim = getFeaturesSize(names);
+    unsigned int dim = getFeaturesSize(names,use_diff);
+    unsigned int pose_size = POSE_FEATURES_SIZE;
+    if (not use_diff) {
+      pose_size = POSE_FEATURES_SIZE_ND;
+    }
 
     for (const Pose &p: traj) {
       unsigned int idx = 0;
-      FeatureVector f(dim);
+      features[next_idx].resize(dim);
+      //FeatureVector f(dim);
 
       for (const std::string &name: names) {
 
         if (feature_types[name] == POSE_FEATURE) {
 
-          Pose offset = currentPose[name].Inverse() * p;
+          Pose offset = currentPoseInv[name] * p;
           if (useAttachedObjectFrame) {
-            //std::cout << "attaching\n";
-            //std::cout << attachedObjectFrame << "\n";
             offset = offset * attachedObjectFrame;
           }
-          //std::cout << "\tComputed at x=" << offset.p.x()
-          //  <<", y=" << offset.p.y()
-          //  <<", z=" << offset.p.z()
-          //  <<std::endl;
 
           if (next_idx==0) {
-            getPoseFeatures(offset,f,idx);
+            getPoseFeatures(offset,features[next_idx],idx,use_diff);
           } else {
-            getPoseFeatures(offset,f,idx,features[next_idx-1]);
+            getPoseFeatures(offset,features[next_idx],idx,features[next_idx-1],use_diff);
           }
-          idx+= POSE_FEATURES_SIZE;
+          idx+= pose_size;
 
         } else if (feature_types[name] == TIME_FEATURE) {
-          f(idx) = (double)next_idx / (double)traj.size();
+          features[next_idx](idx) = (double)next_idx / (double)traj.size();
           idx += TIME_FEATURES_SIZE;
         }
 
       }
-      features[next_idx++] = f;
+      //features[next_idx++] = f;
+      next_idx++;
 
     }
-    return features;
-
   }
 
 
@@ -265,10 +268,11 @@ namespace grid {
    * Get information for a single feature over the whole trajectory given in traj.
    * Traj is a set of frames
    */
-  std::vector<FeatureVector> TestFeatures::getFeaturesForTrajectory(const std::vector<std::string> &names,
-                                                                    const TrajectoryFrames &traj)
+  void TestFeatures::getFeaturesForTrajectory(std::vector<FeatureVector> &features,
+                                              const std::vector<std::string> &names,
+                                              const TrajectoryFrames &traj)
   {
-    return getFeaturesForTrajectory(names, traj, attached, attachedObjectFrame);
+    getFeaturesForTrajectory(features, names, traj, attached, attachedObjectFrame);
   }
 
 
