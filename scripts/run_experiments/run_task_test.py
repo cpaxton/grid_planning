@@ -28,19 +28,30 @@ try:
         name = 'double%d:=true'%(i)
         print name
 
-        launch_cmd = ['roslaunch','grid_experiments','ascent_experiments.launch',name]
-        #launch_cmd = "roslaunch grid_experimetns ascent_experiments.launch double%d:=true"%(i)
-        #print launch_cmd
+        ''' --------------------- '''
+        '''     RESET THE ARM     '''
+        ''' --------------------- '''
 
-        #proc = call(launch_cmd)
+        print "[%d] Resetting to standard start configuration..."%(i)
+        reset_proc = Popen(reset_cmd)
+        reset_proc.wait()
+
+        rospy.sleep(0.5)
+
+        ''' --------------------- '''
+        ''' LAUNCH THE EXPERIMENT '''
+        ''' --------------------- '''
+
+        launch_cmd = ['roslaunch','grid_experiments','ascent_experiments.launch',name]
+
         proc = Popen(launch_cmd)
         procs.append(proc)
 
         rospy.sleep(2.0)
 
-        print "[%d] Resetting to standard start configuration..."%(i)
-        reset_proc = Popen(reset_cmd)
-        
+        ''' --------------------- '''
+        '''     START PLANNING    '''
+        ''' --------------------- '''
 
         print "[%d] Starting test..."%(i)
         test_proc = Popen(test_cmd+args)
@@ -48,6 +59,8 @@ try:
         test_proc.wait()
 
         print "[%d] Done test!"%(i)
+
+
 
         break
 
