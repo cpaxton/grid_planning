@@ -67,7 +67,6 @@ namespace grid {
    * set all children to not done
    */
   void InstantiatedSkill::reset() {
-    done = false;
     touched = false;
     model_norm = p.base_model_norm;
     best_p = LOW_PROBABILITY;
@@ -289,11 +288,11 @@ namespace grid {
         ps_out[idx] = 0;
       }
 
-      if (!skill->isStatic()) {
+      if (not done and not skill->isStatic()) {
         // sample trajectories
         features->setUseDiff(true);
         next_len = dmp_dist->sample(start_pts,params,trajs,nsamples);
-      } else {
+      } else if (not done) {
         features->setUseDiff(false);
         // just stay put
         for (unsigned int i = 0; i < nsamples; ++i) {
@@ -314,32 +313,36 @@ namespace grid {
           continue;
           }*/
 
-        // TODO: speed this up
-        std::vector<Pose> poses = robot->FkPos(trajs[j]);
+        if (not done) {
+          // TODO: speed this up
+          std::vector<Pose> poses = robot->FkPos(trajs[j]);
 
-        skill->resetModel();
-        skill->addModelNormalization(model_norm);
+          skill->resetModel();
+          skill->addModelNormalization(model_norm);
 
-        // TODO: speed this up
-        if (useCurrentFeatures) {
-          //std::cout << currentAttachedObjectFrame << "\n";
-          features->getFeaturesForTrajectory(
-              traj_features,
-              skill->getFeatures(),
-              poses,
-              skill->hasAttachedObject(),
-              currentAttachedObjectFrame);
+          // TODO: speed this up
+          if (useCurrentFeatures) {
+            //std::cout << currentAttachedObjectFrame << "\n";
+            features->getFeaturesForTrajectory(
+                traj_features,
+                skill->getFeatures(),
+                poses,
+                skill->hasAttachedObject(),
+                currentAttachedObjectFrame);
+          } else {
+            features->getFeaturesForTrajectory(
+                traj_features,
+                skill->getFeatures(),
+                poses,
+                dmp_dist->hasAttachedObject(),
+                dmp_dist->getAttachedObjectFrame());
+          }
+          skill->normalizeData(traj_features);
+          FeatureVector v = skill->logL(traj_features);
+          my_ps[j] = log(v.array().exp().sum() / v.size()); // would add other terms first
         } else {
-          features->getFeaturesForTrajectory(
-              traj_features,
-              skill->getFeatures(),
-              poses,
-              dmp_dist->hasAttachedObject(),
-              dmp_dist->getAttachedObjectFrame());
+          my_ps[j] = MAX_PROBABILITY;
         }
-        skill->normalizeData(traj_features);
-        FeatureVector v = skill->logL(traj_features);
-        my_ps[j] = log(v.array().exp().sum() / v.size()); // would add other terms first
 
         if (p.verbosity > 1) {
           std::cout << "[" << id << "] " << j << ": " << skill->getName() << ": "<< my_ps[j]<<" + "<< start_ps[j]<<"\n";
@@ -477,17 +480,13 @@ namespace grid {
 
       if (nsamples > 1) {
         dmp_dist->update(params,ps,nsamples,p.noise,p.step_size);
-        dmp_dist->addNoise(1e-10); 
+        dmp_dist->addNoise(1e-8); 
         //dmp_dist->addNoise(pow(0.1,(good_iter)+5));
       }
     }
 
     // compute ll for this iteration
     iter_lls[cur_iter] = sum / p.ntrajs;
-
-    if (cur_iter > 0 and fabs(iter_lls[cur_iter]-iter_lls[cur_iter]) < 1e-2*iter_lls[cur_iter]) {
-      done = true;
-    }
 
     // decrease normalization
     if (cur_iter > 0 and 
@@ -557,6 +556,7 @@ namespace grid {
     ac.sendGoal(cmd);
     std::cout << "waiting for result\n";
     ac.waitForResult();
+    done = true;
 
     if (horizon > 0 && next.size() > 0) {
       // replan if necessary
