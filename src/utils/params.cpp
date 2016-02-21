@@ -60,6 +60,9 @@ namespace grid {
       if (not nh_tilde.getParam("test",p.test)) {
         p.test = 0;
       }
+      if (not nh_tilde.getParam("compute_statistics",p.compute_statistics)) {
+        p.compute_statistics = true;
+      }
 
       return p;
     }

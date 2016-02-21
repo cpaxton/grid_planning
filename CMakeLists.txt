@@ -58,8 +58,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
 catkin_python_setup()
 
-## Add actions
+## Add actions and messages
 add_action_files(DIRECTORY action FILES Command.action)
+add_message_files(DIRECTORY msg FILES Statistics.msg)
 generate_messages(DEPENDENCIES std_msgs trajectory_msgs geometry_msgs actionlib_msgs)
 
 ###################################
