@@ -67,16 +67,16 @@ namespace grid {
    * set all children to not done
    */
   void InstantiatedSkill::reset() {
-    touched = false;
     model_norm = p.base_model_norm;
     best_p = LOW_PROBABILITY;
     cur_iter = 0;
     good_iter = 0;
     good_iter = 0;
-    if(dmp_dist) {
+    if(dmp_dist and touched) {
       //dmp_dist->initializePose(*features,*skill);
       dmp_dist->addNoise(0.0005);
     }
+    touched = false;
     best_idx = 0;
     for (double &d: iter_lls) {
       d = 0;
@@ -515,7 +515,7 @@ namespace grid {
    * use gripper tool to send messages
    */
   bool InstantiatedSkill::execute(GridPlanner &gp, actionlib::SimpleActionClient<grid_plan::CommandAction> &ac,
-                                  int horizon, bool replan)
+                                  int horizon, bool replan, int replan_depth)
   {
 
 
@@ -528,11 +528,15 @@ namespace grid {
     } else {
       std::cout << "n/a\n";
     }
-    std::cout << "Replanning? " << replan << "\n";
-    std::cout << "best idx = " << best_idx << "\n";
+    std::cout << "Replanning? " << replan << ": ";
+    std::cout << "best idx = " << best_idx << ", ";
     std::cout << "best p = " << best_p << "\n";
 
+
     if (not touched) {
+      replan = true;
+    } else if (horizon > 0 and not next[0]->touched) {
+      std::cout << "Child not touched yet!\n";
       replan = true;
     }
 
@@ -548,7 +552,6 @@ namespace grid {
       cmd.keys = features->getClasses();
       cmd.values = features->getIds();
     }
-
 
     std::cout << "waiting for server... (" << horizon << ")\n";
     ac.waitForServer();
@@ -585,6 +588,9 @@ namespace grid {
         reset();
         double probability = MAX_PROBABILITY;
         int my_horizon = horizon;
+        if (replan_depth > 0) {
+          my_horizon = replan_depth;
+        }
         for (unsigned int i = 0; i < p.iter; ++i) {
 
           assert(ros::ok());
@@ -618,8 +624,9 @@ namespace grid {
       }
 
       //replan = replan or (skill and skill->isStatic());
-      return next[idx]->execute(gp,ac,horizon-1,false);
+      return next[idx]->execute(gp,ac,horizon-1,false,replan_depth);
     } else {
+      std::cout << "Execution done: " << horizon << ", " << next.size() << "\n";
       return true;
     }
   }

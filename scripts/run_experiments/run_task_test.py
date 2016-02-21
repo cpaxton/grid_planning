@@ -48,8 +48,8 @@ task_args = ["_step_size:=0.5",
 single_args = ["_step_size:=0.5",
         "_iter:=15",
         "_ntrajs:=200",
-        "_starting_horizon:=1",
-        "_max_horizon:=1",
+        "_starting_horizon:=2",
+        "_max_horizon:=2",
         "_detect_collisions:=true",
         "_wait:=0",
         "_collisions_verbose:=0",
@@ -68,8 +68,8 @@ try:
     for test in range(0,4):
 
         test_cmd = ["rosrun","grid_plan"] + [executables[test]]
-        #for i in range(1,11):
-        for i in range(1,2):
+        for i in range(1,11):
+        #for i in range(1,2):
 
             name = 'double%d:=true'%(i)
             print name
