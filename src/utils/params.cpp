@@ -63,6 +63,12 @@ namespace grid {
       if (not nh_tilde.getParam("compute_statistics",p.compute_statistics)) {
         p.compute_statistics = true;
       }
+      if (not nh_tilde.getParam("distribution_noise",p.distribution_noise)) {
+        p.distribution_noise = 1e-8;
+      }
+      if (not nh_tilde.getParam("collision_detection_step",p.collision_detection_step)) {
+        p.collision_detection_step = 4;
+      }
 
       return p;
     }

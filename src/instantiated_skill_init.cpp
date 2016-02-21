@@ -24,6 +24,7 @@ namespace grid {
                                       robot));
     is->dmp_dist->attachObjectFrame(skill->getDefaultAttachedObjectPose());
     is->dmp_dist->initialize(*features,*skill);
+    is->dmp_dist->setCollisionDetectionStep(p.collision_detection_step);
 
     if(checker) {
       is->dmp_dist->setCollisionChecker(checker);

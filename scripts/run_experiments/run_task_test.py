@@ -22,12 +22,13 @@ def lookup(frame1,frame2):
 rospy.init_node('run_task_test_master')
 listener = tf.TransformListener()
 procs = []
-final = []
+final = [[]]*4
 
-test_cmd = ["rosrun","grid_plan","task_test"]
+executables = ["simple_test","simple_test","task_test","task_test"]
+
 reset_cmd = ["rosrun","grid_experiments","reset.py"]
 
-args = ["_step_size:=0.5",
+task_args = ["_step_size:=0.5",
         "_iter:=15",
         "_ntrajs:=200",
         "_starting_horizon:=5",
@@ -37,60 +38,82 @@ args = ["_step_size:=0.5",
         "_collisions_verbose:=0",
         "_base_model_norm:=0.0001",
         "_model_norm_step:=1",
-        "_update_horizon:=0.0001"
+        "_update_horizon:=0.0001",
+        "_compute_statistics:=true",
+        "_collision_detection_step:=4"
+        ]
+single_args = ["_step_size:=0.5",
+        "_iter:=15",
+        "_ntrajs:=200",
+        "_starting_horizon:=1",
+        "_max_horizon:=1",
+        "_detect_collisions:=true",
+        "_wait:=0",
+        "_collisions_verbose:=0",
+        "_base_model_norm:=0.0001",
+        "_model_norm_step:=1",
+        "_update_horizon:=0.0001",
+        "_compute_statistics:=true",
+        "_collision_detection_step:=4"
         ]
 
+args = [single_args,task_args,single_args,task_args]
+
 try:
-    for i in range(1,11):
+    for test in range(1,4):
 
-        name = 'double%d:=true'%(i)
-        print name
+        test_cmd = ["rosrun","grid_plan"] + [executables[test]]
+        #for i in range(1,11):
+        for i in range(1,2):
 
-        ''' --------------------- '''
-        '''     RESET THE ARM     '''
-        ''' --------------------- '''
+            name = 'double%d:=true'%(i)
+            print name
 
-        print "[%d] Resetting to standard start configuration..."%(i)
-        reset_proc = Popen(reset_cmd)
-        reset_proc.wait()
+            ''' --------------------- '''
+            '''     RESET THE ARM     '''
+            ''' --------------------- '''
 
-        rospy.sleep(0.5)
+            print "[%d] Resetting to standard start configuration..."%(i)
+            reset_proc = Popen(reset_cmd)
+            reset_proc.wait()
 
-        ''' --------------------- '''
-        ''' LAUNCH THE EXPERIMENT '''
-        ''' --------------------- '''
+            rospy.sleep(0.5)
 
-        launch_cmd = ['roslaunch','grid_experiments','ascent_experiments.launch',name]
+            ''' --------------------- '''
+            ''' LAUNCH THE EXPERIMENT '''
+            ''' --------------------- '''
 
-        proc = Popen(launch_cmd)
-        procs.append(proc)
+            launch_cmd = ['roslaunch','grid_experiments','ascent_experiments.launch',name]
 
-        rospy.sleep(2.0)
+            proc = Popen(launch_cmd)
+            procs.append(proc)
 
-        ''' --------------------- '''
-        '''     START PLANNING    '''
-        ''' --------------------- '''
+            rospy.sleep(2.0)
 
-        print "[%d] Starting test..."%(i)
-        test_proc = Popen(test_cmd+args)
+            ''' --------------------- '''
+            '''     START PLANNING    '''
+            ''' --------------------- '''
 
-        test_proc.wait()
+            print "[%d] Starting test..."%(i)
+            test_proc = Popen(test_cmd+args[test])
 
-        print "[%d] Done test!"%(i)
+            test_proc.wait()
 
-        (trans1,rot1) = lookup("gbeam_link_1/gbeam_link","gbeam_node_1/gbeam_node")
-        (trans2,rot2) = lookup("gbeam_link_1/gbeam_link","gbeam_node_2/gbeam_node")
+            print "[%d] Done test!"%(i)
 
-        t1 = pm.fromTf((trans1,rot1))
-        t2 = pm.fromTf((trans2,rot2))
+            (trans1,rot1) = lookup("gbeam_link_1/gbeam_link","gbeam_node_1/gbeam_node")
+            (trans2,rot2) = lookup("gbeam_link_1/gbeam_link","gbeam_node_2/gbeam_node")
 
-        proc.terminate()
-        rospy.sleep(1.0)
+            t1 = pm.fromTf((trans1,rot1))
+            t2 = pm.fromTf((trans2,rot2))
 
-        if t1.p.Norm() < t2.p.Norm():
-            final.append(t1)
-        else:
-            final.append(t2)
+            proc.terminate()
+            rospy.sleep(1.0)
+
+            if t1.p.Norm() < t2.p.Norm():
+                final[test].append(t1)
+            else:
+                final[test].append(t2)
 
 except Exception, e:
     print e
@@ -102,6 +125,7 @@ finally:
             proc.terminate()
 
     print final
-    for pose in final:
-        print pose.p.Norm()
+    for final_test in final:
+        for pose in final_test:
+            print pose.p.Norm()
 
