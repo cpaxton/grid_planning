@@ -269,7 +269,7 @@ int main(int argc, char **argv) {
   }
 
   // execute here
-  root->execute(gp,ac,p.max_horizon,false);
+  root->execute(gp,ac,p.execute_depth,false,p.replan_depth);
   //align22->execute(gp,ac,horizon-1,true);
 
 }

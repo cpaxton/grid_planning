@@ -69,6 +69,12 @@ namespace grid {
       if (not nh_tilde.getParam("collision_detection_step",p.collision_detection_step)) {
         p.collision_detection_step = 4;
       }
+      if (not nh_tilde.getParam("replan_depth",p.replan_depth)) {
+        p.replan_depth = 4;
+      }
+      if (not nh_tilde.getParam("execute_depth",p.execute_depth)) {
+        p.execute_depth = p.max_horizon;
+      }
 
       return p;
     }
