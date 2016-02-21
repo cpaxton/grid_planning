@@ -3,8 +3,26 @@
 import rospy
 import tf
 from subprocess import Popen
+import tf_conversions.posemath as pm
 
+def lookup(frame1,frame2):
+    global listener
+    done = False
+    (trans,rot) = (None,None)
+    while not done:
+        try:
+            (trans,rot) = listener.lookupTransform(frame1,frame2,rospy.Time(0))
+            done = True
+        except Exception, e:
+            print e
+            rospy.sleep(0.1)
+
+    return (trans,rot)
+        
+rospy.init_node('run_task_test_master')
+listener = tf.TransformListener()
 procs = []
+final = []
 
 test_cmd = ["rosrun","grid_plan","task_test"]
 reset_cmd = ["rosrun","grid_experiments","reset.py"]
@@ -60,9 +78,19 @@ try:
 
         print "[%d] Done test!"%(i)
 
+        (trans1,rot1) = lookup("gbeam_link_1/gbeam_link","gbeam_node_1/gbeam_node")
+        (trans2,rot2) = lookup("gbeam_link_1/gbeam_link","gbeam_node_2/gbeam_node")
 
+        t1 = pm.fromTf((trans1,rot1))
+        t2 = pm.fromTf((trans2,rot2))
 
-        break
+        proc.terminate()
+        rospy.sleep(1.0)
+
+        if t1.p.Norm() < t2.p.Norm():
+            final.append(t1)
+        else:
+            final.append(t2)
 
 except Exception, e:
     print e
@@ -72,4 +100,8 @@ finally:
         if proc.returncode is None:
             print " - Killing %s"%(str(proc))
             proc.terminate()
+
+    print final
+    for pose in final:
+        print pose.p.Norm()
 
