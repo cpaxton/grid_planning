@@ -289,6 +289,7 @@ namespace grid {
       }
 
       if (not done and not skill->isStatic()) {
+        std::cout << skill->getName() << " is not yet done!\n";
         // sample trajectories
         features->setUseDiff(true);
         next_len = dmp_dist->sample(start_pts,params,trajs,nsamples);
@@ -354,10 +355,15 @@ namespace grid {
           continue;
         }
 
+        end_pts[j].positions.resize(robot->getDegreesOfFreedom());
+        end_pts[j].velocities.resize(robot->getDegreesOfFreedom());
         // set up all the end points!
         for (unsigned int ii = 0; ii < robot->getDegreesOfFreedom(); ++ii) {
-          end_pts[j].positions = trajs[j].points.rbegin()->positions;
-          end_pts[j].velocities = trajs[j].points.rbegin()->velocities;
+          if (done) {
+          std::cout << "updating end point for " << ii << "\n";
+          }
+          end_pts[j].positions[ii] = trajs[j].points.rbegin()->positions[ii];
+          end_pts[j].velocities[ii] = trajs[j].points.rbegin()->velocities[ii];
         }
       }
     }

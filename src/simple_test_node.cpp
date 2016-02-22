@@ -210,17 +210,6 @@ int main(int argc, char **argv) {
     ps[0] = 0.; // set prior
     root->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
 
-#if 0
-    align22->useCurrentFeatures = true;
-    align22->updateCurrentAttachedObjectFrame();
-    place22->useCurrentFeatures = true;
-    place22->updateCurrentAttachedObjectFrame();
-    release22->useCurrentFeatures = true;
-    release22->updateCurrentAttachedObjectFrame();
-    //place22->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
-    align22->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
-#endif
-
     /* PUT EVERYTHING INTO SOME MESSAGES */
     {
       load_to_one_array(approaches,approach_trajs);

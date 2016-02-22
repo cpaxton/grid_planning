@@ -189,11 +189,6 @@ int main(int argc, char **argv) {
   root->addNext(app2);
   root->addNext(app3);
 
-#if 0
-  app1->addNext(disengage1);
-  app2->addNext(disengage2);
-#endif
-
   app1->addNext(grasp1); app1->pub = &pub;
   app2->addNext(grasp2); app2->pub = &pub;
   app3->addNext(grasp3); app3->pub = &pub;
@@ -291,17 +286,6 @@ int main(int argc, char **argv) {
     ps_out[0] = 0.;
     ps[0] = 0.; // set prior
     root->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
-
-#if 0
-    align22->useCurrentFeatures = true;
-    align22->updateCurrentAttachedObjectFrame();
-    place22->useCurrentFeatures = true;
-    place22->updateCurrentAttachedObjectFrame();
-    release22->useCurrentFeatures = true;
-    release22->updateCurrentAttachedObjectFrame();
-    //place22->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
-    align22->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
-#endif
 
     /* PUT EVERYTHING INTO SOME MESSAGES */
     {
