@@ -41,7 +41,7 @@ task_args = ["_step_size:=0.5",
         "_model_norm_step:=1",
         "_update_horizon:=0.0001",
         "_compute_statistics:=true",
-        "_collision_detection_step:=4",
+        "_collision_detection_step:=2",
         "_replan_depth:=0",
         "_execute_depth:=5"
         ]
@@ -57,7 +57,7 @@ single_args = ["_step_size:=0.5",
         "_model_norm_step:=1",
         "_update_horizon:=0.0001",
         "_compute_statistics:=true",
-        "_collision_detection_step:=4",
+        "_collision_detection_step:=2",
         "_replan_depth:=1",
         "_execute_depth:=5"
         ]
