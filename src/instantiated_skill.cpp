@@ -57,7 +57,6 @@ namespace grid {
     best_p = LOW_PROBABILITY;
     cur_iter = 0;
     good_iter = 0;
-    good_iter = 0;
     best_idx = 0;
   }
 
@@ -272,10 +271,10 @@ namespace grid {
     initializeCounts(prev_counts,0u);
     accumulateProbs(prev_ps,len);
 
-
     std::cout << "ID == " << id;
     if (skill) std::cout << "(" << skill->getName() << ")";
     std::cout << ", horizon == " << horizon;
+    std::cout << ", len == " << len;
     std::cout << ", end pts = " << prev_end_pts.size();
     std::cout << "\n";
 
@@ -283,6 +282,11 @@ namespace grid {
     if (not skill) {
       copyEndPoints(prev_end_pts, prev_ps, len);
       next_len = len;
+    } else if (done) {
+      next_len = 1;
+      my_ps[0] = MAX_PROBABILITY;
+      end_pts[0].positions = trajs[best_idx].points.rbegin()->positions;
+      end_pts[0].velocities = trajs[best_idx].points.rbegin()->velocities;
     } else {
 
       // sample start points
@@ -299,12 +303,11 @@ namespace grid {
         ps_out[idx] = 0;
       }
 
-      if (not done and not skill->isStatic()) {
-        std::cout << skill->getName() << " is not yet done!\n";
+      if (not skill->isStatic()) {
         // sample trajectories
         features->setUseDiff(true);
         next_len = dmp_dist->sample(start_pts,params,trajs,nsamples);
-      } else if (not done) {
+      } else {
         features->setUseDiff(false);
         // just stay put
         for (unsigned int i = 0; i < nsamples; ++i) {
@@ -320,41 +323,32 @@ namespace grid {
       // compute probabilities
       for (unsigned int j = 0; j < nsamples; ++j) {
 
-        /*if (trajs[j].points.size() == 0) {
-          my_ps[j] = LOW_PROBABILITY;
-          continue;
-          }*/
+        // TODO: speed this up
+        std::vector<Pose> poses = robot->FkPos(trajs[j]);
 
-        if (not done) {
-          // TODO: speed this up
-          std::vector<Pose> poses = robot->FkPos(trajs[j]);
+        skill->resetModel();
+        skill->addModelNormalization(model_norm);
 
-          skill->resetModel();
-          skill->addModelNormalization(model_norm);
-
-          // TODO: speed this up
-          if (useCurrentFeatures) {
-            //std::cout << currentAttachedObjectFrame << "\n";
-            features->getFeaturesForTrajectory(
-                traj_features,
-                skill->getFeatures(),
-                poses,
-                skill->hasAttachedObject(),
-                currentAttachedObjectFrame);
-          } else {
-            features->getFeaturesForTrajectory(
-                traj_features,
-                skill->getFeatures(),
-                poses,
-                dmp_dist->hasAttachedObject(),
-                dmp_dist->getAttachedObjectFrame());
-          }
-          skill->normalizeData(traj_features);
-          FeatureVector v = skill->logL(traj_features);
-          my_ps[j] = log(v.array().exp().sum() / v.size()); // would add other terms first
+        // TODO: speed this up
+        if (useCurrentFeatures) {
+          //std::cout << currentAttachedObjectFrame << "\n";
+          features->getFeaturesForTrajectory(
+              traj_features,
+              skill->getFeatures(),
+              poses,
+              skill->hasAttachedObject(),
+              currentAttachedObjectFrame);
         } else {
-          my_ps[j] = MAX_PROBABILITY;
+          features->getFeaturesForTrajectory(
+              traj_features,
+              skill->getFeatures(),
+              poses,
+              dmp_dist->hasAttachedObject(),
+              dmp_dist->getAttachedObjectFrame());
         }
+        skill->normalizeData(traj_features);
+        FeatureVector v = skill->logL(traj_features);
+        my_ps[j] = log(v.array().exp().sum() / v.size()); // would add other terms first
 
         if (p.verbosity > 1) {
           std::cout << "[" << id << "] " << j << ": " << skill->getName() << ": "<< my_ps[j]<<" + "<< start_ps[j]<<"\n";
@@ -368,6 +362,7 @@ namespace grid {
 
         end_pts[j].positions.resize(robot->getDegreesOfFreedom());
         end_pts[j].velocities.resize(robot->getDegreesOfFreedom());
+
         // set up all the end points!
         for (unsigned int ii = 0; ii < robot->getDegreesOfFreedom(); ++ii) {
           end_pts[j].positions[ii] = trajs[j].points.rbegin()->positions[ii];
@@ -494,8 +489,11 @@ namespace grid {
 
       if (nsamples > 1) {
         dmp_dist->update(params,ps,nsamples,p.noise,p.step_size);
-        dmp_dist->addNoise(1e-8); 
-        //dmp_dist->addNoise(pow(0.1,(good_iter)+5));
+        if (p.fixed_distribution_noise) {
+          dmp_dist->addNoise(p.distribution_noise); 
+        } else {
+          dmp_dist->addNoise(pow(0.1,(good_iter)+4));
+        }
       }
     }
 
@@ -615,7 +613,6 @@ namespace grid {
           ros::spinOnce();
           features->updateWorldfromTF();
 
-          //step(start_ps,starts,next_ps,probability,1,horizon,p.ntrajs);
           step(start_ps,starts,next_ps,probability,1,my_horizon,p.ntrajs);
           publish();
 

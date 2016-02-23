@@ -30,6 +30,7 @@ namespace grid {
     int collision_detection_step; // how many trajectory points to skip when doing collision detection
     int replan_depth; // how deep can we go into the tree when replanning? 0 = max_horizon
     int execute_depth; // how deep can we go into the tree when executing? 0 = max_horizon
+    bool fixed_distribution_noise;
   };
 
   Params readRosParams();

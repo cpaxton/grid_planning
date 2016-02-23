@@ -75,6 +75,9 @@ namespace grid {
       if (not nh_tilde.getParam("execute_depth",p.execute_depth)) {
         p.execute_depth = p.max_horizon;
       }
+      if (not nh_tilde.getParam("fixed_distribution_noise",p.fixed_distribution_noise)) {
+        p.fixed_distribution_noise = true;
+      }
 
       return p;
     }
