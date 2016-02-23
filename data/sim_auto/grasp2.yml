@@ -1,0 +1,35 @@
+base_link: wam/base_link
+base_tform: !!python/object/apply:sip._unpickle_type
+- PyKDL
+- Frame
+- !!python/tuple
+  - !!python/object/apply:sip._unpickle_type
+    - PyKDL
+    - Rotation
+    - !!python/tuple [2.220446049250313e-16, -2.220446049250313e-16, 1.0, 1.0, 0.0,
+      -2.220446049250313e-16, 0.0, 1.0, 2.220446049250313e-16]
+  - !!python/object/apply:sip._unpickle_type
+    - PyKDL
+    - Vector
+    - !!python/tuple [0.0, 0.46, 1.0]
+diff_indices:
+  agent: !!python/tuple [16, 24]
+  diff_agent: !!python/tuple [32, 25]
+  diff_link: !!python/tuple [16, 9]
+  diff_node: !!python/tuple [24, 17]
+  link: !!python/tuple [0, 8]
+  node: !!python/tuple [8, 16]
+end_link: wam/wrist_palm_link
+gripper_cmds: []
+indices:
+  agent: !!python/tuple [16, 24]
+  link: !!python/tuple [0, 8]
+  node: !!python/tuple [8, 16]
+joint_states: []
+manip_obj: null
+max_index: 24
+objects: {agent: wam/wrist_palm_link, link: gbeam_link_1/gbeam_link, node: gbeam_node_1/gbeam_node}
+robot_description_param: robot_description
+times: []
+world_frame: /world
+world_states: []
