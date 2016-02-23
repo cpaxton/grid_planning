@@ -68,8 +68,7 @@ try:
     for test in range(0,4):
 
         test_cmd = ["rosrun","grid_plan"] + [executables[test]]
-        for i in range(1,11):
-        #for i in range(1,2):
+        for i in range(2,11):
 
             name = 'double%d:=true'%(i)
             print name
