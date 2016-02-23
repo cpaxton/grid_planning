@@ -85,9 +85,9 @@ int main(int argc, char **argv) {
   gp2.SetCollisions("gbeam_soup",true);
 
   // disable a bunch of collisions
-  gp2.SetDefaultCollisions("wam/hand/finger_1/prox_link",true);
-  gp2.SetDefaultCollisions("wam/hand/finger_2/prox_link",true);
-  gp2.SetDefaultCollisions("wam/hand/finger_3/prox_link",true);
+  //gp2.SetDefaultCollisions("wam/hand/finger_1/prox_link",true);
+  //gp2.SetDefaultCollisions("wam/hand/finger_2/prox_link",true);
+  //gp2.SetDefaultCollisions("wam/hand/finger_3/prox_link",true);
   gp2.SetDefaultCollisions("wam/shoulder_yaw_link",true);
   //gp2.SetDefaultCollisions("wam/upper_arm_link",true);
   gp2.SetDefaultCollisions("wam/base_link",true);

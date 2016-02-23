@@ -198,6 +198,10 @@ namespace grid {
     if(dmp_dist) {
       dmp_dist->addNoise(0.0001);
     }
+    for (double &t : T) {
+      t = 1;
+    }
+    updateTransitions();
     model_norm = p.base_model_norm;
     if (horizon > 0) {
       for (auto &child: next) {
@@ -267,6 +271,13 @@ namespace grid {
     initializePs(prev_p_sums,0);
     initializeCounts(prev_counts,0u);
     accumulateProbs(prev_ps,len);
+
+
+    std::cout << "ID == " << id;
+    if (skill) std::cout << "(" << skill->getName() << ")";
+    std::cout << ", horizon == " << horizon;
+    std::cout << ", end pts = " << prev_end_pts.size();
+    std::cout << "\n";
 
     /************* SAMPLE TRAJECTORIES IF NECESSARY *************/
     if (not skill) {
@@ -359,9 +370,6 @@ namespace grid {
         end_pts[j].velocities.resize(robot->getDegreesOfFreedom());
         // set up all the end points!
         for (unsigned int ii = 0; ii < robot->getDegreesOfFreedom(); ++ii) {
-          if (done) {
-          std::cout << "updating end point for " << ii << "\n";
-          }
           end_pts[j].positions[ii] = trajs[j].points.rbegin()->positions[ii];
           end_pts[j].velocities[ii] = trajs[j].points.rbegin()->velocities[ii];
         }
@@ -595,7 +603,11 @@ namespace grid {
         double probability = MAX_PROBABILITY;
         int my_horizon = horizon;
         if (replan_depth > 0) {
+          std::cout << "setting replan depth: ";
           my_horizon = replan_depth;
+          std::cout << "horizon = " << my_horizon << "\n";
+        } else {
+          std::cout << "horizon = " << my_horizon << "\n";
         }
         for (unsigned int i = 0; i < p.iter; ++i) {
 
@@ -609,7 +621,7 @@ namespace grid {
 
           //replan = false;
           if (i > 0 and fabs(iter_lls[i] - iter_lls[i-1]) < (p.update_horizon * iter_lls[i])) {
-            if (my_horizon < horizon) {
+            if (not replan_depth and my_horizon < horizon) {
               my_horizon++;
               refresh(my_horizon);
             } else {
