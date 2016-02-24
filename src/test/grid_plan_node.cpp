@@ -5,7 +5,7 @@ using namespace grid;
 
 int main(int argc, char **argv) {
   ros::init(argc,argv,"grid_plan_node");
-  GridPlanner gp("robot_description","/gazebo/barrett_manager/wam/joint_states","/gazebo/planning_scene");
+  GridPlanner gp("robot_description","/joint_states","/planning_scene");
 #if 0
   gp.SetDof(7);
   gp.SetNumBasisFunctions(5);

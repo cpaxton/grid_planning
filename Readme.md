@@ -4,7 +4,14 @@ Chris Paxton
 
 This is the GRID-PLAN project (Grounded Robot Instruction from Demonstrations-Planning). The package has code for learning and planning based on human user demonstrations.
 
-Initially this project relies on segemented and labeled human demonstrations.
+Initially this project relies on segmented and labeled human demonstrations.
+
+Start the UR5 with:
+
+```
+roslaunch simple_ur_driver simple_ur_pd.launch 
+```
+
 
 ## Installation
 

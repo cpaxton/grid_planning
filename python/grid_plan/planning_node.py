@@ -121,6 +121,15 @@ class PyPlanner:
             self.command_topic='/arm_controller/command'
             dof = 6
 
+        elif preset == "ur5_with_joint_limits":
+            self.base_link = '/base_link'
+            self.end_link = '/ee_fixed_link'
+            robot_description="/robot_description"
+            joint_states_topic="/joint_states"
+            planning_scene_topic="/planning_scene"
+            self.command_topic='/arm_controller/command'
+            dof = 6
+
         self.traj_model = None
         self.gripper_topic = gripper_topic
         self.skill_topic = skill_topic

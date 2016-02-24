@@ -102,6 +102,12 @@ class RobotFeatures:
             js_topic='/joint_states'
             gripper_topic='/robotiq_c_model_gripper/gripper_command'
             self.sync_gripper = False
+        elif preset == 'ur5_with_joint_limits':
+            base_link='base_link'
+            end_link='ee_fixed_link'
+            js_topic='/joint_states'
+            gripper_topic='/robotiq_c_model_gripper/gripper_command'
+            self.sync_gripper = False
 
         self.dof = dof;
         self.world_frame = world_frame
@@ -174,7 +180,10 @@ class RobotFeatures:
             self.manip_obj = data['manip_obj']
             self.world_frame = data['world_frame']
             self.base_link = data['base_link']
-            self.end_link = data['end_link']
+            #self.end_link = data['end_link']
+            #print end_link
+            #print self.end_link
+            #print data['end_link']
 
             if data.has_key('indices') and data.has_key('diff_indices'):
                 self.indices = data['indices']
@@ -765,7 +774,7 @@ def LoadRobotFeatures(filename):
     r.base_tform = data['base_tform']
     r.world_frame = data['world_frame']
     r.base_link = data['base_link']
-    r.end_link = data['end_link']
+    #r.end_link = data['end_link']
 
     if data.has_key('indices'):
         r.indices = data['indices']
