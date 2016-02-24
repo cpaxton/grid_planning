@@ -60,6 +60,24 @@ namespace grid {
       if (not nh_tilde.getParam("test",p.test)) {
         p.test = 0;
       }
+      if (not nh_tilde.getParam("compute_statistics",p.compute_statistics)) {
+        p.compute_statistics = true;
+      }
+      if (not nh_tilde.getParam("distribution_noise",p.distribution_noise)) {
+        p.distribution_noise = 1e-8;
+      }
+      if (not nh_tilde.getParam("collision_detection_step",p.collision_detection_step)) {
+        p.collision_detection_step = 4;
+      }
+      if (not nh_tilde.getParam("replan_depth",p.replan_depth)) {
+        p.replan_depth = 4;
+      }
+      if (not nh_tilde.getParam("execute_depth",p.execute_depth)) {
+        p.execute_depth = p.max_horizon;
+      }
+      if (not nh_tilde.getParam("fixed_distribution_noise",p.fixed_distribution_noise)) {
+        p.fixed_distribution_noise = true;
+      }
 
       return p;
     }

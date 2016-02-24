@@ -57,7 +57,6 @@ namespace grid {
     best_p = LOW_PROBABILITY;
     cur_iter = 0;
     good_iter = 0;
-    good_iter = 0;
     best_idx = 0;
   }
 
@@ -67,17 +66,16 @@ namespace grid {
    * set all children to not done
    */
   void InstantiatedSkill::reset() {
-    done = false;
-    touched = false;
     model_norm = p.base_model_norm;
     best_p = LOW_PROBABILITY;
     cur_iter = 0;
     good_iter = 0;
     good_iter = 0;
-    if(dmp_dist) {
+    if(dmp_dist and touched) {
       //dmp_dist->initializePose(*features,*skill);
       dmp_dist->addNoise(0.0005);
     }
+    touched = false;
     best_idx = 0;
     for (double &d: iter_lls) {
       d = 0;
@@ -199,6 +197,10 @@ namespace grid {
     if(dmp_dist) {
       dmp_dist->addNoise(0.0001);
     }
+    for (double &t : T) {
+      t = 1;
+    }
+    updateTransitions();
     model_norm = p.base_model_norm;
     if (horizon > 0) {
       for (auto &child: next) {
@@ -269,10 +271,22 @@ namespace grid {
     initializeCounts(prev_counts,0u);
     accumulateProbs(prev_ps,len);
 
+    std::cout << "ID == " << id;
+    if (skill) std::cout << "(" << skill->getName() << ")";
+    std::cout << ", horizon == " << horizon;
+    std::cout << ", len == " << len;
+    std::cout << ", end pts = " << prev_end_pts.size();
+    std::cout << "\n";
+
     /************* SAMPLE TRAJECTORIES IF NECESSARY *************/
     if (not skill) {
       copyEndPoints(prev_end_pts, prev_ps, len);
       next_len = len;
+    } else if (done) {
+      next_len = 1;
+      my_ps[0] = MAX_PROBABILITY;
+      end_pts[0].positions = trajs[best_idx].points.rbegin()->positions;
+      end_pts[0].velocities = trajs[best_idx].points.rbegin()->velocities;
     } else {
 
       // sample start points
@@ -289,7 +303,7 @@ namespace grid {
         ps_out[idx] = 0;
       }
 
-      if (!skill->isStatic()) {
+      if (not skill->isStatic()) {
         // sample trajectories
         features->setUseDiff(true);
         next_len = dmp_dist->sample(start_pts,params,trajs,nsamples);
@@ -308,11 +322,6 @@ namespace grid {
 
       // compute probabilities
       for (unsigned int j = 0; j < nsamples; ++j) {
-
-        /*if (trajs[j].points.size() == 0) {
-          my_ps[j] = LOW_PROBABILITY;
-          continue;
-          }*/
 
         // TODO: speed this up
         std::vector<Pose> poses = robot->FkPos(trajs[j]);
@@ -351,10 +360,13 @@ namespace grid {
           continue;
         }
 
+        end_pts[j].positions.resize(robot->getDegreesOfFreedom());
+        end_pts[j].velocities.resize(robot->getDegreesOfFreedom());
+
         // set up all the end points!
         for (unsigned int ii = 0; ii < robot->getDegreesOfFreedom(); ++ii) {
-          end_pts[j].positions = trajs[j].points.rbegin()->positions;
-          end_pts[j].velocities = trajs[j].points.rbegin()->velocities;
+          end_pts[j].positions[ii] = trajs[j].points.rbegin()->positions[ii];
+          end_pts[j].velocities[ii] = trajs[j].points.rbegin()->velocities[ii];
         }
       }
     }
@@ -477,17 +489,16 @@ namespace grid {
 
       if (nsamples > 1) {
         dmp_dist->update(params,ps,nsamples,p.noise,p.step_size);
-        dmp_dist->addNoise(1e-10); 
-        //dmp_dist->addNoise(pow(0.1,(good_iter)+5));
+        if (p.fixed_distribution_noise) {
+          dmp_dist->addNoise(p.distribution_noise); 
+        } else {
+          dmp_dist->addNoise(pow(0.1,(good_iter)+4));
+        }
       }
     }
 
     // compute ll for this iteration
     iter_lls[cur_iter] = sum / p.ntrajs;
-
-    if (cur_iter > 0 and fabs(iter_lls[cur_iter]-iter_lls[cur_iter]) < 1e-2*iter_lls[cur_iter]) {
-      done = true;
-    }
 
     // decrease normalization
     if (cur_iter > 0 and 
@@ -516,7 +527,7 @@ namespace grid {
    * use gripper tool to send messages
    */
   bool InstantiatedSkill::execute(GridPlanner &gp, actionlib::SimpleActionClient<grid_plan::CommandAction> &ac,
-                                  int horizon, bool replan)
+                                  int horizon, bool replan, int replan_depth)
   {
 
 
@@ -529,11 +540,15 @@ namespace grid {
     } else {
       std::cout << "n/a\n";
     }
-    std::cout << "Replanning? " << replan << "\n";
-    std::cout << "best idx = " << best_idx << "\n";
+    std::cout << "Replanning? " << replan << ": ";
+    std::cout << "best idx = " << best_idx << ", ";
     std::cout << "best p = " << best_p << "\n";
 
+
     if (not touched) {
+      replan = true;
+    } else if (horizon > 0 and not next[0]->touched) {
+      std::cout << "Child not touched yet!\n";
       replan = true;
     }
 
@@ -550,13 +565,13 @@ namespace grid {
       cmd.values = features->getIds();
     }
 
-
     std::cout << "waiting for server... (" << horizon << ")\n";
     ac.waitForServer();
     std::cout << "sending command...\n";
     ac.sendGoal(cmd);
     std::cout << "waiting for result\n";
     ac.waitForResult();
+    done = true;
 
     if (horizon > 0 && next.size() > 0) {
       // replan if necessary
@@ -585,19 +600,25 @@ namespace grid {
         reset();
         double probability = MAX_PROBABILITY;
         int my_horizon = horizon;
+        if (replan_depth > 0) {
+          std::cout << "setting replan depth: ";
+          my_horizon = replan_depth;
+          std::cout << "horizon = " << my_horizon << "\n";
+        } else {
+          std::cout << "horizon = " << my_horizon << "\n";
+        }
         for (unsigned int i = 0; i < p.iter; ++i) {
 
           assert(ros::ok());
           ros::spinOnce();
           features->updateWorldfromTF();
 
-          //step(start_ps,starts,next_ps,probability,1,horizon,p.ntrajs);
           step(start_ps,starts,next_ps,probability,1,my_horizon,p.ntrajs);
           publish();
 
           //replan = false;
           if (i > 0 and fabs(iter_lls[i] - iter_lls[i-1]) < (p.update_horizon * iter_lls[i])) {
-            if (my_horizon < horizon) {
+            if (not replan_depth and my_horizon < horizon) {
               my_horizon++;
               refresh(my_horizon);
             } else {
@@ -618,8 +639,9 @@ namespace grid {
       }
 
       //replan = replan or (skill and skill->isStatic());
-      return next[idx]->execute(gp,ac,horizon-1,false);
+      return next[idx]->execute(gp,ac,horizon-1,false,replan_depth);
     } else {
+      std::cout << "Execution done: " << horizon << ", " << next.size() << "\n";
       return true;
     }
   }

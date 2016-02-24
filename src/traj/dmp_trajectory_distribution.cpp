@@ -239,7 +239,7 @@ namespace grid {
 
       if (ik_result < 0) {
         ++ik_tries;
-        if (ik_tries > 10*nsamples) {
+        if (ik_tries > 2*nsamples) {
           std::cerr << __FILE__ << ":" << __LINE__ << ": We are really having trouble with IK!\n";
           for (unsigned int i = 0; i < POSE_RPY_SIZE; ++i) {
             std::cout << params[sample][i];
@@ -309,7 +309,7 @@ namespace grid {
         if (collision) {
           //std::cout << "COLLISION DETECTED!\n";
           ++ik_tries;
-          if (ik_tries > 10*nsamples) {
+          if (ik_tries > 2*nsamples) {
             std::cerr << __FILE__ << ":" << __LINE__ << ": We are really having trouble with collisions!\n";
             break;
           } else {

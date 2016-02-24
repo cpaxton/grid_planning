@@ -5,8 +5,7 @@
 namespace grid {
 
 
-  void load_and_train_skill(Skill &skill, RobotKinematicsPtr &rk_ptr, const std::string filenames[], unsigned int len, unsigned int k) {
-    /* LOAD TRAINING DATA FOR GRASP*/
+  void load_and_train_skill(Skill &skill, RobotKinematicsPtr &rk_ptr, const std::string filenames[], unsigned int len, int *downsample) {
 
     if (len == 0) {
       len = 3;
@@ -22,14 +21,18 @@ namespace grid {
       wtf_ex->setUseDiff(not skill.isStatic());
       wtf_ex->addFeature("time",TIME_FEATURE);
       wtf_ex->setRobotKinematics(rk_ptr);
-      wtf_ex->read(filenames[i],10);
+      if (not downsample) {
+        wtf_ex->read(filenames[i],10);
+      } else {
+        wtf_ex->read(filenames[i],downsample[i]);
+      }
       if (skill.hasAttachedObject()) {
         wtf_ex->attachObjectFrame(skill.getAttachedObject());
       }
       wtf[i] = wtf_ex;
     }
 
-    // add each skill
+    // add data to each skill
     for (unsigned int i = 0; i < len; ++i) {
       skill.addTrainingData(*wtf[i]);
     }
@@ -40,21 +43,15 @@ namespace grid {
       wtf_ex->setUseDiff(not skill.isStatic());
       wtf_ex->addFeature("time",TIME_FEATURE);
       wtf_ex->setRobotKinematics(rk_ptr);
-      wtf_ex->read(filenames[i],10);
+      if (not downsample) {
+        wtf_ex->read(filenames[i],10);
+      } else {
+        wtf_ex->read(filenames[i],downsample[i]);
+      }
       if (skill.hasAttachedObject()) {
         wtf_ex->attachObjectFrame(skill.getAttachedObject());
       }
       std::vector<FeatureVector> data = wtf_ex->getFeatureValues(skill.getFeatures());
-
-#if 0
-      for (FeatureVector &vec: data) {
-        std::pair<FeatureVector,double> obs(vec,1.0);
-        for (unsigned int i = 0; i < vec.size(); ++i) {
-          std::cout << vec(i) << " ";
-        }
-        std::cout << std::endl;
-      }
-#endif
 
       skill.normalizeData(data);
       FeatureVector v = skill.logL(data);

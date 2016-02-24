@@ -10,7 +10,7 @@ namespace grid {
                             RobotKinematicsPtr &rk_ptr,
                             const std::string filenames[],
                             unsigned int len = 0,
-                            unsigned int k = 1);
+                            int *downsample = 0);
 }
 
 #endif

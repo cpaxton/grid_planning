@@ -210,7 +210,8 @@ namespace grid {
     bool execute(GridPlanner &gp,
                  actionlib::SimpleActionClient<grid_plan::CommandAction> &ac,
                  int horizon,
-                 bool replan = false);
+                 bool replan = false,
+                 int replan_depth = 0);
 
 
     // randomly sample an index from the probabilities

@@ -69,10 +69,10 @@ int main(int argc, char **argv) {
   gp.SetDefaultCollisions("wam/hand/finger_2/prox_link",true);
   gp.SetDefaultCollisions("wam/hand/finger_3/prox_link",true);
   gp.SetDefaultCollisions("wam/shoulder_yaw_link",true);
-  gp.SetDefaultCollisions("wam/upper_arm_link",true);
+  //gp.SetDefaultCollisions("wam/upper_arm_link",true);
   gp.SetDefaultCollisions("wam/base_link",true);
   gp.SetDefaultCollisions("wam/shoulder_pitch_link",true);
-  gp.SetDefaultCollisions("wam/forearm_link",true);
+  //gp.SetDefaultCollisions("wam/forearm_link",true);
   gp.SetDefaultCollisions("wam/wrist_pitch_link",true);
   gp.SetDefaultCollisions("wam/wrist_yaw_link",true);
   gp.SetDefaultCollisions("wam/hand/bhand_grasp_link",true);
@@ -85,9 +85,9 @@ int main(int argc, char **argv) {
   gp2.SetCollisions("gbeam_soup",true);
 
   // disable a bunch of collisions
-  gp2.SetDefaultCollisions("wam/hand/finger_1/prox_link",true);
-  gp2.SetDefaultCollisions("wam/hand/finger_2/prox_link",true);
-  gp2.SetDefaultCollisions("wam/hand/finger_3/prox_link",true);
+  //gp2.SetDefaultCollisions("wam/hand/finger_1/prox_link",true);
+  //gp2.SetDefaultCollisions("wam/hand/finger_2/prox_link",true);
+  //gp2.SetDefaultCollisions("wam/hand/finger_3/prox_link",true);
   gp2.SetDefaultCollisions("wam/shoulder_yaw_link",true);
   //gp2.SetDefaultCollisions("wam/upper_arm_link",true);
   gp2.SetDefaultCollisions("wam/base_link",true);
@@ -189,11 +189,6 @@ int main(int argc, char **argv) {
   root->addNext(app2);
   root->addNext(app3);
 
-#if 0
-  app1->addNext(disengage1);
-  app2->addNext(disengage2);
-#endif
-
   app1->addNext(grasp1); app1->pub = &pub;
   app2->addNext(grasp2); app2->pub = &pub;
   app3->addNext(grasp3); app3->pub = &pub;
@@ -292,17 +287,6 @@ int main(int argc, char **argv) {
     ps[0] = 0.; // set prior
     root->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
 
-#if 0
-    align22->useCurrentFeatures = true;
-    align22->updateCurrentAttachedObjectFrame();
-    place22->useCurrentFeatures = true;
-    place22->updateCurrentAttachedObjectFrame();
-    release22->useCurrentFeatures = true;
-    release22->updateCurrentAttachedObjectFrame();
-    //place22->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
-    align22->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
-#endif
-
     /* PUT EVERYTHING INTO SOME MESSAGES */
     {
       load_to_one_array(approaches,approach_trajs);
@@ -351,7 +335,7 @@ int main(int argc, char **argv) {
   }
 
   // execute here
-  root->execute(gp,ac,p.max_horizon,false);
+  root->execute(gp,ac,p.execute_depth,false,p.replan_depth);
   //align22->execute(gp,ac,horizon-1,true);
 
 }
