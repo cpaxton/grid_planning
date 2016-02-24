@@ -12,7 +12,7 @@
 #include "normal.h"
 #include <iostream>
 
-#define DEBUG
+//#define DEBUG
 
 namespace gcop {
   using namespace Eigen;
@@ -295,8 +295,6 @@ namespace gcop {
           }
 
           ws[i] = t1/N;
-
-          std::cout << "Weight " << i << " = " << ws[i] << "\n";
 
           VectorXd mu = t2/t1;
 

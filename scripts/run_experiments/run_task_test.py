@@ -72,7 +72,7 @@ try:
     for test in range(0,4):
 
         test_cmd = ["rosrun","grid_plan"] + [executables[test]]
-        for i in range(2,11):
+        for i in range(1,11):
 
             name = 'double%d:=true'%(i)
             print name
@@ -141,7 +141,8 @@ finally:
     i = 0
     for final_test in final:
         i += 1
+        print "test case %d:"%(i)
         for pose in final_test:
-            print "test case %d: %f"%(i,pose.p.Norm())
+            print "%f %f %f %f"%(pose.p.Norm(), pose.p.x(), pose.p.y(), pose.p.z())
 
 
