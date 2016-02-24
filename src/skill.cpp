@@ -210,7 +210,7 @@ namespace grid {
       std::cout << "Mean = " << mean.transpose() << "\n";
 
       // finish computing std dev
-      std += EigenVectornd::Constant(std.size(),1,1);
+      std += EigenVectornd::Constant(std.size(),1,0.1);
       std /= training_data.size();
       std = std.cwiseSqrt();
       std = std.cwiseInverse();

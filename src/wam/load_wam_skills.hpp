@@ -93,14 +93,14 @@ namespace grid {
 
     std::unordered_map<std::string, SkillPtr> skills;
 
-    SkillPtr approach(new Skill("approach",2));
-    SkillPtr approach_right(new Skill("approach_right",2));
-    SkillPtr approach_left(new Skill("approach_left",2));
+    SkillPtr approach(new Skill("approach",3));
+    SkillPtr approach_right(new Skill("approach_right",3));
+    SkillPtr approach_left(new Skill("approach_left",3));
     SkillPtr grasp(new Skill("grasp",1));
-    SkillPtr align(new Skill("align",2));
-    SkillPtr place(new Skill("place",2));
+    SkillPtr align(new Skill("align",3));
+    SkillPtr place(new Skill("place",3));
     SkillPtr release(new Skill("release",1));
-    SkillPtr disengage(new Skill("disengage",2));
+    SkillPtr disengage(new Skill("disengage",3));
 
     /* SET UP THE SKILLS */
     approach->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false).setPrior(3.0 / 6.0);

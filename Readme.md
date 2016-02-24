@@ -149,9 +149,10 @@ Good places to start experiments:
 ```
 rosrun grid_plan task_test _step_size:=0.5 _iter:=25 _ntrajs:=200 _starting_horizon:=5 _max_horizon:=5 _detect_collisions:=true _wait:=0 _collisions_verbose:=false _base_model_norm:=0.001 _model_norm_step=1 _update_horizon:=0.01
 rosrun grid_plan task_test _step_size:=0.5 _iter:=15 _ntrajs:=200 _starting_horizon:=5 _max_horizon:=5 _detect_collisions:=true _wait:=0 _collisions_verbose:=false _base_model_norm:=0.0001 _model_norm_step=1 _update_horizon:=0.0001
+rosrun grid_plan task_test _step_size:=0.5 _iter:=15 _ntrajs:=100 _starting_horizon:=5 _max_horizon:=5 _detect_collisions:=true _wait:=0 _collisions_verbose:=false _base_model_norm:=0.01 _model_norm_step=1 _update_horizon:=0.0001 _replan_depth:=0 _execute_depth:=5 _collision_detection_step:=2 _fixed_distribution_noise:=true _test:=0
 ```
 
-Note the decreased model norm from the previous version.
+Note the decreased model norm from the previous version. I changed back to adding a higher norm after switching to k=3 components.
 
 ## Guide to Files
 
