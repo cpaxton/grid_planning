@@ -9,10 +9,10 @@ namespace grid {
 
     SkillPtr approach(new Skill("approach",3));
     SkillPtr approach_right(new Skill("approach_right",3));
-    SkillPtr approach_left(new Skill("approach_left",3));
+    SkillPtr approach_left(new Skill("approach_left",2));
     SkillPtr grasp(new Skill("grasp",1));
     SkillPtr align(new Skill("align",3));
-    SkillPtr place(new Skill("place",2));
+    SkillPtr place(new Skill("place",3));
     SkillPtr release(new Skill("release",1));
     SkillPtr disengage(new Skill("disengage",3));
 

@@ -24,7 +24,8 @@ listener = tf.TransformListener()
 procs = []
 final = [[],[],[],[],[],[],[],[]]
 
-executables = ["simple_test","simple_test","task_test","task_test"]
+executables = ["simple_test","simple_test","task_test","task_test",
+        "simple_test","simple_test","task_test","task_test"]
 
 reset_cmd = ["rosrun","grid_experiments","reset.py"]
 target_cmd = ["roslaunch","grid_plan","test_targets.launch"]
@@ -37,7 +38,7 @@ task_args = ["_step_size:=0.5",
         "_detect_collisions:=true",
         "_wait:=0",
         "_collisions_verbose:=0",
-        "_base_model_norm:=0.001",
+        "_base_model_norm:=0.0005",
         "_model_norm_step:=1",
         "_update_horizon:=0.0001",
         "_compute_statistics:=true",
@@ -54,7 +55,7 @@ single_args = ["_step_size:=0.5",
         "_detect_collisions:=true",
         "_wait:=0",
         "_collisions_verbose:=0",
-        "_base_model_norm:=0.001",
+        "_base_model_norm:=0.0005",
         "_model_norm_step:=1",
         "_update_horizon:=0.0001",
         "_compute_statistics:=true",
@@ -71,6 +72,8 @@ args = [single_args+human_arg,task_args+human_arg,single_args+human_arg,task_arg
 
 try:
     for test in range(0,8):
+
+        print "Running test case %d..."%test
 
         test_cmd = ["rosrun","grid_plan"] + [executables[test]]
         for i in range(1,11):
