@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
     checker2 = &gp;
   }
 
-  std::string ee("ee_link");
+  std::string ee("ee_fixed_link");
   std::unordered_map<std::string, SkillPtr> skills;
   if (p.test == 0) {
     skills = loadSkills(ee);

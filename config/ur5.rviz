@@ -4,15 +4,24 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
+        - /Global Options1
+        - /TF1
+        - /TF1/Frames1
         - /TF1/Tree1
+        - /UR51
+        - /UR51/Status1
+        - /endpoint1
+        - /endpoint1/Status1
         - /InteractiveMarkers1/Status1
         - /DBG EE1
-        - /DBG EE LINK1
-        - /DBG EE NODE1
         - /PlanningScene1
-        - /PlanningScene1/Scene Geometry1
-      Splitter Ratio: 0.531496
-    Tree Height: 853
+        - /PlanningScene1/Scene Robot1
+        - /PlanningScene1/Scene Robot1/Links1
+        - /PoseArray1
+        - /PoseArray1/Status1
+        - /PoseArray2
+      Splitter Ratio: 0.810313
+    Tree Height: 882
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -99,7 +108,7 @@ Visualization Manager:
         Obj::link_uniform::10:
           Value: false
         Obj::link_uniform::2:
-          Value: true
+          Value: false
         Obj::link_uniform::3:
           Value: false
         Obj::link_uniform::4:
@@ -117,7 +126,7 @@ Visualization Manager:
         Obj::node_uniform::10:
           Value: false
         Obj::node_uniform::2:
-          Value: true
+          Value: false
         Obj::node_uniform::3:
           Value: false
         Obj::node_uniform::4:
@@ -140,23 +149,39 @@ Visualization Manager:
           Value: false
         camera_2/ar_marker_0:
           Value: false
+        camera_2/ar_marker_1:
+          Value: false
+        camera_2/ar_marker_111:
+          Value: false
+        camera_2/ar_marker_132:
+          Value: false
+        camera_2/ar_marker_133:
+          Value: false
         camera_2/ar_marker_137:
-          Value: true
+          Value: false
+        camera_2/ar_marker_145:
+          Value: false
         camera_2/ar_marker_153:
           Value: false
         camera_2/ar_marker_159:
           Value: false
+        camera_2/ar_marker_196:
+          Value: false
         camera_2/ar_marker_2:
           Value: false
         camera_2/ar_marker_23:
-          Value: true
+          Value: false
+        camera_2/ar_marker_240:
+          Value: false
         camera_2/ar_marker_241:
-          Value: true
+          Value: false
         camera_2/ar_marker_242:
           Value: false
         camera_2/ar_marker_243:
-          Value: true
+          Value: false
         camera_2/ar_marker_244:
+          Value: false
+        camera_2/ar_marker_245:
           Value: false
         camera_2/ar_marker_246:
           Value: false
@@ -167,13 +192,25 @@ Visualization Manager:
         camera_2/ar_marker_249:
           Value: false
         camera_2/ar_marker_250:
-          Value: true
+          Value: false
+        camera_2/ar_marker_252:
+          Value: false
+        camera_2/ar_marker_253:
+          Value: false
         camera_2/ar_marker_254:
           Value: false
         camera_2/ar_marker_255:
           Value: false
+        camera_2/ar_marker_5:
+          Value: false
+        camera_2/ar_marker_64:
+          Value: false
+        camera_2/ar_marker_68:
+          Value: false
+        camera_2/ar_marker_8:
+          Value: false
         camera_2/ar_marker_96:
-          Value: true
+          Value: false
         camera_2_depth_frame:
           Value: false
         camera_2_depth_optical_frame:
@@ -184,27 +221,69 @@ Visualization Manager:
           Value: false
         camera_2_rgb_optical_frame:
           Value: false
+        close:
+          Value: false
+        ee_fixed_link:
+          Value: false
         ee_link:
           Value: false
         endpoint:
+          Value: false
+        endpoint_interact:
           Value: false
         endpoint_marker:
           Value: false
         filtered/camera_2/ar_marker_0:
           Value: false
+        filtered/camera_2/ar_marker_196:
+          Value: false
         filtered/camera_2/ar_marker_2:
           Value: false
         filtered/camera_2/ar_marker_244:
           Value: false
+        filtered/camera_2/ar_marker_249:
+          Value: false
         filtered/camera_2/ar_marker_255:
           Value: false
+        filtered/camera_2/ar_marker_68:
+          Value: false
         forearm_link:
+          Value: false
+        goal/base_link:
+          Value: false
+        goal/ee_fixed_link:
+          Value: false
+        goal/ee_link:
+          Value: false
+        goal/forearm_link:
+          Value: false
+        goal/shoulder_link:
+          Value: false
+        goal/upper_arm_link:
+          Value: false
+        goal/wrist_1_link:
+          Value: false
+        goal/wrist_2_link:
+          Value: false
+        goal/wrist_3_link:
+          Value: false
+        grab:
+          Value: false
+        kel--0:
+          Value: false
+        kel--1:
+          Value: false
+        kel--2:
+          Value: false
+        kel--3:
           Value: false
         landmark_0:
           Value: false
         landmark_2:
           Value: false
         landmark_244:
+          Value: false
+        landmark_249:
           Value: false
         landmark_255:
           Value: false
@@ -242,6 +321,14 @@ Visualization Manager:
           Value: false
         start:
           Value: false
+        suck1:
+          Value: false
+        suck2:
+          Value: false
+        suck3:
+          Value: false
+        test:
+          Value: false
         upper_arm_link:
           Value: false
         world:
@@ -269,61 +356,23 @@ Visualization Manager:
                   camera_2_rgb_optical_frame:
                     Obj::link_uniform::1:
                       {}
-                    Obj::link_uniform::2:
-                      {}
-                    Obj::link_uniform::3:
-                      {}
-                    Obj::link_uniform::4:
-                      {}
-                    Obj::link_uniform::5:
-                      {}
                     Obj::node_uniform::1:
                       {}
                     Obj::node_uniform::2:
                       {}
-                    Obj::node_uniform::3:
-                      {}
-                    Obj::node_uniform::4:
-                      {}
-                    Obj::node_uniform::5:
-                      {}
-                    Obj::node_uniform::6:
-                      {}
-                    Obj::node_uniform::7:
-                      {}
-                    Obj::node_uniform::8:
-                      {}
                     camera_2/ar_marker_0:
                       {}
-                    camera_2/ar_marker_137:
+                    camera_2/ar_marker_1:
                       {}
-                    camera_2/ar_marker_2:
-                      {}
-                    camera_2/ar_marker_23:
-                      {}
-                    camera_2/ar_marker_241:
-                      {}
-                    camera_2/ar_marker_243:
-                      {}
-                    camera_2/ar_marker_244:
-                      {}
-                    camera_2/ar_marker_246:
-                      {}
-                    camera_2/ar_marker_247:
-                      {}
-                    camera_2/ar_marker_248:
-                      {}
-                    camera_2/ar_marker_249:
-                      {}
-                    camera_2/ar_marker_250:
-                      {}
-                    camera_2/ar_marker_254:
+                    camera_2/ar_marker_196:
                       {}
                     camera_2/ar_marker_255:
                       {}
-                    camera_2/ar_marker_96:
+                    camera_2/ar_marker_64:
                       {}
               endpoint:
+                endpoint_interact:
+                  {}
                 endpoint_marker:
                   {}
               shoulder_link:
@@ -332,46 +381,26 @@ Visualization Manager:
                     wrist_1_link:
                       wrist_2_link:
                         wrist_3_link:
-                          ee_link:
-                            camera_1_link:
-                              {}
-                            robotiq_85_adapter_link:
-                              robotiq_85_base_link:
-                                robotiq_85_left_inner_knuckle_link:
-                                  robotiq_85_left_finger_tip_link:
-                                    {}
-                                robotiq_85_left_knuckle_link:
-                                  robotiq_85_left_finger_link:
-                                    {}
-                                robotiq_85_right_inner_knuckle_link:
-                                  robotiq_85_right_finger_tip_link:
-                                    {}
-                                robotiq_85_right_knuckle_link:
-                                  robotiq_85_right_finger_link:
-                                    {}
-          filtered/camera_2/ar_marker_0:
-            {}
-          filtered/camera_2/ar_marker_244:
-            {}
-          landmark_0:
-            {}
-          landmark_2:
-            {}
-          landmark_244:
-            {}
-          landmark_255:
-            {}
-          sand--0:
-            {}
-          sand--1:
-            {}
-          sand--2:
-            {}
-          sand--3:
-            {}
-          sand--4:
+                          ee_fixed_link:
+                            {}
+            goal/base_link:
+              goal/shoulder_link:
+                goal/upper_arm_link:
+                  goal/forearm_link:
+                    goal/wrist_1_link:
+                      goal/wrist_2_link:
+                        goal/wrist_3_link:
+                          goal/ee_fixed_link:
+                            {}
+          grab:
             {}
           start:
+            {}
+          suck1:
+            {}
+          suck2:
+            {}
+          suck3:
             {}
       Update Interval: 0
       Value: true
@@ -404,7 +433,7 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        ee_link:
+        ee_fixed_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -459,12 +488,12 @@ Visualization Manager:
       Reference Frame: camera_2/ar_marker_2
       Value: false
     - Class: rviz/Axes
-      Enabled: false
+      Enabled: true
       Length: 0.05
       Name: endpoint marker
       Radius: 0.01
       Reference Frame: endpoint_marker
-      Value: false
+      Value: true
     - Class: rviz/Axes
       Enabled: true
       Length: 0.05
@@ -505,24 +534,24 @@ Visualization Manager:
     - Arrow Length: 0.05
       Class: rviz/PoseArray
       Color: 255; 25; 0
-      Enabled: true
+      Enabled: false
       Name: DBG EE
       Topic: /dbg_ee
-      Value: true
+      Value: false
     - Arrow Length: 0.05
       Class: rviz/PoseArray
       Color: 0; 170; 0
-      Enabled: true
+      Enabled: false
       Name: DBG EE LINK
       Topic: /dbg_ee_link
-      Value: true
+      Value: false
     - Arrow Length: 0.05
       Class: rviz/PoseArray
       Color: 0; 0; 255
-      Enabled: true
+      Enabled: false
       Name: DBG EE NODE
       Topic: /dbg_ee_node
-      Value: true
+      Value: false
     - Class: moveit_rviz_plugin/PlanningScene
       Enabled: false
       Move Group Namespace: ""
@@ -587,6 +616,20 @@ Visualization Manager:
         Show Robot Collision: false
         Show Robot Visual: false
       Value: false
+    - Arrow Length: 0.1
+      Class: rviz/PoseArray
+      Color: 255; 25; 0
+      Enabled: true
+      Name: PoseArray
+      Topic: /debugIK
+      Value: true
+    - Arrow Length: 0.3
+      Class: rviz/PoseArray
+      Color: 255; 25; 0
+      Enabled: true
+      Name: PoseArray
+      Topic: trajectory_examples_1
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -611,30 +654,30 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 6.33864
+      Distance: 2.81576
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.60915
-        Y: -0.0516534
-        Z: -0.352408
+        X: 0.731139
+        Y: -0.224141
+        Z: -0.0679338
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.544796
+      Pitch: 0.194796
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 2.11544
+      Yaw: 2.17129
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
-  Height: 1026
+  Height: 1055
   Hide Left Dock: false
-  Hide Right Dock: true
-  QMainWindow State: 000000ff00000000fd0000000400000000000001fe000003e4fc0200000009fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000006400fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c0061007900730100000000000003e4000000dd00fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000000a0049006d0061006700650000000316000000ce0000000000000000000000010000010f0000022dfc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a0056006900650077007300000000280000022d000000b000fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e100000197000000030000034a0000003efc0100000002fb0000000800540069006d006500000000000000034a000002f600fffffffb0000000800540069006d0065010000000000000450000000000000000000000342000003e400000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730000000000ffffffff0000000000000000
+  Hide Right Dock: false
+  QMainWindow State: 000000ff00000000fd00000004000000000000021e00000401fc020000000afb0000001200530065006c0065006300740069006f006e00000001e10000009b0000006400fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000000000000401000000dd00fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000000a0049006d0061006700650000000316000000ce0000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e006701000002770000018a0000000000000000000000010000010f0000022dfc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a0056006900650077007300000000280000022d000000b000fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e100000197000000030000034a0000003efc0100000002fb0000000800540069006d006500000000000000034a000002f600fffffffb0000000800540069006d006501000000000000045000000000000000000000055c0000040100000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730000000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:
@@ -643,6 +686,6 @@ Window Geometry:
     collapsed: false
   Views:
     collapsed: false
-  Width: 1350
-  X: 558
-  Y: 25
+  Width: 1920
+  X: 0
+  Y: 24
