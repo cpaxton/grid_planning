@@ -12,14 +12,14 @@ namespace grid {
     SkillPtr approach_left(new Skill("approach_left",3));
     SkillPtr grasp(new Skill("grasp",1));
     SkillPtr align(new Skill("align",3));
-    SkillPtr place(new Skill("place",3));
+    SkillPtr place(new Skill("place",2));
     SkillPtr release(new Skill("release",1));
     SkillPtr disengage(new Skill("disengage",3));
 
     /* SET UP THE SKILLS */
-    approach->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false).setPrior(3.0 / 6.0);
-    approach_left->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false).setPrior(1.0 / 6.0);
-    approach_right->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false).setPrior(2.0 / 6.0);
+    approach->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false).setPrior(6.0 / 9.0);
+    approach_left->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false).setPrior(1.0 / 9.0);
+    approach_right->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false).setPrior(2.0 / 9.0);
     grasp->appendFeature("link").setInitializationFeature("link").setStatic(true);
     align->appendFeature("node").appendFeature("time").setInitializationFeature("node").attachObject("link").setStatic(false);
     place->appendFeature("node").appendFeature("time").setInitializationFeature("node").attachObject("link").setStatic(false);
@@ -36,9 +36,9 @@ namespace grid {
       std::string filenames[] = {"data/sim/approach01.bag",
         "data/sim/approach02.bag",
         "data/sim/approach03.bag",
-        "data/sim_auto/approach1.bag",
-        "data/sim_auto/approach2.bag",
-        "data/sim_auto/approach3.bag"
+        "data/sim_auto/approach01.bag",
+        "data/sim_auto/approach02.bag",
+        "data/sim_auto/approach03.bag"
       };
       load_and_train_skill(*approach, rk_ptr, filenames, 6, &downsampling[0]);
     }
@@ -65,9 +65,9 @@ namespace grid {
       std::string filenames[] = {"data/sim/align1.bag",
         "data/sim/align2.bag",
         "data/sim/align3.bag",
-        "data/sim_auto/align1.bag",
-        "data/sim_auto/align2.bag",
-        "data/sim_auto/align3.bag"
+        "data/sim_auto/align01.bag",
+        "data/sim_auto/align02.bag",
+        "data/sim_auto/align03.bag"
       };
       load_and_train_skill(*align, rk_ptr, filenames, 6, &downsampling[0]);
     }
@@ -76,9 +76,9 @@ namespace grid {
       int downsampling[] = {10,10,0,0,0};
       std::string filenames[] = {"data/sim/place1.bag",
         "data/sim/place3.bag",
-        "data/sim_auto/place1.bag",
-        "data/sim_auto/place2.bag",
-        "data/sim_auto/place3.bag"
+        "data/sim_auto/place01.bag",
+        "data/sim_auto/place02.bag",
+        "data/sim_auto/place03.bag"
       };
       load_and_train_skill(*place, rk_ptr, filenames, 5, &downsampling[0]);
     }
