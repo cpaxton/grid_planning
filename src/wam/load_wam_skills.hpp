@@ -132,8 +132,9 @@ namespace grid {
     }
     /* LOAD TRAINING DATA FOR GRASP */
     {
-      std::string filenames[] = {"data/sim/grasp01.bag", "data/sim/grasp02.bag", "data/sim/grasp03.bag"};
-      load_and_train_skill(*grasp, rk_ptr, filenames, 3);
+      std::string filenames[] = {"data/sim/grasp01.bag", "data/sim/grasp02.bag", "data/sim/grasp03.bag",
+        "data/sim/grasp1.bag", "data/sim/grasp2.bag", "data/sim/grasp3.bag"};
+      load_and_train_skill(*grasp, rk_ptr, filenames, 6);
     }
     /* LOAD TRAINING DATA FOR ALIGN */
     {
