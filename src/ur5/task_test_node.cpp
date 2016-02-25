@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
 
   Params p = readRosParams();
   RobotKinematicsPtr robot = RobotKinematicsPtr(new RobotKinematics("robot_description","base_link","ee_fixed_link"));
-  GridPlanner gp("robot_description","/joint_states","/gazebo/raw_planning_scene",0.05);
+  GridPlanner gp("robot_description","joint_states","planning_scene",0.05);
   gp.SetDof(robot->getDegreesOfFreedom());
   gp.SetCollisions("gbeam_soup.gbeam_link_1",true);
   gp.SetCollisions("gbeam_soup.gbeam_link_2",true);
@@ -76,18 +76,15 @@ int main(int argc, char **argv) {
     checker2 = &gp;
   }
 
-  ros::ServiceClient client = nh.serviceClient<std_srvs::Empty>("/gazebo/publish_planning_scene");
-  std_srvs::Empty empty;
-  client.call(empty);
-
+  std::string ee("ee_link");
   std::unordered_map<std::string, SkillPtr> skills;
   if (p.test == 0) {
-    skills = loadSkills();
+    skills = loadSkills(ee);
   } else if (p.test == 1) {
     //skills = loadWamSkillsAuto();
     exit(-1);
   }
-  std::unordered_map<std::string, TestFeaturesPtr> features = setupTestFeaturesForTrials();
+  std::unordered_map<std::string, TestFeaturesPtr> features = setupTestFeaturesForTrials(ee);
 
   InstantiatedSkillPtr root = InstantiatedSkill::Root();
 

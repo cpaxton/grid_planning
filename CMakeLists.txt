@@ -176,7 +176,7 @@ add_executable(dmp_execution_test src/test/dmp_execution_test_node.cpp)
 add_executable(moveit_robot_model_test src/test/moveit_robot_test.cpp)
 
 add_executable(task_test src/task_test_node.cpp)
-add_executable(ur5_task_test src/task_test_node.cpp)
+add_executable(ur5_task_test src/ur5/task_test_node.cpp)
 add_executable(simple_test src/simple_test_node.cpp)
 add_executable(align_test src/align_test_node.cpp)
 
