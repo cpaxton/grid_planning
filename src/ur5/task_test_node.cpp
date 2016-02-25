@@ -130,7 +130,7 @@ int main(int argc, char **argv) {
   InstantiatedSkillPtr release21 = InstantiatedSkill::DmpInstance(skills["release_node"], features["node1,link1"], robot, nbasis, checker);
 
   root->addNext(app1); 
-  root->addNext(app2);
+  //root->addNext(app2);
 
   app1->addNext(grasp1); app1->pub = &pub;
   app2->addNext(grasp2); app2->pub = &pub;
