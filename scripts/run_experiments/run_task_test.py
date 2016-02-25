@@ -22,7 +22,7 @@ def lookup(frame1,frame2):
 rospy.init_node('run_task_test_master')
 listener = tf.TransformListener()
 procs = []
-final = [[],[],[],[]]
+final = [[],[],[],[],[],[],[],[]]
 
 executables = ["simple_test","simple_test","task_test","task_test"]
 
@@ -45,7 +45,6 @@ task_args = ["_step_size:=0.5",
         "_replan_depth:=0",
         "_execute_depth:=5",
         "_fixed_distribution_noise:=true",
-        "_test:=0",
         ]
 single_args = ["_step_size:=0.5",
         "_iter:=15",
@@ -63,13 +62,15 @@ single_args = ["_step_size:=0.5",
         "_replan_depth:=1",
         "_execute_depth:=5",
         "_fixed_distribution_noise:=true",
-        "_test:=0",
         ]
+human_arg = ["_test:=0"];
+auto_arg = ["_test:=1"];
 
-args = [single_args,task_args,single_args,task_args]
+args = [single_args+human_arg,task_args+human_arg,single_args+human_arg,task_args+human_arg,
+        single_args+auto_arg,task_args+auto_arg,single_args+auto_arg,task_args+auto_arg]
 
 try:
-    for test in range(0,4):
+    for test in range(0,8):
 
         test_cmd = ["rosrun","grid_plan"] + [executables[test]]
         for i in range(1,11):

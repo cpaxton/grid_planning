@@ -219,8 +219,8 @@ namespace gcop {
         for (auto &pair: xps) {
           weight_sum += pair.second;
         }
-        if (fabs(weight_sum - 1) < tol) {
-          std::cout << "Weights added up to " << weight_sum << "... " << fabs(weight_sum - 1) << std::endl;
+        if (fabs(weight_sum - 1) >= tol) {
+          //std::cout << "Weights added up to " << weight_sum << "... " << fabs(weight_sum - 1) << std::endl;
           assert(fabs(weight_sum - 1) < tol);
         }
       }
@@ -304,12 +304,15 @@ namespace gcop {
 
           ns[i].mu = mu;
           //ns[i].P = (t3 - t2*(t2.transpose()/t1))/t1;        
+
+#if 1
           ns[i].P.setZero();
           for (int j = 0; j < N; ++j) {
             const VectorXd &x = xps[j].first;
             VectorXd Px = ((ps[j][i]*x) - mu);
             ns[i].P += Px * Px.transpose() / t1;
           }
+#endif
           if (S)
             ns[i].P += *S;
 
