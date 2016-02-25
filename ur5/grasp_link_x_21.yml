@@ -1,0 +1,1001 @@
+base_link: base_link
+base_tform: !!python/object/apply:sip._unpickle_type
+- PyKDL
+- Frame
+- !!python/tuple
+  - !!python/object/apply:sip._unpickle_type
+    - PyKDL
+    - Rotation
+    - !!python/tuple [0.7071761897835768, -0.7070373657758, -1.1102230246251565e-16,
+      -0.4998786726697512, -0.4999768218823689, -0.7072089437997329, 0.500023148677249,
+      0.5001213262571629, -0.7070046038108001]
+  - !!python/object/apply:sip._unpickle_type
+    - PyKDL
+    - Vector
+    - !!python/tuple [0.0, 0.0, 1.4605]
+diff_indices:
+  diff_link: !!python/tuple [16, 9]
+  diff_node: !!python/tuple [24, 17]
+  link: !!python/tuple [0, 8]
+  node: !!python/tuple [8, 16]
+end_link: ee_fixed_link
+gripper_cmds: []
+indices:
+  link: !!python/tuple [0, 8]
+  node: !!python/tuple [8, 16]
+joint_states:
+- !!python/object/new:sensor_msgs.msg._JointState.JointState
+  state:
+  - !!python/object/new:std_msgs.msg._Header.Header
+    state:
+    - 85564
+    - !!python/object/new:genpy.rostime.Time
+      state: [1456436668, 618609905]
+    - robot_secondary_interface_data
+  - [shoulder_pan_joint, shoulder_lift_joint, elbow_joint, wrist_1_joint, wrist_2_joint,
+    wrist_3_joint]
+  - !!python/tuple [-1.3924119380283413, -3.038878719171632, -1.5306873886579078,
+    1.2969933994388305, 1.3382764657813204, 1.6558787510330342]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- !!python/object/new:sensor_msgs.msg._JointState.JointState
+  state:
+  - !!python/object/new:std_msgs.msg._Header.Header
+    state:
+    - 85565
+    - !!python/object/new:genpy.rostime.Time
+      state: [1456436668, 658931970]
+    - robot_secondary_interface_data
+  - [shoulder_pan_joint, shoulder_lift_joint, elbow_joint, wrist_1_joint, wrist_2_joint,
+    wrist_3_joint]
+  - !!python/tuple [-1.3924119380283413, -3.038878719171632, -1.5306873886579078,
+    1.2969933994388305, 1.3382764657813204, 1.6558787510330342]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- !!python/object/new:sensor_msgs.msg._JointState.JointState
+  state:
+  - !!python/object/new:std_msgs.msg._Header.Header
+    state:
+    - 85566
+    - !!python/object/new:genpy.rostime.Time
+      state: [1456436668, 698513031]
+    - robot_secondary_interface_data
+  - [shoulder_pan_joint, shoulder_lift_joint, elbow_joint, wrist_1_joint, wrist_2_joint,
+    wrist_3_joint]
+  - !!python/tuple [-1.3924119380283413, -3.038878719171632, -1.5306873886579078,
+    1.2969933994388305, 1.3382764657813204, 1.6558787510330342]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- !!python/object/new:sensor_msgs.msg._JointState.JointState
+  state:
+  - !!python/object/new:std_msgs.msg._Header.Header
+    state:
+    - 85567
+    - !!python/object/new:genpy.rostime.Time
+      state: [1456436668, 734200000]
+    - robot_secondary_interface_data
+  - [shoulder_pan_joint, shoulder_lift_joint, elbow_joint, wrist_1_joint, wrist_2_joint,
+    wrist_3_joint]
+  - !!python/tuple [-1.3924119380283413, -3.038878719171632, -1.5306873886579078,
+    1.2969933994388305, 1.3382764657813204, 1.6558787510330342]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- !!python/object/new:sensor_msgs.msg._JointState.JointState
+  state:
+  - !!python/object/new:std_msgs.msg._Header.Header
+    state:
+    - 85568
+    - !!python/object/new:genpy.rostime.Time
+      state: [1456436668, 779270887]
+    - robot_secondary_interface_data
+  - [shoulder_pan_joint, shoulder_lift_joint, elbow_joint, wrist_1_joint, wrist_2_joint,
+    wrist_3_joint]
+  - !!python/tuple [-1.3924119380283413, -3.038878719171632, -1.5306873886579078,
+    1.2969933994388305, 1.3382764657813204, 1.6558787510330342]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- !!python/object/new:sensor_msgs.msg._JointState.JointState
+  state:
+  - !!python/object/new:std_msgs.msg._Header.Header
+    state:
+    - 85569
+    - !!python/object/new:genpy.rostime.Time
+      state: [1456436668, 819652080]
+    - robot_secondary_interface_data
+  - [shoulder_pan_joint, shoulder_lift_joint, elbow_joint, wrist_1_joint, wrist_2_joint,
+    wrist_3_joint]
+  - !!python/tuple [-1.3924119380283413, -3.038878719171632, -1.5306873886579078,
+    1.2969933994388305, 1.3382764657813204, 1.6558787510330342]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- !!python/object/new:sensor_msgs.msg._JointState.JointState
+  state:
+  - !!python/object/new:std_msgs.msg._Header.Header
+    state:
+    - 85570
+    - !!python/object/new:genpy.rostime.Time
+      state: [1456436668, 859484910]
+    - robot_secondary_interface_data
+  - [shoulder_pan_joint, shoulder_lift_joint, elbow_joint, wrist_1_joint, wrist_2_joint,
+    wrist_3_joint]
+  - !!python/tuple [-1.3924119380283413, -3.038878719171632, -1.5306873886579078,
+    1.2969933994388305, 1.3382764657813204, 1.6558787510330342]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- !!python/object/new:sensor_msgs.msg._JointState.JointState
+  state:
+  - !!python/object/new:std_msgs.msg._Header.Header
+    state:
+    - 85571
+    - !!python/object/new:genpy.rostime.Time
+      state: [1456436668, 901406049]
+    - robot_secondary_interface_data
+  - [shoulder_pan_joint, shoulder_lift_joint, elbow_joint, wrist_1_joint, wrist_2_joint,
+    wrist_3_joint]
+  - !!python/tuple [-1.3924119380283413, -3.038878719171632, -1.5306873886579078,
+    1.2969933994388305, 1.3382764657813204, 1.6558787510330342]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- !!python/object/new:sensor_msgs.msg._JointState.JointState
+  state:
+  - !!python/object/new:std_msgs.msg._Header.Header
+    state:
+    - 85572
+    - !!python/object/new:genpy.rostime.Time
+      state: [1456436668, 939588069]
+    - robot_secondary_interface_data
+  - [shoulder_pan_joint, shoulder_lift_joint, elbow_joint, wrist_1_joint, wrist_2_joint,
+    wrist_3_joint]
+  - !!python/tuple [-1.3924119380283413, -3.038878719171632, -1.5306873886579078,
+    1.2969933994388305, 1.3382764657813204, 1.6558787510330342]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- !!python/object/new:sensor_msgs.msg._JointState.JointState
+  state:
+  - !!python/object/new:std_msgs.msg._Header.Header
+    state:
+    - 85573
+    - !!python/object/new:genpy.rostime.Time
+      state: [1456436668, 980017900]
+    - robot_secondary_interface_data
+  - [shoulder_pan_joint, shoulder_lift_joint, elbow_joint, wrist_1_joint, wrist_2_joint,
+    wrist_3_joint]
+  - !!python/tuple [-1.3924119380283413, -3.038878719171632, -1.5306873886579078,
+    1.2969933994388305, 1.3382764657813204, 1.6558787510330342]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- !!python/object/new:sensor_msgs.msg._JointState.JointState
+  state:
+  - !!python/object/new:std_msgs.msg._Header.Header
+    state:
+    - 85574
+    - !!python/object/new:genpy.rostime.Time
+      state: [1456436669, 20226001]
+    - robot_secondary_interface_data
+  - [shoulder_pan_joint, shoulder_lift_joint, elbow_joint, wrist_1_joint, wrist_2_joint,
+    wrist_3_joint]
+  - !!python/tuple [-1.3924119380283413, -3.038878719171632, -1.5306873886579078,
+    1.2969933994388305, 1.3382764657813204, 1.6558787510330342]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- !!python/object/new:sensor_msgs.msg._JointState.JointState
+  state:
+  - !!python/object/new:std_msgs.msg._Header.Header
+    state:
+    - 85575
+    - !!python/object/new:genpy.rostime.Time
+      state: [1456436669, 67897081]
+    - robot_secondary_interface_data
+  - [shoulder_pan_joint, shoulder_lift_joint, elbow_joint, wrist_1_joint, wrist_2_joint,
+    wrist_3_joint]
+  - !!python/tuple [-1.3924119380283413, -3.038878719171632, -1.5306873886579078,
+    1.2969933994388305, 1.3382764657813204, 1.6558787510330342]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- !!python/object/new:sensor_msgs.msg._JointState.JointState
+  state:
+  - !!python/object/new:std_msgs.msg._Header.Header
+    state:
+    - 85576
+    - !!python/object/new:genpy.rostime.Time
+      state: [1456436669, 102425098]
+    - robot_secondary_interface_data
+  - [shoulder_pan_joint, shoulder_lift_joint, elbow_joint, wrist_1_joint, wrist_2_joint,
+    wrist_3_joint]
+  - !!python/tuple [-1.3924119380283413, -3.038878719171632, -1.5306873886579078,
+    1.2969933994388305, 1.3382764657813204, 1.6558787510330342]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- !!python/object/new:sensor_msgs.msg._JointState.JointState
+  state:
+  - !!python/object/new:std_msgs.msg._Header.Header
+    state:
+    - 85577
+    - !!python/object/new:genpy.rostime.Time
+      state: [1456436669, 140285968]
+    - robot_secondary_interface_data
+  - [shoulder_pan_joint, shoulder_lift_joint, elbow_joint, wrist_1_joint, wrist_2_joint,
+    wrist_3_joint]
+  - !!python/tuple [-1.3924119380283413, -3.038878719171632, -1.5306873886579078,
+    1.2969933994388305, 1.3382764657813204, 1.6558787510330342]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- !!python/object/new:sensor_msgs.msg._JointState.JointState
+  state:
+  - !!python/object/new:std_msgs.msg._Header.Header
+    state:
+    - 85578
+    - !!python/object/new:genpy.rostime.Time
+      state: [1456436669, 180614948]
+    - robot_secondary_interface_data
+  - [shoulder_pan_joint, shoulder_lift_joint, elbow_joint, wrist_1_joint, wrist_2_joint,
+    wrist_3_joint]
+  - !!python/tuple [-1.3924119380283413, -3.038878719171632, -1.5306873886579078,
+    1.2969933994388305, 1.3382764657813204, 1.6558787510330342]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- !!python/object/new:sensor_msgs.msg._JointState.JointState
+  state:
+  - !!python/object/new:std_msgs.msg._Header.Header
+    state:
+    - 85579
+    - !!python/object/new:genpy.rostime.Time
+      state: [1456436669, 229372978]
+    - robot_secondary_interface_data
+  - [shoulder_pan_joint, shoulder_lift_joint, elbow_joint, wrist_1_joint, wrist_2_joint,
+    wrist_3_joint]
+  - !!python/tuple [-1.3924119380283413, -3.038878719171632, -1.5306873886579078,
+    1.2969933994388305, 1.3382764657813204, 1.6558787510330342]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- !!python/object/new:sensor_msgs.msg._JointState.JointState
+  state:
+  - !!python/object/new:std_msgs.msg._Header.Header
+    state:
+    - 85580
+    - !!python/object/new:genpy.rostime.Time
+      state: [1456436669, 268450021]
+    - robot_secondary_interface_data
+  - [shoulder_pan_joint, shoulder_lift_joint, elbow_joint, wrist_1_joint, wrist_2_joint,
+    wrist_3_joint]
+  - !!python/tuple [-1.3924119380283413, -3.038878719171632, -1.5306873886579078,
+    1.2969933994388305, 1.3382764657813204, 1.6558787510330342]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- !!python/object/new:sensor_msgs.msg._JointState.JointState
+  state:
+  - !!python/object/new:std_msgs.msg._Header.Header
+    state:
+    - 85581
+    - !!python/object/new:genpy.rostime.Time
+      state: [1456436669, 303464889]
+    - robot_secondary_interface_data
+  - [shoulder_pan_joint, shoulder_lift_joint, elbow_joint, wrist_1_joint, wrist_2_joint,
+    wrist_3_joint]
+  - !!python/tuple [-1.3924119380283413, -3.038878719171632, -1.5306873886579078,
+    1.2969933994388305, 1.3382764657813204, 1.6558787510330342]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- !!python/object/new:sensor_msgs.msg._JointState.JointState
+  state:
+  - !!python/object/new:std_msgs.msg._Header.Header
+    state:
+    - 85582
+    - !!python/object/new:genpy.rostime.Time
+      state: [1456436669, 341160058]
+    - robot_secondary_interface_data
+  - [shoulder_pan_joint, shoulder_lift_joint, elbow_joint, wrist_1_joint, wrist_2_joint,
+    wrist_3_joint]
+  - !!python/tuple [-1.3924119380283413, -3.038878719171632, -1.5306873886579078,
+    1.2969933994388305, 1.3382764657813204, 1.6558787510330342]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- !!python/object/new:sensor_msgs.msg._JointState.JointState
+  state:
+  - !!python/object/new:std_msgs.msg._Header.Header
+    state:
+    - 85583
+    - !!python/object/new:genpy.rostime.Time
+      state: [1456436669, 389317989]
+    - robot_secondary_interface_data
+  - [shoulder_pan_joint, shoulder_lift_joint, elbow_joint, wrist_1_joint, wrist_2_joint,
+    wrist_3_joint]
+  - !!python/tuple [-1.3924119380283413, -3.038878719171632, -1.5306873886579078,
+    1.2969933994388305, 1.3382764657813204, 1.6558787510330342]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- !!python/object/new:sensor_msgs.msg._JointState.JointState
+  state:
+  - !!python/object/new:std_msgs.msg._Header.Header
+    state:
+    - 85584
+    - !!python/object/new:genpy.rostime.Time
+      state: [1456436669, 429033041]
+    - robot_secondary_interface_data
+  - [shoulder_pan_joint, shoulder_lift_joint, elbow_joint, wrist_1_joint, wrist_2_joint,
+    wrist_3_joint]
+  - !!python/tuple [-1.3924119380283413, -3.038878719171632, -1.5306873886579078,
+    1.2969933994388305, 1.3382764657813204, 1.6558787510330342]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- !!python/object/new:sensor_msgs.msg._JointState.JointState
+  state:
+  - !!python/object/new:std_msgs.msg._Header.Header
+    state:
+    - 85585
+    - !!python/object/new:genpy.rostime.Time
+      state: [1456436669, 469197988]
+    - robot_secondary_interface_data
+  - [shoulder_pan_joint, shoulder_lift_joint, elbow_joint, wrist_1_joint, wrist_2_joint,
+    wrist_3_joint]
+  - !!python/tuple [-1.3924119380283413, -3.038878719171632, -1.5306873886579078,
+    1.2969933994388305, 1.3382764657813204, 1.6558787510330342]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  - !!python/tuple [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+manip_obj: null
+max_index: 16
+objects: {link: 'Obj::link_uniform::1', node: 'Obj::node_uniform::1'}
+robot_description_param: robot_description
+times:
+- !!python/object/new:rospy.rostime.Time
+  state: [1456436668, 619031906]
+- !!python/object/new:rospy.rostime.Time
+  state: [1456436668, 659187078]
+- !!python/object/new:rospy.rostime.Time
+  state: [1456436668, 698900938]
+- !!python/object/new:rospy.rostime.Time
+  state: [1456436668, 734456062]
+- !!python/object/new:rospy.rostime.Time
+  state: [1456436668, 780383110]
+- !!python/object/new:rospy.rostime.Time
+  state: [1456436668, 820081949]
+- !!python/object/new:rospy.rostime.Time
+  state: [1456436668, 859730958]
+- !!python/object/new:rospy.rostime.Time
+  state: [1456436668, 902014017]
+- !!python/object/new:rospy.rostime.Time
+  state: [1456436668, 939968109]
+- !!python/object/new:rospy.rostime.Time
+  state: [1456436668, 980307102]
+- !!python/object/new:rospy.rostime.Time
+  state: [1456436669, 21944046]
+- !!python/object/new:rospy.rostime.Time
+  state: [1456436669, 68288087]
+- !!python/object/new:rospy.rostime.Time
+  state: [1456436669, 103241920]
+- !!python/object/new:rospy.rostime.Time
+  state: [1456436669, 140656948]
+- !!python/object/new:rospy.rostime.Time
+  state: [1456436669, 180958986]
+- !!python/object/new:rospy.rostime.Time
+  state: [1456436669, 229712009]
+- !!python/object/new:rospy.rostime.Time
+  state: [1456436669, 268749952]
+- !!python/object/new:rospy.rostime.Time
+  state: [1456436669, 303749084]
+- !!python/object/new:rospy.rostime.Time
+  state: [1456436669, 341562032]
+- !!python/object/new:rospy.rostime.Time
+  state: [1456436669, 389574050]
+- !!python/object/new:rospy.rostime.Time
+  state: [1456436669, 429706096]
+- !!python/object/new:rospy.rostime.Time
+  state: [1456436669, 469506025]
+world_frame: /world
+world_states:
+- link: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.4307095298518528, 0.8977062255192676, -0.09280535307160276,
+        -0.7395064977709751, -0.2921102016026948, 0.6064666271726242, 0.5173194763869825,
+        0.32984111748473977, 0.7896742344581817]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.4786440776168913, 0.5682485561116126, 1.2539185860363753]
+  node: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.5972934592130009, -0.05302253869605433, 0.8002681637873599,
+        0.5885979002822775, 0.648800704716035, 0.48229675236649727, -0.5447871468423804,
+        0.7591088564561751, -0.3563154623155399]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.33119816604019703, 0.774984876253464, 1.1941344883971472]
+- link: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.4307095298518528, 0.8977062255192676, -0.09280535307160276,
+        -0.7395064977709751, -0.2921102016026948, 0.6064666271726242, 0.5173194763869825,
+        0.32984111748473977, 0.7896742344581817]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.4786440776168913, 0.5682485561116126, 1.2539185860363753]
+  node: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.5972934592130009, -0.05302253869605433, 0.8002681637873599,
+        0.5885979002822775, 0.648800704716035, 0.48229675236649727, -0.5447871468423804,
+        0.7591088564561751, -0.3563154623155399]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.3311981660401969, 0.774984876253464, 1.1941344883971472]
+- link: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.4307095298518528, 0.8977062255192676, -0.09280535307160276,
+        -0.7395064977709751, -0.2921102016026948, 0.6064666271726242, 0.5173194763869825,
+        0.32984111748473977, 0.7896742344581817]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.4786440776168913, 0.5682485561116126, 1.2539185860363753]
+  node: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.5972934592130009, -0.05302253869605433, 0.8002681637873599,
+        0.5885979002822775, 0.648800704716035, 0.48229675236649727, -0.5447871468423804,
+        0.7591088564561751, -0.3563154623155399]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.3311981660401969, 0.774984876253464, 1.1941344883971472]
+- link: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.4307095298518528, 0.8977062255192676, -0.09280535307160276,
+        -0.7395064977709751, -0.2921102016026948, 0.6064666271726242, 0.5173194763869825,
+        0.32984111748473977, 0.7896742344581817]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.4786440776168913, 0.5682485561116126, 1.2539185860363753]
+  node: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.5972934592130009, -0.05302253869605433, 0.8002681637873599,
+        0.5885979002822775, 0.648800704716035, 0.48229675236649727, -0.5447871468423804,
+        0.7591088564561751, -0.3563154623155399]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.3311981660401969, 0.774984876253464, 1.1941344883971472]
+- link: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.4307095298518528, 0.8977062255192676, -0.09280535307160276,
+        -0.7395064977709751, -0.2921102016026948, 0.6064666271726242, 0.5173194763869825,
+        0.32984111748473977, 0.7896742344581817]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.4786440776168913, 0.5682485561116126, 1.2539185860363753]
+  node: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.5972934592130009, -0.05302253869605433, 0.8002681637873599,
+        0.5885979002822775, 0.648800704716035, 0.48229675236649727, -0.5447871468423804,
+        0.7591088564561751, -0.3563154623155399]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.3311981660401969, 0.774984876253464, 1.1941344883971474]
+- link: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.4307095298518528, 0.8977062255192676, -0.09280535307160276,
+        -0.7395064977709751, -0.2921102016026948, 0.6064666271726242, 0.5173194763869825,
+        0.32984111748473977, 0.7896742344581817]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.4786440776168913, 0.5682485561116126, 1.2539185860363753]
+  node: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.5972934592130009, -0.05302253869605433, 0.8002681637873599,
+        0.5885979002822775, 0.648800704716035, 0.48229675236649727, -0.5447871468423804,
+        0.7591088564561751, -0.3563154623155399]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.3311981660401969, 0.774984876253464, 1.1941344883971474]
+- link: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.4307095298518528, 0.8977062255192676, -0.09280535307160276,
+        -0.7395064977709751, -0.2921102016026948, 0.6064666271726242, 0.5173194763869825,
+        0.32984111748473977, 0.7896742344581817]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.4786440776168913, 0.5682485561116126, 1.2539185860363753]
+  node: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.5972934592130009, -0.05302253869605433, 0.8002681637873599,
+        0.5885979002822775, 0.648800704716035, 0.48229675236649727, -0.5447871468423804,
+        0.7591088564561751, -0.3563154623155399]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.3311981660401969, 0.774984876253464, 1.194134488397147]
+- link: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.4307095298518528, 0.8977062255192676, -0.09280535307160276,
+        -0.7395064977709751, -0.2921102016026948, 0.6064666271726242, 0.5173194763869825,
+        0.32984111748473977, 0.7896742344581817]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.4786440776168913, 0.5682485561116126, 1.2539185860363753]
+  node: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.5972934592130009, -0.05302253869605433, 0.8002681637873599,
+        0.5885979002822775, 0.648800704716035, 0.48229675236649727, -0.5447871468423804,
+        0.7591088564561751, -0.3563154623155399]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.3311981660401969, 0.774984876253464, 1.194134488397147]
+- link: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.4307095298518528, 0.8977062255192676, -0.09280535307160276,
+        -0.7395064977709751, -0.2921102016026948, 0.6064666271726242, 0.5173194763869825,
+        0.32984111748473977, 0.7896742344581817]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.4786440776168913, 0.5682485561116126, 1.2539185860363753]
+  node: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.5972934592130009, -0.05302253869605433, 0.8002681637873599,
+        0.5885979002822775, 0.648800704716035, 0.48229675236649727, -0.5447871468423804,
+        0.7591088564561751, -0.3563154623155399]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.3311981660401969, 0.774984876253464, 1.194134488397147]
+- link: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.4307095298518528, 0.8977062255192676, -0.09280535307160276,
+        -0.7395064977709751, -0.2921102016026948, 0.6064666271726242, 0.5173194763869825,
+        0.32984111748473977, 0.7896742344581817]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.4786440776168913, 0.5682485561116126, 1.2539185860363755]
+  node: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.5972934592130009, -0.05302253869605433, 0.8002681637873599,
+        0.5885979002822775, 0.648800704716035, 0.48229675236649727, -0.5447871468423804,
+        0.7591088564561751, -0.3563154623155399]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.3311981660401969, 0.774984876253464, 1.1941344883971472]
+- link: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.4307095298518528, 0.8977062255192676, -0.09280535307160276,
+        -0.7395064977709751, -0.2921102016026948, 0.6064666271726242, 0.5173194763869825,
+        0.32984111748473977, 0.7896742344581817]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.4786440776168913, 0.5682485561116126, 1.2539185860363755]
+  node: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.5972934592130009, -0.05302253869605433, 0.8002681637873599,
+        0.5885979002822775, 0.648800704716035, 0.48229675236649727, -0.5447871468423804,
+        0.7591088564561751, -0.3563154623155399]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.3311981660401969, 0.774984876253464, 1.1941344883971472]
+- link: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.4307095298518528, 0.8977062255192676, -0.09280535307160276,
+        -0.7395064977709751, -0.2921102016026948, 0.6064666271726242, 0.5173194763869825,
+        0.32984111748473977, 0.7896742344581817]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.4786440776168913, 0.5682485561116126, 1.2539185860363753]
+  node: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.5972934592130009, -0.05302253869605433, 0.8002681637873599,
+        0.5885979002822775, 0.648800704716035, 0.48229675236649727, -0.5447871468423804,
+        0.7591088564561751, -0.3563154623155399]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.3311981660401969, 0.774984876253464, 1.1941344883971472]
+- link: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.4307095298518528, 0.8977062255192676, -0.09280535307160276,
+        -0.7395064977709751, -0.2921102016026948, 0.6064666271726242, 0.5173194763869825,
+        0.32984111748473977, 0.7896742344581817]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.4786440776168913, 0.5682485561116126, 1.2539185860363753]
+  node: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.5972934592130009, -0.05302253869605433, 0.8002681637873599,
+        0.5885979002822775, 0.648800704716035, 0.48229675236649727, -0.5447871468423804,
+        0.7591088564561751, -0.3563154623155399]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.3311981660401969, 0.774984876253464, 1.1941344883971472]
+- link: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.4307095298518528, 0.8977062255192676, -0.09280535307160276,
+        -0.7395064977709751, -0.2921102016026948, 0.6064666271726242, 0.5173194763869825,
+        0.32984111748473977, 0.7896742344581817]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.4786440776168913, 0.5682485561116126, 1.2539185860363753]
+  node: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.5972934592130009, -0.05302253869605433, 0.8002681637873599,
+        0.5885979002822775, 0.648800704716035, 0.48229675236649727, -0.5447871468423804,
+        0.7591088564561751, -0.3563154623155399]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.3311981660401969, 0.774984876253464, 1.1941344883971472]
+- link: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.4307095298518528, 0.8977062255192676, -0.09280535307160276,
+        -0.7395064977709751, -0.2921102016026948, 0.6064666271726242, 0.5173194763869825,
+        0.32984111748473977, 0.7896742344581817]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.4786440776168913, 0.5682485561116126, 1.2539185860363753]
+  node: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.5972934592130009, -0.05302253869605433, 0.8002681637873599,
+        0.5885979002822775, 0.648800704716035, 0.48229675236649727, -0.5447871468423804,
+        0.7591088564561751, -0.3563154623155399]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.3311981660401969, 0.774984876253464, 1.1941344883971472]
+- link: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.4307095298518528, 0.8977062255192676, -0.09280535307160276,
+        -0.7395064977709751, -0.2921102016026948, 0.6064666271726242, 0.5173194763869825,
+        0.32984111748473977, 0.7896742344581817]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.4786440776168913, 0.5682485561116126, 1.2539185860363753]
+  node: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.5972934592130009, -0.05302253869605433, 0.8002681637873599,
+        0.5885979002822775, 0.648800704716035, 0.48229675236649727, -0.5447871468423804,
+        0.7591088564561751, -0.3563154623155399]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.3311981660401969, 0.774984876253464, 1.1941344883971472]
+- link: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.4307095298518528, 0.8977062255192676, -0.09280535307160276,
+        -0.7395064977709751, -0.2921102016026948, 0.6064666271726242, 0.5173194763869825,
+        0.32984111748473977, 0.7896742344581817]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.4786440776168913, 0.5682485561116126, 1.2539185860363753]
+  node: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.5972934592130009, -0.05302253869605433, 0.8002681637873599,
+        0.5885979002822775, 0.648800704716035, 0.48229675236649727, -0.5447871468423804,
+        0.7591088564561751, -0.3563154623155399]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.3311981660401969, 0.774984876253464, 1.1941344883971474]
+- link: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.4307095298518528, 0.8977062255192676, -0.09280535307160276,
+        -0.7395064977709751, -0.2921102016026948, 0.6064666271726242, 0.5173194763869825,
+        0.32984111748473977, 0.7896742344581817]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.4786440776168913, 0.5682485561116126, 1.2539185860363753]
+  node: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.5972934592130009, -0.05302253869605433, 0.8002681637873599,
+        0.5885979002822775, 0.648800704716035, 0.48229675236649727, -0.5447871468423804,
+        0.7591088564561751, -0.3563154623155399]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.3311981660401969, 0.774984876253464, 1.1941344883971474]
+- link: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.4307095298518528, 0.8977062255192676, -0.09280535307160276,
+        -0.7395064977709751, -0.2921102016026948, 0.6064666271726242, 0.5173194763869825,
+        0.32984111748473977, 0.7896742344581817]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.4786440776168913, 0.5682485561116126, 1.2539185860363753]
+  node: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.5972934592130009, -0.05302253869605433, 0.8002681637873599,
+        0.5885979002822775, 0.648800704716035, 0.48229675236649727, -0.5447871468423804,
+        0.7591088564561751, -0.3563154623155399]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.3311981660401969, 0.774984876253464, 1.1941344883971474]
+- link: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.4307095298518528, 0.8977062255192676, -0.09280535307160276,
+        -0.7395064977709751, -0.2921102016026948, 0.6064666271726242, 0.5173194763869825,
+        0.32984111748473977, 0.7896742344581817]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.4786440776168913, 0.5682485561116126, 1.2539185860363753]
+  node: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.5972934592130009, -0.05302253869605433, 0.8002681637873599,
+        0.5885979002822775, 0.648800704716035, 0.48229675236649727, -0.5447871468423804,
+        0.7591088564561751, -0.3563154623155399]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.3311981660401969, 0.774984876253464, 1.1941344883971472]
+- link: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.4307095298518528, 0.8977062255192676, -0.09280535307160276,
+        -0.7395064977709751, -0.2921102016026948, 0.6064666271726242, 0.5173194763869825,
+        0.32984111748473977, 0.7896742344581817]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.4786440776168913, 0.5682485561116126, 1.2539185860363753]
+  node: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.5972934592130009, -0.05302253869605433, 0.8002681637873599,
+        0.5885979002822775, 0.648800704716035, 0.48229675236649727, -0.5447871468423804,
+        0.7591088564561751, -0.3563154623155399]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.3311981660401969, 0.774984876253464, 1.1941344883971472]
+- link: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.4307095298518528, 0.8977062255192676, -0.09280535307160276,
+        -0.7395064977709751, -0.2921102016026948, 0.6064666271726242, 0.5173194763869825,
+        0.32984111748473977, 0.7896742344581817]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.4786440776168913, 0.5682485561116126, 1.2539185860363755]
+  node: !!python/object/apply:sip._unpickle_type
+  - PyKDL
+  - Frame
+  - !!python/tuple
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Rotation
+      - !!python/tuple [-0.5972934592130009, -0.05302253869605433, 0.8002681637873599,
+        0.5885979002822775, 0.648800704716035, 0.48229675236649727, -0.5447871468423804,
+        0.7591088564561751, -0.3563154623155399]
+    - !!python/object/apply:sip._unpickle_type
+      - PyKDL
+      - Vector
+      - !!python/tuple [0.3311981660401969, 0.774984876253464, 1.1941344883971472]
