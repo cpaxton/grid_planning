@@ -241,11 +241,13 @@ namespace grid {
         ++ik_tries;
         if (ik_tries > 2*nsamples) {
           std::cerr << __FILE__ << ":" << __LINE__ << ": We are really having trouble with IK!\n";
-          for (unsigned int i = 0; i < POSE_RPY_SIZE; ++i) {
-            std::cout << params[sample][i];
-          }
+          //for (unsigned int i = 0; i < POSE_RPY_SIZE; ++i) {
+          //  std::cout << params[sample][i];
+          //}
           std::cout << std::endl;
-          std::cout << p << std::endl;
+          std::cout << "XYZ = " << v1 << std::endl;
+          std::cout << "RPY = " << params[sample][POSE_FEATURE_ROLL] << ", "
+            << params[sample][POSE_FEATURE_PITCH] << ", " << params[sample][POSE_FEATURE_YAW] << "\n";
           std::cout << "Max tries reached: " << 10*nsamples << "\n";
           break;
         }

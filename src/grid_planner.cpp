@@ -47,7 +47,9 @@ namespace grid {
     for (unsigned int i = 0; i < dof; ++i) {
       //std::cout << msg->position[i] << " ";
       x0[i] = msg->position[i];
-      x0_dot[i] = msg->velocity[i];
+      if (msg->velocity.size() != 0)  {
+        x0_dot[i] = msg->velocity[i];
+      }
     }
     //std::cout << std::endl;
   }

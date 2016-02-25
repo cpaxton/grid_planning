@@ -51,8 +51,9 @@ int main(int argc, char **argv) {
   actionlib::SimpleActionClient<grid_plan::CommandAction> ac("command", true);
 
   Params p = readRosParams();
-  RobotKinematicsPtr robot = RobotKinematicsPtr(new RobotKinematics("robot_description","base_link","ee_fixed_link"));
-  GridPlanner gp("robot_description","/joint_states","/gazebo/raw_planning_scene",0.05);
+  std::string ee("ee_link");
+  RobotKinematicsPtr robot = RobotKinematicsPtr(new RobotKinematics("robot_description","base_link",ee));
+  GridPlanner gp("robot_description","joint_states","planning_scene",0.05);
   gp.SetDof(robot->getDegreesOfFreedom());
   gp.SetCollisions("gbeam_soup.gbeam_link_1",true);
   gp.SetCollisions("gbeam_soup.gbeam_link_2",true);
@@ -76,18 +77,14 @@ int main(int argc, char **argv) {
     checker2 = &gp;
   }
 
-  ros::ServiceClient client = nh.serviceClient<std_srvs::Empty>("/gazebo/publish_planning_scene");
-  std_srvs::Empty empty;
-  client.call(empty);
-
   std::unordered_map<std::string, SkillPtr> skills;
   if (p.test == 0) {
-    skills = loadSkills();
+    skills = loadSkills(ee);
   } else if (p.test == 1) {
     //skills = loadWamSkillsAuto();
     exit(-1);
   }
-  std::unordered_map<std::string, TestFeaturesPtr> features = setupTestFeaturesForTrials();
+  std::unordered_map<std::string, TestFeaturesPtr> features = setupTestFeaturesForTrials(ee);
 
   InstantiatedSkillPtr root = InstantiatedSkill::Root();
 
@@ -133,7 +130,7 @@ int main(int argc, char **argv) {
   InstantiatedSkillPtr release21 = InstantiatedSkill::DmpInstance(skills["release_node"], features["node1,link1"], robot, nbasis, checker);
 
   root->addNext(app1); 
-  root->addNext(app2);
+  //root->addNext(app2);
 
   app1->addNext(grasp1); app1->pub = &pub;
   app2->addNext(grasp2); app2->pub = &pub;
