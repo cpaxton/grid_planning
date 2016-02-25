@@ -210,9 +210,9 @@ namespace grid {
       //std::cout << "Mean = " << mean.transpose() << "\n";
 
       // finish computing std dev
-      if (isStatic()) {
-        std += EigenVectornd::Constant(std.size(),1,0.1);
-      }
+      //if (isStatic()) {
+      std += EigenVectornd::Constant(std.size(),1,0.1);
+      //}
       std /= training_data.size();
       std = std.cwiseSqrt();
       std = std.cwiseInverse();
