@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
   gp.SetDefaultCollisions("wam/shoulder_yaw_link",true);
   //gp.SetDefaultCollisions("wam/upper_arm_link",true);
   gp.SetDefaultCollisions("wam/base_link",true);
-  gp.SetDefaultCollisions("wam/shoulder_pitch_link",true);
+  //gp.SetDefaultCollisions("wam/shoulder_pitch_link",true);
   //gp.SetDefaultCollisions("wam/forearm_link",true);
   gp.SetDefaultCollisions("wam/wrist_pitch_link",true);
   gp.SetDefaultCollisions("wam/wrist_yaw_link",true);

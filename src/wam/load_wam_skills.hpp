@@ -98,7 +98,7 @@ namespace grid {
     SkillPtr approach_left(new Skill("approach_left",3));
     SkillPtr grasp(new Skill("grasp",1));
     SkillPtr align(new Skill("align",3));
-    SkillPtr place(new Skill("place",3));
+    SkillPtr place(new Skill("place",2));
     SkillPtr release(new Skill("release",1));
     SkillPtr disengage(new Skill("disengage",3));
 
@@ -148,7 +148,7 @@ namespace grid {
     /* LOAD TRAINING DATA FOR RELEASE */
     {
       std::string filenames[] = {"data/sim/release1.bag", "data/sim/release2.bag", "data/sim/release3.bag",
-        //"data/sim/release1b.bag", "data/sim/release2b.bag", "data/sim/release3b.bag"
+        "data/sim/release1b.bag", "data/sim/release2b.bag", "data/sim/release3b.bag"
       };
       load_and_train_skill(*release, rk_ptr, filenames, 3);
     }
