@@ -43,7 +43,7 @@ if __name__ == "__main__":
 
         #stream = file(filename,'r');
         #demo = yaml.load(stream,Loader=Loader);
-        demo = grid.LoadRobotFeatures(filename);
+        demo = grid.RobotFeatures(filename=filename,preset="ur5_with_joint_limits");
 
         print "Loaded data from '%s', computing features..."%(filename)
         #fx,x,u,t = demo.get_features([('ee','link'),('ee','node'),('link','node')])

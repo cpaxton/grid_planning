@@ -271,12 +271,12 @@ namespace grid {
     initializeCounts(prev_counts,0u);
     accumulateProbs(prev_ps,len);
 
-    std::cout << "ID == " << id;
-    if (skill) std::cout << "(" << skill->getName() << ")";
-    std::cout << ", horizon == " << horizon;
-    std::cout << ", len == " << len;
-    std::cout << ", end pts = " << prev_end_pts.size();
-    std::cout << "\n";
+    //std::cout << "ID == " << id;
+    //if (skill) std::cout << "(" << skill->getName() << ")";
+    //std::cout << ", horizon == " << horizon;
+    //std::cout << ", len == " << len;
+    //std::cout << ", end pts = " << prev_end_pts.size();
+    //std::cout << "\n";
 
     /************* SAMPLE TRAJECTORIES IF NECESSARY *************/
     if (not skill) {

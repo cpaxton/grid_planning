@@ -176,6 +176,7 @@ add_executable(dmp_execution_test src/test/dmp_execution_test_node.cpp)
 add_executable(moveit_robot_model_test src/test/moveit_robot_test.cpp)
 
 add_executable(task_test src/task_test_node.cpp)
+add_executable(ur5_task_test src/task_test_node.cpp)
 add_executable(simple_test src/simple_test_node.cpp)
 add_executable(align_test src/align_test_node.cpp)
 
@@ -196,8 +197,6 @@ target_link_libraries(pygrid_planner
 
 SET(ALL_LIBRARIES 
   grid_planner ${orocos_kdl_LIBRARIES} ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} ${PYTHON_LIBRARIES}
-  #grid_planner ${catkin_LIBRARIES} ${GCOP_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} ${PYTHON_LIBRARIES}
-  #grid_planner ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
 )
 
 target_link_libraries(grid_plan_node ${ALL_LIBRARIES})
@@ -208,6 +207,7 @@ target_link_libraries(training_test ${ALL_LIBRARIES})
 target_link_libraries(execution_test ${ALL_LIBRARIES})
 target_link_libraries(dmp_execution_test ${ALL_LIBRARIES})
 target_link_libraries(task_test ${ALL_LIBRARIES})
+target_link_libraries(ur5_task_test ${ALL_LIBRARIES})
 target_link_libraries(simple_test ${ALL_LIBRARIES})
 target_link_libraries(align_test ${ALL_LIBRARIES})
 target_link_libraries(moveit_robot_model_test ${ALL_LIBRARIES})

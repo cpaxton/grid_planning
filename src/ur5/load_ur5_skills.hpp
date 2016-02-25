@@ -5,62 +5,63 @@
 
 namespace grid {
 
-  std::unordered_map<std::string, TestFeaturesPtr> setupTestFeaturesForTrials() {
+  std::unordered_map<std::string, TestFeaturesPtr> setupTestFeaturesForTrials(const std::string &ee) {
 
+    const std::string &base_link = "base_link";
 
     /* Initialize Base Set of Features */
     TestFeaturesPtr tf11(new TestFeatures());
-    tf11->setAgentFrame("wam/wrist_palm_link")
-      .setWorldFrame("wam/base_link")
+    tf11->setAgentFrame(ee)
+      .setWorldFrame("base_link")
       .addFeature("node",POSE_FEATURE)
       .addFeature("link",POSE_FEATURE)
       .addFeature("time",TIME_FEATURE);
 
     TestFeaturesPtr tf12(new TestFeatures());
-    tf12->setAgentFrame("wam/wrist_palm_link")
-      .setWorldFrame("wam/base_link")
+    tf12->setAgentFrame(ee)
+      .setWorldFrame("base_link")
       .addFeature("node",POSE_FEATURE)
       .addFeature("link",POSE_FEATURE)
       .addFeature("time",TIME_FEATURE);
 
     TestFeaturesPtr tf13(new TestFeatures());
-    tf13->setAgentFrame("wam/wrist_palm_link")
-      .setWorldFrame("wam/base_link")
+    tf13->setAgentFrame(ee)
+      .setWorldFrame("base_link")
       .addFeature("node",POSE_FEATURE)
       .addFeature("link",POSE_FEATURE)
       .addFeature("time",TIME_FEATURE);
 
     TestFeaturesPtr tf14(new TestFeatures());
-    tf14->setAgentFrame("wam/wrist_palm_link")
-      .setWorldFrame("wam/base_link")
+    tf14->setAgentFrame(ee)
+      .setWorldFrame("base_link")
       .addFeature("node",POSE_FEATURE)
       .addFeature("link",POSE_FEATURE)
       .addFeature("time",TIME_FEATURE);
 
     TestFeaturesPtr tf21(new TestFeatures());
-    tf21->setAgentFrame("wam/wrist_palm_link")
-      .setWorldFrame("wam/base_link")
+    tf21->setAgentFrame(ee)
+      .setWorldFrame("base_link")
       .addFeature("node",POSE_FEATURE)
       .addFeature("link",POSE_FEATURE)
       .addFeature("time",TIME_FEATURE);
 
     TestFeaturesPtr tf22(new TestFeatures());
-    tf22->setAgentFrame("wam/wrist_palm_link")
-      .setWorldFrame("wam/base_link")
+    tf22->setAgentFrame(ee)
+      .setWorldFrame("base_link")
       .addFeature("node",POSE_FEATURE)
       .addFeature("link",POSE_FEATURE)
       .addFeature("time",TIME_FEATURE);
 
     TestFeaturesPtr tf23(new TestFeatures());
-    tf23->setAgentFrame("wam/wrist_palm_link")
-      .setWorldFrame("wam/base_link")
+    tf23->setAgentFrame(ee)
+      .setWorldFrame("base_link")
       .addFeature("node",POSE_FEATURE)
       .addFeature("link",POSE_FEATURE)
       .addFeature("time",TIME_FEATURE);
 
     TestFeaturesPtr tf24(new TestFeatures());
-    tf24->setAgentFrame("wam/wrist_palm_link")
-      .setWorldFrame("wam/base_link")
+    tf24->setAgentFrame(ee)
+      .setWorldFrame("base_link")
       .addFeature("node",POSE_FEATURE)
       .addFeature("link",POSE_FEATURE)
       .addFeature("time",TIME_FEATURE);
@@ -89,84 +90,97 @@ namespace grid {
   }
 
 
-  std::unordered_map<std::string, SkillPtr> loadWamSkills() {
+  std::unordered_map<std::string, SkillPtr> loadSkills() {
 
     std::unordered_map<std::string, SkillPtr> skills;
 
-    SkillPtr approach(new Skill("approach",3));
-    SkillPtr approach_right(new Skill("approach_right",3));
-    SkillPtr approach_left(new Skill("approach_left",3));
-    SkillPtr grasp(new Skill("grasp",1));
-    SkillPtr align(new Skill("align",3));
-    SkillPtr place(new Skill("place",2));
-    SkillPtr release(new Skill("release",1));
-    SkillPtr disengage(new Skill("disengage",3));
+    SkillPtr approach_link(new Skill("approach_link",3));
+    SkillPtr approach_node(new Skill("approach_node",3));
+    SkillPtr grasp_link(new Skill("grasp_link",1));
+    SkillPtr grasp_node(new Skill("grasp_node",1));
+    SkillPtr align_link(new Skill("align_link",3));
+    SkillPtr align_node(new Skill("align_node",3));
+    SkillPtr place_link(new Skill("place_link",3));
+    SkillPtr place_node(new Skill("place_node",3));
+    SkillPtr release_link(new Skill("release_link",1));
+    SkillPtr release_node(new Skill("release_node",1));
 
     /* SET UP THE SKILLS */
-    approach->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false).setPrior(3.0 / 6.0);
-    approach_left->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false).setPrior(1.0 / 6.0);
-    approach_right->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false).setPrior(2.0 / 6.0);
+    approach_link->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false).setPrior(3.0 / 6.0);
+    approach_node->appendFeature("node").appendFeature("time").setInitializationFeature("node").setStatic(false).setPrior(1.0 / 6.0);
+    grasp->appendFeature("link").setInitializationFeature("link").setStatic(true);
     grasp->appendFeature("link").setInitializationFeature("link").setStatic(true);
     align->appendFeature("node").appendFeature("time").setInitializationFeature("node").attachObject("link").setStatic(false);
+    align->appendFeature("node").appendFeature("time").setInitializationFeature("node").attachObject("link").setStatic(false);
+    place->appendFeature("node").appendFeature("time").setInitializationFeature("node").attachObject("link").setStatic(false);
     place->appendFeature("node").appendFeature("time").setInitializationFeature("node").attachObject("link").setStatic(false);
     release->appendFeature("node").setInitializationFeature("node").attachObject("link").setStatic(true);
-    disengage->appendFeature("link").appendFeature("time").setInitializationFeature("link").setStatic(false);
+    release->appendFeature("node").setInitializationFeature("node").attachObject("link").setStatic(true);
 
     /* SET UP THE ROBOT KINEMATICS */
-    RobotKinematicsPtr rk_ptr = RobotKinematicsPtr(new RobotKinematics("robot_description","wam/base_link","wam/wrist_palm_link"));
+    RobotKinematicsPtr rk_ptr = RobotKinematicsPtr(new RobotKinematics("robot_description","base_link",ee));
 
     /* LOAD TRAINING DATA FOR APPROACH */
     {
       std::string filenames[] = {"data/sim/approach01.bag", "data/sim/approach02.bag", "data/sim/approach03.bag"};
-      load_and_train_skill(*approach, rk_ptr, filenames, 3);
+      load_and_train_skill(*approach_link, rk_ptr, filenames, 3);
     }
     /* LOAD TRAINING DATA FOR APPROACH RIGHT */
     {
       std::string filenames[] = {"data/sim/approach_right01.bag", "data/sim/approach_right02.bag", "data/sim/approach_right03.bag"};
-      load_and_train_skill(*approach_right, rk_ptr, filenames, 3);
-    }
-    /* LOAD TRAINING DATA FOR APPROACH LEFT */
-    {
-      std::string filenames[] = {"data/sim/approach_left01.bag", "data/sim/approach_left02.bag", "data/sim/approach_left03.bag"};
-      load_and_train_skill(*approach_left, rk_ptr, filenames, 3);
+      load_and_train_skill(*approach_node, rk_ptr, filenames, 3);
     }
     /* LOAD TRAINING DATA FOR GRASP */
     {
-      std::string filenames[] = {"data/sim/grasp01.bag", "data/sim/grasp02.bag", "data/sim/grasp03.bag",
-        "data/sim/grasp1.bag", "data/sim/grasp2.bag", "data/sim/grasp3.bag"};
-      load_and_train_skill(*grasp, rk_ptr, filenames, 6);
+      std::string filenames[] = {"data/sim/grasp01.bag", "data/sim/grasp02.bag", "data/sim/grasp03.bag"};
+      load_and_train_skill(*grasp_link, rk_ptr, filenames, 3);
+    }
+    /* LOAD TRAINING DATA FOR GRASP */
+    {
+      std::string filenames[] = {"data/sim/grasp01.bag", "data/sim/grasp02.bag", "data/sim/grasp03.bag"};
+      load_and_train_skill(*grasp_node, rk_ptr, filenames, 3);
     }
     /* LOAD TRAINING DATA FOR ALIGN */
     {
       std::string filenames[] = {"data/sim/align1.bag", "data/sim/align2.bag", "data/sim/align3.bag"};
-      load_and_train_skill(*align, rk_ptr, filenames, 3);
+      load_and_train_skill(*align_link, rk_ptr, filenames, 3);
+    }
+    /* LOAD TRAINING DATA FOR ALIGN */
+    {
+      std::string filenames[] = {"data/sim/align1.bag", "data/sim/align2.bag", "data/sim/align3.bag"};
+      load_and_train_skill(*align_node, rk_ptr, filenames, 3);
     }
     /* LOAD TRAINING DATA FOR PLACE */
     {
       std::string filenames[] = {"data/sim/place1.bag", "data/sim/place3.bag"};
-      load_and_train_skill(*place, rk_ptr, filenames, 2);
+      load_and_train_skill(*place_link, rk_ptr, filenames, 2);
+    }
+    /* LOAD TRAINING DATA FOR PLACE */
+    {
+      std::string filenames[] = {"data/sim/place1.bag", "data/sim/place3.bag"};
+      load_and_train_skill(*place_node, rk_ptr, filenames, 2);
     }
     /* LOAD TRAINING DATA FOR RELEASE */
     {
-      std::string filenames[] = {"data/sim/release1.bag", "data/sim/release2.bag", "data/sim/release3.bag",
-        "data/sim/release1b.bag", "data/sim/release2b.bag", "data/sim/release3b.bag"
-      };
-      load_and_train_skill(*release, rk_ptr, filenames, 3);
+      std::string filenames[] = {"data/sim/release1.bag", "data/sim/release2.bag", "data/sim/release3.bag"};
+      load_and_train_skill(*release_link, rk_ptr, filenames, 3);
     }
-    /* LOAD TRAINING DATA FOR DISENGAGE */
+    /* LOAD TRAINING DATA FOR RELEASE */
     {
-      std::string filenames[] = {"data/sim/disengage1.bag", "data/sim/disengage2.bag", "data/sim/disengage3.bag"};
-      load_and_train_skill(*disengage, rk_ptr, filenames, 3);
+      std::string filenames[] = {"data/sim/release1.bag", "data/sim/release2.bag", "data/sim/release3.bag"};
+      load_and_train_skill(*release_node, rk_ptr, filenames, 3);
     }
 
-    skills["approach"] = approach;
-    skills["approach_right"] = approach_right;
-    skills["approach_left"] = approach_left;
-    skills["grasp"] = grasp;
-    skills["align"] = align;
-    skills["place"] = place;
-    skills["release"] = release;
-    skills["disengage"] = disengage;
+    skills["approach_link"] = approach_link;
+    skills["approach_node"] = approach_node;
+    skills["grasp_link"] = grasp_link;
+    skills["grasp_node"] = grasp_node;
+    skills["align_link"] = align_link;
+    skills["align_node"] = align_node;
+    skills["place_link"] = place_link;
+    skills["place_node"] = place_node;
+    skills["release_link"] = release_link;
+    skills["release_node"] = release_node;
 
     return skills;
 

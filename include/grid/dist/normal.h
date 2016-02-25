@@ -227,6 +227,7 @@ namespace gcop {
     void Normal<_n>::Fit(const vector<pair<Vectornd, double> > xws, double a)
     {
       int N = xws.size();
+      assert(false);
 
       // sanity check
       {

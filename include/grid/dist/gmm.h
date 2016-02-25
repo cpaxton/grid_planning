@@ -219,11 +219,13 @@ namespace gcop {
         for (auto &pair: xps) {
           weight_sum += pair.second;
         }
-        std::cout << "Weights added up to " << weight_sum << "... " << fabs(weight_sum - 1) << std::endl;
-        assert(fabs(weight_sum - 1) < tol);
+        if (fabs(weight_sum - 1) < tol) {
+          std::cout << "Weights added up to " << weight_sum << "... " << fabs(weight_sum - 1) << std::endl;
+          assert(fabs(weight_sum - 1) < tol);
+        }
       }
 
-      if (k == 1) {
+      if (false and k == 1) {
         ns[0].Fit(xps, a);
         if (S)
           ns[0].P += *S;
@@ -292,7 +294,7 @@ namespace gcop {
             t3 += (ps[j][i]*x)*x.transpose();
           }
 
-          ws[i] = t1;
+          ws[i] = t1/N;
 
           VectorXd mu = t2/t1;
 
@@ -301,7 +303,13 @@ namespace gcop {
             maxd = d;
 
           ns[i].mu = mu;
-          ns[i].P = (t3 - t2*(t2.transpose()/t1))/t1;        
+          //ns[i].P = (t3 - t2*(t2.transpose()/t1))/t1;        
+          ns[i].P.setZero();
+          for (int j = 0; j < N; ++j) {
+            const VectorXd &x = xps[j].first;
+            VectorXd Px = ((ps[j][i]*x) - mu);
+            ns[i].P += Px * Px.transpose() / t1;
+          }
           if (S)
             ns[i].P += *S;
 

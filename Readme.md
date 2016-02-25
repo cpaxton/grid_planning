@@ -142,6 +142,42 @@ rosrun grid_plan task_test _step_size:=0.5 _iter:=25 _ntrajs:=200 _starting_hori
 rosrun grid_plan task_test _step_size:=0.5 _iter:=25 _ntrajs:=200 _starting_horizon:=5 _max_horizon:=5 _detect_collisions:=true _wait:=0 _collisions_verbose:=false _base_model_norm:=0.1 _model_norm_step=1 _update_horizon:=0.01
 ```
 
+You should be able to see a roughly exponential improvement:
+
+```
+[5] align >>>> AVG P = 1.2851
+[4] grasp >>>> AVG P = 0.00642552
+[5] align >>>> AVG P = 268.966
+[4] grasp >>>> AVG P = 1.34483
+[5] align >>>> AVG P = 3533.92
+[4] grasp >>>> AVG P = 17.6696
+[5] align >>>> AVG P = 6778.76
+[4] grasp >>>> AVG P = 33.8938
+[5] align >>>> AVG P = 62099.1
+[4] grasp >>>> AVG P = 310.496
+[5] align >>>> AVG P = 88452.6
+[4] grasp >>>> AVG P = 442.263
+[5] align >>>> AVG P = 335451
+[4] grasp >>>> AVG P = 1677.25
+[5] align >>>> AVG P = 561695
+[4] grasp >>>> AVG P = 2808.47
+[5] align >>>> AVG P = 807009
+[4] grasp >>>> AVG P = 4035.04
+[5] align >>>> AVG P = 1.13222e+06
+[4] grasp >>>> AVG P = 5661.09
+[5] align >>>> AVG P = 1.35106e+06
+[4] grasp >>>> AVG P = 6755.32
+[5] align >>>> AVG P = 1.49062e+06
+[4] grasp >>>> AVG P = 7453.1
+[5] align >>>> AVG P = 1.56917e+06
+[4] grasp >>>> AVG P = 7845.86
+[5] align >>>> AVG P = 1.6093e+06
+[4] grasp >>>> AVG P = 8046.48
+[5] align >>>> AVG P = 1.63996e+06
+[4] grasp >>>> AVG P = 8199.78
+
+```
+
 ### Current Commands
 
 Good places to start experiments:
@@ -149,9 +185,10 @@ Good places to start experiments:
 ```
 rosrun grid_plan task_test _step_size:=0.5 _iter:=25 _ntrajs:=200 _starting_horizon:=5 _max_horizon:=5 _detect_collisions:=true _wait:=0 _collisions_verbose:=false _base_model_norm:=0.001 _model_norm_step=1 _update_horizon:=0.01
 rosrun grid_plan task_test _step_size:=0.5 _iter:=15 _ntrajs:=200 _starting_horizon:=5 _max_horizon:=5 _detect_collisions:=true _wait:=0 _collisions_verbose:=false _base_model_norm:=0.0001 _model_norm_step=1 _update_horizon:=0.0001
+rosrun grid_plan task_test _step_size:=0.5 _iter:=15 _ntrajs:=100 _starting_horizon:=5 _max_horizon:=5 _detect_collisions:=true _wait:=0 _collisions_verbose:=false _base_model_norm:=0.001 _model_norm_step=1 _update_horizon:=0.0001 _replan_depth:=0 _execute_depth:=5 _collision_detection_step:=2 _fixed_distribution_noise:=true _test:=0
 ```
 
-Note the decreased model norm from the previous version.
+Note the decreased model norm from the previous version. I changed back to adding a higher norm after switching to k=3 components. As of 2016-02-24, I am making "place" have k=2 since one of the recorded examples was bad.
 
 ## Guide to Files
 

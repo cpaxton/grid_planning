@@ -24,10 +24,12 @@ int main(int argc, char **argv) {
 
   std::vector<std::string> filenames;
 
-  unsigned int ntraining = 8u; //9u;
+  unsigned int ntraining = 3u; //9u;
   if (p.skill_name == "approach") {
     ROS_INFO("Configuring for approach...");
-    std::string _filenames[] = {"data/sim/approach01.bag", "data/sim/approach02.bag", "data/sim/approach03.bag",
+    std::string _filenames[] = {
+      //"data/sim/old data/app1.bag", "data/sim/old data/app2.bag", "data/sim/old data/app3.bag",
+      "data/sim/approach01.bag", "data/sim/approach02.bag", "data/sim/approach03.bag",
       //"data/sim_auto/approach1.bag", "data/sim_auto/approach2.bag",
       //"data/sim_auto/approach3.bag",
       //"data/sim_auto/approach4.bag",
@@ -39,7 +41,7 @@ int main(int argc, char **argv) {
       "data/sim/approach_right02.bag",
       "data/sim/approach_right03.bag"
     };
-    ntraining = 9u;
+    ntraining = 3u;
     filenames.insert(filenames.begin(),&_filenames[0],&_filenames[ntraining]);
   } else if (p.skill_name == "align") {
     ROS_INFO("Configuring for align...");
@@ -146,7 +148,7 @@ int main(int argc, char **argv) {
   std::cout << "Running skill test:" << std::endl;
 
   geometry_msgs::PoseArray msg;
-  Skill test(p.skill_name,1);
+  Skill test(p.skill_name,3);
   if (p.skill_name == "approach") {
     ROS_INFO("Using link features");
     msg.header.frame_id = "gbeam_link_1/gbeam_link"; //"wam/wrist_palm_link";

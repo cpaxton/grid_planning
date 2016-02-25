@@ -285,8 +285,11 @@ class RobotFeatures:
         with rosbag.Bag(filename,'w') as outbag:
             try:
                 for i in range(len(self.times)):
-                    #print "%d / %d / %d"%(i, len(self.joint_states), len(self.times))
+                    print "%d / joint states = %d / times = %d / world states = %d"%(i, len(self.joint_states), len(self.times), len(self.world_states))
                     outbag.write('joint_states',self.joint_states[i],self.times[i])
+                    if i >= len(self.world_states):
+                        print "Done early."
+                        break
                     for frame in self.world_states[0].keys():
                         outbag.write('world/%s'%frame,pm.toMsg(self.world_states[i][frame]),self.times[i])
                     outbag.write('base_tform',pm.toMsg(self.base_tform),self.times[i])

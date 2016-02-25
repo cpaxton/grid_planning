@@ -37,13 +37,15 @@ task_args = ["_step_size:=0.5",
         "_detect_collisions:=true",
         "_wait:=0",
         "_collisions_verbose:=0",
-        "_base_model_norm:=0.0001",
+        "_base_model_norm:=0.001",
         "_model_norm_step:=1",
         "_update_horizon:=0.0001",
         "_compute_statistics:=true",
         "_collision_detection_step:=2",
         "_replan_depth:=0",
-        "_execute_depth:=5"
+        "_execute_depth:=5",
+        "_fixed_distribution_noise:=true",
+        "_test:=0",
         ]
 single_args = ["_step_size:=0.5",
         "_iter:=15",
@@ -53,13 +55,15 @@ single_args = ["_step_size:=0.5",
         "_detect_collisions:=true",
         "_wait:=0",
         "_collisions_verbose:=0",
-        "_base_model_norm:=0.0001",
+        "_base_model_norm:=0.001",
         "_model_norm_step:=1",
         "_update_horizon:=0.0001",
         "_compute_statistics:=true",
         "_collision_detection_step:=2",
         "_replan_depth:=1",
-        "_execute_depth:=5"
+        "_execute_depth:=5",
+        "_fixed_distribution_noise:=true",
+        "_test:=0",
         ]
 
 args = [single_args,task_args,single_args,task_args]
@@ -68,7 +72,7 @@ try:
     for test in range(0,4):
 
         test_cmd = ["rosrun","grid_plan"] + [executables[test]]
-        for i in range(2,11):
+        for i in range(1,11):
 
             name = 'double%d:=true'%(i)
             print name
@@ -137,7 +141,8 @@ finally:
     i = 0
     for final_test in final:
         i += 1
+        print "test case %d:"%(i)
         for pose in final_test:
-            print "test case %d: %f"%(i,pose.p.Norm())
+            print "%f %f %f %f"%(pose.p.Norm(), pose.p.x(), pose.p.y(), pose.p.z())
 
 
