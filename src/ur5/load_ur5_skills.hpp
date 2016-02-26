@@ -69,10 +69,11 @@ namespace grid {
     /* LOAD TRAINING DATA FOR APPROACH */
     {
       std::string filenames[] = {
-        "data/ur5_assembly_v3/approach_link_x_11.bag",
-        "data/ur5_assembly_v3/approach_link_x_12.bag",
-        "data/ur5_assembly_v3/approach_link_x_13.bag",};
-      load_and_train_skill(*approach_link, rk_ptr, filenames, 3);
+        "data/ur5_assembly_v3/approach_link_x_31.bag",
+        "data/ur5_assembly_v3/approach_link_x_32.bag",
+        //"data/ur5_assembly_v3/approach_link_x_30.bag",
+      };
+      load_and_train_skill(*approach_link, rk_ptr, filenames, 2);
     }
     /* LOAD TRAINING DATA FOR APPROACH RIGHT */
     {
@@ -82,10 +83,11 @@ namespace grid {
     /* LOAD TRAINING DATA FOR GRASP */
     {
       std::string filenames[] = {
-        "data/ur5_assembly_v3/grasp_link_x_11.bag", 
-        "data/ur5_assembly_v3/grasp_link_x_12.bag", 
-        "data/ur5_assembly_v3/grasp_link_x_13.bag",};
-      load_and_train_skill(*grasp_link, rk_ptr, filenames, 3);
+        "data/ur5_assembly_v3/grasp_link_x_31.bag", 
+        "data/ur5_assembly_v3/grasp_link_x_32.bag", 
+        //"data/ur5_assembly_v3/grasp_link_x_30.bag",
+      };
+      load_and_train_skill(*grasp_link, rk_ptr, filenames, 2);
     }
     /* LOAD TRAINING DATA FOR GRASP */
     {
