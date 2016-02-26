@@ -94,6 +94,9 @@ namespace grid {
    */
   void InstantiatedSkill::updateTransitions() {
 
+
+    //if (p.random_transitions) { return; }
+
     double last_tsum = 0;
     double tsum = 0;
     for (unsigned int i = 0; i < T.size(); ++i) {
@@ -101,7 +104,7 @@ namespace grid {
       tsum += T[i];
     }
 
-    if (tsum < 1e-200) {
+    if (tsum < 1e-200 or p.random_transitions) {
       for (unsigned int i = 0; i < T.size(); ++i) {
         T[i] = last_T[i]/last_tsum;
       }
@@ -197,8 +200,10 @@ namespace grid {
     if(dmp_dist) {
       dmp_dist->addNoise(0.0001);
     }
-    for (double &t : T) {
-      t = 1;
+    if (not p.random_transitions) {
+      for (double &t : T) {
+        t = 1;
+      }
     }
     updateTransitions();
     model_norm = p.base_model_norm;
@@ -547,9 +552,13 @@ namespace grid {
 
     if (not touched) {
       replan = true;
-    } else if (horizon > 0 and not next[0]->touched) {
-      std::cout << "Child not touched yet!\n";
-      replan = true;
+    } else if (horizon > 0) {
+      for (unsigned int i = 0; i < next.size(); ++i) {
+        if ((not next[i]->touched) and T[i] > 1e-100) {
+          std::cout << "Child " << i << " not touched yet!\n";
+          replan = true;
+        }
+      }
     }
 
     // trigger action server
@@ -582,8 +591,11 @@ namespace grid {
         useCurrentFeatures = true;
         updateCurrentAttachedObjectFrame();
 
-        robot->updateHint(gp.currentPos());
-        robot->updateVelocityHint(gp.currentVel());
+        std::cout << ">> " << gp.currentPos()[0] << "\n";
+        if (robot) {
+          robot->updateHint(gp.currentPos());
+          robot->updateVelocityHint(gp.currentVel());
+        }
         features->updateWorldfromTF();
         updateCurrentAttachedObjectFrame();
 

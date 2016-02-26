@@ -1,4 +1,6 @@
 #include <grid/utils/params.h>
+#include <random>
+#include <ctime>
 
 namespace grid {
 
@@ -77,6 +79,16 @@ namespace grid {
       }
       if (not nh_tilde.getParam("fixed_distribution_noise",p.fixed_distribution_noise)) {
         p.fixed_distribution_noise = true;
+      }
+      if (not nh_tilde.getParam("random_transitions",p.random_transitions)) {
+        p.random_transitions = false;
+      }
+      if (not nh_tilde.getParam("randomize",p.randomize)) {
+        p.randomize = false;
+      } else if (p.randomize) {
+        time_t timer;
+        time(&timer);
+        srand(timer);
       }
 
       return p;

@@ -98,6 +98,20 @@ namespace grid {
     T.push_back(1);
     last_T.push_back(1);
 
+    if (p.random_transitions and T.size() > 1) {
+      unsigned int idx = rand() % T.size();
+      std::cout << "(Test setup) RANDOM IDX = " << idx << "\n";
+      for (unsigned int i = 0; i < T.size(); ++i) {
+        if (i != idx) {
+          T[i] = 0;
+          last_T[i] = 0;
+        } else {
+          T[i] = 1;
+          last_T[i] = 1;
+        }
+      }
+    }
+
     updateTransitions();
   }
 

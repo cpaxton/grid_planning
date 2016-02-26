@@ -24,8 +24,10 @@ listener = tf.TransformListener()
 procs = []
 final = [[],[],[],[],[],[],[],[]]
 
-executables = ["simple_test","simple_test","task_test","task_test",
-        "simple_test","simple_test","task_test","task_test"]
+#executables = ["simple_test","simple_test","task_test","task_test",
+#        "simple_test","simple_test","task_test","task_test"]
+executables = ["task_test","task_test","task_test","task_test",
+        "task_test","task_test","task_test","task_test"]
 
 reset_cmd = ["rosrun","grid_experiments","reset.py"]
 target_cmd = ["roslaunch","grid_plan","test_targets.launch"]
@@ -46,12 +48,14 @@ task_args = ["_step_size:=0.5",
         "_replan_depth:=0",
         "_execute_depth:=5",
         "_fixed_distribution_noise:=true",
+        "_random_transitions:=false",
+        "_randomize:=true"
         ]
 single_args = ["_step_size:=0.5",
         "_iter:=20",
         "_ntrajs:=200",
         "_starting_horizon:=2",
-        "_max_horizon:=2",
+        "_max_horizon:=1",
         "_detect_collisions:=true",
         "_wait:=0",
         "_collisions_verbose:=0",
@@ -63,7 +67,10 @@ single_args = ["_step_size:=0.5",
         "_replan_depth:=1",
         "_execute_depth:=5",
         "_fixed_distribution_noise:=true",
+        "_random_transitions:=true",
+        "_randomize:=true"
         ]
+
 human_arg = ["_test:=0"];
 auto_arg = ["_test:=1"];
 
