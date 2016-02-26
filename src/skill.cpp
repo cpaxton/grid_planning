@@ -229,7 +229,7 @@ namespace grid {
       //model->Init(normalized_training_data.begin()->first,normalized_training_data.rbegin()->first);
       model->Init(EigenVectornd::Constant(dim,-1),EigenVectornd::Constant(dim,1));
       Matrixnd S = 1e-10*Matrixnd::Identity(dim,dim);
-      model->Fit(normalized_training_data,0.5,50,&S);
+      model->Fit(normalized_training_data,1,50,&S);
       model->Update();
 
       // save the original matrices
