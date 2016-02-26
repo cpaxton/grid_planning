@@ -22,15 +22,16 @@ def lookup(frame1,frame2):
 rospy.init_node('run_task_test_master')
 listener = tf.TransformListener()
 procs = []
-final = [[],[],[],[]]
+final = [[],[],[],[],[],[],[],[]]
 
-executables = ["simple_test","simple_test","task_test","task_test"]
+executables = ["simple_test","simple_test","task_test","task_test",
+        "simple_test","simple_test","task_test","task_test"]
 
 reset_cmd = ["rosrun","grid_experiments","reset.py"]
 target_cmd = ["roslaunch","grid_plan","test_targets.launch"]
 
 task_args = ["_step_size:=0.5",
-        "_iter:=15",
+        "_iter:=20",
         "_ntrajs:=200",
         "_starting_horizon:=5",
         "_max_horizon:=5",
@@ -45,10 +46,9 @@ task_args = ["_step_size:=0.5",
         "_replan_depth:=0",
         "_execute_depth:=5",
         "_fixed_distribution_noise:=true",
-        "_test:=0",
         ]
 single_args = ["_step_size:=0.5",
-        "_iter:=15",
+        "_iter:=20",
         "_ntrajs:=200",
         "_starting_horizon:=2",
         "_max_horizon:=2",
@@ -63,13 +63,17 @@ single_args = ["_step_size:=0.5",
         "_replan_depth:=1",
         "_execute_depth:=5",
         "_fixed_distribution_noise:=true",
-        "_test:=0",
         ]
+human_arg = ["_test:=0"];
+auto_arg = ["_test:=1"];
 
-args = [single_args,task_args,single_args,task_args]
+args = [single_args+human_arg,task_args+human_arg,single_args+human_arg,task_args+human_arg,
+        single_args+auto_arg,task_args+auto_arg,single_args+auto_arg,task_args+auto_arg]
 
 try:
-    for test in range(0,4):
+    for test in range(0,8):
+
+        print "Running test case %d..."%test
 
         test_cmd = ["rosrun","grid_plan"] + [executables[test]]
         for i in range(1,11):

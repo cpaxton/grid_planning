@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
 
   Params p = readRosParams();
   RobotKinematicsPtr robot = RobotKinematicsPtr(new RobotKinematics("robot_description","wam/base_link","wam/wrist_palm_link"));
-  GridPlanner gp("robot_description","/gazebo/barrett_manager/wam/joint_states","/gazebo/raw_planning_scene",0.05);
+  GridPlanner gp("robot_description","/gazebo/barrett_manager/wam/joint_states","/gazebo/raw_planning_scene",0.02);
   gp.SetDof(robot->getDegreesOfFreedom());
   gp.SetCollisions("gbeam_soup",true);
   gp.SetCollisions("gbeam_soup.gbeam_link_1",true);
@@ -68,9 +68,9 @@ int main(int argc, char **argv) {
   gp.SetDefaultCollisions("wam/hand/finger_1/prox_link",true);
   gp.SetDefaultCollisions("wam/hand/finger_2/prox_link",true);
   gp.SetDefaultCollisions("wam/hand/finger_3/prox_link",true);
-  gp.SetDefaultCollisions("wam/shoulder_yaw_link",true);
+  //gp.SetDefaultCollisions("wam/shoulder_yaw_link",true);
   //gp.SetDefaultCollisions("wam/upper_arm_link",true);
-  gp.SetDefaultCollisions("wam/base_link",true);
+  //gp.SetDefaultCollisions("wam/base_link",true);
   //gp.SetDefaultCollisions("wam/shoulder_pitch_link",true);
   //gp.SetDefaultCollisions("wam/forearm_link",true);
   gp.SetDefaultCollisions("wam/wrist_pitch_link",true);
@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
 
   gp.SetVerbose(p.collisions_verbose);
 
-  GridPlanner gp2("robot_description","/gazebo/barrett_manager/wam/joint_states","/gazebo/raw_planning_scene",0.02);
+  GridPlanner gp2("robot_description","/gazebo/barrett_manager/wam/joint_states","/gazebo/raw_planning_scene",0.01);
   gp2.SetDof(robot->getDegreesOfFreedom());
   gp2.SetCollisions("gbeam_soup",true);
 

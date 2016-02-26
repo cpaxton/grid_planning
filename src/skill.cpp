@@ -185,7 +185,7 @@ namespace grid {
       normalized_training_data.clear();
 
       unsigned int dim = training_data[0].first.size();
-      std::cout << "DIM = " << dim << "\n";
+      //std::cout << "DIM = " << dim << "\n";
       mean = FeatureVector(dim);
       std = FeatureVector(dim);
 
@@ -194,7 +194,7 @@ namespace grid {
 
       // loop to compute mean
       double num_examples = (double)training_data.size();
-      std::cout << "training from " << num_examples << " examples.\n";
+      std::cout << "[" << getName() << "] Training from " << num_examples << " examples.\n";
       for (auto &pair: training_data) {
         mean += pair.first;
         pair.second = 1.0/num_examples;
@@ -207,12 +207,12 @@ namespace grid {
         std = std.array() + (v.array() * v.array());
       }
 
-      std::cout << "Mean = " << mean.transpose() << "\n";
+      //std::cout << "Mean = " << mean.transpose() << "\n";
 
       // finish computing std dev
-      if (isStatic()) {
-        std += EigenVectornd::Constant(std.size(),1,0.1);
-      }
+      //if (isStatic()) {
+      std += EigenVectornd::Constant(std.size(),1,0.1);
+      //}
       std /= training_data.size();
       std = std.cwiseSqrt();
       std = std.cwiseInverse();
@@ -228,16 +228,15 @@ namespace grid {
 
       //model->Init(normalized_training_data.begin()->first,normalized_training_data.rbegin()->first);
       model->Init(EigenVectornd::Constant(dim,-1),EigenVectornd::Constant(dim,1));
-      //std::cout <<  *model << "\n";
-      model->Fit(normalized_training_data);
-      //std::cout <<  *model << "\n";
+      Matrixnd S = 1e-10*Matrixnd::Identity(dim,dim);
+      model->Fit(normalized_training_data,0.5,50,&S);
       model->Update();
 
       // save the original matrices
       P.resize(k);
       for (unsigned int i = 0; i < k; ++i) {
         //model->ns[i].P = 1*Matrixnd::Identity(dim,dim);
-        model->ns[i].P += 1e-10*Matrixnd::Identity(dim,dim);
+        //model->ns[i].P += 1e-10*Matrixnd::Identity(dim,dim);
         P[i] = model->ns[i].P;
       }
       model->Update();
