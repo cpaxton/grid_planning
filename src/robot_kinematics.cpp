@@ -224,10 +224,11 @@ namespace grid {
   void RobotKinematics::updateHint(const std::vector<double> &js) {
     unsigned int i = 0;
     //std::cout << "Hint: ";
+    //std:: cout << hint.rows() << " " << hint.columns() << "\n";
     for(unsigned int i = 0; i < js.size(); ++i) {
       hint(i) = js.at(i);
       q[i] = js.at(i);
-      //std::cout << hint(i) << " ";
+      //std::cout << hint(i) << " \n";
     }
     //std::cout << std::endl;
   }

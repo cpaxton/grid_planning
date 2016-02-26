@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
       "data/sim/approach_right02.bag",
       "data/sim/approach_right03.bag"
     };
-    ntraining = 3u;
+    ntraining = 9u;
     filenames.insert(filenames.begin(),&_filenames[0],&_filenames[ntraining]);
   } else if (p.skill_name == "align") {
     ROS_INFO("Configuring for align...");

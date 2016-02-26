@@ -31,6 +31,8 @@ namespace grid {
     int replan_depth; // how deep can we go into the tree when replanning? 0 = max_horizon
     int execute_depth; // how deep can we go into the tree when executing? 0 = max_horizon
     bool fixed_distribution_noise;
+    bool random_transitions;
+    bool randomize;
   };
 
   Params readRosParams();
