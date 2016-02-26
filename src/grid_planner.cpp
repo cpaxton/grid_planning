@@ -342,6 +342,7 @@ namespace grid {
     /* configure degrees of freedom */
     void GridPlanner::SetDof(const unsigned int dof_) {
       dof = dof_;
+      joint_names.resize(dof);
       goal.resize(dof);
       x0.resize(dof);
       x0_dot.resize(dof);

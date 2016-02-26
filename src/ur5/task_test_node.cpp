@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
   actionlib::SimpleActionClient<grid_plan::CommandAction> ac("command", true);
 
   Params p = readRosParams();
-  std::string ee("ee_link");
+  std::string ee("ee_fixed_link");
   RobotKinematicsPtr robot = RobotKinematicsPtr(new RobotKinematics("robot_description","base_link",ee));
   GridPlanner gp("robot_description","joint_states","planning_scene",0.05);
   gp.SetDof(robot->getDegreesOfFreedom());

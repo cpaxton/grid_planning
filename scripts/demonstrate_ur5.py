@@ -46,7 +46,7 @@ if __name__ == '__main__':
         filename = sys.argv[1]
 
     rospy.init_node('demonstration_observer')
-    demo = grid.RobotFeatures(preset='ur5')
+    demo = grid.RobotFeatures(preset='ur5_with_joint_limits')
 
     # set up parameters
     world='/world'
