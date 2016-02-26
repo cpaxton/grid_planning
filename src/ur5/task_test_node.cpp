@@ -51,7 +51,8 @@ int main(int argc, char **argv) {
   actionlib::SimpleActionClient<grid_plan::CommandAction> ac("command", true);
 
   Params p = readRosParams();
-  RobotKinematicsPtr robot = RobotKinematicsPtr(new RobotKinematics("robot_description","base_link","ee_fixed_link"));
+  std::string ee("ee_fixed_link");
+  RobotKinematicsPtr robot = RobotKinematicsPtr(new RobotKinematics("robot_description","base_link",ee));
   GridPlanner gp("robot_description","joint_states","planning_scene",0.05);
   gp.SetDof(robot->getDegreesOfFreedom());
   gp.SetCollisions("gbeam_soup.gbeam_link_1",true);
@@ -76,7 +77,6 @@ int main(int argc, char **argv) {
     checker2 = &gp;
   }
 
-  std::string ee("ee_fixed_link");
   std::unordered_map<std::string, SkillPtr> skills;
   if (p.test == 0) {
     skills = loadSkills(ee);
@@ -130,7 +130,7 @@ int main(int argc, char **argv) {
   InstantiatedSkillPtr release21 = InstantiatedSkill::DmpInstance(skills["release_node"], features["node1,link1"], robot, nbasis, checker);
 
   root->addNext(app1); 
-  root->addNext(app2);
+  //root->addNext(app2);
 
   app1->addNext(grasp1); app1->pub = &pub;
   app2->addNext(grasp2); app2->pub = &pub;
