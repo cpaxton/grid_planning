@@ -60,10 +60,10 @@ namespace grid {
         }
       }
 
-      unsigned int max_iter_ik_vel = 150u;
-      double tol_ik_vel = 1e-6;
-      unsigned int max_iter_ik_pos = 150u;
-      double tol_ik_pos = 1e-6;
+      unsigned int max_iter_ik_vel = 250u;
+      double tol_ik_vel = 1e-3;
+      unsigned int max_iter_ik_pos = 250u;
+      double tol_ik_pos = 1e-3;
 
       kdl_fk_solver_pos.reset(new KDL::ChainFkSolverPos_recursive(kdl_chain));
       kdl_ik_solver_vel.reset(
