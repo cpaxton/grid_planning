@@ -80,7 +80,7 @@ args = [single_args+human_arg,task_args+human_arg,single_args+human_arg,task_arg
         single_args+auto_arg,task_args+auto_arg,single_args+auto_arg,task_args+auto_arg]
 
 try:
-    for test in range(0,4):
+    for test in range(0,8):
 
         print "Running test case %d..."%test
 
