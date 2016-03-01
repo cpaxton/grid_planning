@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
 
   gp.SetVerbose(p.collisions_verbose);
 
-  GridPlanner gp2("robot_description","/gazebo/barrett_manager/wam/joint_states","/gazebo/raw_planning_scene",0.01);
+  GridPlanner gp2("robot_description","/gazebo/barrett_manager/wam/joint_states","/gazebo/raw_planning_scene",0.02);
   gp2.SetDof(robot->getDegreesOfFreedom());
   gp2.SetCollisions("gbeam_soup",true);
 

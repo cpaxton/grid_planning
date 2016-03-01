@@ -72,12 +72,52 @@ single_args = ["_step_size:=0.5",
         "_random_transitions:=true",
         "_randomize:=true"
         ]
+single_lookahead_args = ["_step_size:=0.5",
+        "_iter:=20",
+        "_ntrajs:=200",
+        "_starting_horizon:=5",
+        "_max_horizon:=5",
+        "_detect_collisions:=true",
+        "_wait:=0",
+        "_collisions_verbose:=0",
+        "_base_model_norm:=0.001",
+        "_model_norm_step:=1",
+        "_update_horizon:=0.0001",
+        "_compute_statistics:=true",
+        "_collision_detection_step:=1",
+        "_distribution_noise:=1e-6",
+        "_replan_depth:=0",
+        "_execute_depth:=5",
+        "_fixed_distribution_noise:=true",
+        "_random_transitions:=true",
+        "_randomize:=true"
+        ]
+no_lookahead_args = ["_step_size:=0.5",
+        "_iter:=20",
+        "_ntrajs:=200",
+        "_starting_horizon:=2",
+        "_max_horizon:=1",
+        "_detect_collisions:=true",
+        "_wait:=0",
+        "_collisions_verbose:=0",
+        "_base_model_norm:=0.001",
+        "_model_norm_step:=1",
+        "_update_horizon:=0.0001",
+        "_compute_statistics:=true",
+        "_collision_detection_step:=1",
+        "_distribution_noise:=1e-6",
+        "_replan_depth:=1",
+        "_execute_depth:=5",
+        "_fixed_distribution_noise:=true",
+        "_random_transitions:=false",
+        "_randomize:=true"
+        ]
 
 human_arg = ["_test:=0"];
 auto_arg = ["_test:=1"];
 
-args = [single_args+human_arg,task_args+human_arg,single_args+human_arg,task_args+human_arg,
-        single_args+auto_arg,task_args+auto_arg,single_args+auto_arg,task_args+auto_arg]
+args = [single_args+human_arg,single_lookahead_args+human_arg,no_lookahead_args+human_arg,task_args+human_arg,
+        single_args+auto_arg,single_lookahead_args+auto_arg,no_lookahead_args+auto_arg,task_args+auto_arg]
 
 try:
     for test in range(0,8):
