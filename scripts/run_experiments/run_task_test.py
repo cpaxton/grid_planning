@@ -34,7 +34,7 @@ target_cmd = ["roslaunch","grid_plan","test_targets.launch"]
 
 task_args = ["_step_size:=0.5",
         "_iter:=10",
-        "_ntrajs:=200",
+        "_ntrajs:=300",
         "_starting_horizon:=5",
         "_max_horizon:=5",
         "_detect_collisions:=true",
@@ -54,7 +54,7 @@ task_args = ["_step_size:=0.5",
         ]
 single_args = ["_step_size:=0.5",
         "_iter:=10",
-        "_ntrajs:=200",
+        "_ntrajs:=300",
         "_starting_horizon:=2",
         "_max_horizon:=1",
         "_detect_collisions:=true",
@@ -74,7 +74,7 @@ single_args = ["_step_size:=0.5",
         ]
 single_lookahead_args = ["_step_size:=0.5",
         "_iter:=10",
-        "_ntrajs:=200",
+        "_ntrajs:=300",
         "_starting_horizon:=5",
         "_max_horizon:=5",
         "_detect_collisions:=true",
@@ -94,7 +94,7 @@ single_lookahead_args = ["_step_size:=0.5",
         ]
 no_lookahead_args = ["_step_size:=0.5",
         "_iter:=10",
-        "_ntrajs:=200",
+        "_ntrajs:=300",
         "_starting_horizon:=2",
         "_max_horizon:=1",
         "_detect_collisions:=true",
@@ -120,7 +120,7 @@ args = [single_args+human_arg,single_lookahead_args+human_arg,no_lookahead_args+
         single_args+auto_arg,single_lookahead_args+auto_arg,no_lookahead_args+auto_arg,task_args+auto_arg]
 
 try:
-    for test in [3]:#,7,1,2,0,5,6,4]: #range(0,8):
+    for test in [3,7,1,2,0,5,6,4]: #range(0,8):
     #for test in [1,2,0,5,6,4]: #range(0,8):
     #for test in [0,5,6,4]: #range(0,8):
     #for test in [6,4]: #range(0,8):
