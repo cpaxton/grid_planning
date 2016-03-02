@@ -2,63 +2,11 @@
 #include <grid/visualize.h>
 //#include <grid/utils/params.hpp>
 
-//#define LOW_PROBABILITY 0
-//#define MAX_PROBABILITY 1
-#define LOW_PROBABILITY -999999
-#define MAX_PROBABILITY 0
-
 using namespace grid_plan;
 using trajectory_msgs::JointTrajectory;
 using trajectory_msgs::JointTrajectoryPoint;
 
 namespace grid {
-
-  unsigned int InstantiatedSkill::next_id(0);
-
-  /** 
-   * default constructor
-   */
-  InstantiatedSkill::InstantiatedSkill()
-    : id(next_id++), done(false), useCurrentFeatures(false),
-    touched(false), spline_dist(0), dmp_dist(0), skill(0),
-    trajs(), effects(), cur_iter(0), last_probability(MAX_PROBABILITY), last_samples(1u), pub(0), prior(0)
-  {
-  }
-
-  /**
-   * set up with parameters
-   */
-  InstantiatedSkill::InstantiatedSkill(Params &p_) :
-    p(p_),
-    id(next_id++), done(false), touched(false), spline_dist(0), dmp_dist(0), skill(0),
-    effects(),
-    ps(p_.ntrajs), iter_lls(p_.iter),
-    useCurrentFeatures(false),
-    trajs(p_.ntrajs),
-    next_ps(p_.ntrajs),
-    params(p_.ntrajs), cur_iter(0), good_iter(0),
-    next_skill(p_.ntrajs),
-    prev_idx(p_.ntrajs),
-    end_pts(p_.ntrajs),
-    start_pts(p_.ntrajs),
-    start_ps(p_.ntrajs),
-    my_ps(p_.ntrajs),
-    my_future_ps(p_.ntrajs),
-    prev_p_sums(p_.ntrajs),
-    prev_counts(p_.ntrajs),
-    transitions_step(p_.step_size),
-    acc(p_.ntrajs),
-    last_probability(MAX_PROBABILITY),
-    last_samples(1u), pub(0), prior(0)
-  {
-    done = false;
-    touched = false;
-    model_norm = p.base_model_norm;
-    best_p = LOW_PROBABILITY;
-    cur_iter = 0;
-    good_iter = 0;
-    best_idx = 0;
-  }
 
 
   /**
@@ -148,13 +96,6 @@ namespace grid {
     return 0;
   }
 
-  // initialize next probabilities
-  void InstantiatedSkill::initializePs(std::vector<double> &ps_, double val) {
-    for (unsigned int i = 0; i < ps_.size(); ++i) {
-      ps_[i] = val;
-    }
-  }
-
   void InstantiatedSkill::accumulateProbs(const std::vector<double> &prev_ps, unsigned int len) {
     /************* ACCUMULATE PROBABILITIES *************/
     for (unsigned int i = 0; i < len; ++i) {
@@ -225,12 +166,6 @@ namespace grid {
     }
   }
 
-  void InstantiatedSkill::initializeCounts(std::vector<unsigned int> &ps, unsigned int val) {
-    for (auto &u: ps) {
-      u = val;
-    }
-  }
-
   /** 
    * find best entries
    */
@@ -248,12 +183,33 @@ namespace grid {
   }
 
   /**
+   * print out debug info on child probabilities and current ("my") probabilities
+   */
+  void InstantiatedSkill::debugPrintCurrentChildProbabilities(unsigned int samples) {
+    for (unsigned int i = 0; i < samples; ++i) {
+      if (skill) {
+        std::cout << "[" << id << "] " << skill->getName()
+          << ": "<<my_ps[i];
+      } else {
+        std::cout << "[" << id << "] [no skill]"
+          << ": "<<my_ps[i];
+      }
+      for (unsigned int next = 0; next < T.size(); ++next) {
+        std::cout << " + "<< next_ps[next][i];
+      }
+      std::cout << " = " << my_ps[i] << " + " << avg_next_ps[i];
+      std::cout << "\n";
+    }
+  }
+
+  /**
    * run a single iteration of the loop. return a set of trajectories.
    * this is very similar to code in the demo
    */
   void InstantiatedSkill::step(const std::vector<double> &prev_ps,
                                const std::vector<JointTrajectoryPoint> &prev_end_pts,
                                std::vector<double> &ps_out,
+                               //std::vector<unsigned int> &prev_counts,
                                double &probability,
                                unsigned int len,
                                int horizon,
@@ -267,21 +223,16 @@ namespace grid {
       probability = 1e-200;
       return;
     } else if (horizon == 0 || next.size() == 0) {
-      initializePs(next_ps,0);
+      initializeNextPs(next_ps,0);
     } else {
-      initializePs(next_ps,LOW_PROBABILITY);
+      initializeNextPs(next_ps,LOW_PROBABILITY);
     }
     touched = true;
     initializePs(prev_p_sums,0);
+    initializePs(avg_next_ps,0);
     initializeCounts(prev_counts,0u);
     accumulateProbs(prev_ps,len);
 
-    //std::cout << "ID == " << id;
-    //if (skill) std::cout << "(" << skill->getName() << ")";
-    //std::cout << ", horizon == " << horizon;
-    //std::cout << ", len == " << len;
-    //std::cout << ", end pts = " << prev_end_pts.size();
-    //std::cout << "\n";
 
     /************* SAMPLE TRAJECTORIES IF NECESSARY *************/
     if (not skill) {
@@ -334,7 +285,6 @@ namespace grid {
         skill->resetModel();
         skill->addModelNormalization(model_norm);
 
-        // TODO: speed this up
         if (useCurrentFeatures) {
           //std::cout << currentAttachedObjectFrame << "\n";
           features->getFeaturesForTrajectory(
@@ -359,7 +309,6 @@ namespace grid {
           std::cout << "[" << id << "] " << j << ": " << skill->getName() << ": "<< my_ps[j]<<" + "<< start_ps[j]<<"\n";
         }
 
-
         if (trajs[j].points.size() < 1) {
           my_ps[j] = LOW_PROBABILITY;
           continue;
@@ -377,24 +326,29 @@ namespace grid {
     }
 
     // check to make sure this is a valid path to explore
-    double sum_so_far = 0;
+    double avg_so_far = 0;
     for (unsigned int j = 0; j < nsamples; ++j) {
       ps[j] = my_ps[j] + start_ps[j];
-      sum_so_far += exp(my_ps[j]);
+      avg_so_far += exp(my_ps[j]);
     }
+    avg_so_far /= nsamples;
 
     // do we want to continue?
     // if so descend through the tree
     // descent through the tree
-    if (horizon > 0 && log(sum_so_far) > LOW_PROBABILITY) {
+    if (horizon > 0 && log(avg_so_far) > LOW_PROBABILITY) {
 
       unsigned int next_skill_idx = 0;
+
       for (auto &ns: next) {
-        unsigned int next_nsamples = floor((T[next_skill_idx]*nsamples) + 0.5);
-        //std::cout << "samples: " << next_nsamples << ", " << T[next_skill_idx] << "\n";
-        ns->step(my_ps, end_pts,
-                 next_ps, T[next_skill_idx], // outputs
-                 next_len, horizon-1, next_nsamples); // params
+
+        unsigned int next_nsamples = floor((T[next_skill_idx]*nsamples));
+        if (next_nsamples > 0) {
+          ns->step(my_ps, end_pts,
+                   //next_ps[next_skill_idx], next_counts[next_skill_idx], T[next_skill_idx], // outputs
+                   next_ps[next_skill_idx], T[next_skill_idx], // outputs
+                   next_len, horizon-1, next_nsamples); // params
+        }
 
         if (p.verbosity > 0) {
           std::cout << " >>> probability of " << ns->skill->getName()
@@ -405,25 +359,28 @@ namespace grid {
         ++next_skill_idx;
       }
 
-      for (unsigned int i = 0; i < nsamples; ++i) {
-        if (p.verbosity > 1) {
-          if (skill) {
-            std::cout << "[" << id << "] " << skill->getName()
-              << ": "<<my_ps[i]<<" + "<< next_ps[i]<<"\n";
-          } else {
-            std::cout << "[" << id << "] [no skill]"
-              << ": "<<my_ps[i]<<" + "<< next_ps[i] <<"\n";
-          }
+      // compute the probabilities
+      for (unsigned int i = 0; i < T.size(); ++i) {
+        //double next_nsamples_ratio = floor((T[i]*nsamples)) / (double)nsamples;
+        for(unsigned int j = 0; j < nsamples; ++j) {
+          avg_next_ps[j] += T[i] * exp(next_ps[i][j]);
         }
-        ps[i] = start_ps[i] + my_ps[i] + next_ps[i];
-        my_future_ps[i] = my_ps[i] + next_ps[i];
       }
-    } else if (horizon == 0) {
+    } else {
       for (unsigned int i = 0; i < nsamples; ++i) {
-        ps[i] = start_ps[i] + my_ps[i];
-        my_future_ps[i] = my_ps[i] + next_ps[i];
+       avg_next_ps[i] = 1; 
       }
     }
+
+
+    for (unsigned int i = 0; i < nsamples; ++i) {
+      avg_next_ps[i] = log(avg_next_ps[i]);
+      ps[i] = start_ps[i] + my_ps[i] + avg_next_ps[i];
+      my_future_ps[i] = my_ps[i] + avg_next_ps[i];
+    }
+
+
+    if (p.verbosity > 1) debugPrintCurrentChildProbabilities(nsamples);
 
     // update probabilities for all
     {
@@ -434,11 +391,11 @@ namespace grid {
       probability = 0;
       for (unsigned int i = 0; i < nsamples; ++i) {
         if (p.verbosity > 2) {
-          std::cout << " - propogating p(" << i << ") = " << my_ps[i] + next_ps[i] << " back to " << prev_idx[i] << " ... " << log(probability) << "\n";
+          std::cout << " - propogating p(" << i << ") = " << my_ps[i] + avg_next_ps[i] << " back to " << prev_idx[i] << " ... " << log(probability) << "\n";
         }
-        prev_p_sums[prev_idx[i]] += exp(my_ps[i]+next_ps[i]);
+        prev_p_sums[prev_idx[i]] += exp(my_ps[i]+avg_next_ps[i]);
         ++prev_counts[prev_idx[i]];
-        probability += exp(my_ps[i]+next_ps[i]);
+        probability += exp(my_ps[i]+avg_next_ps[i]);
       }
       //probability /= nsamples;
       last_probability = probability;
@@ -600,9 +557,11 @@ namespace grid {
         updateCurrentAttachedObjectFrame();
 
         std::vector<trajectory_msgs::JointTrajectoryPoint> starts(1);
+        std::vector<double> root_next_ps(1);
 
         start_ps.resize(1);
         start_ps[0] = MAX_PROBABILITY;
+
 
         for (auto &pt: starts) {
           pt.positions = gp.currentPos();
@@ -625,7 +584,9 @@ namespace grid {
           ros::spinOnce();
           features->updateWorldfromTF();
 
-          step(start_ps,starts,next_ps,probability,1,my_horizon,p.ntrajs);
+          step(start_ps,starts,
+               root_next_ps,probability,
+               1,my_horizon,p.ntrajs);
           publish();
 
           //replan = false;

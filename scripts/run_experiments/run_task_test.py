@@ -33,7 +33,7 @@ reset_cmd = ["rosrun","grid_experiments","reset.py"]
 target_cmd = ["roslaunch","grid_plan","test_targets.launch"]
 
 task_args = ["_step_size:=0.5",
-        "_iter:=20",
+        "_iter:=10",
         "_ntrajs:=200",
         "_starting_horizon:=5",
         "_max_horizon:=5",
@@ -42,10 +42,10 @@ task_args = ["_step_size:=0.5",
         "_collisions_verbose:=0",
         "_base_model_norm:=0.001",
         "_model_norm_step:=1",
-        "_update_horizon:=0.0001",
+        "_update_horizon:=0.01",
         "_compute_statistics:=true",
         "_collision_detection_step:=2",
-        "_distribution_noise:=1e-6",
+        "_distribution_noise:=1e-8",
         "_replan_depth:=0",
         "_execute_depth:=5",
         "_fixed_distribution_noise:=true",
@@ -53,7 +53,7 @@ task_args = ["_step_size:=0.5",
         "_randomize:=true"
         ]
 single_args = ["_step_size:=0.5",
-        "_iter:=20",
+        "_iter:=10",
         "_ntrajs:=200",
         "_starting_horizon:=2",
         "_max_horizon:=1",
@@ -62,10 +62,10 @@ single_args = ["_step_size:=0.5",
         "_collisions_verbose:=0",
         "_base_model_norm:=0.001",
         "_model_norm_step:=1",
-        "_update_horizon:=0.0001",
+        "_update_horizon:=0.01",
         "_compute_statistics:=true",
         "_collision_detection_step:=2",
-        "_distribution_noise:=1e-6",
+        "_distribution_noise:=1e-8",
         "_replan_depth:=1",
         "_execute_depth:=5",
         "_fixed_distribution_noise:=true",
@@ -73,7 +73,7 @@ single_args = ["_step_size:=0.5",
         "_randomize:=true"
         ]
 single_lookahead_args = ["_step_size:=0.5",
-        "_iter:=20",
+        "_iter:=10",
         "_ntrajs:=200",
         "_starting_horizon:=5",
         "_max_horizon:=5",
@@ -82,10 +82,10 @@ single_lookahead_args = ["_step_size:=0.5",
         "_collisions_verbose:=0",
         "_base_model_norm:=0.001",
         "_model_norm_step:=1",
-        "_update_horizon:=0.0001",
+        "_update_horizon:=0.01",
         "_compute_statistics:=true",
-        "_collision_detection_step:=1",
-        "_distribution_noise:=1e-6",
+        "_collision_detection_step:=2",
+        "_distribution_noise:=1e-8",
         "_replan_depth:=0",
         "_execute_depth:=5",
         "_fixed_distribution_noise:=true",
@@ -93,7 +93,7 @@ single_lookahead_args = ["_step_size:=0.5",
         "_randomize:=true"
         ]
 no_lookahead_args = ["_step_size:=0.5",
-        "_iter:=20",
+        "_iter:=10",
         "_ntrajs:=200",
         "_starting_horizon:=2",
         "_max_horizon:=1",
@@ -102,10 +102,10 @@ no_lookahead_args = ["_step_size:=0.5",
         "_collisions_verbose:=0",
         "_base_model_norm:=0.001",
         "_model_norm_step:=1",
-        "_update_horizon:=0.0001",
+        "_update_horizon:=0.01",
         "_compute_statistics:=true",
-        "_collision_detection_step:=1",
-        "_distribution_noise:=1e-6",
+        "_collision_detection_step:=2",
+        "_distribution_noise:=1e-8",
         "_replan_depth:=1",
         "_execute_depth:=5",
         "_fixed_distribution_noise:=true",
@@ -120,7 +120,10 @@ args = [single_args+human_arg,single_lookahead_args+human_arg,no_lookahead_args+
         single_args+auto_arg,single_lookahead_args+auto_arg,no_lookahead_args+auto_arg,task_args+auto_arg]
 
 try:
-    for test in range(0,8):
+    for test in [3]:#,7,1,2,0,5,6,4]: #range(0,8):
+    #for test in [1,2,0,5,6,4]: #range(0,8):
+    #for test in [0,5,6,4]: #range(0,8):
+    #for test in [6,4]: #range(0,8):
 
         print "Running test case %d..."%test
 

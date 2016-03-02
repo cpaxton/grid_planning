@@ -191,21 +191,16 @@ int main(int argc, char **argv) {
     robot->updateVelocityHint(gp.currentVel());
 
 
-    // this is where the magic happens
-    //ps_out[0] = 0.;
-    //ps[0] = 1.; // set prior
-    ps_out[0] = 0.;
-    ps[0] = 0.; // set prior
 
-#if 1
     align22->useCurrentFeatures = true;
     align22->updateCurrentAttachedObjectFrame();
     place22->useCurrentFeatures = true;
     place22->updateCurrentAttachedObjectFrame();
     release22->useCurrentFeatures = true;
     release22->updateCurrentAttachedObjectFrame();
-    //place22->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
-#endif
+
+    ps_out[0] = 0.;
+    ps[0] = 0.; // set prior
     align22->step(ps,starts,ps_out,prob,1,horizon,p.ntrajs);
 
     /* PUT EVERYTHING INTO SOME MESSAGES */

@@ -61,7 +61,12 @@ namespace grid {
     std::vector<JointTrajectoryPoint> start_pts;
     std::vector<double> start_ps;
     std::vector<unsigned int> prev_idx;
+
+    std::vector<double> avg_next_ps;
+    std::vector<std::vector<double> > next_ps;
+    //std::vector<std::vector<unsigned int> > next_counts;
     std::vector<unsigned int> prev_counts;
+
     std::vector<double> prev_p_sums;
     std::vector<double> acc;
 
@@ -100,7 +105,6 @@ namespace grid {
     std::vector<double> ps;
     std::vector<double> my_ps;
     std::vector<double> my_future_ps;
-    std::vector<double> next_ps;
     std::vector<double> iter_lls;
     std::vector<unsigned int> next_skill;
     
@@ -138,6 +142,11 @@ namespace grid {
      * set children to not done too
      */
     void reset();
+
+    /**
+     * print out debug info on child probabilities and current ("my") probabilities
+     */
+    void debugPrintCurrentChildProbabilities(unsigned int samples);
 
     /**
      * create a new skill with dmps
@@ -192,6 +201,7 @@ namespace grid {
     void step(const std::vector<double> &ps,
               const std::vector<trajectory_msgs::JointTrajectoryPoint> &start_pts,
               std::vector<double> &ps_out,
+              //std::vector<unsigned int> &counts_out,
               double &probability,
               unsigned int len, // number of input samples provided (AKA prev samples)
               int horizon,
@@ -217,7 +227,11 @@ namespace grid {
     // randomly sample an index from the probabilities
     unsigned int sampleIndex(unsigned int nsamples) const;
 
+    // initialize probabilities (or really any array of doubles)
     void initializePs(std::vector<double> &ps, double val);
+
+    // initialize next probabilities
+    void initializeNextPs(std::vector<std::vector<double> > &ps, double val);
     void initializeCounts(std::vector<unsigned int> &ps, unsigned int val);
     void accumulateProbs(const std::vector<double> &prev_ps, unsigned int len);
     void copyEndPoints(const std::vector<JointTrajectoryPoint> &prev_end_pts,
@@ -229,5 +243,10 @@ namespace grid {
 
 
 }
+
+//#define LOW_PROBABILITY 0
+//#define MAX_PROBABILITY 1
+#define LOW_PROBABILITY -999999
+#define MAX_PROBABILITY 0
 
 #endif
