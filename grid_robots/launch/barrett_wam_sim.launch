@@ -1,0 +1,100 @@
+<launch>
+  <arg name="log_level" default="5" doc="(int) Set the Orocos log level (0:none) (4:warn) (5:info) (6:debug)"/>
+  <arg name="debug" default="false" doc="(bool) Launch in debug mode"/>
+  <arg name="gui" default="true" doc="(bool) Launch the gazebo GUI"/>
+  <arg name="planning" default="false" doc="(bool) Launch the motion planing pipeline"/>
+  <arg name="dash" default="false" doc="(bool) If true, display the barrett dashboard."/>
+  <arg name="hydra" default="true" doc="(bool) bring up Razer Hydras to control the arms."/>
+
+  <!-- choose which arms you want to bring up in simulation -->
+  <arg name="left" default="true" doc="(bool) Bring up the first Barrett WAM arm (on the left of the stage)"/>
+  <arg name="right" default="true" doc="(bool) Bring up the second Barrett WAM arm (on the right of the stage)"/>
+
+  <arg name="j0" default="0.0" doc="(float) Joint 0 initial position"/>
+  <arg name="j1" default="0.0" doc="(float) Joint 1 initial position"/>
+  <arg name="j2" default="0.0" doc="(float) Joint 2 initial position"/>
+  <arg name="j3" default="0.0" doc="(float) Joint 3 initial position"/>
+  <arg name="j4" default="0.0" doc="(float) Joint 4 initial position"/>
+  <arg name="j5" default="0.0" doc="(float) Joint 5 initial position"/>
+  <arg name="j6" default="0.0" doc="(float) Joint 6 initial position"/>
+
+  <param name="use_sim_time" value="true"/>
+
+  <group ns="germ">
+    <group ns="definitions">
+      <rosparam command="load" file="$(find grid_robots)/barrett_wam_sim/robots.yaml"/>
+    </group>
+  </group>
+
+  <!-- Gazebo -->
+  <include file="$(find rtt_gazebo_examples)/test/empty_world.launch">
+    <env name="ORO_LOGLEVEL" value="$(arg log_level)"/>
+    <arg name="debug" value="$(arg debug)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="headless" value="false"/>
+    <arg name="verbose" value="true"/>
+    <arg name="world_name" value="$(find lcsr_barrett)/launch/sim/wam.world"/>
+  </include>
+
+  <include if="$(arg left)" file="$(find lcsr_barrett)/launch/sim/wam7_sim_arm.launch">
+    <arg name="planning" value="$(arg planning)"/>
+    <arg name="empty" value="false"/>
+    <arg name="hand" value="true"/>
+    <arg name="ball" value="false"/>
+    <arg name="bumblebee" value="false"/>
+    <arg name="initial_group" value="ik_control"/>
+    <arg name="dash" value="$(arg dash)"/>
+    <arg name="j0" value="$(arg j0)"/>
+    <arg name="j1" value="$(arg j1)"/>
+    <arg name="j2" value="$(arg j2)"/>
+    <arg name="j3" value="$(arg j3)"/>
+    <arg name="j4" value="$(arg j4)"/>
+    <arg name="j5" value="$(arg j5)"/>
+    <arg name="j6" value="$(arg j6)"/>
+    <arg name="x" value="0.04"/>
+    <arg name="y" value="0.46"/>
+    <arg name="z" value="1.00"/>
+    <arg name="tf_prefix" value="wam"/>
+    <arg name="oro_prefix" value=""/>
+    <arg name="lua_script" value="$(find lcsr_barrett)/lua/wam_sim.lua"/>
+  </include>
+
+  <include if="$(arg right)" file="$(find lcsr_barrett)/launch/sim/wam7_sim_arm.launch">
+    <arg name="planning" value="$(arg planning)"/>
+    <arg name="empty" value="false"/>
+    <arg name="hand" value="true"/>
+    <arg name="ball" value="false"/>
+    <arg name="bumblebee" value="false"/>
+    <arg name="initial_group" value="w2ik_control"/>
+    <arg name="dash" value="$(arg dash)"/>
+    <arg name="j0" value="$(arg j0)"/>
+    <arg name="j1" value="$(arg j1)"/>
+    <arg name="j2" value="$(arg j2)"/>
+    <arg name="j3" value="$(arg j3)"/>
+    <arg name="j4" value="$(arg j4)"/>
+    <arg name="j5" value="$(arg j5)"/>
+    <arg name="j6" value="$(arg j6)"/>
+    <arg name="x" value="0.04"/>
+    <arg name="y" value="-0.46"/>
+    <arg name="z" value="1.00"/>
+    <arg name="tf_prefix" value="wam2"/>
+    <arg name="oro_prefix" value="w2"/>
+    <arg name="lua_script" value="$(find lcsr_barrett)/lua/wam2_sim.lua"/>
+  </include>
+
+
+  <!-- Spawn the lcsr stage in Gazebo -->
+  <param name="stage_model"
+    command="$(find xacro)/xacro.py '$(find lcsr_barrett)/models/stage.urdf.xacro'" />
+  <node name="$(anon urdf_spawner)" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+    args="-urdf -model stage -param stage_model"/>
+  <node name="stage_pose_broadcaster" pkg="tf" type="static_transform_publisher"
+    args="0 0 0 0 0 0 /world /stage_link 50"/>
+
+
+  <include if="$(arg hydra)" file="$(find grid_robots)/launch/hydra_teleop.launch"/>
+
+
+</launch>

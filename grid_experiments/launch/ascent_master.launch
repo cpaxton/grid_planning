@@ -1,0 +1,81 @@
+<launch>
+
+  <arg name="hydra" default="false"/>
+  <arg name="marker" default="false"/>
+  
+  <arg name="hand" default="true"/>
+  <arg name="sim" default="true"/>
+
+    <!-- Barrett manager namespace is different between real and sim -->
+  <arg if="$(arg sim)" name="BARRETT_NS" value="/gazebo/barrett_manager"/>
+  <arg unless="$(arg sim)" name="BARRETT_NS" value="/barrett/barrett_manager"/>
+
+  <!-- Hand setup -->
+  <arg if="$(arg hand)" name="TIP_LINK" value="/wam/hand/bhand_grasp_link"/>
+  <arg unless="$(arg hand)" name="TIP_LINK" value="/wam/palm_link"/>
+
+
+  <!-- For use with interactive markers -->
+  <group if="$(arg marker)">
+    <!-- Interactive marker for cart command -->
+    <node if="false" name="wam_cmd_it"
+      pkg="lcsr_tf_tools"
+      type="interactive_transform_publisher"
+      args="-0.40 0 0.85  0 0 0 1  /wam/base_link  /wam/master  10"/>
+
+    <!-- High-level Teleop -->
+    <node name="marker_teleop"
+      pkg="lcsr_barrett"
+      type="marker_teleop.py"
+      output="screen">
+      <rosparam subst_value="true">
+        tip_link: $(arg TIP_LINK)
+        scale: 1.0
+      </rosparam>
+      <remap from="telemanip_cmd_out" to="telemanip_cmd"/>
+      <remap from="hand/joint_states" to="$(arg BARRETT_NS)/hand/joint_states"/>
+
+      <!-- Disable direct hand control if assistance is enabled -->
+      <param name="ref_frame" value="/world"/>
+      <param name="input_frame" value="/wam/master"/>
+      <param name="cmd_frame" value="/wam/cmd"/>
+      <remap from="hand/cmd" to="$(arg BARRETT_NS)/hand/cmd"/>
+    </node>
+  </group>
+
+  <!-- For use with Razer Hydra -->
+  <group if="$(arg hydra)">
+    <!-- Hydra Driver -->
+    <include file="$(find razer_hydra)/launch/hydra.launch">
+      <arg name="publish_tf" value="true"/>
+      <arg name="polling_ms" value="30"/>
+    </include>
+
+    <!-- Hydra Base Coordinate frame -->
+    <node name="tf_world_to_hydra_base"
+      pkg="tf"
+      type="static_transform_publisher"
+      args="0 0 0 0 0 0 /world /hydra_base 100"/>
+
+    <!-- High-level Teleop -->
+    <node name="hydra_teleop"
+      pkg="lcsr_barrett"
+      type="hydra_teleop.py"
+      output="screen">
+      <rosparam subst_value="true">
+        tip_link: $(arg TIP_LINK)
+        scale: 1.5
+      </rosparam>
+      <remap from="telemanip_cmd_out" to="telemanip_cmd"/>
+      <remap from="hand/joint_states" to="$(arg BARRETT_NS)/hand/joint_states"/>
+
+      <!-- Disable direct hand control if assistance is enabled -->
+      <param name="cmd_frame" value="/wam/cmd"/>
+      <remap from="hand/cmd" to="$(arg BARRETT_NS)/hand/cmd"/>
+
+      <!-- Use the other hydra controller as the clutch if the pedal isn't enabled -->
+      <remap from="clutch_joy" to="hydra_joy"/>
+      <param name="clutch_button" value="10"/><!-- Left top trigger -->
+    </node>
+  </group>
+</launch>

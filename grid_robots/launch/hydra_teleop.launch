@@ -1,0 +1,52 @@
+<launch>
+
+
+  <arg name="arm1_prefix" default="wam" doc="(string) tf prefix for arm1"/>
+  <arg name="arm1_ns" default="/gazebo/barrett_manager" doc="(string) ros namespace for arm1 data"/>
+  <arg name="arm2_prefix" default="wam2" doc="(string) tf prefix for arm2"/>
+  <arg name="arm2_ns" default="/gazebo/w2barrett_manager" doc="(string) ros namespace for arm2 data"/>
+
+  <!-- Hydra Driver -->
+  <include file="$(find razer_hydra)/launch/hydra.launch">
+    <arg name="publish_tf" value="true"/>
+  </include>
+
+  <!-- High-level Teleop -->
+  <node name="hydra_teleop_arm1"
+    pkg="lcsr_barrett"
+    type="hydra_teleop.py">
+    <rosparam>
+      tip_link: /wam/hand/bhand_grasp_link
+      scale: 1.5
+    </rosparam>
+    <remap from="telemanip_cmd_out" to="telemanip_cmd"/>
+    <remap from="hand/joint_states" to="$(arg arm1_ns)/hand/joint_states"/>
+
+    <!-- Disable direct hand control if assistance is enabled -->
+    <param name="cmd_frame" value="/wam/cmd"/>
+    <remap from="hand/cmd" to="$(arg arm1_ns)/hand/cmd"/>
+  </node>
+
+  <!-- High-level Teleop -->
+  <node name="hydra_teleop_arm2"
+    pkg="lcsr_barrett"
+    type="hydra_teleop.py">
+    <param name="side" value="left"/>
+    <rosparam>
+      tip_link: /wam2/hand/bhand_grasp_link
+      scale: 1.5
+    </rosparam>
+    <remap from="telemanip_cmd_out" to="telemanip_cmd"/>
+    <remap from="hand/joint_states" to="$(arg arm2_ns)/hand/joint_states"/>
+
+    <!-- Disable direct hand control if assistance is enabled -->
+    <param name="cmd_frame" value="/wam2/cmd"/>
+    <remap from="hand/cmd" to="$(arg arm2_ns)/hand/cmd"/>
+  </node>
+
+  <!-- Hydra Base Coordinate frame -->
+  <node name="tf_world_to_hydra_base"
+    pkg="tf"
+    type="static_transform_publisher"
+    args="0 0 0 0 0 0 /world /hydra_base 10"/>
+</launch>

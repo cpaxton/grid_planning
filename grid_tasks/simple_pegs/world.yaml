@@ -1,0 +1,64 @@
+task:
+  classes: [Ring, Peg, PegBase, PegShaft]
+  entities:
+    - name: ring1
+      class: Ring
+      properties:
+        - key: description
+          type: string
+          value: /ring1_description
+        - key: tf
+          type: tf_frame
+          value: ring1/ring_link
+        - key: floating_frame
+          type: tf_frame
+          value: ring1/ring_link
+    - name: peg1
+      class: Peg
+      properties:
+        - key: description
+          type: string
+          value: /peg1_description
+    - name: peg2
+      class: Peg
+      properties:
+        - key: description
+          type: string
+          value: /peg2_description
+    - name: peg1Base
+      class: PegBase
+      properties:
+        - key: tf
+          type: tf_frame
+          value: peg1/base_link
+    - name: peg2Base
+      class: PegBase
+      properties:
+        - key: tf
+          type: tf_frame
+          value: peg2/base_link
+    - name: peg1Shaft
+      class: PegShaft
+      properties:
+        - key: tf
+          type: tf_frame
+          value: peg1/peg_link
+    - name: peg2Shaft
+      class: PegShaft
+      properties:
+        - key: tf
+          type: tf_frame
+          value: peg2/peg_link
+  predicates:
+    - name: CONTAINS-PART
+      parent: peg1
+      child: peg1Base
+    - name: CONTAINS-PART
+      parent: peg1
+      child: peg1Shaft
+    - name: CONTAINS-PART
+      parent: peg2
+      child: peg2Base
+    - name: CONTAINS-PART
+      parent: peg2
+      child: peg2Shaft

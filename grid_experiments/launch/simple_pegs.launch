@@ -1,0 +1,56 @@
+<launch>
+
+  <arg name="log_level" default="5" doc="(int) Set the Orocos log level (0:none) (4:warn) (5:info) (6:debug)"/>
+  <arg name="debug" default="false" doc="(bool) Launch in debug mode"/>
+  <arg name="gui" default="false" doc="(bool) Launch the gazebo GUI"/>
+  <arg name="planning" default="false" doc="(bool) Launch the motion planing pipeline"/>
+  <arg name="dash" default="false" doc="(bool) If true, display the barrett dashboard."/>
+  <arg name="hydra" default="true" doc="(bool) If true, bring up the razer hydras to teleoperate the simulated WAM arms."/>
+  <arg name="use_germ" default="false" doc="(bool) Connect to graphical database"/>
+
+  <!-- configure peg locations -->
+  <arg name="peg1_x" default="0.5" doc="(float) x location of ring and first peg"/>
+  <arg name="peg1_y" default="0.5" doc="(float) y location of ring and first peg"/>
+  <arg name="peg2_x" default="0.5" doc="(float) x location of second peg"/>
+  <arg name="peg2_y" default="-0.5" doc="(float) y location of second peg"/>
+
+  <!-- germ and predicator variables  -->
+  <arg name="germ_output" default="log"/>
+  <arg name="predicator_output" default="screen"/>
+  <arg name="purge" default="false"/>
+
+  <!-- rviz setup -->
+  <arg name="rviz" default="true" doc="(bool) run rviz"/>
+  <arg name="rviz_config" default="$(find grid_experiments)/config/simple_pegs.rviz" doc="(string) rviz config file for user interface"/>
+
+  <!-- bring up the robots -->
+  <include file="$(find grid_robots)/launch/barrett_wam_sim.launch">
+    <arg name="log_level" value="$(arg log_level)"/>
+    <arg name="debug" value="$(arg debug)"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="planning" value="$(arg planning)"/>
+    <arg name="dash" value="$(arg dash)"/>
+    <arg name="hydra" value="$(arg hydra)"/>
+  </include>
+
+  <!-- bring up the task environment -->
+  <include file="$(find grid_tasks)/launch/simple_pegs.launch">
+    <arg name="sim" default="true"/>
+    <arg name="peg1_x" value="$(arg peg1_x)"/>
+    <arg name="peg1_y" value="$(arg peg1_y)"/>
+    <arg name="peg2_x" value="$(arg peg2_x)"/>
+    <arg name="peg2_y" value="$(arg peg2_y)"/>
+  </include>
+
+  <!-- launch GERM and predicator -->
+  <group ns="germ">
+    <node if="$(arg use_germ)" name="germ_ros_interface" pkg="germ_ros" type="ros_interface.py" output="$(arg germ_output)">
+      <param name="purge" value="$(arg purge)"/>
+    </node>
+    <node name="moveit_predicator_node" pkg="grid_predicator" type="moveit_predicator_node" output="$(arg predicator_output)"/>
+  </group>
+
+    <!-- start rviz and load the appropriate rviz configuration if desired -->
+  <node if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz" args="-d $(arg rviz_config)" />
+
+</launch>

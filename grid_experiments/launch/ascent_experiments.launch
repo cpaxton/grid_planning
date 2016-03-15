@@ -1,0 +1,273 @@
+<launch>
+
+  <!-- Experiment number -->
+  <arg name="e1" default="false"/>
+  <arg name="e2" default="false"/>
+  <arg name="e3" default="false"/>
+  <arg name="e4" default="false"/>
+  <arg name="e5" default="false"/>
+
+  <!-- training examples for ordinary gbeam parts -->
+  <arg name="training1" default="false"/>
+  <arg name="training2" default="false"/>
+  <arg name="training3" default="false"/>
+
+  <arg name="training4" default="false"/>
+  <arg name="training5" default="false"/>
+
+  <arg name="training6" default="false"/>
+  <arg name="training7" default="false"/>
+  <arg name="training8" default="false"/>
+  <arg name="training9" default="false"/>
+  <arg name="training10" default="false"/>
+
+  <arg name="double1" default="false"/>
+  <arg name="double2" default="false"/>
+  <arg name="double3" default="false"/>
+  <arg name="double4" default="false"/>
+  <arg name="double5" default="false"/>
+  <arg name="double6" default="false"/>
+  <arg name="double7" default="false"/>
+  <arg name="double8" default="false"/>
+  <arg name="double9" default="false"/>
+  <arg name="double10" default="false"/>
+
+  <!-- REGRESSION VARIABLES -->
+  <arg name="straight1" default="false"/>
+  <arg name="straight2" default="false"/>
+  <arg name="straight3" default="false"/>
+  <arg name="straight4" default="false"/>
+  <arg name="straight5" default="false"/>
+
+  <!-- launch predicator why not -->
+  <arg name="predicator" default="true"/>
+  <include if="$(arg predicator)" file="$(find predicator_bringup)/launch/core.launch"/>
+  <!-- launch dmp server for experiments -->
+  <arg name="dmp" default="false"/>
+  <include if="$(arg dmp)" file="$(find dmp)/launch/dmp.launch"/>
+
+  <!-- Create the environment for the experiment -->
+  <group if="$(arg e1)">
+
+    <!-- Create the beam to be manipulated -->
+    <include if="$(arg create_beam)" file="$(find ascent_mk2)/launch/objects/gbeam_link.launch">
+      <arg name="vertical" value="true"/>
+      <arg name="x" value="0.5"/>
+      <arg name="y" value="1.0"/>
+      <arg name="z" value="0.5"/>
+    </include>
+
+    <include file="$(find ascent_mk2)/launch/objects/gbeam_node.launch">
+      <arg name="static" value="true"/>
+      <arg name="x" value="0.5"/>
+      <arg name="y" value="1.15"/>
+      <arg name="z" value="0.5"/>
+    </include>
+  </group>
+
+  <group if="$(arg e2)">
+
+    <!-- Create the beam to be manipulated -->
+    <include if="$(arg create_beam)" file="$(find ascent_mk2)/launch/objects/gbeam_link.launch">
+      <arg name="vertical" value="true"/>
+      <arg name="x" value="0.5"/>
+      <arg name="y" value="1.0"/>
+      <arg name="z" value="0.5"/>
+    </include>
+
+    <include file="$(find ascent_mk2)/launch/objects/gbeam_node.launch">
+      <arg name="static" value="true"/>
+      <arg name="x" value="0.5"/>
+      <arg name="y" value="1.0"/>
+      <arg name="z" value="0.5"/>
+    </include>
+    <include file="$(find ascent_mk2)/launch/objects/gbeam_link.launch">
+      <arg name="static" value="true"/>
+      <arg name="x" value="0.5"/>
+      <arg name="y" value="1.150"/>
+      <arg name="z" value="0.5"/>
+    </include>
+  </group>
+
+  <group if="$(arg e3)">
+    <include file="$(find grid_tasks)/launch/magnetic_assembly.launch">
+      <arg name="experiment" value="assembly1"/>
+    </include>
+    <include if="$(arg predicator)" file="$(find grid_tasks)/launch/magnetic_assembly_classes.launch"/>
+  </group>
+
+  <group if="$(arg e4)">
+    <include file="$(find grid_tasks)/launch/magnetic_assembly.launch">
+      <arg name="experiment" value="finished_assembly"/>
+    </include>
+    <include if="$(arg predicator)" file="$(find grid_tasks)/launch/magnetic_assembly_classes.launch"/>
+  </group>
+
+  <group if="$(arg e5)">
+    <include file="$(find grid_tasks)/launch/magnetic_assembly.launch">
+      <arg name="experiment" value="assembly2"/>
+    </include>
+    <include if="$(arg predicator)" file="$(find grid_tasks)/launch/magnetic_assembly_classes.launch"/>
+  </group>
+
+  <!-- ==============[TRAINING POSITIONS]==================-->
+
+  <group if="$(arg training1)">
+    <include file="$(find grid_tasks)/launch/magnetic_assembly.launch">
+      <arg name="experiment" value="training1"/>
+    </include>
+    <include if="$(arg predicator)" file="$(find grid_tasks)/launch/magnetic_assembly_classes.launch"/>
+  </group>
+
+  <group if="$(arg training2)">
+    <include file="$(find grid_tasks)/launch/magnetic_assembly.launch">
+      <arg name="experiment" value="training2"/>
+    </include>
+    <include if="$(arg predicator)" file="$(find grid_tasks)/launch/magnetic_assembly_classes.launch"/>
+  </group>
+
+  <group if="$(arg training3)">
+    <include file="$(find grid_tasks)/launch/magnetic_assembly.launch">
+      <arg name="experiment" value="training3"/>
+    </include>
+    <include if="$(arg predicator)" file="$(find grid_tasks)/launch/magnetic_assembly_classes.launch"/>
+  </group>
+
+  <group if="$(arg training4)">
+    <include file="$(find grid_tasks)/launch/magnetic_assembly.launch">
+      <arg name="experiment" value="training4"/>
+    </include>
+    <include if="$(arg predicator)" file="$(find grid_tasks)/launch/magnetic_assembly_classes.launch"/>
+  </group>
+
+  <group if="$(arg training5)">
+    <include file="$(find grid_tasks)/launch/magnetic_assembly.launch">
+      <arg name="experiment" value="training5"/>
+    </include>
+    <include if="$(arg predicator)" file="$(find grid_tasks)/launch/magnetic_assembly_classes.launch"/>
+  </group>
+
+  <group if="$(arg training6)">
+    <include file="$(find grid_tasks)/launch/magnetic_assembly.launch">
+      <arg name="experiment" value="training6"/>
+    </include>
+    <include if="$(arg predicator)" file="$(find grid_tasks)/launch/magnetic_assembly_classes.launch"/>
+  </group>
+
+  <group if="$(arg training7)">
+    <include file="$(find grid_tasks)/launch/magnetic_assembly.launch">
+      <arg name="experiment" value="training7"/>
+    </include>
+    <include if="$(arg predicator)" file="$(find grid_tasks)/launch/magnetic_assembly_classes.launch"/>
+  </group>
+
+  <group if="$(arg training8)">
+    <include file="$(find grid_tasks)/launch/magnetic_assembly.launch">
+      <arg name="experiment" value="training8"/>
+    </include>
+    <include if="$(arg predicator)" file="$(find grid_tasks)/launch/magnetic_assembly_classes.launch"/>
+  </group>
+
+  <group if="$(arg training9)">
+    <include file="$(find grid_tasks)/launch/magnetic_assembly.launch">
+      <arg name="experiment" value="training9"/>
+    </include>
+    <include if="$(arg predicator)" file="$(find grid_tasks)/launch/magnetic_assembly_classes.launch"/>
+  </group>
+
+  <group if="$(arg training10)">
+    <include file="$(find grid_tasks)/launch/magnetic_assembly.launch">
+      <arg name="experiment" value="training10"/>
+    </include>
+    <include if="$(arg predicator)" file="$(find grid_tasks)/launch/magnetic_assembly_classes.launch"/>
+  </group>
+
+
+  <!-- ==============[TWO PIECE ASSEMBLY POSITIONS]==================-->
+  <node name="stp_left" pkg="tf" type="static_transform_publisher" args="0 0 0 0 -1.57079632679 0 /gbeam_link_1/gbeam_link /gbeam_link_1/gbeam_left 100"/>
+  <node name="stp_right" pkg="tf" type="static_transform_publisher" args="0 0 0 0 1.57079632679 0 /gbeam_link_1/gbeam_link /gbeam_link_1/gbeam_right 100"/>
+  <node name="stp_back" pkg="tf" type="static_transform_publisher" args="0 0 0 0 3.14159265359 0 /gbeam_link_1/gbeam_link /gbeam_link_1/gbeam_back 100"/>
+
+  <group if="$(arg double1)">
+    <include file="$(find grid_tasks)/launch/magnetic_assembly.launch">
+      <arg name="experiment" value="double1"/>
+    </include>
+    <include if="$(arg predicator)" file="$(find grid_tasks)/launch/magnetic_assembly_classes.launch"/>
+  </group>
+
+  <group if="$(arg double2)">
+    <include file="$(find grid_tasks)/launch/magnetic_assembly.launch">
+      <arg name="experiment" value="double2"/>
+    </include>
+    <include if="$(arg predicator)" file="$(find grid_tasks)/launch/magnetic_assembly_classes.launch"/>
+  </group>
+
+  <group if="$(arg double3)">
+    <include file="$(find grid_tasks)/launch/magnetic_assembly.launch">
+      <arg name="experiment" value="double3"/>
+    </include>
+    <include if="$(arg predicator)" file="$(find grid_tasks)/launch/magnetic_assembly_classes.launch"/>
+  </group>
+
+  <group if="$(arg double4)">
+    <include file="$(find grid_tasks)/launch/magnetic_assembly.launch">
+      <arg name="experiment" value="double4"/>
+    </include>
+    <include if="$(arg predicator)" file="$(find grid_tasks)/launch/magnetic_assembly_classes.launch"/>
+  </group>
+
+  <group if="$(arg double5)">
+    <include file="$(find grid_tasks)/launch/magnetic_assembly.launch">
+      <arg name="experiment" value="double5"/>
+    </include>
+    <include if="$(arg predicator)" file="$(find grid_tasks)/launch/magnetic_assembly_classes.launch"/>
+  </group>
+
+  <group if="$(arg double6)">
+    <include file="$(find grid_tasks)/launch/magnetic_assembly.launch">
+      <arg name="experiment" value="double1"/>
+    </include>
+    <include if="$(arg predicator)" file="$(find grid_tasks)/launch/magnetic_assembly_classes.launch"/>
+  </group>
+
+  <group if="$(arg double7)">
+    <include file="$(find grid_tasks)/launch/magnetic_assembly.launch">
+      <arg name="experiment" value="double2"/>
+    </include>
+    <include if="$(arg predicator)" file="$(find grid_tasks)/launch/magnetic_assembly_classes.launch"/>
+  </group>
+
+  <group if="$(arg double8)">
+    <include file="$(find grid_tasks)/launch/magnetic_assembly.launch">
+      <arg name="experiment" value="double3"/>
+    </include>
+    <include if="$(arg predicator)" file="$(find grid_tasks)/launch/magnetic_assembly_classes.launch"/>
+  </group>
+
+  <group if="$(arg double9)">
+    <include file="$(find grid_tasks)/launch/magnetic_assembly.launch">
+      <arg name="experiment" value="double4"/>
+    </include>
+    <include if="$(arg predicator)" file="$(find grid_tasks)/launch/magnetic_assembly_classes.launch"/>
+  </group>
+
+  <group if="$(arg double10)">
+    <include file="$(find grid_tasks)/launch/magnetic_assembly.launch">
+      <arg name="experiment" value="double5"/>
+    </include>
+    <include if="$(arg predicator)" file="$(find grid_tasks)/launch/magnetic_assembly_classes.launch"/>
+  </group>
+
+
+
+  <!-- ==============[REGRESSION/STRAIGHT POSITIONS]==================-->
+  <group if="$(arg straight1)">
+    <include file="$(find grid_tasks)/launch/object_regression.launch">
+      <arg name="experiment" value="straight"/>
+      <arg name="number" value="1"/>
+    </include>
+    <include if="$(arg predicator)" file="$(find grid_tasks)/launch/magnetic_assembly_classes.launch"/>
+  </group>
+
+
+</launch>

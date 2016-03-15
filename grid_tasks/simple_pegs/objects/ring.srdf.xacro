@@ -1,0 +1,15 @@
+<robot name="$(arg name)"
+  xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <virtual_joint
+    name="world_joint"
+    type="floating"
+    parent_frame="/world"
+    child_link="$(arg name)/ring_link" />
+
+  <group name="ring">
+    <joint name="world_joint"/>
+    <link name="$(arg name)/ring_link"/>
+  </group>
+
+</robot>

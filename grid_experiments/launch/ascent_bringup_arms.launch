@@ -1,0 +1,40 @@
+<launch>
+  <arg name="sim" default="true"/>
+  <arg if="$(arg sim)" name="NS" value="gazebo"/>
+  <arg unless="$(arg sim)" name="NS" value="barrett"/>
+  <arg name="debug" default="false"/>
+
+  <arg name="gui" default="false"/>
+  <arg name="rescuer" default="false"/>
+
+  <arg name="planning" default="false"/>
+
+  <!-- Bring up standard LCSR wam drivers -->
+  <include
+    unless="$(arg sim)"
+    file="$(find lcsr_barrett)/launch/hw/wam7.launch">
+    <arg name="log_level" value="warning"/>
+    <arg name="planning" value="$(arg planning)"/>
+    <arg name="hand" value="true"/>
+    <arg name="bhand_action_server" value="false"/>
+  </include>
+
+  <!-- Bring up a standard LCSR wam in simulation -->
+  <include
+    if="$(arg sim)"
+    file="$(find lcsr_barrett)/launch/sim/wam7_sim.launch">
+    <arg name="rescuer" value="false"/>
+    <arg name="debug" value="$(arg debug)"/>
+    <arg name="planning" value="$(arg planning)"/>
+    <arg name="log_level" value="4"/>
+    <arg name="hand" value="true"/>
+    <arg name="empty" value="false"/>
+    <arg name="dash" value="false"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <!--arg name="initial_joint_positions" value="0.0, -1.0, 0.0, 1.0, 0.0, 0.0, 0.0"/-->
+    <!--arg name="initial_joint_positions" value="0.0, -1.5707, 0.0, 3.141, 0.0, 0.0, 0.0"/-->
+    <!--arg name="initial_joint_positions" value="-0.78398, -0.78398, -1.5708, 1.5708, 0.0, 0.0, 0.0"/-->
+    <!--arg name="initial_joint_positions" value="-0.0761555756703638, 0.275, -1.6600148157916186, 1.7975897802307799, -0.7781609552508542, -0.23175120970773033, 0.9769721980718886"/-->
+    <arg name="initial_joint_positions" value="0.5071959459467239, -0.7807556711469271, -1.2857877420327375, 1.6767028866578517, 0.7123986272268716, 0.5267488425101439, -0.05380881958674433"/>
+  </include>
+</launch>

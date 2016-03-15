@@ -1,0 +1,31 @@
+robots:
+  classes: [BarrettWAM, BarrettPart, Stage]
+  entities:
+    - name: wam1
+      class: BarrettWAM
+      properties:
+        - key: description
+          type: string
+          value: /wam/robot_description
+        - key: joint_states_topic
+          type: string
+          value: /gazebo/barrett_manager/joint_states
+    - name: wam1Wrist
+      class: BarrettPart
+      properties:
+        - key: tf
+          type: tf_frame
+          value: wam/wrist_palm_link
+    - name: stage
+      class: Stage
+      properties:
+        - key: description
+          type: string
+          value: /stage_model
+  predicates:
+    - name: MOUNTED-ON
+      parent: wam1
+      child: stage
+    - name: CONTAINS-PART
+      parent: wam1
+      child: wam1Wrist

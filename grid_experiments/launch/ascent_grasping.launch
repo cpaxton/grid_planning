@@ -1,0 +1,55 @@
+<launch>
+  <!-- Master input type -->
+  <arg name="hydra" default="false"/>
+  <arg name="marker" default="false"/>
+  <arg name="master" default="true"/>
+  <arg name="rviz" default="true"/>
+  <arg name="gui" default="false" doc="(bool) launch Gazebo GUI"/>
+  <arg name="debug" default="false" doc="(bool) launch Gazebo in debug mode"/>
+  <arg name="planning" default="true"/>
+
+  <arg name="augmenter" if="$(arg hydra)" value="false"/>
+  <arg name="augmenter" unless="$(arg hydra)" value="false"/>
+
+  <!-- Launch the simulated Barrett WAM arms -->
+  <include file="$(find grid_experiments)/launch/ascent_bringup_arms.launch">
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="sim" value="true"/>
+    <arg name="rescuer" value="true"/>
+    <arg name="debug" value="$(arg debug)"/>
+    <arg name="planning" value="$(arg planning)"/>
+  </include>
+
+  <!-- create platform for pieces to sit on-->
+  <arg name="platform" default="true"/>
+  <include if="$(arg platform)" file="$(find ascent_mk2)/launch/objects/manipulation_platform.launch">
+    <arg name="x" value="0.7"/>
+    <arg name="y" value="0.8"/>
+    <arg name="z" value="0.05"/>
+  </include>
+
+  <!-- bring up a static transform publisher for the platform so we do not need to use the planning scene -->
+  <node name="$(anon stp)" pkg="tf" type="static_transform_publisher" args="0.7 0.8 0.05 0 0 0 world platform_link 100"/>
+
+  <!-- Launch the control interface -->
+  <include if="$(arg master)" file="$(find grid_experiments)/launch/ascent_master.launch">
+    <arg name="hydra" value="$(arg hydra)"/>
+    <arg name="marker" value="$(arg marker)"/>
+  </include>
+
+  <!-- load robot models for UI -->
+  <param name="gbeam_link_description" textfile="$(find gbeam_model)/urdf/gbeam_link.urdf"/>
+  <param name="gbeam_node_description" textfile="$(find gbeam_model)/urdf/gbeam_node.urdf"/>
+
+  <!-- ascent augmenter for handling grasps -->
+  <include if="$(arg augmenter)" file="$(find grid_experiments)/launch/ascent_augmenter.launch">
+    <arg name="sim" value="true"/>
+    <arg name="gui" value="$(arg gui)"/>
+  </include>
+
+  <!-- include extras to make bringup a bit more painless and turnkey -->
+  <include if="$(arg rviz)" file="$(find grid_experiments)/launch/ascent_rviz.launch"/>
+  <node name="gz_publish_planning_scene" pkg="grid_experiments" type="gz_publish_planning_scene.py"/>
+  <node name="start_jtns" pkg="grid_experiments" type="start_jtns.py"/>
+
+</launch>

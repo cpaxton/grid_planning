@@ -1,0 +1,16 @@
+<launch>
+
+  <arg name="germ_output" default="log"/>
+  <arg name="predicator_output" default="screen"/>
+  <arg name="purge" default="false"/>
+
+  <include file="$(find germ_ros)/launch/peg_task.launch">
+    <arg name="output" value="$(arg germ_output)"/>
+    <arg name="purge" value="$(arg purge)"/>
+  </include>
+
+  <group ns="germ">
+    <node name="moveit_predicator_node" pkg="germ_predicator" type="moveit_predicator_node" output="$(arg predicator_output)"/>
+  </group>
+
+</launch>

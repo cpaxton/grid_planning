@@ -1,0 +1,64 @@
+<launch>
+  <arg name="debug" default="false" doc="(bool) Launch in debug mode"/>
+  <arg name="limited" default="true"/>
+  <arg name="paused" default="false"/>
+  <arg name="platform" default="true"/>
+  <arg name="rviz" default="true"/>
+  <arg name="planning" default="true"/>
+  
+  <!-- startup simulated world -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="world_name" value="$(find lcsr_barrett)/launch/sim/wam.world"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="headless" value="false"/>
+    <arg name="verbose" value="true"/>
+    <arg name="debug" value="$(arg debug)" />
+    <arg name="gui" value="false"/>
+  </include>
+
+  <!-- load robot models for UI -->
+  <param name="gbeam_link_description" textfile="$(find gbeam_model)/urdf/gbeam_link.urdf"/>
+  <param name="gbeam_node_description" textfile="$(find gbeam_model)/urdf/gbeam_node.urdf"/>
+
+  <!-- push robot_description to factory and spawn robot in gazebo -->
+  <!--<node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model robot -x 0.04 -y 0.46 -z 1 -P 1.157079" respawn="false" output="screen" />-->
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find grid_experiments)/models/ur5_joint_limited_robot.urdf.xacro'"/>
+  <!-- <param name="robot_description" command="$(find xacro)/xacro.py '$(find ur5_robotiq_description)/urdf/ur5_robotiq_joint_limited_robot.urdf.xacro'"/> -->
+
+  <!--<node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" args="-model robot -urdf -param robot_description -J elbow_joint 1.57079" respawn="false" output="screen" />-->
+  <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" args="-model robot -urdf -param robot_description" respawn="false" output="screen" />
+
+  <!-- Spawn the lcsr stage in Gazebo -->
+  <param name="stage_model"
+    command="$(find xacro)/xacro.py '$(find lcsr_barrett)/models/stage.urdf.xacro'" />
+  <node name="stage_pose_broadcaster" pkg="tf" type="static_transform_publisher"
+    args="0 0 0 0 0 0 /world /stage_link 50"/>
+
+  <!-- create platform for pieces to sit on-->
+  <include if="$(arg platform)" file="$(find ascent_mk2)/launch/objects/manipulation_platform.launch">
+    <arg name="x" value="0.7"/>
+    <arg name="y" value="0.8"/>
+    <arg name="z" value="0.05"/>
+  </include>
+
+    <!-- bring up a static transform publisher for the platform so we do not need to use the planning scene -->
+  <node name="$(anon stp)" pkg="tf" type="static_transform_publisher" args="0.7 0.8 0.05 0 0 0 world platform_link 100"/>
+
+  <include file="$(find ur_gazebo)/launch/controller_utils.launch"/>
+
+  <rosparam file="$(find ur_gazebo)/controller/arm_controller_ur5.yaml" command="load"/>
+  <node name="arm_controller_spawner" pkg="controller_manager" type="spawner" args="arm_controller" />
+
+  <!-- include extras to make bringup a bit more painless and turnkey -->
+  <node if="$(arg rviz)" name="$(anon rviz)" pkg="rviz" type="rviz" respawn="false" args="-d $(find grid_experiments)/config/ascent_ur5.rviz">
+    <rosparam command="load" file="$(find ur5_moveit_config)/config/kinematics.yaml"/>
+  </node>
+  <node name="gz_publish_planning_scene" pkg="grid_experiments" type="gz_publish_planning_scene.py"/>
+
+  <!-- Start planning -->
+  <include if="$(arg planning)" file="$(find ur5_moveit_config)/launch/ur5_moveit_planning_execution.launch">
+    <arg name="sim" value="true"/>
+    <arg name="limited" value="$(arg limited)"/>
+  </include>
+</launch>

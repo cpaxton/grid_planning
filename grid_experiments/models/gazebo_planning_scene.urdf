@@ -1,0 +1,13 @@
+<robot name="ghost">
+  <!-- This is an urdf simply to load the gazebo planning scene for a given world -->
+  <gazebo>
+    <plugin filename="libgazebo_ros_moveit_planning_scene.so" name="gazebo_ros_moveit_planning_scene">
+      <topicName>/planning_scene</topicName>
+      <sceneName>gbeam_sim</sceneName>
+      <robotName>ghost</robotName>
+      <updatePeriod>0.01</updatePeriod>
+    </plugin>
+  </gazebo>
+
+  <link name="world"/>
+</robot>

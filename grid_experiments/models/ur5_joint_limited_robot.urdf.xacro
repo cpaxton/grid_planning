@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"
+       name="ur5" >
+
+  <!-- common stuff -->
+  <xacro:include filename="$(find ur_description)/urdf/gazebo.urdf.xacro" />
+
+  <!-- ur5 -->
+  <xacro:include filename="$(find ur_description)/urdf/ur5.urdf.xacro" />
+
+  <!-- arm -->
+  <xacro:ur5_robot prefix="" joint_limited="true"/>
+
+  <link name="world" />
+
+  <joint name="world_joint" type="fixed">
+    <parent link="world" />
+    <child link = "base_link" />
+    <!--<origin rpy="0.0 1.57079 0.0" xyz="0.04 0.46 1.0"/>-->
+    <origin rpy="0.0 0.0 0.0" xyz="0.04 0.46 0.8"/>
+  </joint>
+
+  <gazebo>
+    <plugin name="gazebo_ros_moveit_planning_scene" filename="libgazebo_ros_moveit_planning_scene.so">
+      <robotNamespace>~</robotNamespace>
+      <sceneName>ur5</sceneName>
+      <robotName>ur5</robotName>
+      <updatePeriod>0.033</updatePeriod>
+      <topicName>planning_scene</topicName>
+    </plugin>
+  </gazebo>
+</robot>

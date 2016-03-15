@@ -1,0 +1,50 @@
+<!--
+This launch file is just for pegs and the ring.
+-->
+<launch>
+  <arg name="sim" default="true" doc="(bool) is this a simulation? If so, we will use the URDF to spawn objects."/>
+
+  <!-- configure peg locations -->
+  <arg name="peg1_x" default="0.75" doc="(float) x location of ring and first peg"/>
+  <arg name="peg1_y" default="0.75" doc="(float) y location of ring and first peg"/>
+  <arg name="peg2_x" default="0.75" doc="(float) x location of second peg"/>
+  <arg name="peg2_y" default="-0.75" doc="(float) y location of second peg"/>
+
+  <!-- spawn peg 1 -->
+  <param name="peg1_description"
+    command="$(find xacro)/xacro.py '$(find grid_tasks)/simple_pegs/objects/peg.urdf.xacro' name:=peg1 xx:=$(arg peg1_x) yy:=$(arg peg1_y)"
+    />
+  <node if="$(arg sim)" name="$(anon urdf_spawner)" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" 
+    args=" -urdf -model peg1 -param peg1_description"/>
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="peg1_st_pub" >
+    <remap from="robot_description" to="peg1_description" />
+  </node>
+
+  <!-- spawn peg 2 -->
+  <param name="peg2_description"
+    command="$(find xacro)/xacro.py '$(find grid_tasks)/simple_pegs/objects/peg.urdf.xacro' name:=peg2 xx:=$(arg peg2_x) yy:=$(arg peg2_y)"
+    />
+  <node  if="$(arg sim)" name="$(anon urdf_spawner)" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" 
+    args=" -urdf -model peg2 -param peg2_description"/>
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="peg2_st_pub" >
+    <remap from="robot_description" to="peg2_description" />
+  </node>
+
+  <!-- spawn ring 1 -->
+  <param name="ring1_description"
+    command="$(find xacro)/xacro.py '$(find grid_tasks)/simple_pegs/objects/ring.urdf.xacro' name:=ring1"/>
+  <param name="ring1_description_semantic"
+    command="$(find xacro)/xacro.py '$(find grid_tasks)/simple_pegs/objects/ring.srdf.xacro' name:=ring1"/>
+  <node name="$(anon urdf_spawner)" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+    args=" -urdf -model ring1 -param ring1_description -x $(arg peg1_x) -y $(arg peg1_y) -z 0.25"/>
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="ring1_st_pub" >
+    <remap from="robot_description" to="ring1_description" />
+  </node>
+
+  <group ns="germ">
+    <group ns="definitions">
+      <rosparam command="load" file="$(find grid_tasks)/simple_pegs/world.yaml"/>
+    </group>
+  </group>
+
+</launch>

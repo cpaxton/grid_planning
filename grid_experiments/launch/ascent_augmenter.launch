@@ -1,0 +1,43 @@
+<launch>
+  <arg name="gui" default="false"/>
+  <arg name="planning" default="true"/>
+  <arg name="debug" default="false"/>
+  <arg name="multimaster" default="false"/>
+  <arg name="assistance" default="false"/>
+  <arg name="sim" default="true"/>
+
+  <!-- Barrett manager namespace is different between real and sim -->
+  <arg if="$(arg sim)" name="BARRETT_NS" value="/gazebo"/>
+  <arg unless="$(arg sim)" name="BARRETT_NS" value="/barrett"/>
+
+  <!-- perception for the augmenter -->
+  <include file="$(find ascent_mk2)/launch/perception.launch">
+    <arg name="sim" value="$(arg sim)"/>
+    <arg name="gui" value="false"/>
+    <arg name="planning" value="$(arg planning)"/>
+    <arg name="fake_perception" value="true"/>
+    <arg name="USE_URDF_FILTER" value="false"/>
+  </include>
+
+  <!-- Augmenter Models -->
+  <include ns="objrec" file="$(find ascent_mk2)/launch/perception/models.launch"/>
+
+  <!-- Augmenter -->
+  <node ns="$(arg BARRETT_NS)" name="augmenter"
+    pkg="ascent_lcsr_barrett"
+    type="barrett_augmenter.py"
+    output="screen">
+
+    <param name="assistance" value="false"/>
+    <remap from="telemanip_cmd_in" to="/telemanip_cmd"/>
+    <remap from="recognized_objects" to="/recognized_objects"/>
+
+    <!-- Manipulator params -->
+    <rosparam>
+      barrett:
+        root_link: wam/base_link
+        tip_link: wam/hand/bhand_grasp_link
+        cmd_frame: wam/cmd
+    </rosparam>
+  </node>
+</launch>

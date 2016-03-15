@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<robot name="$(arg name)" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  
+  <link name="$(arg name)/peg_top_link">
+  </link>
+  <joint name="$(arg name)/peg_to_top" type="fixed">
+    <parent link="$(arg name)/peg_link"/>
+    <child link="$(arg name)/peg_top_link"/>
+    <origin xyz="0.0 0.0 0.1"/>
+  </joint>
+
+
+  <link name="$(arg name)/peg_link">
+    <visual>
+      <geometry>
+        <cylinder length="0.2" radius="0.03"/>
+      </geometry>
+      <material name="whitish">
+        <color rgba="0.8 0.8 0.8 1"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder length="0.2" radius="0.03"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="$(arg name)/base_link">
+    <inertial>
+      <mass value="30" />
+      <inertia
+        ixx="1" ixy="0"   ixz="0"
+                iyy="1"   iyz="0"
+                          izz="1" />
+    </inertial>
+    <visual>
+      <geometry>
+        <box size="0.3 0.3 0.1"/>
+      </geometry>
+      <material name="whitish">
+        <color rgba="0.8 0.8 0.8 1"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.3 0.3 0.1"/>
+      </geometry>
+    </collision>
+   </link>
+  <joint name="$(arg name)/base_to_peg" type="fixed">
+    <parent link="$(arg name)/base_link"/>
+    <child link="$(arg name)/peg_link"/>
+    <origin xyz="0.0 0.0 0.15"/>
+  </joint>
+
+  <link name="world"/>
+
+  <joint name="$(arg name)/base_to_world" type="fixed">
+    <parent link="world"/>
+    <child link="$(arg name)/base_link"/>
+    <origin xyz="$(arg xx) $(arg yy) 0.07"/>
+  </joint>
+
+  <gazebo>
+    <static>true</static>
+  </gazebo>
+</robot>

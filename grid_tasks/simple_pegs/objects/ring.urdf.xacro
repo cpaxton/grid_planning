@@ -1,0 +1,50 @@
+<robot name="$(arg name)"
+  xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+
+  <!-- Attach this robot to the world:
+    - this was changed because of the way MoveIt works
+    - we need to determine the relationship between any object and the world
+  -->
+  <!--<link name="world"/>
+  <joint name="$(arg name)_to_world"  type="floating">
+    <origin xyz="$(arg xx) $(arg yy) $(arg zz)" rpy="0 0 0" />
+    <parent link="world"/>
+    <child link="$(arg name)/ring_link"/>
+  </joint>-->
+
+  <link name = "$(arg name)/ring_link">
+    <inertial>
+      <origin xyz="0 0 0" />
+      <mass value="0.390" />
+      <inertia
+        ixx="0.00058" ixy="0"   ixz="0"
+                iyy="0.00058"   iyz="0"
+                          izz="0.00019" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0 " xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://collab_env/objects/ring.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0 " xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://collab_env/objects/ring.stl"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <gazebo>
+    <plugin name="collab_construction_plugin" filename="libcollab_construction_plugin.so" >
+      <namespace></namespace>
+      <reference_frame>/world</reference_frame>
+      <verbosity>1</verbosity>
+      <enable_latch>0</enable_latch>
+      <latch_strength>30.0</latch_strength>
+      <updates_per_second>180.0</updates_per_second>
+    </plugin>
+  </gazebo>
+
+</robot>

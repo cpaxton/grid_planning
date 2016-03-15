@@ -1,0 +1,824 @@
+Panels:
+  - Class: rviz/Displays
+    Help Height: 89
+    Name: Displays
+    Property Tree Widget:
+      Expanded:
+        - /Global Options1
+        - /Status1
+        - /WAM_11
+        - /WAM_21
+      Splitter Ratio: 0.5
+    Tree Height: 780
+  - Class: rviz/Selection
+    Name: Selection
+  - Class: rviz/Tool Properties
+    Expanded:
+      - /2D Pose Estimate1
+      - /2D Nav Goal1
+      - /Publish Point1
+    Name: Tool Properties
+    Splitter Ratio: 0.588679
+  - Class: rviz/Views
+    Expanded:
+      - /Current View1
+    Name: Views
+    Splitter Ratio: 0.5
+  - Class: rviz/Time
+    Experimental: false
+    Name: Time
+    SyncMode: 0
+    SyncSource: ""
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Alpha: 0.5
+      Cell Size: 1
+      Class: rviz/Grid
+      Color: 160; 160; 164
+      Enabled: true
+      Line Style:
+        Line Width: 0.03
+        Value: Lines
+      Name: Grid
+      Normal Cell Count: 0
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Plane: XY
+      Plane Cell Count: 10
+      Reference Frame: <Fixed Frame>
+      Value: true
+    - Class: rviz/TF
+      Enabled: true
+      Frame Timeout: 15
+      Frames:
+        All Enabled: true
+        hydra_base:
+          Value: true
+        hydra_left_grab:
+          Value: true
+        hydra_left_pivot:
+          Value: true
+        hydra_right_grab:
+          Value: true
+        hydra_right_pivot:
+          Value: true
+        ik/wam/base_link:
+          Value: true
+        ik/wam/hand/bhand_grasp_link:
+          Value: true
+        ik/wam/hand/bhand_palm_link:
+          Value: true
+        ik/wam/hand/bhand_palm_surface_link:
+          Value: true
+        ik/wam/hand/finger_1/dist_link:
+          Value: true
+        ik/wam/hand/finger_1/tip_link:
+          Value: true
+        ik/wam/hand/finger_2/dist_link:
+          Value: true
+        ik/wam/hand/finger_2/tip_link:
+          Value: true
+        ik/wam/hand/finger_3/dist_link:
+          Value: true
+        ik/wam/hand/finger_3/tip_link:
+          Value: true
+        ik/wam/wrist_palm_link:
+          Value: true
+        ik/wam/wrist_palm_stump_link:
+          Value: true
+        ik/wam2/base_link:
+          Value: true
+        ik/wam2/hand/bhand_grasp_link:
+          Value: true
+        ik/wam2/hand/bhand_palm_link:
+          Value: true
+        ik/wam2/hand/bhand_palm_surface_link:
+          Value: true
+        ik/wam2/hand/finger_1/dist_link:
+          Value: true
+        ik/wam2/hand/finger_1/tip_link:
+          Value: true
+        ik/wam2/hand/finger_2/dist_link:
+          Value: true
+        ik/wam2/hand/finger_2/tip_link:
+          Value: true
+        ik/wam2/hand/finger_3/dist_link:
+          Value: true
+        ik/wam2/hand/finger_3/tip_link:
+          Value: true
+        ik/wam2/wrist_palm_link:
+          Value: true
+        ik/wam2/wrist_palm_stump_link:
+          Value: true
+        ik/world:
+          Value: true
+        peg1/base_link:
+          Value: true
+        peg1/peg_link:
+          Value: true
+        peg1/peg_top_link:
+          Value: true
+        peg2/base_link:
+          Value: true
+        peg2/peg_link:
+          Value: true
+        peg2/peg_top_link:
+          Value: true
+        ring1:
+          Value: true
+        ring1/ring_link:
+          Value: true
+        stage_link:
+          Value: true
+        wam/base_link:
+          Value: true
+        wam/cmd:
+          Value: true
+        wam/cmd_limited:
+          Value: true
+        wam/cmd_unbounded:
+          Value: true
+        wam/forearm_link:
+          Value: true
+        wam/hand/bhand_grasp_link:
+          Value: true
+        wam/hand/bhand_palm_link:
+          Value: true
+        wam/hand/bhand_palm_surface_link:
+          Value: true
+        wam/hand/finger_1/dist_link:
+          Value: true
+        wam/hand/finger_1/med_link:
+          Value: true
+        wam/hand/finger_1/prox_link:
+          Value: true
+        wam/hand/finger_1/tip_link:
+          Value: true
+        wam/hand/finger_2/dist_link:
+          Value: true
+        wam/hand/finger_2/med_link:
+          Value: true
+        wam/hand/finger_2/prox_link:
+          Value: true
+        wam/hand/finger_2/tip_link:
+          Value: true
+        wam/hand/finger_3/dist_link:
+          Value: true
+        wam/hand/finger_3/med_link:
+          Value: true
+        wam/hand/finger_3/tip_link:
+          Value: true
+        wam/shoulder_pitch_link:
+          Value: true
+        wam/shoulder_yaw_link:
+          Value: true
+        wam/upper_arm_link:
+          Value: true
+        wam/wrist_palm_link:
+          Value: true
+        wam/wrist_palm_stump_link:
+          Value: true
+        wam/wrist_pitch_link:
+          Value: true
+        wam/wrist_yaw_link:
+          Value: true
+        wam2/base_link:
+          Value: true
+        wam2/cmd:
+          Value: true
+        wam2/cmd_limited:
+          Value: true
+        wam2/cmd_unbounded:
+          Value: true
+        wam2/forearm_link:
+          Value: true
+        wam2/hand/bhand_grasp_link:
+          Value: true
+        wam2/hand/bhand_palm_link:
+          Value: true
+        wam2/hand/bhand_palm_surface_link:
+          Value: true
+        wam2/hand/finger_1/dist_link:
+          Value: true
+        wam2/hand/finger_1/med_link:
+          Value: true
+        wam2/hand/finger_1/prox_link:
+          Value: true
+        wam2/hand/finger_1/tip_link:
+          Value: true
+        wam2/hand/finger_2/dist_link:
+          Value: true
+        wam2/hand/finger_2/med_link:
+          Value: true
+        wam2/hand/finger_2/prox_link:
+          Value: true
+        wam2/hand/finger_2/tip_link:
+          Value: true
+        wam2/hand/finger_3/dist_link:
+          Value: true
+        wam2/hand/finger_3/med_link:
+          Value: true
+        wam2/hand/finger_3/tip_link:
+          Value: true
+        wam2/shoulder_pitch_link:
+          Value: true
+        wam2/shoulder_yaw_link:
+          Value: true
+        wam2/upper_arm_link:
+          Value: true
+        wam2/wrist_palm_link:
+          Value: true
+        wam2/wrist_palm_stump_link:
+          Value: true
+        wam2/wrist_pitch_link:
+          Value: true
+        wam2/wrist_yaw_link:
+          Value: true
+        world:
+          Value: true
+      Marker Scale: 1
+      Name: TF
+      Show Arrows: false
+      Show Axes: false
+      Show Names: false
+      Tree:
+        world:
+          hydra_base:
+            hydra_left_grab:
+              {}
+            hydra_left_pivot:
+              {}
+            hydra_right_grab:
+              {}
+            hydra_right_pivot:
+              {}
+          ik/world:
+            ik/wam/base_link:
+              {}
+            ik/wam2/base_link:
+              {}
+          peg1/base_link:
+            peg1/peg_link:
+              peg1/peg_top_link:
+                {}
+          peg2/base_link:
+            peg2/peg_link:
+              peg2/peg_top_link:
+                {}
+          ring1:
+            ring1/ring_link:
+              {}
+          stage_link:
+            {}
+          wam/base_link:
+            wam/cmd_limited:
+              {}
+            wam/cmd_unbounded:
+              {}
+            wam/shoulder_yaw_link:
+              wam/shoulder_pitch_link:
+                wam/upper_arm_link:
+                  wam/forearm_link:
+                    wam/wrist_yaw_link:
+                      wam/wrist_pitch_link:
+                        wam/wrist_palm_link:
+                          wam/hand/bhand_palm_link:
+                            wam/hand/bhand_grasp_link:
+                              {}
+                            wam/hand/bhand_palm_surface_link:
+                              {}
+                            wam/hand/finger_1/prox_link:
+                              wam/hand/finger_1/med_link:
+                                wam/hand/finger_1/dist_link:
+                                  wam/hand/finger_1/tip_link:
+                                    {}
+                            wam/hand/finger_2/prox_link:
+                              wam/hand/finger_2/med_link:
+                                wam/hand/finger_2/dist_link:
+                                  wam/hand/finger_2/tip_link:
+                                    {}
+                            wam/hand/finger_3/med_link:
+                              wam/hand/finger_3/dist_link:
+                                wam/hand/finger_3/tip_link:
+                                  {}
+                          wam/wrist_palm_stump_link:
+                            {}
+          wam/cmd:
+            {}
+          wam2/base_link:
+            wam2/cmd_limited:
+              {}
+            wam2/cmd_unbounded:
+              {}
+            wam2/shoulder_yaw_link:
+              wam2/shoulder_pitch_link:
+                wam2/upper_arm_link:
+                  wam2/forearm_link:
+                    wam2/wrist_yaw_link:
+                      wam2/wrist_pitch_link:
+                        wam2/wrist_palm_link:
+                          wam2/hand/bhand_palm_link:
+                            wam2/hand/bhand_grasp_link:
+                              {}
+                            wam2/hand/bhand_palm_surface_link:
+                              {}
+                            wam2/hand/finger_1/prox_link:
+                              wam2/hand/finger_1/med_link:
+                                wam2/hand/finger_1/dist_link:
+                                  wam2/hand/finger_1/tip_link:
+                                    {}
+                            wam2/hand/finger_2/prox_link:
+                              wam2/hand/finger_2/med_link:
+                                wam2/hand/finger_2/dist_link:
+                                  wam2/hand/finger_2/tip_link:
+                                    {}
+                            wam2/hand/finger_3/med_link:
+                              wam2/hand/finger_3/dist_link:
+                                wam2/hand/finger_3/tip_link:
+                                  {}
+                          wam2/wrist_palm_stump_link:
+                            {}
+          wam2/cmd:
+            {}
+      Update Interval: 0
+      Value: true
+    - Alpha: 0.5
+      Class: rviz/RobotModel
+      Collision Enabled: false
+      Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+        wam/base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam/forearm_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam/hand/bhand_grasp_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        wam/hand/bhand_palm_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam/hand/bhand_palm_surface_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        wam/hand/finger_1/dist_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam/hand/finger_1/med_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam/hand/finger_1/prox_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam/hand/finger_1/tip_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        wam/hand/finger_2/dist_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam/hand/finger_2/med_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam/hand/finger_2/prox_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam/hand/finger_2/tip_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        wam/hand/finger_3/dist_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam/hand/finger_3/med_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam/hand/finger_3/tip_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        wam/shoulder_pitch_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam/shoulder_yaw_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam/upper_arm_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam/wrist_palm_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam/wrist_palm_stump_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        wam/wrist_pitch_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam/wrist_yaw_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        world:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+      Name: WAM_1
+      Robot Description: wam/robot_description
+      TF Prefix: ""
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
+    - Alpha: 0.5
+      Class: rviz/RobotModel
+      Collision Enabled: false
+      Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+        wam2/base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam2/forearm_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam2/hand/bhand_grasp_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        wam2/hand/bhand_palm_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam2/hand/bhand_palm_surface_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        wam2/hand/finger_1/dist_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam2/hand/finger_1/med_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam2/hand/finger_1/prox_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam2/hand/finger_1/tip_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        wam2/hand/finger_2/dist_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam2/hand/finger_2/med_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam2/hand/finger_2/prox_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam2/hand/finger_2/tip_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        wam2/hand/finger_3/dist_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam2/hand/finger_3/med_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam2/hand/finger_3/tip_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        wam2/shoulder_pitch_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam2/shoulder_yaw_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam2/upper_arm_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam2/wrist_palm_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam2/wrist_palm_stump_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        wam2/wrist_pitch_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wam2/wrist_yaw_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        world:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+      Name: WAM_2
+      Robot Description: wam2/robot_description
+      TF Prefix: ""
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
+    - Alpha: 0.25
+      Class: rviz/RobotModel
+      Collision Enabled: false
+      Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+      Name: WAM_1_IK
+      Robot Description: gazebo/barrett_manager/ik_robot_description
+      TF Prefix: ik
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
+    - Alpha: 0.25
+      Class: rviz/RobotModel
+      Collision Enabled: false
+      Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+      Name: WAM_2_IK
+      Robot Description: gazebo/w2barrett_manager/ik_robot_description
+      TF Prefix: ik
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
+    - Alpha: 0.5
+      Class: rviz/RobotModel
+      Collision Enabled: false
+      Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+        stage_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        world:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+      Name: BENCH
+      Robot Description: stage_model
+      TF Prefix: ""
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
+    - Alpha: 1
+      Class: rviz/RobotModel
+      Collision Enabled: false
+      Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+        peg1/base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        peg1/peg_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        peg1/peg_top_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        world:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+      Name: PEG_1
+      Robot Description: peg1_description
+      TF Prefix: ""
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
+    - Alpha: 1
+      Class: rviz/RobotModel
+      Collision Enabled: false
+      Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+        peg2/base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        peg2/peg_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        peg2/peg_top_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        world:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+      Name: PEG_2
+      Robot Description: peg2_description
+      TF Prefix: ""
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
+    - Alpha: 1
+      Class: rviz/RobotModel
+      Collision Enabled: false
+      Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+        ring1/ring_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+      Name: RING
+      Robot Description: ring1_description
+      TF Prefix: ""
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
+    - Class: rviz/Axes
+      Enabled: true
+      Length: 0.1
+      Name: WAM_1_CMD
+      Radius: 0.01
+      Reference Frame: wam/cmd
+      Value: true
+    - Class: rviz/Axes
+      Enabled: true
+      Length: 0.1
+      Name: WAM_2_CMD
+      Radius: 0.01
+      Reference Frame: wam2/cmd
+      Value: true
+  Enabled: true
+  Global Options:
+    Background Color: 48; 48; 48
+    Fixed Frame: world
+    Frame Rate: 30
+  Name: root
+  Tools:
+    - Class: rviz/Interact
+      Hide Inactive Objects: true
+    - Class: rviz/MoveCamera
+    - Class: rviz/Select
+    - Class: rviz/FocusCamera
+    - Class: rviz/Measure
+    - Class: rviz/SetInitialPose
+      Topic: /initialpose
+    - Class: rviz/SetGoal
+      Topic: /move_base_simple/goal
+    - Class: rviz/PublishPoint
+      Single click: true
+      Topic: /clicked_point
+  Value: true
+  Views:
+    Current:
+      Class: rviz/Orbit
+      Distance: 2.25943
+      Enable Stereo Rendering:
+        Stereo Eye Separation: 0.06
+        Stereo Focal Distance: 1
+        Swap Stereo Eyes: false
+        Value: false
+      Focal Point:
+        X: 1.04578
+        Y: 0.0307982
+        Z: 0.715146
+      Name: Current View
+      Near Clip Distance: 0.01
+      Pitch: 0.389796
+      Target Frame: <Fixed Frame>
+      Value: Orbit (rviz)
+      Yaw: 0.0257353
+    Saved: ~
+Window Geometry:
+  Displays:
+    collapsed: true
+  Height: 1031
+  Hide Left Dock: true
+  Hide Right Dock: true
+  QMainWindow State: 000000ff00000000fd000000040000000000000189000003a6fc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000006300fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c0061007900730000000043000003a6000000db00fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261000000010000010f000002abfc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a005600690065007700730000000043000002ab000000af00fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000005550000003efc0100000002fb0000000800540069006d00650000000000000005550000028200fffffffb0000000800540069006d0065010000000000000450000000000000000000000780000003a600000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Selection:
+    collapsed: false
+  Time:
+    collapsed: false
+  Tool Properties:
+    collapsed: false
+  Views:
+    collapsed: true
+  Width: 1920
+  X: 0
+  Y: 25

@@ -1,0 +1,14 @@
+<launch>
+  <arg name="experiment" default="straight"/>
+  <arg name="number" default="1"/>
+
+  <param name="experiment_sdf"
+    command="$(find xacro)/xacro.py '$(find grid_tasks)/regression/$(arg experiment)$(arg number).sdf.xacro'"/>
+
+  <node name="$(anon sdf_spawner)"
+    pkg="gazebo_ros"
+    type="spawn_model"
+    respawn="false" output="screen"
+    args="-b -sdf -model gbeam_soup -param experiment_sdf"/>
+
+</launch>
