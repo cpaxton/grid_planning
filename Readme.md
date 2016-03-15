@@ -27,6 +27,19 @@ This code requires:
 
 To run the experiments, you'll need my ```grid_experiments``` ROS packages, as well as a working version of the ```lcsr_barrett``` simulation.
 
+## Package Overview
+
+  * __grid_tasks__: This package defines different situations.
+  * __grid_robots__: This package defines and launches robots, and helps configure them for different situations.
+  * __grid_experiments__: This contains launch files bringing up a whole test, with robots and objects.
+
+
+In particular, __grid_experiments__ contains a few notable launch files:
+
+  - **ascent_grasping** starts the assembly task.
+  - **ascent_experiments** brings up particular combinations of parts for the assembly task.
+  - **simple_pegs** brings up the peg-manipulation task.
+
 ## Experiments
 
 ### Collecting Data
