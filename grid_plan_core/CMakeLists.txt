@@ -30,13 +30,13 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   trajectory_msgs
   oro_barrett_msgs
+  grid_plan_msgs
 
   # ros stuff
   rosbag
 
   # action
   actionlib
-  message_generation
 )
 
 find_package(orocos_kdl REQUIRED)
@@ -57,11 +57,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
 ## modules and global scripts declared therein get installed
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
 catkin_python_setup()
-
-## Add actions and messages
-add_action_files(DIRECTORY action FILES Command.action)
-add_message_files(DIRECTORY msg FILES Statistics.msg)
-generate_messages(DEPENDENCIES std_msgs trajectory_msgs geometry_msgs actionlib_msgs)
 
 ###################################
 ## catkin specific configuration ##
@@ -176,7 +171,6 @@ add_executable(dmp_execution_test src/test/dmp_execution_test_node.cpp)
 add_executable(moveit_robot_model_test src/test/moveit_robot_test.cpp)
 
 add_executable(task_test src/task_test_node.cpp)
-add_executable(ur5_task_test src/ur5/task_test_node.cpp)
 add_executable(simple_test src/simple_test_node.cpp)
 add_executable(align_test src/align_test_node.cpp)
 
@@ -207,7 +201,6 @@ target_link_libraries(training_test ${ALL_LIBRARIES})
 target_link_libraries(execution_test ${ALL_LIBRARIES})
 target_link_libraries(dmp_execution_test ${ALL_LIBRARIES})
 target_link_libraries(task_test ${ALL_LIBRARIES})
-target_link_libraries(ur5_task_test ${ALL_LIBRARIES})
 target_link_libraries(simple_test ${ALL_LIBRARIES})
 target_link_libraries(align_test ${ALL_LIBRARIES})
 target_link_libraries(moveit_robot_model_test ${ALL_LIBRARIES})

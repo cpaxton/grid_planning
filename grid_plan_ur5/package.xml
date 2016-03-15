@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>grid_plan</name>
+  <name>grid_plan_ur5</name>
   <version>0.0.0</version>
   <description>The grid_plan package</description>
 
@@ -57,8 +57,7 @@
   <build_depend>orocos_kdl</build_depend>
   <build_depend>oro_barrett_msgs</build_depend>
   <build_depend>kdl_parser</build_depend>
-  <build_depend>actionlib</build_depend>
-  <build_depend>message_generation</build_depend>
+  <build_depend>grid_plan</build_depend>
 
   <run_depend>ascent_mk2</run_depend>
   <run_depend>dmp</run_depend>
@@ -77,8 +76,7 @@
   <run_depend>orocos_kdl</run_depend>
   <run_depend>oro_barrett_msgs</run_depend>
   <run_depend>kdl_parser</run_depend>
-  <run_depend>actionlib</run_depend>
-  <run_depend>message_runtime</run_depend>
+  <build_depend>grid_plan_core</build_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
