@@ -27,18 +27,12 @@ This code requires:
 
 To run the experiments, you'll need my ```grid_experiments``` ROS packages, as well as a working version of the ```lcsr_barrett``` simulation.
 
-## Package Overview
+## Running Things
 
-  * __grid_tasks__: This package defines different situations.
-  * __grid_robots__: This package defines and launches robots, and helps configure them for different situations.
-  * __grid_experiments__: This contains launch files bringing up a whole test, with robots and objects.
-
-
-In particular, __grid_experiments__ contains a few notable launch files:
-
-  - **ascent_grasping** starts the assembly task.
-  - **ascent_experiments** brings up particular combinations of parts for the assembly task.
-  - **simple_pegs** brings up the peg-manipulation task.
+```
+roslaunch grid_plan rotate_link_uniform.launch link:=1
+roslaunch grid_plan rotate_link_uniform.launch link:=2
+```
 
 ## Experiments
 
@@ -202,6 +196,20 @@ rosrun grid_plan task_test _step_size:=0.5 _iter:=15 _ntrajs:=100 _starting_hori
 ```
 
 Note the decreased model norm from the previous version. I changed back to adding a higher norm after switching to k=3 components. As of 2016-02-24, I am making "place" have k=2 since one of the recorded examples was bad.
+
+### Current Commands: UR5 Experiments
+
+The UR5 branch is a little different, but the key command we used is basically the same:
+
+```
+rosrun grid_plan ur5_task_test _max_horizon:=5 _starting_horizon:=5 _ntrajs:=200 _step_size:=0.5  _detect_collisions:=false _base_model_norm:=0.0001 _iter:=25 _distribution_noise:=1e-6 _randomize:=true
+```
+
+We found that enabling collisions really helps:
+
+```
+rosrun grid_plan ur5_task_test _max_horizon:=5 _starting_horizon:=5 _ntrajs:=200 _step_size:=0.5  _detect_collisions:=true _base_model_norm:=0.001 _iter:=10 _distribution_noise:=1e-6 _randomize:=true _execute_depth:=5
+```
 
 ## Guide to Files
 

@@ -53,18 +53,23 @@ int main(int argc, char **argv) {
   Params p = readRosParams();
   std::string ee("ee_fixed_link");
   RobotKinematicsPtr robot = RobotKinematicsPtr(new RobotKinematics("robot_description","base_link",ee));
-  GridPlanner gp("robot_description","joint_states","planning_scene",0.05);
+  GridPlanner gp("robot_description","joint_states","planning_scene",0.01);
   gp.SetDof(robot->getDegreesOfFreedom());
-  gp.SetCollisions("gbeam_soup.gbeam_link_1",true);
-  gp.SetCollisions("gbeam_soup.gbeam_link_2",true);
-  gp.SetCollisions("gbeam_soup.gbeam_node_1",false);
-  gp.SetCollisions("gbeam_soup.gbeam_node_2",false);
+  gp.SetVerbose(p.collisions_verbose);
+  gp.SetCollisions("Obj::link_uniform::1",true);
+  gp.SetCollisions("Obj::link_uniform::2",true);
+  gp.SetCollisions("Obj::node_uniform::1",true);
+  gp.SetCollisions("forearm_link",true);
+  gp.SetCollisions("wrist_2_link",true);
+
+  GridPlanner gp2("robot_description","joint_states","planning_scene",0.01);
+  gp2.SetDof(robot->getDegreesOfFreedom());
+  gp2.SetVerbose(p.collisions_verbose);
+  gp2.SetCollisions("forearm_link",true);
+  gp2.SetCollisions("wrist_2_link",true);
 
   // disable a bunch of collisions
   //gp.SetDefaultCollisions("wam/shoulder_yaw_link",true);
-
-
-  gp.SetVerbose(p.collisions_verbose);
 
   if (p.collisions_verbose) {
     gp.PrintInfo();
@@ -74,7 +79,7 @@ int main(int argc, char **argv) {
   GridPlanner *checker2 = 0;
   if (p.detect_collisions) {
     checker = &gp;
-    checker2 = &gp;
+    checker2 = &gp2;
   }
 
   std::unordered_map<std::string, SkillPtr> skills;
@@ -89,6 +94,7 @@ int main(int argc, char **argv) {
   InstantiatedSkillPtr root = InstantiatedSkill::Root();
 
   ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples",1000);
+  ros::Publisher pub1 = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples_1",1000);
   ros::Publisher pub2 = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples_2",1000);
   ros::Publisher pub3 = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples_3",1000);
   ros::Publisher attached_pub = nh.advertise<geometry_msgs::PoseArray>("trajectory_examples_attached",1000);
@@ -110,58 +116,133 @@ int main(int argc, char **argv) {
   /*************************************************************************/
 
   unsigned int nbasis = 5;
+
+  std::cout << "[link 1] Initializing lineups..." << std::endl;
+  InstantiatedSkillPtr lineup1 = InstantiatedSkill::DmpInstance(skills.at("pre_approach_link"), features.at("node1,link1"), robot, nbasis, checker2);
+  InstantiatedSkillPtr lineup1b = InstantiatedSkill::DmpInstance(skills.at("pre_approach_link"), features.at("node1,link1b"), robot, nbasis, checker2);
+  InstantiatedSkillPtr lineup2 = InstantiatedSkill::DmpInstance(skills.at("pre_approach_link"), features.at("node1,link2"), robot, nbasis, checker2);
+  InstantiatedSkillPtr lineup2b = InstantiatedSkill::DmpInstance(skills.at("pre_approach_link"), features.at("node1,link2b"), robot, nbasis, checker2);
+  InstantiatedSkillPtr lineup_node1 = InstantiatedSkill::DmpInstance(skills.at("pre_approach_node"), features.at("node1,link1"), robot, nbasis, checker2);
+
+  std::cout << "Initializing approaches..." << std::endl;
   InstantiatedSkillPtr app1 = InstantiatedSkill::DmpInstance(skills.at("approach_link"), features.at("node1,link1"), robot, nbasis, checker2);
-  InstantiatedSkillPtr app2 = InstantiatedSkill::DmpInstance(skills["approach_node"], features["node1,link1"], robot, nbasis, checker2);
+  InstantiatedSkillPtr app1b = InstantiatedSkill::DmpInstance(skills.at("approach_link"), features.at("node1,link1b"), robot, nbasis, checker2);
+  InstantiatedSkillPtr app_node1 = InstantiatedSkill::DmpInstance(skills["approach_node"], features["node1,link1"], robot, nbasis, checker2);
+  InstantiatedSkillPtr app2 = InstantiatedSkill::DmpInstance(skills.at("approach_link"), features.at("node1,link2"), robot, nbasis, checker2);
+  InstantiatedSkillPtr app2b = InstantiatedSkill::DmpInstance(skills.at("approach_link"), features.at("node1,link2b"), robot, nbasis, checker2);
 
   std::cout << "Initializing grasps..." << std::endl;
   InstantiatedSkillPtr grasp1 = InstantiatedSkill::DmpInstance(skills["grasp_link"], features["node1,link1"], robot, nbasis, checker);
-  InstantiatedSkillPtr grasp2 = InstantiatedSkill::DmpInstance(skills["grasp_node"], features["node1,link1"], robot, nbasis, checker);
+  InstantiatedSkillPtr grasp1b = InstantiatedSkill::DmpInstance(skills["grasp_link"], features["node1,link1b"], robot, nbasis, checker);
+  InstantiatedSkillPtr grasp2 = InstantiatedSkill::DmpInstance(skills["grasp_link"], features["node1,link2"], robot, nbasis, checker);
+  InstantiatedSkillPtr grasp2b = InstantiatedSkill::DmpInstance(skills["grasp_link"], features["node1,link2b"], robot, nbasis, checker);
+  InstantiatedSkillPtr grasp_node1 = InstantiatedSkill::DmpInstance(skills["grasp_node"], features["node1,link1"], robot, nbasis, checker);
 
   std::cout << "Initializing aligns..." << std::endl;
   InstantiatedSkillPtr align11 = InstantiatedSkill::DmpInstance(skills["align_link"], features["node1,link1"], robot, nbasis, checker);
-  InstantiatedSkillPtr align21 = InstantiatedSkill::DmpInstance(skills["align_node"], features["node1,link1"], robot, nbasis, checker);
+  InstantiatedSkillPtr align11b = InstantiatedSkill::DmpInstance(skills["align_link"], features["node1,link1b"], robot, nbasis, checker);
+  InstantiatedSkillPtr align12 = InstantiatedSkill::DmpInstance(skills["align_link"], features["node1,link2"], robot, nbasis, checker);
+  InstantiatedSkillPtr align12b = InstantiatedSkill::DmpInstance(skills["align_link"], features["node1,link2b"], robot, nbasis, checker);
+  InstantiatedSkillPtr align_node11 = InstantiatedSkill::DmpInstance(skills["align_node"], features["node1,link1"], robot, nbasis, checker);
 
   std::cout << "Initializing places..." << std::endl;
   InstantiatedSkillPtr place11 = InstantiatedSkill::DmpInstance(skills["place_link"], features["node1,link1"], robot, nbasis, checker);
-  InstantiatedSkillPtr place21 = InstantiatedSkill::DmpInstance(skills["place_node"], features["node1,link1"], robot, nbasis, checker);
+  InstantiatedSkillPtr place11b = InstantiatedSkill::DmpInstance(skills["place_link"], features["node1,link1b"], robot, nbasis, checker);
+  InstantiatedSkillPtr place_node11 = InstantiatedSkill::DmpInstance(skills["place_node"], features["node1,link1"], robot, nbasis, checker);
+  InstantiatedSkillPtr place_node11b = InstantiatedSkill::DmpInstance(skills["place_node"], features["node1,link1b"], robot, nbasis, checker);
+  InstantiatedSkillPtr place12 = InstantiatedSkill::DmpInstance(skills["place_link"], features["node1,link2"], robot, nbasis, checker);
+  InstantiatedSkillPtr place12b = InstantiatedSkill::DmpInstance(skills["place_link"], features["node1,link2b"], robot, nbasis, checker);
+  InstantiatedSkillPtr place_node12 = InstantiatedSkill::DmpInstance(skills["place_node"], features["node1,link2"], robot, nbasis, checker);
+  InstantiatedSkillPtr place_node12b = InstantiatedSkill::DmpInstance(skills["place_node"], features["node1,link2b"], robot, nbasis, checker);
 
+#if 0
   std::cout << "Initializing releases..." << std::endl;
   InstantiatedSkillPtr release11 = InstantiatedSkill::DmpInstance(skills["release_link"], features["node1,link1"], robot, nbasis, checker);
-  InstantiatedSkillPtr release21 = InstantiatedSkill::DmpInstance(skills["release_node"], features["node1,link1"], robot, nbasis, checker);
+  InstantiatedSkillPtr release11b = InstantiatedSkill::DmpInstance(skills["release_link"], features["node1,link1b"], robot, nbasis, checker);
+  InstantiatedSkillPtr release_node11 = InstantiatedSkill::DmpInstance(skills["release_node"], features["node1,link1"], robot, nbasis, checker);
+  InstantiatedSkillPtr release_node11b = InstantiatedSkill::DmpInstance(skills["release_node"], features["node1,link1b"], robot, nbasis, checker);
+  InstantiatedSkillPtr release12 = InstantiatedSkill::DmpInstance(skills["release_link"], features["node1,link2"], robot, nbasis, checker);
+  InstantiatedSkillPtr release12b = InstantiatedSkill::DmpInstance(skills["release_link"], features["node1,link2b"], robot, nbasis, checker);
+  InstantiatedSkillPtr release_node12 = InstantiatedSkill::DmpInstance(skills["release_node"], features["node1,link2"], robot, nbasis, checker);
+  InstantiatedSkillPtr release_node12b = InstantiatedSkill::DmpInstance(skills["release_node"], features["node1,link2b"], robot, nbasis, checker);
+#endif
 
-  root->addNext(app1); 
-  //root->addNext(app2);
+  root->addNext(lineup1); 
+  root->addNext(lineup1b); 
+  root->addNext(lineup2); 
+  root->addNext(lineup2b); 
+  root->addNext(lineup_node1);
 
-  app1->addNext(grasp1); app1->pub = &pub;
-  app2->addNext(grasp2); app2->pub = &pub;
+  lineup1->addNext(app1);  lineup1->pub = &pub;
+  lineup1b->addNext(app1b);  lineup1b->pub = &pub; 
+  lineup2->addNext(app2);  lineup2->pub = &pub;
+  lineup2b->addNext(app2b);  lineup2b->pub = &pub; 
+  lineup_node1->addNext(app_node1);  lineup_node1->pub = &pub;
+
+  app1->addNext(grasp1); app1->pub = &pub1;
+  app1b->addNext(grasp1b); app1->pub = &pub1;
+  app2->addNext(grasp2); app2->pub = &pub2;
+  app2b->addNext(grasp2b); app2->pub = &pub2;
+  app_node1->addNext(grasp_node1); app_node1->pub = &pub1;
 
   grasp1->addNext(align11); 
-  grasp2->addNext(align21);
+  grasp1b->addNext(align11b); 
+  grasp2->addNext(align12); 
+  grasp2b->addNext(align12b); 
+  grasp_node1->addNext(align_node11);
 
   align11->addNext(place11); align11->pub = &pub2;
-  align21->addNext(place21); align21->pub = &pub2;
+  align11b->addNext(place11b); align11b->pub = &pub2;
+  align12->addNext(place12); align12->pub = &pub2;
+  align12b->addNext(place12b); align12b->pub = &pub2;
+  align_node11->addNext(place_node11); align_node11->pub = &pub2;
+  align_node11->addNext(place_node11b);
+  align_node11->addNext(place_node12);
+  align_node11->addNext(place_node12b);
 
-  place11->addNext(release11); place11->pub = &pub3;
-  place21->addNext(release21); place21->pub = &pub3;
+  place11->pub = &pub3;
+  place11b->pub = &pub3;
+  place12->pub = &pub3;
+  place12b->pub = &pub3;
+
+  place_node11->pub = &pub3;
+  place_node11b->pub = &pub3;
+  place_node12->pub = &pub3;
+  place_node12b->pub = &pub3;
+
+  std::vector<InstantiatedSkillPtr> lineups;
+  lineups.push_back(lineup1);
+  lineups.push_back(lineup1b);
+  lineups.push_back(lineup2);
+  lineups.push_back(lineup2b);
+  lineups.push_back(lineup_node1);
 
   std::vector<InstantiatedSkillPtr> approaches;
   approaches.push_back(app1);
+  approaches.push_back(app1b);
   approaches.push_back(app2);
+  approaches.push_back(app2b);
+  approaches.push_back(app_node1);
   std::vector<InstantiatedSkillPtr> aligns;
   aligns.push_back(align11);
-  aligns.push_back(align21);
-  std::vector<InstantiatedSkillPtr> releases;
-  releases.push_back(release11);
-  releases.push_back(release21);
+  aligns.push_back(align11b);
+  aligns.push_back(align12);
+  aligns.push_back(align12b);
+  aligns.push_back(align_node11);
   std::vector<InstantiatedSkillPtr> places;
   places.push_back(place11);
-  places.push_back(place21);
-  std::vector<InstantiatedSkillPtr> grasps;
-  grasps.push_back(grasp1);
-  grasps.push_back(grasp2);
+  places.push_back(place11b);
+  places.push_back(place_node11);
+  places.push_back(place_node11b);
+  places.push_back(place12);
+  places.push_back(place12b);
+  places.push_back(place_node12);
+  places.push_back(place_node12b);
+
 
   /*************************************************************************/
 
+  std::vector<trajectory_msgs::JointTrajectory> lineup_trajs;
   std::vector<trajectory_msgs::JointTrajectory> approach_trajs;
   std::vector<trajectory_msgs::JointTrajectory> align_trajs;
   std::vector<trajectory_msgs::JointTrajectory> place_trajs;
@@ -200,11 +281,13 @@ int main(int argc, char **argv) {
 
     /* PUT EVERYTHING INTO SOME MESSAGES */
     {
+      load_to_one_array(lineups,lineup_trajs);
       load_to_one_array(approaches,approach_trajs);
       load_to_one_array(aligns,align_trajs);
       load_to_one_array(places,place_trajs);
       std::cout << "pub len = " << approach_trajs.size() << "\n";
-      pub.publish(toPoseArray(approach_trajs,app1->features->getWorldFrame(),robot));
+      pub.publish(toPoseArray(lineup_trajs,lineup1->features->getWorldFrame(),robot));
+      pub1.publish(toPoseArray(approach_trajs,app1->features->getWorldFrame(),robot));
       pub2.publish(toPoseArray(align_trajs,app1->features->getWorldFrame(),robot));
       pub3.publish(toPoseArray(place_trajs,app1->features->getWorldFrame(),robot));
       attached_pub.publish(toPoseArray(place_trajs,app1->features->getWorldFrame(),robot,align11->features->getAttachedObjectFrame()));
@@ -240,5 +323,16 @@ int main(int argc, char **argv) {
 
   // execute here
   root->execute(gp,ac,p.execute_depth,false,p.replan_depth);
+
+#if 1
+  grid_plan::CommandGoal cmd;
+  cmd.name = "release";
+  std::cout << "waiting for server... (" << horizon << ")\n";
+  ac.waitForServer();
+  std::cout << "sending command...\n";
+  ac.sendGoal(cmd);
+  std::cout << "waiting for result\n";
+  ac.waitForResult();
+#endif
 
 }
