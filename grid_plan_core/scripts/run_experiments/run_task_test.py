@@ -33,7 +33,7 @@ reset_cmd = ["rosrun","grid_experiments","reset.py"]
 target_cmd = ["roslaunch","grid_plan","test_targets.launch"]
 
 task_args = ["_step_size:=0.5",
-        "_iter:=10",
+        "_iter:=15",
         "_ntrajs:=300",
         "_starting_horizon:=5",
         "_max_horizon:=5",
@@ -53,7 +53,7 @@ task_args = ["_step_size:=0.5",
         "_randomize:=true"
         ]
 single_args = ["_step_size:=0.5",
-        "_iter:=10",
+        "_iter:=15",
         "_ntrajs:=300",
         "_starting_horizon:=2",
         "_max_horizon:=1",
@@ -73,7 +73,7 @@ single_args = ["_step_size:=0.5",
         "_randomize:=true"
         ]
 single_lookahead_args = ["_step_size:=0.5",
-        "_iter:=10",
+        "_iter:=15",
         "_ntrajs:=300",
         "_starting_horizon:=5",
         "_max_horizon:=5",
@@ -93,7 +93,7 @@ single_lookahead_args = ["_step_size:=0.5",
         "_randomize:=true"
         ]
 no_lookahead_args = ["_step_size:=0.5",
-        "_iter:=10",
+        "_iter:=15",
         "_ntrajs:=300",
         "_starting_horizon:=2",
         "_max_horizon:=1",
