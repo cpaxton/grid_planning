@@ -7,10 +7,8 @@ add_definitions(-g -std=c++0x -pthread -O1)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  #ascent_mk2
   dmp
-  #grid_experiments
-  #grid_tasks
+  grid_plan
 
   kdl_parser
   urdf
@@ -64,11 +62,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES grid_planner
-  CATKIN_DEPENDS dmp tf tf_conversions moveit_core oro_barrett_msgs grid_plan_core
-  #DEPENDS GCOP EIGEN3
-  DEPENDS EIGEN3 orocos_kdl
+  #INCLUDE_DIRS include
+  #LIBRARIES grid_planner
+  CATKIN_DEPENDS grid_plan
 )
 
 ###########
@@ -80,7 +76,7 @@ catkin_package(
 include_directories( include ${orocos_kdl_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_PATH} ${EIGEN3_INCLUDE_DIRS} )
 
 #message(STATUS ${GCOP_INCLUDE_DIRS})
-add_executable(ur5_task_test src/ur5/task_test_node.cpp)
+add_executable(ur5_task_test src/task_test_node.cpp)
 
 SET(ALL_LIBRARIES 
   ${orocos_kdl_LIBRARIES} ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} ${PYTHON_LIBRARIES}

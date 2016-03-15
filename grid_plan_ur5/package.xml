@@ -76,7 +76,7 @@
   <run_depend>orocos_kdl</run_depend>
   <run_depend>oro_barrett_msgs</run_depend>
   <run_depend>kdl_parser</run_depend>
-  <build_depend>grid_plan_core</build_depend>
+  <run_depend>grid_plan</run_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
