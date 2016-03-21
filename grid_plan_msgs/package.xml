@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>grid_server</name>
+  <name>grid_plan_msgs</name>
   <version>0.0.0</version>
-  <description>The grid_server package</description>
+  <description>The grid_plan_msgs package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
@@ -19,7 +19,7 @@
   <!-- Url tags are optional, but mutiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/grid_server</url> -->
+  <!-- <url type="website">http://wiki.ros.org/grid_plan_msgs</url> -->
 
 
   <!-- Author tags are optional, mutiple are allowed, one per tag -->
@@ -40,10 +40,18 @@
   <!-- Use test_depend for packages you need only for testing: -->
   <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
-  <build_depend>grid_plan</build_depend>
-  <build_depend>grid_plan_msgs</build_depend>
-  <run_depend>grid_plan</run_depend>
-  <run_depend>grid_plan_msgs</run_depend>
+  <build_depend>message_generation</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>trajectory_msgs</build_depend>
+  <build_depend>actionlib_msgs</build_depend>
+  <build_depend>actionlib</build_depend>
+  <run_depend>message_runtime</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>trajectory_msgs</run_depend>
+  <run_depend>actionlib_msgs</run_depend>
+  <run_depend>actionlib</run_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

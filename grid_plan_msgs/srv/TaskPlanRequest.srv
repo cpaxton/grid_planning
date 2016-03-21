@@ -1,0 +1,6 @@
+grid_plan_msgs/ActionConfig[] actions
+grid_plan_msgs/ObjectConfig[] objects
+---
+int32 code
+trajectory_msgs/JointTrajectory[] trajectories
+string[] actions
