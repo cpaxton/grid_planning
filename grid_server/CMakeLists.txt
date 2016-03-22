@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(grid_server)
 
+add_definitions(-g -std=c++0x -pthread -O1)
+
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
@@ -101,7 +103,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES grid_server
-#  CATKIN_DEPENDS grid_plan grid_plan_msgs
+  CATKIN_DEPENDS grid_plan grid_plan_msgs
 #  DEPENDS system_lib
 )
 
@@ -127,16 +129,16 @@ include_directories(
 # add_dependencies(grid_server ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-# add_executable(grid_server_node src/grid_server_node.cpp)
+add_executable(grid_server_node src/grid_server_node.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(grid_server_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(grid_server_node
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(grid_server_node
+  ${catkin_LIBRARIES}
+)
 
 #############
 ## Install ##

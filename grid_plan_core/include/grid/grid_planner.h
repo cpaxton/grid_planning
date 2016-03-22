@@ -18,9 +18,13 @@
 #include <memory>
 
 // Boost
+#include <boost/thread/mutex.hpp>
+
+// Boost Python
+#ifdef GEN_PYTHON_BINDINGS
 #include <boost/python.hpp>
 #include <boost/python/list.hpp>
-#include <boost/thread/mutex.hpp>
+#endif
 
 // MoveIt!
 #include <moveit/collision_detection/collision_robot.h>
@@ -101,14 +105,6 @@ namespace grid {
     /* add an action */
     bool AddAction(const std::string &action_name);
 
-    /* try a set of motion primitives; see if they work.
-     * this is aimed at the python version of the code. */
-    boost::python::list pyTryPrimitives(const boost::python::list &primitives);
-
-    /* try a single trajectory and see if it works.
-     * this is aimed at the python version of the code. */
-    bool pyTryTrajectory(const boost::python::list &trajectory);
-
     /* try a set of motion primitives; see if they work. */
     Traj_t TryPrimitives(std::vector<double> primitives);
 
@@ -129,9 +125,6 @@ namespace grid {
       
     /* configure number of basis functions */
     void SetNumBasisFunctions(const unsigned int num);
-
-    /* get current joint positions */
-    boost::python::list GetJointPositions() const;
 
     void SetK(const double k_gain);
     void SetD(const double d_gain);
@@ -154,6 +147,19 @@ namespace grid {
 
     /* reset all entries in the collision map */
     void ResetCollisionMap();
+
+#ifdef GEN_PYTHON_BINDINGS
+    /* try a set of motion primitives; see if they work.
+     * this is aimed at the python version of the code. */
+    boost::python::list pyTryPrimitives(const boost::python::list &primitives);
+
+    /* try a single trajectory and see if it works.
+     * this is aimed at the python version of the code. */
+    bool pyTryTrajectory(const boost::python::list &trajectory);
+
+    /* get current joint positions */
+    boost::python::list GetJointPositions() const;
+#endif
 
   private:
     CollisionMap cm;

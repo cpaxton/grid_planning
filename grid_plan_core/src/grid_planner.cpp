@@ -5,7 +5,9 @@
 #include <iostream>
 
 //#include <ctime>
+#ifdef GEN_PYTHON_BINDINGS
 #include <grid/utils/python.hpp>
+#endif
 
 #define _DEBUG_OUTPUT 0
 
@@ -52,15 +54,6 @@ namespace grid {
       }
     }
     //std::cout << std::endl;
-  }
-
-  /* get current joint positions */
-  boost::python::list GridPlanner::GetJointPositions() const {
-    boost::python::list res;
-    for (double x: x0) {
-      res.append<double>(x);
-    }
-    return res;
   }
 
   void GridPlanner::PlanningSceneCallback(const moveit_msgs::PlanningScene::ConstPtr &msg) {
@@ -292,6 +285,184 @@ namespace grid {
     }
   }
 
+  /* update planning scene topic */
+  void  GridPlanner::SetPlanningSceneTopic(const std::string &topic) {
+    //monitor->startSceneMonitor(topic);
+    ROS_WARN("\"GridPlanner::SetPlanningSceneTopic\" not currently implemented!");
+  }
+
+  /* configure degrees of freedom */
+  void GridPlanner::SetDof(const unsigned int dof_) {
+    dof = dof_;
+    joint_names.resize(dof);
+    goal.resize(dof);
+    x0.resize(dof);
+    x0_dot.resize(dof);
+    goal_threshold = std::vector<double>(dof,threshold);
+
+    int i = 0;
+    for (const std::string &name: search_state->getVariableNames()) {
+      std::cout << "setting up joint " << i << ":" << name << std::endl;
+      joint_names[i] = std::string(name);
+      i++;
+      if (i >= dof) { break; }
+    }
+  }
+
+  /* configure number of basis functions */
+  void GridPlanner::SetNumBasisFunctions(const unsigned int num_) {
+    num_basis = num_;
+  }
+
+  void GridPlanner::SetK(const double k_gain_) {
+    k_gain = k_gain_;
+  }
+
+  void GridPlanner::SetD(const double d_gain_) {
+    d_gain = d_gain_;
+  }
+
+  void GridPlanner::SetTau(const double tau_) {
+    tau = tau_;
+  }
+
+  void GridPlanner::SetGoalThreshold(const double threshold_) {
+    threshold = threshold_;
+    goal_threshold = std::vector<double>(dof,threshold);
+  }
+
+  void GridPlanner::SetVerbose(const bool verbose_) {
+    verbose = verbose_;
+  }
+
+
+  /* Are we allowed to collide? */
+  void GridPlanner::SetCollisions(const std::string obj, bool allowed) {
+    //std::vector<std::string> tmp;
+    //scene->getAllowedCollisionMatrixNonConst().getAllEntryNames(tmp);
+    //for (std::string &entry: tmp) {
+    //  std::cout << entry << "\n";
+    //}
+    scene->getAllowedCollisionMatrixNonConst().setEntry(obj,allowed);
+    //scene->getAllowedCollisionMatrixNonConst().setDefaultEntry(obj,allowed);
+    //scene->getAllowedCollisionMatrixNonConst().print(std::cout);
+  }
+
+  /* Robot object default entry */
+  void GridPlanner::SetDefaultCollisions(const std::string link, bool ignore) {
+    scene->getAllowedCollisionMatrixNonConst().setDefaultEntry(link, ignore);
+  }
+
+  /* try a single trajectory and see if it works. */
+  bool GridPlanner::TryTrajectory(const std::vector <std::vector<double> > &traj) {
+    boost::mutex::scoped_lock lock(*ps_mutex);
+    scene->getCurrentStateNonConst().update(); 
+
+    bool colliding, bounds_satisfied;
+
+    collision_detection::CollisionRobotConstPtr robot1 = scene->getCollisionRobot();
+    std::string name = robot1->getRobotModel()->getName();
+
+    state->update();
+
+    bool drop_trajectory = false;
+    for (const std::vector<double> &positions: traj) {
+      if (verbose) {
+        std::cout << "pt: ";
+        for (double q: positions) {
+          std::cout << q << " ";
+        }
+      }
+
+      search_state->setVariablePositions(joint_names,positions);
+      search_state->update(true);
+
+      drop_trajectory |= !scene->isStateValid(*search_state,"",verbose);
+
+      if (verbose) {
+        std::cout << " = dropped? " << drop_trajectory << std::endl;
+      }
+
+
+      if (drop_trajectory) {
+        break;
+      }
+    }
+
+    return !drop_trajectory;
+  }
+
+  /*
+   * try a single trajectory and see if it works.
+   * this is the joint trajectory version (so we can use a consistent message type)
+   * */
+  bool GridPlanner::TryTrajectory(const Traj_t &traj, unsigned int step) {
+    boost::mutex::scoped_lock lock(*ps_mutex);
+    scene->getCurrentStateNonConst().update(); 
+
+    bool colliding, bounds_satisfied;
+
+    collision_detection::CollisionRobotConstPtr robot1 = scene->getCollisionRobot();
+    std::string name = robot1->getRobotModel()->getName();
+
+    state->update();
+
+    bool drop_trajectory = false;
+    //for (const auto &pt: traj.points) {
+    //for (const auto pt = traj.points.begin(); pt < traj.points.end(); pt += step) {
+    for (unsigned int i = 0; i < traj.points.size(); i += step) {
+      const auto &pt = traj.points.at(i);
+      if (verbose) {
+        std::cout << "pt: ";
+        for (double q: pt.positions) {
+          std::cout << q << " ";
+        }
+      }
+
+      int check_result = cm.check(pt.positions);
+      if (check_result > -1) {
+
+        drop_trajectory |= (check_result == 1);
+
+      } else {
+
+        search_state->setVariablePositions(joint_names,pt.positions);
+        search_state->update(true);
+
+
+        drop_trajectory |= !scene->isStateValid(*search_state,"",verbose);
+
+      }
+      if (verbose) {
+        std::cout << " = dropped? " << drop_trajectory << std::endl;
+      }
+
+
+      if (drop_trajectory) {
+        break;
+      }
+    }
+
+    return !drop_trajectory;
+  }
+
+
+  /* reset all entries in the collision map */
+  void GridPlanner::ResetCollisionMap() {
+    cm.reset();
+  }
+
+
+#ifdef GEN_PYTHON_BINDINGS
+  /* get current joint positions */
+  boost::python::list GridPlanner::GetJointPositions() const {
+    boost::python::list res;
+    for (double x: x0) {
+      res.append<double>(x);
+    }
+    return res;
+  }
+
   /* try a set of motion primitives; see if they work.
    * this is aimed at the python version of the code. */
   boost::python::list GridPlanner::pyTryPrimitives(const boost::python::list &list) {
@@ -333,74 +504,6 @@ namespace grid {
     return res;
     }
 
-    /* update planning scene topic */
-    void  GridPlanner::SetPlanningSceneTopic(const std::string &topic) {
-      //monitor->startSceneMonitor(topic);
-      ROS_WARN("\"GridPlanner::SetPlanningSceneTopic\" not currently implemented!");
-    }
-
-    /* configure degrees of freedom */
-    void GridPlanner::SetDof(const unsigned int dof_) {
-      dof = dof_;
-      joint_names.resize(dof);
-      goal.resize(dof);
-      x0.resize(dof);
-      x0_dot.resize(dof);
-      goal_threshold = std::vector<double>(dof,threshold);
-
-      int i = 0;
-      for (const std::string &name: search_state->getVariableNames()) {
-        std::cout << "setting up joint " << i << ":" << name << std::endl;
-        joint_names[i] = std::string(name);
-        i++;
-        if (i >= dof) { break; }
-      }
-    }
-
-    /* configure number of basis functions */
-    void GridPlanner::SetNumBasisFunctions(const unsigned int num_) {
-      num_basis = num_;
-    }
-
-    void GridPlanner::SetK(const double k_gain_) {
-      k_gain = k_gain_;
-    }
-
-    void GridPlanner::SetD(const double d_gain_) {
-      d_gain = d_gain_;
-    }
-
-    void GridPlanner::SetTau(const double tau_) {
-      tau = tau_;
-    }
-
-    void GridPlanner::SetGoalThreshold(const double threshold_) {
-      threshold = threshold_;
-      goal_threshold = std::vector<double>(dof,threshold);
-    }
-
-    void GridPlanner::SetVerbose(const bool verbose_) {
-      verbose = verbose_;
-    }
-
-
-    /* Are we allowed to collide? */
-    void GridPlanner::SetCollisions(const std::string obj, bool allowed) {
-      //std::vector<std::string> tmp;
-      //scene->getAllowedCollisionMatrixNonConst().getAllEntryNames(tmp);
-      //for (std::string &entry: tmp) {
-      //  std::cout << entry << "\n";
-      //}
-      scene->getAllowedCollisionMatrixNonConst().setEntry(obj,allowed);
-      //scene->getAllowedCollisionMatrixNonConst().setDefaultEntry(obj,allowed);
-      //scene->getAllowedCollisionMatrixNonConst().print(std::cout);
-    }
-
-    /* Robot object default entry */
-    void GridPlanner::SetDefaultCollisions(const std::string link, bool ignore) {
-      scene->getAllowedCollisionMatrixNonConst().setDefaultEntry(link, ignore);
-    }
-
     /* try a single trajectory and see if it works.
      * this is aimed at the python version of the code. */
     bool GridPlanner::pyTryTrajectory(const boost::python::list &trajectory) {
@@ -413,107 +516,12 @@ namespace grid {
 
       return TryTrajectory(traj);
     }
-
-    /* try a single trajectory and see if it works. */
-    bool GridPlanner::TryTrajectory(const std::vector <std::vector<double> > &traj) {
-      boost::mutex::scoped_lock lock(*ps_mutex);
-      scene->getCurrentStateNonConst().update(); 
-
-      bool colliding, bounds_satisfied;
-
-      collision_detection::CollisionRobotConstPtr robot1 = scene->getCollisionRobot();
-      std::string name = robot1->getRobotModel()->getName();
-
-      state->update();
-
-      bool drop_trajectory = false;
-      for (const std::vector<double> &positions: traj) {
-        if (verbose) {
-          std::cout << "pt: ";
-          for (double q: positions) {
-            std::cout << q << " ";
-          }
-        }
-
-        search_state->setVariablePositions(joint_names,positions);
-        search_state->update(true);
-
-        drop_trajectory |= !scene->isStateValid(*search_state,"",verbose);
-
-        if (verbose) {
-          std::cout << " = dropped? " << drop_trajectory << std::endl;
-        }
+#endif
 
 
-        if (drop_trajectory) {
-          break;
-        }
-      }
-
-      return !drop_trajectory;
-    }
-
-    /*
-     * try a single trajectory and see if it works.
-     * this is the joint trajectory version (so we can use a consistent message type)
-     * */
-    bool GridPlanner::TryTrajectory(const Traj_t &traj, unsigned int step) {
-      boost::mutex::scoped_lock lock(*ps_mutex);
-      scene->getCurrentStateNonConst().update(); 
-
-      bool colliding, bounds_satisfied;
-
-      collision_detection::CollisionRobotConstPtr robot1 = scene->getCollisionRobot();
-      std::string name = robot1->getRobotModel()->getName();
-
-      state->update();
-
-      bool drop_trajectory = false;
-      //for (const auto &pt: traj.points) {
-      //for (const auto pt = traj.points.begin(); pt < traj.points.end(); pt += step) {
-      for (unsigned int i = 0; i < traj.points.size(); i += step) {
-        const auto &pt = traj.points.at(i);
-        if (verbose) {
-          std::cout << "pt: ";
-          for (double q: pt.positions) {
-            std::cout << q << " ";
-          }
-        }
-
-        int check_result = cm.check(pt.positions);
-        if (check_result > -1) {
-
-          drop_trajectory |= (check_result == 1);
-
-        } else {
-
-          search_state->setVariablePositions(joint_names,pt.positions);
-          search_state->update(true);
-
-
-          drop_trajectory |= !scene->isStateValid(*search_state,"",verbose);
-
-        }
-        if (verbose) {
-          std::cout << " = dropped? " << drop_trajectory << std::endl;
-        }
-
-
-        if (drop_trajectory) {
-          break;
-        }
-      }
-
-      return !drop_trajectory;
-    }
-
-
-    /* reset all entries in the collision map */
-    void GridPlanner::ResetCollisionMap() {
-      cm.reset();
-    }
   }
 
+#ifdef GEN_PYTHON_BINDINGS
   BOOST_PYTHON_MODULE(pygrid_planner) {
     class_<grid::GridPlanner>("GridPlanner",init<std::string,std::string,std::string,double>())
       .def("Plan", &grid::GridPlanner::Plan)
@@ -532,3 +540,4 @@ namespace grid {
       .def("GetJointPositions", &grid::GridPlanner::GetJointPositions)
       .def("SetCollisions", &grid::GridPlanner::SetCollisions);
   }
+#endif
