@@ -48,7 +48,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Add actions and messages
 add_action_files(DIRECTORY action FILES Command.action)
 add_message_files(DIRECTORY msg FILES Statistics.msg ActionConfig.msg ActionConfigSequence.msg ObjectConfig.msg)
-add_service_files(DIRECTORY srv FILES TaskPlanRequest.srv)
+add_service_files(DIRECTORY srv FILES TaskPlanRequest.srv ConfigureObjects.srv)
 generate_messages(DEPENDENCIES std_msgs trajectory_msgs geometry_msgs actionlib_msgs)
 
 ################################################
