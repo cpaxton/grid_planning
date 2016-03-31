@@ -101,7 +101,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
+  INCLUDE_DIRS include
 #  LIBRARIES grid_server
   CATKIN_DEPENDS grid_plan grid_plan_msgs
 #  DEPENDS system_lib
@@ -115,6 +115,7 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -129,7 +130,7 @@ include_directories(
 # add_dependencies(grid_server ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-add_executable(grid_server_node src/grid_server_node.cpp)
+add_executable(grid_server_node src/grid_server_node.cpp src/server_params.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
