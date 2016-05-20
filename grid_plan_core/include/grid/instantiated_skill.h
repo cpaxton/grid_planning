@@ -12,7 +12,7 @@
 
 
 #include <actionlib/client/simple_action_client.h>
-#include <grid_plan/CommandAction.h>
+#include <grid_plan_msgs/CommandAction.h>
 
 #include <random>
 

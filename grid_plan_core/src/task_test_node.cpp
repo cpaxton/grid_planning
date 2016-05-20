@@ -23,7 +23,7 @@
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/terminal_state.h>
 
-#include <grid_plan/CommandAction.h>
+#include <grid_plan_msgs/CommandAction.h>
 
 using namespace grid;
 
