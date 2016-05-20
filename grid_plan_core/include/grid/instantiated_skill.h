@@ -218,7 +218,7 @@ namespace grid {
      * use gripper tool to send messages
      */
     bool execute(GridPlanner &gp,
-                 actionlib::SimpleActionClient<grid_plan::CommandAction> &ac,
+                 actionlib::SimpleActionClient<grid_plan_msgs::CommandAction> &ac,
                  int horizon,
                  bool replan = false,
                  int replan_depth = 0);
