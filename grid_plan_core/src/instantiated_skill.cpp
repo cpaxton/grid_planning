@@ -3,6 +3,7 @@
 //#include <grid/utils/params.hpp>
 
 using namespace grid_plan;
+using namespace grid_plan_msgs;
 using trajectory_msgs::JointTrajectory;
 using trajectory_msgs::JointTrajectoryPoint;
 
