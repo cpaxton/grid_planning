@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
   ros::init(argc,argv,"task_model_test_node");
   ros::NodeHandle nh;
 
-  actionlib::SimpleActionClient<grid_plan::CommandAction> ac("command", true);
+  actionlib::SimpleActionClient<grid_plan_msgs::CommandAction> ac("command", true);
 
   Params p = readRosParams();
   RobotKinematicsPtr robot = RobotKinematicsPtr(new RobotKinematics("robot_description","wam/base_link","wam/wrist_palm_link"));

@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
   ros::init(argc,argv,"task_model_test_node");
   ros::NodeHandle nh;
 
-  actionlib::SimpleActionClient<grid_plan::CommandAction> ac("command", true);
+  actionlib::SimpleActionClient<grid_plan_msgs::CommandAction> ac("command", true);
 
   Params p = readRosParams();
   std::string ee("ee_fixed_link");
