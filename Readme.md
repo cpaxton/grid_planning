@@ -2,7 +2,18 @@
 
 Chris Paxton
 
-This is the GRID-PLAN project (Grounded Robot Instruction from Demonstrations-Planning). The package has code for learning and planning based on human user demonstrations.
+This is the GRID-PLAN project (Grounded Robot Instruction from Demonstrations-Planning). The package has code for learning and planning based on human user demonstrations. Unfortunately it's prototype code and a little slow, but maybe it will be helpful for you. If you find this work interesting, please check out the paper and cite as:
+
+```
+@inproceedings{paxton2016want,
+  title={Do what I want, not what I did: Imitation of skills by planning sequences of actions},
+  author={Paxton, Chris and Jonathan, Felix and Kobilarov, Marin and Hager, Gregory D},
+  booktitle={Intelligent Robots and Systems (IROS), 2016 IEEE/RSJ International Conference on},
+  pages={3778--3785},
+  year={2016},
+  organization={IEEE}
+}
+```
 
 Initially this project relies on segmented and labeled human demonstrations.
 
